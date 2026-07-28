@@ -329,7 +329,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 child: ColoredBox(
                   color: Colors.black,
                   child: FittedBox(
-                    fit: BoxFit.cover,
+                    fit: BoxFit.contain,
                     child: SizedBox(
                       width: _videoController.value.size.width,
                       height: _videoController.value.size.height,

@@ -15,6 +15,7 @@ class PrayerNotificationService {
   final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
   bool _initialized = false;
+  bool _canScheduleExactNotifications = false;
 
   Future<void> initialize() async {
     if (_initialized) return;
@@ -61,7 +62,10 @@ class PrayerNotificationService {
       );
 
       await androidImpl.requestNotificationsPermission();
-      await androidImpl.requestExactAlarmsPermission();
+      _canScheduleExactNotifications =
+          await androidImpl.canScheduleExactNotifications() ?? false;
+    } else {
+      _canScheduleExactNotifications = true;
     }
 
     _initialized = true;
@@ -154,7 +158,9 @@ class PrayerNotificationService {
           interruptionLevel: InterruptionLevel.timeSensitive,
         ),
       ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: _canScheduleExactNotifications
+          ? AndroidScheduleMode.exactAllowWhileIdle
+          : AndroidScheduleMode.inexactAllowWhileIdle,
       payload: 'prayer:$prayerName:${scheduledTime.millisecondsSinceEpoch}',
     );
   }

@@ -70,11 +70,6 @@ class CheckInReminderNotificationService {
         // طلب صلاحية الإشعارات الدقيقة (Exact Alarms)
         // على Android 12 (API 31) وما فوق
         try {
-          if (await Permission.scheduleExactAlarm.isDenied) {
-            // print('⚠️ Requesting exact alarm permission...');
-            await Permission.scheduleExactAlarm.request();
-          }
-
           final alarmStatus = await Permission.scheduleExactAlarm.status;
           _exactAlarmGranted = alarmStatus.isGranted;
           // print('⏰ Exact alarm permission: $_exactAlarmGranted');
