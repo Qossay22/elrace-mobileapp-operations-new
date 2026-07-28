@@ -133,7 +133,7 @@ function Escape-Pipe([string]$value) {
   return $value.Replace("|", "\|").Replace("`r", " ").Replace("`n", " ")
 }
 
-$files = Get-ChildItem -Path $root -Recurse -File -Force |
+$files = Get-ChildItem -Path $root -Recurse -File -Force -ErrorAction SilentlyContinue |
   Where-Object {
     $relative = Get-RelativeProjectPath $_.FullName
     $parts = $relative -split '[\\/]'

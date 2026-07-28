@@ -2,30 +2,30 @@
 
 Quick reference for the project files: path, size, category, and a short responsibility note.
 
-- Generated at: 2026-07-22 16:31:03 +04:00
+- Generated at: 2026-07-28 13:36:10 +04:00
 - Root: C:\Users\Qossay\Desktop\project\Elrace-mobileapp-operations-qossay_update
-- Indexed files: 2233
-- Indexed total size: 130.46 MB
+- Indexed files: 2267
+- Indexed total size: 135.69 MB
 - Skipped generated/heavy folders: .git, .dart_tool, .idea, .vscode, build, dist, coverage, node_modules, Pods, .gradle, DerivedData
 
 > Note: descriptions are inferred from file path, name, and extension. Regenerate after major updates with: powershell -ExecutionPolicy Bypass -File .\scripts\generate_project_file_index.ps1
 
 ## Quick Map
 
-- **Android native project**: 33 files, 640.47 KB
-- **App assets**: 515 files, 115.41 MB
+- **Android native project**: 33 files, 640.44 KB
+- **App assets**: 527 files, 120.02 MB
 - **Architecture/documentation notes**: 4 files, 78.06 KB
-- **Automated tests**: 9 files, 32.96 KB
+- **Automated tests**: 8 files, 33.33 KB
 - **Code generation templates**: 35 files, 31.22 KB
 - **Configuration examples**: 2 files, 1.10 KB
-- **Developer/automation scripts**: 5 files, 14.72 KB
-- **Face liveness backend functions**: 3 files, 131.16 KB
-- **Firebase Cloud Functions**: 3 files, 135.69 KB
-- **Flutter app code**: 1247 files, 9.67 MB
+- **Developer/automation scripts**: 5 files, 14.81 KB
+- **Face liveness backend functions**: 3 files, 134.70 KB
+- **Firebase Cloud Functions**: 3 files, 139.02 KB
+- **Flutter app code**: 1263 files, 10.23 MB
 - **iOS native project**: 69 files, 2.23 MB
 - **Local package/plugin**: 240 files, 523.33 KB
-- **Project documentation**: 53 files, 1.08 MB
-- **Project root/configuration**: 15 files, 528.51 KB
+- **Project documentation**: 54 files, 1.08 MB
+- **Project root/configuration**: 21 files, 582.84 KB
 
 ## Files
 
@@ -35,7 +35,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | .flutter-plugins-dependencies | 59.10 KB | Project root/configuration | Project file; use its path and extension to locate its role. |
 | .gitignore | 1.04 KB | Project root/configuration | Project file; use its path and extension to locate its role. |
 | analysis_options.yaml | 1.60 KB | Project root/configuration | Dart analyzer and lint configuration. |
-| android/.gitignore | 285 B | Android native project | Project file; use its path and extension to locate its role. |
+| android/.gitignore | 259 B | Android native project | Project file; use its path and extension to locate its role. |
 | android/app/build.gradle | 5.77 KB | Android native project | Gradle build configuration for Android. |
 | android/app/google-services.json | 1.17 KB | Android native project | JSON data or configuration file. |
 | android/app/proguard-rules.pro | 3.62 KB | Android native project | Project file; use its path and extension to locate its role. |
@@ -68,6 +68,8 @@ Quick reference for the project files: path, size, category, and a short respons
 | android/key.properties.example | 473 B | Android native project | Project file; use its path and extension to locate its role. |
 | android/local.properties | 168 B | Android native project | Project file; use its path and extension to locate its role. |
 | android/settings.gradle | 797 B | Android native project | Gradle build configuration for Android. |
+| ASSET_USAGE_REPORT.md | 3.18 KB | Project root/configuration | Markdown documentation file. |
+| AssetManifest.json | 119 B | Project root/configuration | JSON data or configuration file. |
 | assets/antispoof/_tf_MiniFASNetV1SE/fingerprint.pb | 96 B | App assets | Face anti-spoofing or liveness model/support file. |
 | assets/antispoof/_tf_MiniFASNetV1SE/MiniFASNetV1SE_float16.tflite | 915.44 KB | App assets | Face anti-spoofing or liveness model/support file. |
 | assets/antispoof/_tf_MiniFASNetV1SE/saved_model.pb | 2.01 MB | App assets | Face anti-spoofing or liveness model/support file. |
@@ -98,7 +100,18 @@ Quick reference for the project files: path, size, category, and a short respons
 | assets/i18n/ar.json | 23.70 KB | App assets | Translation and UI text resource file. |
 | assets/i18n/en.json | 18.60 KB | App assets | Translation and UI text resource file. |
 | assets/images/business_card/back_template.jpeg | 661.31 KB | App assets | Image or icon asset used by the app UI. |
+| assets/images/business_card/bc_card_shell.jpg | 348.59 KB | App assets | Image or icon asset used by the app UI. |
+| assets/images/business_card/bc_card_shell.png | 298.35 KB | App assets | Image or icon asset used by the app UI. |
+| assets/images/business_card/bc_contact_icons.jpg | 114.88 KB | App assets | Image or icon asset used by the app UI. |
+| assets/images/business_card/bc_left_accent.jpg | 156.90 KB | App assets | Image or icon asset used by the app UI. |
+| assets/images/business_card/bc_left_accent.png | 159.21 KB | App assets | Image or icon asset used by the app UI. |
+| assets/images/business_card/bc_logo.jpg | 291.84 KB | App assets | Image or icon asset used by the app UI. |
+| assets/images/business_card/bc_logo.png | 287.38 KB | App assets | Image or icon asset used by the app UI. |
 | assets/images/business_card/bc_pattern.png | 9.96 KB | App assets | Image or icon asset used by the app UI. |
+| assets/images/business_card/bc_skyline.jpg | 1.09 MB | App assets | Image or icon asset used by the app UI. |
+| assets/images/business_card/bc_skyline.png | 1.55 MB | App assets | Image or icon asset used by the app UI. |
+| assets/images/business_card/bc_soft_panel.jpg | 48.24 KB | App assets | Image or icon asset used by the app UI. |
+| assets/images/business_card/bc_soft_panel.png | 25.46 KB | App assets | Image or icon asset used by the app UI. |
 | assets/images/business_card/company_logo.png | 25.79 KB | App assets | Image or icon asset used by the app UI. |
 | assets/images/business_card/front_template.jpeg | 647.61 KB | App assets | Image or icon asset used by the app UI. |
 | assets/images/business_card/line.png | 372 B | App assets | Image or icon asset used by the app UI. |
@@ -182,26 +195,26 @@ Quick reference for the project files: path, size, category, and a short respons
 | assets/newapp/my_document_background_widget.png | 44.33 KB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/my_document_widet_background_new.png | 1.38 MB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/my_projects.png | 2.88 KB | App assets | Image or icon asset used by the app UI. |
-| assets/newapp/my_projects.svg | 5.89 KB | App assets | Image or icon asset used by the app UI. |
+| assets/newapp/my_projects.svg | 5.90 KB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/my_report_widget_background.png | 110.29 KB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/newicon/360 degrees.png | 964 B | App assets | Image or icon asset used by the app UI. |
-| assets/newapp/newicon/asr_new.svg | 1.19 KB | App assets | Image or icon asset used by the app UI. |
+| assets/newapp/newicon/asr_new.svg | 1.20 KB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/newicon/Cash.png | 1.42 KB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/newicon/change_document_icon.png | 269 B | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/newicon/chat-round-line_svgrepo.com.png | 580 B | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/newicon/document_Expired.png | 1.01 KB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/newicon/document_requested.png | 794 B | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/newicon/document_total.com.png | 567 B | App assets | Image or icon asset used by the app UI. |
-| assets/newapp/newicon/duhur.svg | 1.44 KB | App assets | Image or icon asset used by the app UI. |
+| assets/newapp/newicon/duhur.svg | 1.45 KB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/newicon/fajar_new.png | 326 B | App assets | Image or icon asset used by the app UI. |
-| assets/newapp/newicon/fajar_new.svg | 1.63 KB | App assets | Image or icon asset used by the app UI. |
+| assets/newapp/newicon/fajar_new.svg | 1.64 KB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/newicon/for_company document.png | 399 B | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/newicon/for_shared_document.png | 528 B | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/newicon/hr.png | 1.28 KB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/newicon/hr_header.png | 1.94 KB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/newicon/Invoice.png | 1.29 KB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/newicon/invoice_header.png | 1.79 KB | App assets | Image or icon asset used by the app UI. |
-| assets/newapp/newicon/maghrib.svg | 1.62 KB | App assets | Image or icon asset used by the app UI. |
+| assets/newapp/newicon/maghrib.svg | 1.63 KB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/newicon/media_share_icon.png | 1.27 KB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/newicon/mute_notification.png | 537 B | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/newicon/my Document (1).png | 80.23 KB | App assets | Image or icon asset used by the app UI. |
@@ -216,7 +229,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | assets/newapp/pencil_7754138 1 (1).png | 626 B | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/person.jpg | 35.62 KB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/petty_cach_widget_background.png | 1.80 MB | App assets | Image or icon asset used by the app UI. |
-| assets/newapp/petty_cash.svg | 8.55 KB | App assets | Image or icon asset used by the app UI. |
+| assets/newapp/petty_cash.svg | 8.56 KB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/petty_cash_background.png | 142.40 KB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/photo_report_icon.png | 530 B | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/png-logo-85.png | 6.58 KB | App assets | Image or icon asset used by the app UI. |
@@ -271,6 +284,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | assets/png/Baby_girl.png | 13.47 KB | App assets | Image or icon asset used by the app UI. |
 | assets/png/back_icon.png | 1.21 KB | App assets | Image or icon asset used by the app UI. |
 | assets/png/background.png | 33.32 KB | App assets | Image or icon asset used by the app UI. |
+| assets/png/background-BC.png | 281.44 KB | App assets | Image or icon asset used by the app UI. |
 | assets/png/balance_bg.png | 13.25 KB | App assets | Image or icon asset used by the app UI. |
 | assets/png/balance_icon.png | 628 B | App assets | Image or icon asset used by the app UI. |
 | assets/png/bell_image.png | 501 B | App assets | Image or icon asset used by the app UI. |
@@ -583,6 +597,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | assets/svg/petty-cash-icon.svg | 5.27 KB | App assets | Image or icon asset used by the app UI. |
 | assets/svg/report-details-add-icon.svg | 1.28 KB | App assets | Image or icon asset used by the app UI. |
 | assets/svg/rfq-icon.svg | 5.60 KB | App assets | Image or icon asset used by the app UI. |
+| CLAUDE.md | 10.98 KB | Project root/configuration | Markdown documentation file. |
 | config/amplify/amplifyconfiguration.json.example | 689 B | Configuration examples | Project file; use its path and extension to locate its role. |
 | config/amplify/awsconfiguration.json.example | 434 B | Configuration examples | Project file; use its path and extension to locate its role. |
 | devtools_options.yaml | 184 B | Project root/configuration | YAML configuration file. |
@@ -592,7 +607,8 @@ Quick reference for the project files: path, size, category, and a short respons
 | doc/AWS_FACE_LIVENESS_SETUP.md | 2.26 KB | Project documentation | Feature documentation, requirements, plan, or task notes. |
 | doc/backend/attendance_records_api.py | 8.42 KB | Project documentation | Python automation script or API example. |
 | doc/backend/hrms_attendance_widget_api.md | 2.34 KB | Project documentation | Feature documentation, requirements, plan, or task notes. |
-| doc/backend/purchase_api.py | 33.92 KB | Project documentation | Python automation script or API example. |
+| doc/backend/purchase_api.py | 36.18 KB | Project documentation | Python automation script or API example. |
+| doc/backend/stamp_my_stamps_api.md | 460 B | Project documentation | Feature documentation, requirements, plan, or task notes. |
 | doc/backend/timesheet_site_api.py | 6.22 KB | Project documentation | Python automation script or API example. |
 | doc/build_antispoof_mobile.js | 21.51 KB | Project documentation | JavaScript code or Node.js configuration. |
 | doc/build_antispoof_mobile.md | 24.08 KB | Project documentation | Feature documentation, requirements, plan, or task notes. |
@@ -644,14 +660,17 @@ Quick reference for the project files: path, size, category, and a short respons
 | docs/catch_audit_baseline.txt | 9.03 KB | Architecture/documentation notes | Text notes or audit output. |
 | docs/STATE_MANAGEMENT_MIGRATION_STATUS.md | 55.07 KB | Architecture/documentation notes | Markdown documentation file. |
 | firebase.json | 705 B | Project root/configuration | Firebase project configuration. |
-| firestore.rules | 2.92 KB | Project root/configuration | Firestore security rules. |
+| firebase-debug.log | 16.34 KB | Project root/configuration | Project file; use its path and extension to locate its role. |
+| firestore.rules | 3.80 KB | Project root/configuration | Firestore security rules. |
+| firestore-debug.log | 692 B | Project root/configuration | Project file; use its path and extension to locate its role. |
+| flutter_01.log | 5.20 KB | Project root/configuration | Project file; use its path and extension to locate its role. |
 | flutter_01.png | 0 B | Project root/configuration | PNG image asset. |
 | functions/index.js | 11.87 KB | Firebase Cloud Functions | Firebase Cloud Functions JavaScript backend code. |
-| functions/package.json | 567 B | Firebase Cloud Functions | JSON data or configuration file. |
-| functions/package-lock.json | 123.27 KB | Firebase Cloud Functions | JSON data or configuration file. |
-| functions-liveness/index.js | 4.08 KB | Face liveness backend functions | Backend function code for face liveness flows. |
-| functions-liveness/package.json | 350 B | Face liveness backend functions | JSON data or configuration file. |
-| functions-liveness/package-lock.json | 126.74 KB | Face liveness backend functions | JSON data or configuration file. |
+| functions/package.json | 588 B | Firebase Cloud Functions | JSON data or configuration file. |
+| functions/package-lock.json | 126.58 KB | Firebase Cloud Functions | JSON data or configuration file. |
+| functions-liveness/index.js | 4.23 KB | Face liveness backend functions | Backend function code for face liveness flows. |
+| functions-liveness/package.json | 364 B | Face liveness backend functions | JSON data or configuration file. |
+| functions-liveness/package-lock.json | 130.12 KB | Face liveness backend functions | JSON data or configuration file. |
 | ios/.gitignore | 569 B | iOS native project | Project file; use its path and extension to locate its role. |
 | ios/Flutter/AppFrameworkInfo.plist | 720 B | iOS native project | iOS app settings, metadata, and permissions. |
 | ios/Flutter/Debug.xcconfig | 243 B | iOS native project | Project file; use its path and extension to locate its role. |
@@ -661,8 +680,8 @@ Quick reference for the project files: path, size, category, and a short respons
 | ios/Flutter/ephemeral/Packages/.packages/FlutterFramework/Sources/FlutterFramework/FlutterFramework.swift | 39 B | iOS native project | Native iOS Swift code. |
 | ios/Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage/Package.swift | 597 B | iOS native project | Native iOS Swift code. |
 | ios/Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage/Sources/FlutterGeneratedPluginSwiftPackage/FlutterGeneratedPluginSwiftPackage.swift | 39 B | iOS native project | Native iOS Swift code. |
-| ios/Flutter/flutter_export_environment.sh | 580 B | iOS native project | Project file; use its path and extension to locate its role. |
-| ios/Flutter/Generated.xcconfig | 550 B | iOS native project | Project file; use its path and extension to locate its role. |
+| ios/Flutter/flutter_export_environment.sh | 572 B | iOS native project | Project file; use its path and extension to locate its role. |
+| ios/Flutter/Generated.xcconfig | 542 B | iOS native project | Project file; use its path and extension to locate its role. |
 | ios/Flutter/Profile.xcconfig | 369 B | iOS native project | Project file; use its path and extension to locate its role. |
 | ios/Flutter/Release.xcconfig | 657 B | iOS native project | Project file; use its path and extension to locate its role. |
 | ios/patches/apply_camera_avfoundation_patch.rb | 5.00 KB | iOS native project | Project file; use its path and extension to locate its role. |
@@ -720,46 +739,44 @@ Quick reference for the project files: path, size, category, and a short respons
 | ios/Runner/Runner-Bridging-Header.h | 38 B | iOS native project | Objective-C/C header for iOS integration. |
 | ios/Runner/RunnerDebug.entitlements | 398 B | iOS native project | Project file; use its path and extension to locate its role. |
 | ios/RunnerTests/RunnerTests.swift | 285 B | iOS native project | Native iOS Swift code. |
-| ios/scripts/resign_embedded_frameworks.sh | 641 B | iOS native project | Project file; use its path and extension to locate its role. |
+| ios/scripts/resign_embedded_frameworks.sh | 660 B | iOS native project | Project file; use its path and extension to locate its role. |
 | lib/auth/uaepass_auth_cubit.dart | 3.90 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/auth/uaepass_auth_state.dart | 769 B | Flutter app code | BLoC/Cubit state definitions. |
 | lib/chat/chat.dart | 1.62 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/chat/chat_module_helper.dart | 13.52 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/chat/chat_module_helper.dart | 14.13 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/chat/examples/integration_guide.dart | 15.41 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/chat/models/chat.dart | 6.23 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/chat/models/chat_member.dart | 1.96 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/chat/models/chat_user.dart | 6.83 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/chat/models/chat_user_session.dart | 11.33 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/chat/models/chat_member.dart | 2.22 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/chat/models/chat_user.dart | 7.62 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/chat/models/chat_user_session.dart | 12.22 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/chat/models/firebase_refresh_token_response.dart | 2.81 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/chat/models/message.dart | 9.96 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/chat/models/message.dart | 13.14 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/chat/models/models.dart | 229 B | Flutter app code | Data model and JSON/DTO mapping. |
-| lib/chat/models/user_chat.dart | 4.04 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/chat/repositories/chat_repository.dart | 66.11 KB | Flutter app code | Repository layer for reading/writing data. |
+| lib/chat/models/user_chat.dart | 4.35 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/chat/repositories/chat_repository.dart | 78.85 KB | Flutter app code | Repository layer for reading/writing data. |
 | lib/chat/repositories/repositories.dart | 97 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/chat/repositories/user_repository.dart | 17.27 KB | Flutter app code | Repository layer for reading/writing data. |
+| lib/chat/repositories/user_repository.dart | 27.51 KB | Flutter app code | Repository layer for reading/writing data. |
 | lib/chat/services/chat_credential_storage.dart | 3.01 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/chat/services/chat_lifecycle_observer.dart | 3.91 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/chat/services/chat_notification_service.dart | 8.64 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/chat/services/chat_session_storage.dart | 4.67 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/chat/services/firebase_chat_auth_service.dart | 28.88 KB | Flutter app code | Service helper for business logic or integration. |
-| lib/chat/services/firebase_token_api_service.dart | 5.04 KB | Flutter app code | Service helper for business logic or integration. |
-| lib/chat/services/presence_service.dart | 8.77 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/chat/services/firebase_chat_auth_service.dart | 31.40 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/chat/services/firebase_token_api_service.dart | 5.19 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/chat/services/presence_service.dart | 9.54 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/chat/services/services.dart | 301 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/chat/services/voice_recorder_service.dart | 6.35 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/config/uaepass_config.dart | 9.04 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/app_globals.dart | 918 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/biometric/device_auth_service.dart | 3.29 KB | Flutter app code | Service helper for business logic or integration. |
-| lib/core/biometric/unified_biometric_helper.dart | 2.86 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/core/biometric/device_auth_service.dart | 3.34 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/core/biometric/unified_biometric_helper.dart | 2.83 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/core/clients_vendors/clients_vendors_route_names.dart | 1.01 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/config/feature_flags.dart | 1.30 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/constants/app_images.dart | 391 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/constants/colors.dart | 366 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/constants/hive_constants.dart | 376 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/constants/text_styles.dart | 890 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/face/face_sdk_service.dart | 0 B | Flutter app code | Service helper for business logic or integration. |
-| lib/core/home/home_widget_visibility.dart | 3.80 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/hr_management/bloc/hr_effective_view_cubit.dart | 863 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/hr_management/bloc/hr_request_list_cubit.dart | 1.44 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/hr_management/bloc/hr_team_requests_cubit.dart | 2.35 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/core/home/home_widget_visibility.dart | 4.67 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/hr_management/hr_effective_view.dart | 2.63 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/hr_management/hr_mock_request_detail.dart | 4.04 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/hr_management/hr_mock_requests.dart | 3.14 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -771,59 +788,39 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/core/hr_management/models/hr_request_summary.dart | 1.82 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/hr_management/models/hr_request_type_option.dart | 827 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/hr_management/network/hr_api_client.dart | 14.41 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/hr_management/network/hr_api_client_factory.dart | 712 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/hr_management/network/hr_api_envelope.dart | 653 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/hr_management/providers/hr_management_providers.dart | 5.91 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/hr_management/routing/hr_route_names.dart | 1.57 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/payslip/bloc/employee_payslip_cubit.dart | 2.40 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/payslip/bloc/payslip_detail_cubit.dart | 2.05 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/payslip/bloc/payslip_employee_filter_cubit.dart | 397 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/payslip/bloc/payslip_list_cubit.dart | 3.11 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/payslip/bloc/pending_payslip_cubit.dart | 1.28 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/core/hr_management/providers/hr_management_providers.dart | 6.51 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/core/hr_management/routing/hr_route_names.dart | 1.75 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/payslip/models/payslip_models.dart | 2.38 KB | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/core/payslip/network/payslip_api_client.dart | 3.64 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/payslip/network/payslip_client_factory.dart | 715 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/payslip/payslip_json_parsers.dart | 2.41 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/payslip/payslip_mock_data.dart | 13.47 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/payslip/payslip_pdf_builder.dart | 7.26 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/payslip/providers/payslip_providers.dart | 740 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/performance/bloc/employee_performance_cubit.dart | 1.82 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/performance/bloc/manager_new_evaluation_cubit.dart | 6.36 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/performance/bloc/performance_evaluation_detail_cubit.dart | 1.96 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/performance/bloc/performance_evaluation_list_cubit.dart | 1.80 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/performance/bloc/performance_planning_cubit.dart | 1.48 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/core/payslip/providers/payslip_providers.dart | 5.97 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/performance/models/performance_employee_option.dart | 405 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/performance/models/performance_evaluation.dart | 3.69 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/performance/network/performance_api_client.dart | 4.63 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/performance/network/performance_client_factory.dart | 735 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/performance/performance_json_parsers.dart | 4.27 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/performance/performance_rating.dart | 484 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/performance/providers/performance_providers.dart | 707 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/purchase/purchase_access.dart | 4.61 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/purchase/purchase_dev_role_provider.dart | 1.75 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/recruitment/bloc/recruitment_assessment_detail_cubit.dart | 1.96 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/recruitment/bloc/recruitment_candidate_detail_cubit.dart | 1.95 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/recruitment/bloc/recruitment_candidates_cubit.dart | 1.66 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/recruitment/bloc/recruitment_dashboard_cubit.dart | 1.32 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/recruitment/bloc/recruitment_offer_detail_cubit.dart | 1.89 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/recruitment/bloc/recruitment_requisitions_cubit.dart | 1.70 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/recruitment/bloc/requisition_detail_cubit.dart | 1.81 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/core/performance/providers/performance_providers.dart | 4.61 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/core/purchase/purchase_access.dart | 4.77 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/core/purchase/purchase_dev_role_provider.dart | 2.30 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/recruitment/models/recruitment_entities.dart | 5.29 KB | Flutter app code | Domain entity definitions. |
 | lib/core/recruitment/models/requisition.dart | 1.20 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/recruitment/network/recruitment_api_client.dart | 10.33 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/recruitment/network/recruitment_client_factory.dart | 751 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/core/recruitment/providers/requisition_providers.dart | 4.70 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/recruitment/recruitment_job_share.dart | 2.71 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/recruitment/recruitment_json_parsers.dart | 7.50 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/recruitment/recruitment_mock_repository.dart | 9.39 KB | Flutter app code | Repository layer for reading/writing data. |
 | lib/core/recruitment/recruitment_mock_requisitions.dart | 4.56 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/recruitment/recruitment_salary_visibility.dart | 814 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/security/device_security_service.dart | 13.04 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/core/security/device_security_service.dart | 14.27 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/core/services/app_config_service.dart | 4.33 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/core/services/approval_count_service.dart | 3.33 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/core/services/approval_viewed_service.dart | 5.17 KB | Flutter app code | Service helper for business logic or integration. |
-| lib/core/services/attendance_status_sync_service.dart | 7.33 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/core/services/attendance_status_sync_service.dart | 7.50 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/core/services/auth_verification_service.dart | 12.19 KB | Flutter app code | Service helper for business logic or integration. |
-| lib/core/services/badge_refresh_service.dart | 2.46 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/core/services/badge_refresh_service.dart | 2.52 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/core/services/biometric_auth_example.dart | 10.97 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/services/biometric_auth_service.dart | 10.21 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/core/services/device_id_service.dart | 0 B | Flutter app code | Service helper for business logic or integration. |
@@ -867,14 +864,15 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/core/site_management/face_recognition/domain/face_matcher.dart | 3.13 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/site_management/face_recognition/domain/face_preprocessor.dart | 6.58 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/site_management/face_recognition/face_enrollment_service.dart | 1.86 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/core/site_management/face_recognition/face_enrollment_status_provider.dart | 297 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/site_management/face_recognition/face_enrollment_status_service.dart | 3.01 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/core/site_management/face_recognition/face_match_logger.dart | 2.73 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/core/site_management/face_recognition/face_match_provider.dart | 2.48 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/site_management/face_recognition/face_match_session.dart | 1.96 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/site_management/face_recognition/face_match_session_cubit.dart | 1.70 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/site_management/face_recognition/face_pilot_log_store.dart | 3.56 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/site_management/face_recognition/face_recognition_availability.dart | 1.87 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/site_management/face_recognition/face_recognition_config.dart | 2.17 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/site_management/face_recognition/face_recognition_provider.dart | 1.06 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/core/site_management/face_recognition/face_recognition_provider.dart | 1.16 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/site_management/face_recognition/face_recognition_service.dart | 10.54 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/core/site_management/face_recognition/README.md | 529 B | Flutter app code | Markdown documentation file. |
 | lib/core/theme/day_status_colors.dart | 2.60 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -892,7 +890,6 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/core/theme/timesheet_module_shadows.dart | 470 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/theme/timesheet_module_theme.dart | 274 B | Flutter app code | Feature-specific UI theme and styling constants. |
 | lib/core/theme/timesheet_module_typography.dart | 1.71 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/timesheet/bloc/timesheet_entry_mode_cubit.dart | 379 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/timesheet/models/attendance_record.dart | 2.42 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/timesheet/models/project.dart | 3.33 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/timesheet/models/site_photo.dart | 1.32 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -916,14 +913,15 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/core/timesheet/network/timesheet_odoo_mappers.dart | 11.44 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/timesheet/network/timesheet_odoo_transport.dart | 5.69 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/timesheet/providers/timesheet_data_providers.dart | 13.33 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/timesheet/providers/timesheet_enrollment_status_provider.dart | 722 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/core/timesheet/providers/timesheet_enrollment_status_provider.dart | 654 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/core/timesheet/providers/timesheet_entry_mode_provider.dart | 700 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/timesheet/providers/timesheet_hr_scope_provider.dart | 1.69 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/timesheet/providers/timesheet_role_provider.dart | 2.67 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/timesheet/providers/timesheet_session_reset.dart | 1.16 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/timesheet/providers/timesheet_task_attendance_provider.dart | 3.22 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/timesheet/routing/timesheet_route_names.dart | 1.79 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/timesheet/services/capture_queue_service.dart | 9.16 KB | Flutter app code | Service helper for business logic or integration. |
-| lib/core/timesheet/services/face_capture_service.dart | 26.03 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/core/timesheet/services/face_capture_service.dart | 27.55 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/core/timesheet/services/geofence_service.dart | 2.28 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/core/timesheet/services/timesheet_capture_flow_service.dart | 3.20 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/core/timesheet/services/timesheet_capture_session_store.dart | 5.05 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -933,7 +931,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/core/timesheet/services/timesheet_roster_face_matcher.dart | 6.56 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/timesheet/services/tm_face_detection_speech_service.dart | 2.53 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/core/timesheet/timesheet_defaults.dart | 3.42 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/ui/adaptive_glass.dart | 1.33 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/core/ui/adaptive_glass.dart | 1.62 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/ui/device_ui_capability.dart | 4.17 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/utils/app_orientations.dart | 1.23 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/utils/directory_operation.dart | 4.80 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -946,12 +944,13 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/core/widgets/hr_management/hr_employee_info_card.dart | 3.97 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/widgets/hr_management/hr_filter_chip_row.dart | 3.77 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/widgets/hr_management/hr_kpi_counter_card.dart | 2.60 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/widgets/hr_management/hr_management_widgets.dart | 385 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/widgets/hr_management/hr_module_glass_header.dart | 5.96 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/core/widgets/hr_management/hr_management_widgets.dart | 434 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/core/widgets/hr_management/hr_module_glass_header.dart | 6.32 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/widgets/hr_management/hr_module_widgets_sandbox.dart | 7.71 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/widgets/hr_management/hr_pill_tab_controls.dart | 3.74 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/widgets/hr_management/hr_request_card.dart | 6.66 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/widgets/hr_management/hr_requests_gradient_scaffold.dart | 1.38 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/core/widgets/hr_management/hr_role_dev_toggle_bar.dart | 3.55 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/widgets/hr_management/hr_search_bar.dart | 3.24 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/widgets/hr_management/hr_search_filter_header.dart | 3.76 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/widgets/hr_management/hr_status_badge.dart | 1.83 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -970,7 +969,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/core/widgets/timesheet/timesheet_widgets_sandbox.dart | 8.67 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/widgets/timesheet/tm_avatar_stack.dart | 3.04 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/widgets/timesheet/tm_bottom_nav_bar.dart | 6.86 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/widgets/timesheet/tm_buttons.dart | 3.34 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/core/widgets/timesheet/tm_buttons.dart | 3.76 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/widgets/timesheet/tm_faded_network_image.dart | 4.03 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/widgets/timesheet/tm_filter_chip_row.dart | 2.40 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/widgets/timesheet/tm_greeting_header.dart | 1.82 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -987,7 +986,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/core/widgets/timesheet/tm_task_row.dart | 2.23 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/data/models/announcement_details_model.dart | 3.45 KB | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/data/models/announcement_model.dart | 3.17 KB | Flutter app code | Data model and JSON/DTO mapping. |
-| lib/data/models/gesture_description.dart | 286 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/data/models/gesture_description.dart | 360 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/data/models/global_search_item.dart | 4.69 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/data/models/lpo_search_model.dart | 3.40 KB | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/data/models/password_model.dart | 299 B | Flutter app code | Data model and JSON/DTO mapping. |
@@ -1007,24 +1006,28 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/data/repositories/report_repository.dart | 3.26 KB | Flutter app code | Repository layer for reading/writing data. |
 | lib/data/services/announcements_api_service.dart | 9.52 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/data/services/attendance_sync_service.dart | 4.40 KB | Flutter app code | Service helper for business logic or integration. |
-| lib/data/services/auto_checkout_service.dart | 5.27 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/data/services/auto_checkout_service.dart | 5.44 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/data/services/battery_optimization_service.dart | 1.23 KB | Flutter app code | Service helper for business logic or integration. |
-| lib/data/services/checkin_reminder_notification_service.dart | 20.69 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/data/services/checkin_reminder_notification_service.dart | 21.44 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/data/services/counter_reset_service.dart | 8.55 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/data/services/global_search_api_service.dart | 9.25 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/data/services/global_search_history_service.dart | 1.59 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/data/services/hive_service.dart | 4.56 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/data/services/pdf_service.dart | 21.75 KB | Flutter app code | Service helper for business logic or integration. |
-| lib/data/services/prayer_audio_service.dart | 11.71 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/data/services/prayer_audio_service.dart | 12.10 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/data/services/prayer_background_service.dart | 5.39 KB | Flutter app code | Service helper for business logic or integration. |
-| lib/data/services/prayer_notification_service.dart | 7.66 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/data/services/prayer_notification_service.dart | 7.70 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/data/services/task_notification_service.dart | 15.31 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/data/services/unified_workmanager_dispatcher.dart | 7.56 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/deep_links/uaepass_link_handler.dart | 2.78 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/examples/global_search_usage_examples.dart | 11.41 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/examples/global_search_usage_examples.dart | 11.16 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/firebase_options.dart | 3.08 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/firebase_service.dart | 24.40 KB | Flutter app code | Service helper for business logic or integration. |
-| lib/main.dart | 52.31 KB | Flutter app code | Flutter app entry point and startup wiring. |
+| lib/firebase_service.dart | 25.92 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/main.dart | 48.95 KB | Flutter app code | Flutter app entry point and startup wiring. |
+| lib/providers/announcement_banner_provider.dart | 2.59 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/providers/announcements_provider.dart | 2.96 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/providers/global_search_provider.dart | 9.17 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/providers/profile_box_provider.dart | 690 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/report_module/core/constants/colors.dart | 366 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/report_module/core/constants/hive_constants.dart | 229 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/report_module/core/constants/text_styles.dart | 860 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -1043,40 +1046,38 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/report_module/data/models/report_model.dart | 3.58 KB | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/report_module/data/models/report_model.g.dart | 1.52 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/report_module/data/models/report_pdf_model.dart | 1.11 KB | Flutter app code | Data model and JSON/DTO mapping. |
+| lib/report_module/data/provider/reports_provider.dart | 36.17 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/report_module/data/report_pdf_templates.dart | 969 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/report_module/data/repositories/company_repository.dart | 1.93 KB | Flutter app code | Repository layer for reading/writing data. |
 | lib/report_module/data/repositories/i_company_repository.dart | 1 B | Flutter app code | Repository layer for reading/writing data. |
-| lib/report_module/data/repositories/report_repository.dart | 34.86 KB | Flutter app code | Repository layer for reading/writing data. |
 | lib/report_module/data/services/hive_service.dart | 1.10 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/report_module/data/services/pdf_service.dart | 33.87 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/report_module/data/services/report_hive_service.dart | 1.51 KB | Flutter app code | Service helper for business logic or integration. |
-| lib/report_module/presentation/bloc/report_bloc.dart | 21.66 KB | Flutter app code | BLoC logic for state and event handling. |
-| lib/report_module/presentation/bloc/report_event.dart | 7.25 KB | Flutter app code | BLoC event definitions. |
-| lib/report_module/presentation/bloc/report_state.dart | 909 B | Flutter app code | BLoC/Cubit state definitions. |
-| lib/report_module/presentation/bottom_sheets/create_task_from_report_sheet.dart | 20.24 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/report_module/data/services/report_service.dart | 8.65 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/report_module/presentation/bottom_sheets/create_task_from_report_sheet.dart | 20.78 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/report_module/presentation/bottom_sheets/show_option_sheet.dart | 2.46 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/report_module/presentation/dialogs/add_image_options_dialog.dart | 2.98 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/report_module/presentation/dialogs/add_report.dart | 6.54 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/report_module/presentation/dialogs/add_report.dart | 6.78 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/report_module/presentation/dialogs/file_name.dart | 3.25 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/report_module/presentation/dialogs/rename_report_dialog.dart | 3.69 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/report_module/presentation/screens/add_report_photos/add_report_photos_screen.dart | 19.93 KB | Flutter app code | Flutter screen or page UI. |
 | lib/report_module/presentation/screens/company/company_screen.dart | 7.37 KB | Flutter app code | Flutter screen or page UI. |
-| lib/report_module/presentation/screens/report_detail/add_cover_screen.dart | 5.28 KB | Flutter app code | Flutter screen or page UI. |
-| lib/report_module/presentation/screens/report_detail/add_new_item.dart | 15.53 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/report_module/presentation/screens/report_detail/add_cover_screen.dart | 5.22 KB | Flutter app code | Flutter screen or page UI. |
+| lib/report_module/presentation/screens/report_detail/add_new_item.dart | 15.82 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/report_module/presentation/screens/report_detail/camera_screen.dart | 9.99 KB | Flutter app code | Flutter screen or page UI. |
 | lib/report_module/presentation/screens/report_detail/image_editing_screen.dart | 19.25 KB | Flutter app code | Flutter screen or page UI. |
-| lib/report_module/presentation/screens/report_detail/pdf_history_screen.dart | 13.19 KB | Flutter app code | Flutter screen or page UI. |
+| lib/report_module/presentation/screens/report_detail/pdf_history_screen.dart | 13.39 KB | Flutter app code | Flutter screen or page UI. |
 | lib/report_module/presentation/screens/report_detail/pdf_preview_screen.dart | 4.01 KB | Flutter app code | Flutter screen or page UI. |
-| lib/report_module/presentation/screens/report_detail/report_detail.dart | 22.76 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/report_module/presentation/screens/report_photos/multi_capture_camera_screen.dart | 12.04 KB | Flutter app code | Flutter screen or page UI. |
-| lib/report_module/presentation/screens/report_photos/report_photos_screen.dart | 101.76 KB | Flutter app code | Flutter screen or page UI. |
+| lib/report_module/presentation/screens/report_detail/report_detail.dart | 23.23 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/report_module/presentation/screens/report_photos/multi_capture_camera_screen.dart | 13.45 KB | Flutter app code | Flutter screen or page UI. |
+| lib/report_module/presentation/screens/report_photos/report_photos_screen.dart | 104.57 KB | Flutter app code | Flutter screen or page UI. |
 | lib/report_module/presentation/widgets/bottom_appbar.dart | 2.96 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/report_module/presentation/widgets/cover_page.dart | 3.26 KB | Flutter app code | Flutter screen or page UI. |
 | lib/report_module/presentation/widgets/custom_textfield.dart | 2.79 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/report_module/presentation/widgets/linked_tasks_list.dart | 11.18 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/report_module/presentation/widgets/pdf_tile.dart | 3.56 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/report_module/presentation/widgets/report_item.dart | 10.94 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/report_module/presentation/widgets/report_tile.dart | 4.72 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/report_module/presentation/widgets/report_tile.dart | 4.78 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/report_module/presentation/widgets/section_bar.dart | 2.31 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/report_module/presentation/widgets/square_button.dart | 972 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/resources/app_colors.dart | 3.17 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -1089,42 +1090,54 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/auth/auth_loading_screen.dart | 8.66 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/auth/dashboard_screen.dart | 295 B | Flutter app code | Flutter screen or page UI. |
 | lib/ui/auth/error_dialog.dart | 505 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/chat/chat_group_profile_screen.dart | 21.81 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/chat/chat_list_screen.dart | 45.26 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/chat/chat_screen.dart | 48.90 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/chat/chat_ui.dart | 231 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/chat/chat_user_profile_screen.dart | 20.91 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/chat/new_chat_screen.dart | 17.05 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/chat/screens/sign_document_screen.dart | 27.88 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/chat/screens/sign_zone_picker_screen.dart | 20.78 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/chat/starred_messages_screen.dart | 13.15 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/chat/chat_archived_list_screen.dart | 7.39 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/chat/chat_calls_placeholder_screen.dart | 2.22 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/chat/chat_files_hub_screen.dart | 6.23 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/chat/chat_group_profile_screen.dart | 26.25 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/chat/chat_groups_hub_screen.dart | 8.39 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/chat/chat_list_screen.dart | 50.25 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/chat/chat_screen.dart | 51.34 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/chat/chat_shell_screen.dart | 6.18 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/chat/chat_ui.dart | 479 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/chat/chat_user_profile_screen.dart | 22.39 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/chat/new_chat_screen.dart | 22.85 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/chat/screens/sign_document_screen.dart | 33.90 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/chat/screens/sign_zone_picker_screen.dart | 22.72 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/chat/starred_messages_screen.dart | 13.76 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/chat/theme/chat_glass_theme.dart | 4.38 KB | Flutter app code | Feature-specific UI theme and styling constants. |
+| lib/ui/chat/widgets/blue_geometric_background.dart | 5.31 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/chat/widgets/chat_avatar.dart | 5.60 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/chat/widgets/chat_input_bar.dart | 9.82 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/chat/widgets/chat_merged_header.dart | 25.01 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/chat/widgets/chat_glass_button.dart | 5.50 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/chat/widgets/chat_hub_glass_header.dart | 5.92 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/chat/widgets/chat_input_bar.dart | 11.91 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/chat/widgets/chat_merged_header.dart | 27.28 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/chat/widgets/chat_shared_content_tabs.dart | 10.49 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/chat/widgets/chat_sub_app_glass_bar.dart | 2.74 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/chat/widgets/chat_unified_header_backdrop.dart | 5.40 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/chat/widgets/message_bubble.dart | 27.22 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/chat/widgets/chat_top_glass_app_bar.dart | 3.80 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/chat/widgets/chat_unified_header_backdrop.dart | 4.82 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/chat/widgets/message_bubble.dart | 28.37 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/chat/widgets/presence_indicator.dart | 3.77 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/chat/widgets/signable_document_card.dart | 15.14 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/chat/widgets/signable_document_card.dart | 15.62 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/chat/widgets/typing_indicator.dart | 7.56 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/chat/widgets/widgets.dart | 326 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/chat/widgets/whatsapp_chat_list_header.dart | 6.51 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/chat/widgets/widgets.dart | 572 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/navigation/glass_route_navigation.dart | 7.13 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/navigation/home_navigation.dart | 1.13 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/Attendace_list/attendance_page.dart | 51.38 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/Attendace_list/attendance_widgets/colleasped_card.dart | 4.38 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/Attendace_list/attendance_widgets/expand_card.dart | 1.38 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/Attendace_list/attendance_widgets/icon_toggle.dart | 2.44 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/Attendace_list/attendance_widgets/report_dialog.dart | 3.85 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/Attendace_list/attendance_widgets/report_item.dart | 1.10 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/Attendace_list/attendance_widgets/colleasped_card.dart | 4.51 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/Attendace_list/attendance_widgets/expand_card.dart | 1.44 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/Attendace_list/attendance_widgets/icon_toggle.dart | 2.53 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/Attendace_list/attendance_widgets/report_dialog.dart | 3.95 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/Attendace_list/attendance_widgets/report_item.dart | 1.13 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/Attendace_list/bloc/attendance_bloc.dart | 6.79 KB | Flutter app code | BLoC logic for state and event handling. |
-| lib/ui/presentation/Attendace_list/bloc/attendance_event.dart | 922 B | Flutter app code | BLoC event definitions. |
-| lib/ui/presentation/Attendace_list/bloc/attendance_state.dart | 807 B | Flutter app code | BLoC/Cubit state definitions. |
+| lib/ui/presentation/Attendace_list/bloc/attendance_event.dart | 965 B | Flutter app code | BLoC event definitions. |
+| lib/ui/presentation/Attendace_list/bloc/attendance_state.dart | 844 B | Flutter app code | BLoC/Cubit state definitions. |
 | lib/ui/presentation/Attendace_list/model/attendance_model.dart | 10.99 KB | Flutter app code | Data model and JSON/DTO mapping. |
-| lib/ui/presentation/Attendace_list/repository/attendance_repository.dart | 13.58 KB | Flutter app code | Repository layer for reading/writing data. |
-| lib/ui/presentation/attendance_checkin/attendance_checkin_activity.dart | 10.27 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/Attendace_list/repository/attendance_repository.dart | 13.98 KB | Flutter app code | Repository layer for reading/writing data. |
+| lib/ui/presentation/attendance_checkin/attendance_checkin_activity.dart | 10.49 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/attendance_checkin/data/checkin_context_repository.dart | 4.90 KB | Flutter app code | Repository layer for reading/writing data. |
 | lib/ui/presentation/attendance_checkin/models/checkin_context_model.dart | 5.28 KB | Flutter app code | Data model and JSON/DTO mapping. |
-| lib/ui/presentation/attendance_checkin/providers/checkin_activity_controller.dart | 10.78 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/attendance_checkin/providers/checkin_activity_controller.dart | 11.11 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/attendance_checkin/services/checkin_geofence_service.dart | 2.01 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/ui/presentation/attendance_checkin/services/checkin_route_service.dart | 1.49 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/ui/presentation/attendance_checkin/utils/checkin_distance_formatter.dart | 573 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -1173,6 +1186,19 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/circular_announcement/data/circular_announcement_model.dart | 6.30 KB | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/ui/presentation/circular_announcement/screens/circular_announcement_screen.dart | 14.78 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/circular_announcement/widgets/circular_announcement_file_viewer.dart | 12.99 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/clients_vendors/clients_screen.dart | 11.74 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/clients_vendors/data/clients_dashboard_repository.dart | 9.64 KB | Flutter app code | Repository layer for reading/writing data. |
+| lib/ui/presentation/clients_vendors/data/clients_lists_repository.dart | 7.10 KB | Flutter app code | Repository layer for reading/writing data. |
+| lib/ui/presentation/clients_vendors/data/vendors_dashboard_repository.dart | 13.20 KB | Flutter app code | Repository layer for reading/writing data. |
+| lib/ui/presentation/clients_vendors/data/vendors_lists_repository.dart | 5.63 KB | Flutter app code | Repository layer for reading/writing data. |
+| lib/ui/presentation/clients_vendors/screens/accounts_receivable_screen.dart | 8.46 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/clients_vendors/screens/outstanding_invoices_screen.dart | 11.44 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/clients_vendors/screens/vendor_bills_screen.dart | 14.00 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/clients_vendors/theme/clients_vendors_theme.dart | 1.41 KB | Flutter app code | Feature-specific UI theme and styling constants. |
+| lib/ui/presentation/clients_vendors/theme/vendors_theme.dart | 1.53 KB | Flutter app code | Feature-specific UI theme and styling constants. |
+| lib/ui/presentation/clients_vendors/vendors_screen.dart | 61.52 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/clients_vendors/widgets/clients_invoicing_section.dart | 43.03 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/clients_vendors/widgets/clients_list_chrome.dart | 10.41 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/document_scanner/data/repositories/document_scanner_repository_impl.dart | 6.61 KB | Flutter app code | Repository layer for reading/writing data. |
 | lib/ui/presentation/document_scanner/data/services/document_export_service.dart | 4.12 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/ui/presentation/document_scanner/data/services/edge_detection_service.dart | 14.96 KB | Flutter app code | Service helper for business logic or integration. |
@@ -1200,7 +1226,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/elrace_ai/elrace_ai_assistant_screen.dart | 1.94 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/elrace_ai/elrace_ai_theme.dart | 1.38 KB | Flutter app code | Feature-specific UI theme and styling constants. |
 | lib/ui/presentation/elrace_ai/elrace_ai_tour_screen.dart | 24.69 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/Email Approval/Approval.dart | 31.26 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/Email Approval/Approval.dart | 33.03 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/Email Approval/Approval_confirmation.dart | 111.13 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/Email Approval/ApprovalItem.dart | 732 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/Email Approval/bloc/approval_bloc.dart | 18.19 KB | Flutter app code | BLoC logic for state and event handling. |
@@ -1213,9 +1239,9 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/Email Approval/delayed/widgets/delayed_request_card.dart | 9.77 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/Email Approval/delayed/widgets/status_strip.dart | 1.80 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/Email Approval/screens/hr_details_screen.dart | 156.04 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/Email Approval/screens/invoice_details_screen.dart | 43.88 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/Email Approval/screens/invoice_details_screen.dart | 38.00 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/Email Approval/screens/pettycash_details_screen.dart | 62.67 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/Email Approval/screens/rfq_details_screen.dart | 38.00 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/Email Approval/screens/rfq_details_screen.dart | 39.00 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/Email Approval/theme/approvals_overview_theme.dart | 8.72 KB | Flutter app code | Feature-specific UI theme and styling constants. |
 | lib/ui/presentation/Email Approval/utils/approval_display_helpers.dart | 11.81 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/Email Approval/utils/approval_photo_cache.dart | 6.70 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -1225,11 +1251,11 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/Email Approval/utils/petty_cash_expense_line_groups.dart | 3.41 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/Email Approval/utils/rfq_approval_display.dart | 1.32 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/Email Approval/widgets/all_approvals_overview.dart | 41.33 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/Email Approval/widgets/approval_action_buttons.dart | 50.50 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/Email Approval/widgets/approval_action_buttons.dart | 55.63 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/Email Approval/widgets/approval_card_type_one.dart | 8.31 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/Email Approval/widgets/approval_card_type_two.dart | 6.58 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/Email Approval/widgets/approval_list_avatar.dart | 2.46 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/Email Approval/widgets/approval_overview_records_sheet.dart | 34.99 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/Email Approval/widgets/approval_overview_records_sheet.dart | 37.19 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/Email Approval/widgets/approve_card.dart | 10.15 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/Email Approval/widgets/file_binary.dart | 877 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/Email Approval/widgets/hr_and_pettycash_card.dart | 17.51 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -1242,40 +1268,39 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/glassmorphism_tabs_demo.dart | 6.11 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/bloc/home_bloc.dart | 14.79 KB | Flutter app code | BLoC logic for state and event handling. |
 | lib/ui/presentation/home_screen/bloc/home_event.dart | 1.22 KB | Flutter app code | BLoC event definitions. |
-| lib/ui/presentation/home_screen/bloc/home_hr_widgets_cubit.dart | 7.89 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/bloc/home_library_widgets_cubit.dart | 2.08 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/bloc/home_lpo_widget_cubit.dart | 1.20 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/bloc/home_notes_widget_cubit.dart | 1.23 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/bloc/home_petty_cash_widget_cubit.dart | 1.29 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/bloc/home_projects_widgets_cubit.dart | 4.15 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/bloc/home_slider/home_slider_bloc.dart | 2.75 KB | Flutter app code | BLoC logic for state and event handling. |
-| lib/ui/presentation/home_screen/bloc/home_slider/home_slider_event.dart | 545 B | Flutter app code | BLoC event definitions. |
-| lib/ui/presentation/home_screen/bloc/home_slider/home_slider_state.dart | 3.64 KB | Flutter app code | BLoC/Cubit state definitions. |
 | lib/ui/presentation/home_screen/bloc/home_state.dart | 2.45 KB | Flutter app code | BLoC/Cubit state definitions. |
-| lib/ui/presentation/home_screen/bloc/home_timesheet_widget_cubit.dart | 1.60 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/bloc/location_bloc/location_bloc.dart | 1.14 KB | Flutter app code | BLoC logic for state and event handling. |
 | lib/ui/presentation/home_screen/bloc/location_bloc/location_event.dart | 208 B | Flutter app code | BLoC event definitions. |
 | lib/ui/presentation/home_screen/bloc/location_bloc/location_state.dart | 363 B | Flutter app code | BLoC/Cubit state definitions. |
-| lib/ui/presentation/home_screen/bloc/profile_box/profile_box_bloc.dart | 1.04 KB | Flutter app code | BLoC logic for state and event handling. |
-| lib/ui/presentation/home_screen/bloc/profile_box/profile_box_event.dart | 648 B | Flutter app code | BLoC event definitions. |
-| lib/ui/presentation/home_screen/bloc/profile_box/profile_box_state.dart | 612 B | Flutter app code | BLoC/Cubit state definitions. |
 | lib/ui/presentation/home_screen/data/carousal_model.dart | 2.00 KB | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/ui/presentation/home_screen/data/show_icon_model.dart | 778 B | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/ui/presentation/home_screen/data/widget_model.dart | 3.25 KB | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/ui/presentation/home_screen/dialogs/add_widget_dialog.dart | 18.10 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/dialogs/save_confirmation_dialog.dart | 3.52 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/providers/home_widget_api_client.dart | 5.64 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/providers/home_widget_refresh_service.dart | 1.11 KB | Flutter app code | Service helper for business logic or integration. |
-| lib/ui/presentation/home_screen/providers/home_widget_session_cache.dart | 3.91 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/provider/slider_provider.dart | 5.10 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/providers/home_attendance_widget_provider.dart | 4.15 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/providers/home_hrms_widget_provider.dart | 7.05 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/providers/home_library_widgets_provider.dart | 3.60 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/providers/home_lpo_widget_provider.dart | 1.38 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/providers/home_notes_widget_provider.dart | 1.42 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/providers/home_petty_cash_widget_provider.dart | 1.49 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/providers/home_projects_widgets_provider.dart | 4.87 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/providers/home_shared_documents_widget_provider.dart | 1.58 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/providers/home_task_management_widget_provider.dart | 1.59 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/providers/home_tickets_widget_provider.dart | 1.45 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/providers/home_timesheet_widget_provider.dart | 1.89 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/providers/home_widget_api_client.dart | 5.97 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/providers/home_widget_refresh_service.dart | 3.25 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/ui/presentation/home_screen/providers/home_widget_session_cache.dart | 4.04 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/repository/check_in_repo.dart | 2.76 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/repository/location_reop.dart | 1.83 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/repository/swipe_button_screen_repo.dart | 4.04 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/screens/biometric_sign_in_gate_screen.dart | 2.79 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/home_screen/screens/custom_swipe_button.dart | 47.78 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/screens/custom_swipe_button.dart | 48.43 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/screens/edit_widgets_screen.dart | 25.47 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/home_screen/screens/home_screen.dart | 10.93 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/home_screen/screens/main_home_content_widget.dart | 11.52 KB | Flutter app code | Reusable Flutter UI widget. |
-| lib/ui/presentation/home_screen/screens/main_screens.dart | 14.90 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/screens/home_screen.dart | 11.46 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/home_screen/screens/main_home_content_widget.dart | 10.31 KB | Flutter app code | Reusable Flutter UI widget. |
+| lib/ui/presentation/home_screen/screens/main_screens.dart | 15.39 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/services/widget_service.dart | 3.23 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/ui/presentation/home_screen/widgets/announcement_banner.dart | 5.96 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/bottom_widget.dart | 675 B | Flutter app code | Reusable Flutter UI widget. |
@@ -1285,22 +1310,22 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/home_screen/widgets/check_in_widgets/offline_online_toggle.dart | 2.84 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/check_in_widgets/time_status_widget.dart | 2.08 KB | Flutter app code | Reusable Flutter UI widget. |
 | lib/ui/presentation/home_screen/widgets/clients_vendors_category_section_header.dart | 536 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/widgets/clients_vendors_category_widgets.dart | 30.11 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/widgets/clients_vendors_category_widgets.dart | 24.08 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/coming_soon_category_section_header.dart | 569 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/coming_soon_category_widgets.dart | 6.85 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/coming_soon_screen.dart | 2.01 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/home_screen/widgets/custom_bullet_point.dart | 3.19 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/finance_category_section_header.dart | 498 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/widgets/finance_category_widgets.dart | 12.26 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/widgets/finance_category_widgets.dart | 12.13 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/glass_tap_icon.dart | 1.02 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/home_category_section_header.dart | 2.62 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/home_checkin_prayer_strip.dart | 178 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/home_city_helper.dart | 4.50 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/home_dialogs/home_dialogs.dart | 2.31 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/widgets/home_expandable_nav_menu.dart | 4.47 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/widgets/home_floating_comms_bar.dart | 3.87 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/widgets/home_glass_app_bar.dart | 27.85 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/widgets/home_glass_nav_bar.dart | 2.74 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/widgets/home_expandable_nav_menu.dart | 4.63 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/widgets/home_floating_comms_bar.dart | 4.00 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/widgets/home_glass_app_bar.dart | 28.54 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/widgets/home_glass_nav_bar.dart | 2.83 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/home_glass_theme.dart | 21.24 KB | Flutter app code | Feature-specific UI theme and styling constants. |
 | lib/ui/presentation/home_screen/widgets/home_greeting_section.dart | 4.08 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/home_mid_attendance_times.dart | 6.20 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -1309,68 +1334,71 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/home_screen/widgets/home_my_actions_navigation.dart | 2.89 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/home_my_projects_navigation.dart | 3.24 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/home_my_reports_navigation.dart | 402 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/widgets/home_news_card.dart | 19.20 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/widgets/home_news_card.dart | 19.15 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/home_panel_scroll_physics.dart | 951 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/widgets/home_productivity_navigation.dart | 837 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/widgets/home_productivity_navigation.dart | 1.13 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/home_quick_actions_glass.dart | 5.63 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/widgets/home_tablet_layout.dart | 26.01 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/widgets/home_tablet_layout.dart | 26.81 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/home_widgets_panel.dart | 16.46 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/hr_category_section_header.dart | 671 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/widgets/human_resource_category_widgets.dart | 28.80 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/widgets/human_resource_category_widgets.dart | 28.30 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/icon_show.dart | 3.09 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/inner_shadow.dart | 590 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/library_category_section_header.dart | 500 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/widgets/library_category_widgets.dart | 11.89 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/widgets/list_view_widgets.dart | 46.91 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/widgets/library_category_widgets.dart | 11.60 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/widgets/list_view_widgets.dart | 47.39 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/location_service_banner.dart | 4.25 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/mid_section_scroll_lock.dart | 691 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/widgets/my_actions_section.dart | 13.66 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/widgets/my_actions_section.dart | 16.25 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/my_requests.dart | 6.54 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/widgets/parayer_widgets/label_widget.dart | 1.54 KB | Flutter app code | Reusable Flutter UI widget. |
-| lib/ui/presentation/home_screen/widgets/parayer_widgets/parayer_widget.dart | 19.52 KB | Flutter app code | Reusable Flutter UI widget. |
+| lib/ui/presentation/home_screen/widgets/parayer_widgets/label_widget.dart | 1.59 KB | Flutter app code | Reusable Flutter UI widget. |
+| lib/ui/presentation/home_screen/widgets/parayer_widgets/parayer_widget.dart | 19.96 KB | Flutter app code | Reusable Flutter UI widget. |
 | lib/ui/presentation/home_screen/widgets/parayer_widgets/prayer_arc_widget.dart | 0 B | Flutter app code | Reusable Flutter UI widget. |
-| lib/ui/presentation/home_screen/widgets/parayer_widgets/prayer_countdown_timer.dart | 2.44 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/widgets/parayer_widgets/prayer_time_gridview.dart | 2.57 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/widgets/parayer_widgets/prayer_time_listview.dart | 2.98 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/widgets/parayer_widgets/prayer_countdown_timer.dart | 2.55 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/widgets/parayer_widgets/prayer_time_gridview.dart | 2.65 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/widgets/parayer_widgets/prayer_time_listview.dart | 3.08 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/productivity_category_section_header.dart | 516 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/widgets/productivity_category_widgets.dart | 22.61 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/widgets/profile_box_with_slide_animation.dart | 68.17 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/widgets/profile_sheet_host.dart | 1.61 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/widgets/profile_widgets/app_settings_widget.dart | 27.65 KB | Flutter app code | Reusable Flutter UI widget. |
-| lib/ui/presentation/home_screen/widgets/profile_widgets/business_card_screen.dart | 18.63 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/home_screen/widgets/productivity_category_widgets.dart | 23.61 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/widgets/profile_box_with_slide_animation.dart | 84.93 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/widgets/profile_sheet_host.dart | 1.67 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/widgets/profile_widgets/app_settings_widget.dart | 28.31 KB | Flutter app code | Reusable Flutter UI widget. |
+| lib/ui/presentation/home_screen/widgets/profile_widgets/business_card_screen.dart | 11.95 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/home_screen/widgets/profile_widgets/profile_bottom_sheet.dart | 32.47 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/widgets/profile_widgets/profile_logout_helper.dart | 4.46 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/widgets/profile_widgets/profile_logout_helper.dart | 4.73 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/profile_widgets/profile_paint_widgets.dart | 4.18 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/profile_widgets/profile_sheet_theme.dart | 4.55 KB | Flutter app code | Feature-specific UI theme and styling constants. |
-| lib/ui/presentation/home_screen/widgets/profile_widgets/profile_user_info.dart | 6.71 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/widgets/profile_widgets/profile_user_info.dart | 7.50 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/project_list_dialog.dart | 507 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/projects_category_section_header.dart | 506 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/widgets/projects_category_widgets.dart | 26.12 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/widgets/projects_category_widgets.dart | 25.63 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/purchase_category_section_header.dart | 509 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/widgets/purchase_category_widgets.dart | 13.19 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/widgets/purchase_category_widgets.dart | 13.12 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/tablet_card_wrapper.dart | 1.46 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/tilting_card.dart | 1.23 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/widgets/timer_controller.dart | 3.68 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/widgets/timer_controller.dart | 7.11 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/visibilty_icon.dart | 1.24 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/widgets/widget_container.dart | 5.83 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/hr_management/data/employee_profile_models.dart | 13.41 KB | Flutter app code | Data model and JSON/DTO mapping. |
+| lib/ui/presentation/hr_management/company_documents_screen.dart | 3.02 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/hr_management/data/employee_profile_models.dart | 13.88 KB | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/ui/presentation/hr_management/data/employees_profile_repository.dart | 2.49 KB | Flutter app code | Repository layer for reading/writing data. |
-| lib/ui/presentation/hr_management/employees_profile_screen.dart | 42.95 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/hr_management/hr_asset_under_planning_screen.dart | 2.17 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/hr_management/hr_car_allowance_request_screen.dart | 10.35 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/hr_management/hr_car_rent_request_screen.dart | 12.65 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/hr_management/hr_circular_announcements_screen.dart | 11.22 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/hr_management/hr_employee_landing_screen.dart | 2.19 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/hr_management/employees_profile_screen.dart | 44.65 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/hr_management/hr_asset_under_planning_screen.dart | 2.28 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/hr_management/hr_car_allowance_request_screen.dart | 10.50 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/hr_management/hr_car_rent_request_screen.dart | 12.75 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/hr_management/hr_circular_announcements_screen.dart | 11.55 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/hr_management/hr_employee_landing_screen.dart | 2.59 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/hr_management/hr_management_entry_screen.dart | 424 B | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/hr_management/hr_management_hub_screen.dart | 14.54 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/hr_management/hr_manager_landing_screen.dart | 21.52 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/hr_management/hr_manager_search_older_screen.dart | 12.92 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/hr_management/hr_new_request_picker_screen.dart | 10.07 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/hr_management/hr_personal_request_list_content.dart | 14.46 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/hr_management/hr_requests_module_screen.dart | 938 B | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/hr_management/hr_sim_card_request_screen.dart | 10.26 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/hr_management/widgets/employee_profile_more_info.dart | 30.43 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/instruction/view_model/instruction_view_model.dart | 660 B | Flutter app code | Data model and JSON/DTO mapping. |
+| lib/ui/presentation/hr_management/hr_management_hub_screen.dart | 14.02 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/hr_management/hr_manager_landing_screen.dart | 22.58 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/hr_management/hr_manager_search_older_screen.dart | 13.43 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/hr_management/hr_new_request_picker_screen.dart | 10.37 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/hr_management/hr_personal_request_list_content.dart | 14.08 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/hr_management/hr_request_detail_screen.dart | 16.98 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/hr_management/hr_requests_module_screen.dart | 898 B | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/hr_management/hr_sim_card_request_screen.dart | 10.53 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/hr_management/widgets/employee_profile_more_info.dart | 31.53 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/instruction/bindings/instruction_binding.dart | 273 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/instruction/view_model/instruction_view_model.dart | 769 B | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/ui/presentation/instruction/views/instruction_view.dart | 4.14 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/kyc_verification/kyc_controller.dart | 0 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/kyc_verification/kyc_verification_screen.dart | 0 B | Flutter app code | Flutter screen or page UI. |
@@ -1390,21 +1418,21 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/landing_screen/screens/edit_screen.dart | 7.52 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/landing_screen/screens/menu/menu_model.dart | 1.38 KB | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/ui/presentation/landing_screen/screens/menu/menu_screen.dart | 1.63 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/lpo/screens/lpo_pdf_viewer_screen.dart | 8.34 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/lpo/screens/lpo_screen.dart | 16.96 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/lpo/screens/lpo_pdf_viewer_screen.dart | 9.01 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/lpo/screens/lpo_screen.dart | 17.74 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/lpo/widgets/lpo_card_widget.dart | 15.51 KB | Flutter app code | Reusable Flutter UI widget. |
-| lib/ui/presentation/media/bloc/media_bloc.dart | 3.75 KB | Flutter app code | BLoC logic for state and event handling. |
-| lib/ui/presentation/media/bloc/media_event.dart | 1.06 KB | Flutter app code | BLoC event definitions. |
-| lib/ui/presentation/media/bloc/media_state.dart | 1.00 KB | Flutter app code | BLoC/Cubit state definitions. |
+| lib/ui/presentation/media/bloc/media_bloc.dart | 3.89 KB | Flutter app code | BLoC logic for state and event handling. |
+| lib/ui/presentation/media/bloc/media_event.dart | 1.11 KB | Flutter app code | BLoC event definitions. |
+| lib/ui/presentation/media/bloc/media_state.dart | 1.05 KB | Flutter app code | BLoC/Cubit state definitions. |
 | lib/ui/presentation/media/data/content_model.dart | 9.27 KB | Flutter app code | Data model and JSON/DTO mapping. |
-| lib/ui/presentation/media/data/media_model.dart | 7.01 KB | Flutter app code | Data model and JSON/DTO mapping. |
-| lib/ui/presentation/media/repository/i_media_repository.dart | 491 B | Flutter app code | Repository layer for reading/writing data. |
-| lib/ui/presentation/media/repository/media_repository.dart | 7.42 KB | Flutter app code | Repository layer for reading/writing data. |
-| lib/ui/presentation/media/screens/media_list_screen.dart | 43.01 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/media/screens/test_yoyo_player.dart | 2.43 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/media/screens/video_player_screen.dart | 4.47 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/media/screens/video_player_screen_full.dart | 9.57 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/media/screens/yoyo_video_player_screen.dart | 19.33 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/media/data/media_model.dart | 7.27 KB | Flutter app code | Data model and JSON/DTO mapping. |
+| lib/ui/presentation/media/repository/i_media_repository.dart | 504 B | Flutter app code | Repository layer for reading/writing data. |
+| lib/ui/presentation/media/repository/media_repository.dart | 7.67 KB | Flutter app code | Repository layer for reading/writing data. |
+| lib/ui/presentation/media/screens/media_list_screen.dart | 44.37 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/media/screens/test_yoyo_player.dart | 2.51 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/media/screens/video_player_screen.dart | 4.64 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/media/screens/video_player_screen_full.dart | 9.91 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/media/screens/yoyo_video_player_screen.dart | 19.88 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/media/theme/media_theme.dart | 4.93 KB | Flutter app code | Feature-specific UI theme and styling constants. |
 | lib/ui/presentation/media/utils/media_content_selector.dart | 980 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/media/utils/media_content_share_utils.dart | 413 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -1420,7 +1448,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/media/widgets/media_filter_tabs.dart | 5.86 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/media/widgets/media_gallery_sheet.dart | 1.75 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/media/widgets/media_hero_trailer.dart | 6.66 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/media/widgets/media_item_widget.dart | 11.52 KB | Flutter app code | Reusable Flutter UI widget. |
+| lib/ui/presentation/media/widgets/media_item_widget.dart | 11.87 KB | Flutter app code | Reusable Flutter UI widget. |
 | lib/ui/presentation/media/widgets/media_photo_viewer.dart | 7.89 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/media/widgets/media_staggered_content_grid.dart | 1.52 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/media/widgets/media_staggered_video_grid.dart | 1.47 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -1429,16 +1457,26 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/media/widgets/media_video_thumbnail.dart | 2.28 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/media/widgets/media_videos_gallery_sheet.dart | 5.10 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/media/widgets/media_videos_landing_screen.dart | 8.53 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/my_actions/data/models/signature_document.dart | 11.25 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_actions/data/my_actions_models.dart | 5.30 KB | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/ui/presentation/my_actions/data/my_actions_repository.dart | 7.09 KB | Flutter app code | Repository layer for reading/writing data. |
+| lib/ui/presentation/my_actions/data/repositories/signature_actions_repository.dart | 10.18 KB | Flutter app code | Repository layer for reading/writing data. |
+| lib/ui/presentation/my_actions/data/repositories/signature_documents_repository.dart | 10.39 KB | Flutter app code | Repository layer for reading/writing data. |
+| lib/ui/presentation/my_actions/data/stamp_authorized_emp_ids.dart | 614 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/my_actions/data/user_stamp_assets.dart | 6.47 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_actions/screens/hr_screen.dart | 1.46 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/my_actions/screens/invoice_my_actions_screen.dart | 1.79 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/my_actions/screens/my_actions_screens.dart | 275 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_actions/screens/my_requests_screen.dart | 1.90 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/my_actions/screens/petty_cash_my_action_screen.dart | 1.81 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/my_actions/screens/rfq_screen.dart | 1.69 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/my_actions/screens/signatures_screen.dart | 826 B | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/my_actions/screens/signature/recipient_picker_screen.dart | 11.29 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/my_actions/screens/signature/signature_document_viewer_screen.dart | 6.40 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/my_actions/screens/signature/signature_documents_tab.dart | 27.01 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/my_actions/screens/signature/signature_home_tab.dart | 14.71 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/my_actions/screens/signatures_screen.dart | 4.23 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/my_actions/theme/my_actions_module_theme.dart | 9.92 KB | Flutter app code | Feature-specific UI theme and styling constants. |
+| lib/ui/presentation/my_actions/theme/signature_theme.dart | 3.86 KB | Flutter app code | Feature-specific UI theme and styling constants. |
 | lib/ui/presentation/my_actions/utils/my_actions_detail_navigation.dart | 2.76 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_actions/widgets/my_action_employee_avatar.dart | 2.37 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_actions/widgets/my_action_list_tile.dart | 4.59 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -1447,12 +1485,19 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/my_actions/widgets/my_actions_landing_scaffold.dart | 15.25 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_actions/widgets/my_actions_local_all_sheet.dart | 6.67 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_actions/widgets/my_actions_pagination_mixin.dart | 4.15 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/my_actions/widgets/signature/signature_action_tile.dart | 3.22 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/my_actions/widgets/signature/signature_document_card.dart | 6.06 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/my_actions/widgets/signature/signature_stat_card.dart | 1.74 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_documents/screens/attachment_viewer_screen.dart | 2.31 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/my_documents/screens/company_documents_tab.dart | 21.52 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/my_documents/screens/company_documents_tab.dart | 17.50 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_documents/screens/family_documents_tab.dart | 89.11 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_documents/screens/family_insurance_request_screen.dart | 31.81 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/my_documents/screens/my_documents_screen.dart | 141.79 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/my_documents/screens/share_documents_tab.dart | 71.67 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/my_documents/screens/my_documents_screen.dart | 145.82 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/my_documents/screens/share_documents_tab.dart | 63.66 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/my_documents/screens/shared_documents_screen.dart | 3.23 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/my_documents/theme/shared_documents_theme.dart | 3.08 KB | Flutter app code | Feature-specific UI theme and styling constants. |
+| lib/ui/presentation/my_documents/utils/document_attachment_opener.dart | 5.81 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/my_documents/widgets/documents_list_tiles.dart | 13.61 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_documents/widgets/my_documents_tab_bar.dart | 3.94 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_notes/bloc/notes_bloc.dart | 1.87 KB | Flutter app code | BLoC logic for state and event handling. |
 | lib/ui/presentation/my_notes/bloc/notes_event.dart | 666 B | Flutter app code | BLoC event definitions. |
@@ -1466,10 +1511,10 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/my_notes/widgets/notes_ai_coming_soon_section.dart | 11.63 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_notes/widgets/notes_header_widget.dart | 1.47 KB | Flutter app code | Reusable Flutter UI widget. |
 | lib/ui/presentation/my_projects/data/datasources/project_documents_remote_datasource.dart | 9.97 KB | Flutter app code | Remote/local data source or API access. |
-| lib/ui/presentation/my_projects/data/datasources/project_remote_datasource.dart | 38.48 KB | Flutter app code | Remote/local data source or API access. |
-| lib/ui/presentation/my_projects/data/models/attachment_model.dart | 900 B | Flutter app code | Data model and JSON/DTO mapping. |
-| lib/ui/presentation/my_projects/data/models/folder_model.dart | 376 B | Flutter app code | Data model and JSON/DTO mapping. |
-| lib/ui/presentation/my_projects/data/models/partner_model.dart | 1.38 KB | Flutter app code | Data model and JSON/DTO mapping. |
+| lib/ui/presentation/my_projects/data/datasources/project_remote_datasource.dart | 39.72 KB | Flutter app code | Remote/local data source or API access. |
+| lib/ui/presentation/my_projects/data/models/attachment_model.dart | 935 B | Flutter app code | Data model and JSON/DTO mapping. |
+| lib/ui/presentation/my_projects/data/models/folder_model.dart | 397 B | Flutter app code | Data model and JSON/DTO mapping. |
+| lib/ui/presentation/my_projects/data/models/partner_model.dart | 1.42 KB | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/ui/presentation/my_projects/data/models/project_document_item_model.dart | 4.68 KB | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/ui/presentation/my_projects/data/models/project_documents_models.dart | 8.02 KB | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/ui/presentation/my_projects/data/models/project_expense_breakdown_model.dart | 5.44 KB | Flutter app code | Data model and JSON/DTO mapping. |
@@ -1479,31 +1524,31 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/my_projects/data/models/project_financial_model.dart | 3.76 KB | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/ui/presentation/my_projects/data/models/project_manager_filter_item.dart | 1.87 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_projects/data/models/project_manager_filter_item_extensions.dart | 567 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/my_projects/data/models/project_model.dart | 8.75 KB | Flutter app code | Data model and JSON/DTO mapping. |
+| lib/ui/presentation/my_projects/data/models/project_model.dart | 8.98 KB | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/ui/presentation/my_projects/data/models/project_scurve_model.dart | 3.86 KB | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/ui/presentation/my_projects/data/models/projects_dashboard_summary_model.dart | 1.79 KB | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/ui/presentation/my_projects/data/models/projects_paged_result.dart | 762 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/my_projects/data/models/user_project_model.dart | 2.48 KB | Flutter app code | Data model and JSON/DTO mapping. |
-| lib/ui/presentation/my_projects/data/models/user_projects_response.dart | 332 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/my_projects/data/models/user_project_model.dart | 2.55 KB | Flutter app code | Data model and JSON/DTO mapping. |
+| lib/ui/presentation/my_projects/data/models/user_projects_response.dart | 345 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_projects/data/repositories/project_documents_repository.dart | 2.76 KB | Flutter app code | Repository layer for reading/writing data. |
-| lib/ui/presentation/my_projects/data/repositories/project_repository_impl.dart | 8.61 KB | Flutter app code | Repository layer for reading/writing data. |
-| lib/ui/presentation/my_projects/domain/entities/attachment_entity.dart | 527 B | Flutter app code | Domain entity definitions. |
-| lib/ui/presentation/my_projects/domain/entities/partner_entity.dart | 378 B | Flutter app code | Domain entity definitions. |
-| lib/ui/presentation/my_projects/domain/entities/project_entity.dart | 3.48 KB | Flutter app code | Domain entity definitions. |
+| lib/ui/presentation/my_projects/data/repositories/project_repository_impl.dart | 8.83 KB | Flutter app code | Repository layer for reading/writing data. |
+| lib/ui/presentation/my_projects/domain/entities/attachment_entity.dart | 550 B | Flutter app code | Domain entity definitions. |
+| lib/ui/presentation/my_projects/domain/entities/partner_entity.dart | 396 B | Flutter app code | Domain entity definitions. |
+| lib/ui/presentation/my_projects/domain/entities/project_entity.dart | 3.62 KB | Flutter app code | Domain entity definitions. |
 | lib/ui/presentation/my_projects/domain/entities/projects_page.dart | 736 B | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/my_projects/domain/repositories/project_repository.dart | 1.19 KB | Flutter app code | Repository layer for reading/writing data. |
-| lib/ui/presentation/my_projects/domain/usecases/get_partner_projects_usecase.dart | 501 B | Flutter app code | Domain use case. |
+| lib/ui/presentation/my_projects/domain/repositories/project_repository.dart | 1.22 KB | Flutter app code | Repository layer for reading/writing data. |
+| lib/ui/presentation/my_projects/domain/usecases/get_partner_projects_usecase.dart | 514 B | Flutter app code | Domain use case. |
 | lib/ui/presentation/my_projects/domain/usecases/get_projects_by_filters_usecase.dart | 1.25 KB | Flutter app code | Domain use case. |
-| lib/ui/presentation/my_projects/domain/usecases/get_projects_by_partner_usecase.dart | 451 B | Flutter app code | Domain use case. |
-| lib/ui/presentation/my_projects/domain/usecases/get_projects_usecase.dart | 820 B | Flutter app code | Domain use case. |
-| lib/ui/presentation/my_projects/presentation/bloc/partner_bloc.dart | 2.42 KB | Flutter app code | BLoC logic for state and event handling. |
-| lib/ui/presentation/my_projects/presentation/bloc/partner_event.dart | 700 B | Flutter app code | BLoC event definitions. |
-| lib/ui/presentation/my_projects/presentation/bloc/partner_state.dart | 918 B | Flutter app code | BLoC/Cubit state definitions. |
+| lib/ui/presentation/my_projects/domain/usecases/get_projects_by_partner_usecase.dart | 463 B | Flutter app code | Domain use case. |
+| lib/ui/presentation/my_projects/domain/usecases/get_projects_usecase.dart | 842 B | Flutter app code | Domain use case. |
+| lib/ui/presentation/my_projects/presentation/bloc/partner_bloc.dart | 2.49 KB | Flutter app code | BLoC logic for state and event handling. |
+| lib/ui/presentation/my_projects/presentation/bloc/partner_event.dart | 735 B | Flutter app code | BLoC event definitions. |
+| lib/ui/presentation/my_projects/presentation/bloc/partner_state.dart | 959 B | Flutter app code | BLoC/Cubit state definitions. |
 | lib/ui/presentation/my_projects/presentation/bloc/project_documents/project_documents_cubit.dart | 10.05 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_projects/presentation/bloc/project_documents/project_documents_state.dart | 5.20 KB | Flutter app code | BLoC/Cubit state definitions. |
-| lib/ui/presentation/my_projects/presentation/bloc/project_list_bloc.dart | 7.85 KB | Flutter app code | BLoC logic for state and event handling. |
-| lib/ui/presentation/my_projects/presentation/bloc/project_list_event.dart | 1.83 KB | Flutter app code | BLoC event definitions. |
-| lib/ui/presentation/my_projects/presentation/bloc/project_list_state.dart | 651 B | Flutter app code | BLoC/Cubit state definitions. |
+| lib/ui/presentation/my_projects/presentation/bloc/project_list_bloc.dart | 8.09 KB | Flutter app code | BLoC logic for state and event handling. |
+| lib/ui/presentation/my_projects/presentation/bloc/project_list_event.dart | 1.89 KB | Flutter app code | BLoC event definitions. |
+| lib/ui/presentation/my_projects/presentation/bloc/project_list_state.dart | 680 B | Flutter app code | BLoC/Cubit state definitions. |
 | lib/ui/presentation/my_projects/presentation/map/portfolio_project_status.dart | 1.72 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_projects/presentation/map/project_analytics_screen.dart | 54.71 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/my_projects/presentation/map/project_expense_breakdown_panel.dart | 15.09 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -1516,20 +1561,20 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/my_projects/presentation/models/projects_group_hub_filters.dart | 3.06 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_projects/presentation/models/projects_list_context.dart | 164 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_projects/presentation/screens/agreements_list_screen.dart | 2.12 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/my_projects/presentation/screens/attachment_list.dart | 35.18 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/my_projects/presentation/screens/attachment_list.dart | 36.46 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_projects/presentation/screens/cloud_documents_screen.dart | 10.35 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/my_projects/presentation/screens/my_project.dart | 58.42 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/my_projects/presentation/screens/project_documents/project_documents_dashboard_view.dart | 6.37 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/my_projects/presentation/screens/project_documents/project_documents_files_view.dart | 4.65 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/my_projects/presentation/screens/my_project.dart | 59.98 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/my_projects/presentation/screens/project_documents/project_documents_dashboard_view.dart | 6.58 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/my_projects/presentation/screens/project_documents/project_documents_files_view.dart | 4.82 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_projects/presentation/screens/project_documents/project_documents_folder_projects_view.dart | 5.01 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/my_projects/presentation/screens/project_documents/project_documents_project_files_screen.dart | 5.67 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/my_projects/presentation/screens/project_documents/project_documents_project_files_screen.dart | 5.91 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/my_projects/presentation/screens/project_documents/project_documents_shell.dart | 8.13 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_projects/presentation/screens/project_documents/project_documents_uploaded_by_view.dart | 3.90 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/my_projects/presentation/screens/project_documents/project_documents_uploader_project_files_screen.dart | 6.90 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/my_projects/presentation/screens/project_documents/project_documents_uploader_project_files_screen.dart | 7.17 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/my_projects/presentation/screens/project_documents/project_documents_uploader_projects_screen.dart | 7.16 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/my_projects/presentation/screens/project_documents_hub_screen.dart | 1.13 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/my_projects/presentation/screens/project_list_screen.dart | 17.44 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/my_projects/presentation/screens/projects_file_viewer_screen.dart | 12.77 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/my_projects/presentation/screens/project_list_screen.dart | 17.93 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/my_projects/presentation/screens/projects_file_viewer_screen.dart | 18.36 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/my_projects/presentation/screens/projects_status_list_screen.dart | 8.19 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/my_projects/presentation/theme/projects_dashboard_theme.dart | 5.14 KB | Flutter app code | Feature-specific UI theme and styling constants. |
 | lib/ui/presentation/my_projects/presentation/utils/client_in_progress_grouper.dart | 3.08 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -1537,10 +1582,10 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/my_projects/presentation/utils/project_documents_layout.dart | 897 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_projects/presentation/utils/project_documents_mime_utils.dart | 617 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_projects/presentation/utils/project_documents_navigation.dart | 3.55 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/my_projects/presentation/utils/project_file_opening.dart | 3.71 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/my_projects/presentation/utils/project_file_opening.dart | 9.23 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_projects/presentation/utils/projects_api_coordinator.dart | 832 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_projects/presentation/utils/projects_coming_soon.dart | 1.60 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/my_projects/presentation/utils/projects_dashboard_access.dart | 1.55 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/my_projects/presentation/utils/projects_dashboard_access.dart | 2.30 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_projects/presentation/utils/projects_dashboard_aggregator.dart | 9.36 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_projects/presentation/utils/projects_group_hub_filter_applier.dart | 4.30 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_projects/presentation/utils/projects_group_hub_loader.dart | 1.55 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -1551,12 +1596,12 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/my_projects/presentation/widgets/agreement_list_card.dart | 8.69 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_projects/presentation/widgets/agreement_tile_card.dart | 4.48 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_projects/presentation/widgets/agreements_panel_controller.dart | 327 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/my_projects/presentation/widgets/attachment_widget.dart | 1.92 KB | Flutter app code | Reusable Flutter UI widget. |
+| lib/ui/presentation/my_projects/presentation/widgets/attachment_widget.dart | 2.03 KB | Flutter app code | Reusable Flutter UI widget. |
 | lib/ui/presentation/my_projects/presentation/widgets/client_in_progress_bar_chart.dart | 9.51 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_projects/presentation/widgets/client_projects_bottom_sheet.dart | 18.67 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/my_projects/presentation/widgets/project_analytics_documents_tab.dart | 5.42 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/my_projects/presentation/widgets/project_analytics_site_report_tab.dart | 19.00 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/my_projects/presentation/widgets/project_card_widget.dart | 14.85 KB | Flutter app code | Reusable Flutter UI widget. |
+| lib/ui/presentation/my_projects/presentation/widgets/project_analytics_documents_tab.dart | 5.65 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/my_projects/presentation/widgets/project_analytics_site_report_tab.dart | 19.89 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/my_projects/presentation/widgets/project_card_widget.dart | 15.19 KB | Flutter app code | Reusable Flutter UI widget. |
 | lib/ui/presentation/my_projects/presentation/widgets/project_document_folder_tile.dart | 3.86 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_projects/presentation/widgets/project_documents_breadcrumb_sheet.dart | 11.04 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_projects/presentation/widgets/project_documents_dialog.dart | 670 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -1614,7 +1659,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/my_request/bloc/requests_bloc.dart | 1.68 KB | Flutter app code | BLoC logic for state and event handling. |
 | lib/ui/presentation/my_request/bloc/requests_event.dart | 246 B | Flutter app code | BLoC event definitions. |
 | lib/ui/presentation/my_request/bloc/requests_state.dart | 370 B | Flutter app code | BLoC/Cubit state definitions. |
-| lib/ui/presentation/my_request/HrManagementMenuPage.dart | 7.68 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/my_request/HrManagementMenuPage.dart | 7.97 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/my_request/MyRequestsPage.dart | 30.65 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/my_request/RequestEffectiveDate.dart | 21.82 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/my_request/RequestJobMissionPage.dart | 34.60 KB | Flutter app code | Flutter screen or page UI. |
@@ -1637,29 +1682,26 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/My_task/screens/report_listing/folder_reports_screen.dart | 5.91 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/My_task/screens/report_listing/home_screen_new_app.dart | 6.45 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/News Banner/banner.dart | 23.26 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/News Banner/bloc/news_bloc.dart | 1.68 KB | Flutter app code | BLoC logic for state and event handling. |
-| lib/ui/presentation/News Banner/bloc/news_event.dart | 535 B | Flutter app code | BLoC event definitions. |
-| lib/ui/presentation/News Banner/bloc/news_state.dart | 1.35 KB | Flutter app code | BLoC/Cubit state definitions. |
 | lib/ui/presentation/News Banner/news_detail_screen.dart | 3.77 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/News Banner/news_detail_screen_api.dart | 7.21 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/News Banner/news_screen.dart | 13.03 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/News Banner/news_screen.dart | 13.02 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/Notification/model/notification_category_listview_model.dart | 708 B | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/ui/presentation/Notification/notification_category_theme.dart | 3.90 KB | Flutter app code | Feature-specific UI theme and styling constants. |
-| lib/ui/presentation/Notification/notification_mute_settings_screen.dart | 18.71 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/Notification/notification_mute_settings_screen.dart | 19.81 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/Notification/notification_screen.dart | 29.67 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/payslip/employee_payslip_module_screen.dart | 9.82 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/payslip/hr_payslip_module_screen.dart | 6.24 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/payslip/manager_payslip_hub_screen.dart | 7.16 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/payslip/employee_payslip_module_screen.dart | 8.27 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/payslip/hr_payslip_module_screen.dart | 5.77 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/payslip/manager_payslip_hub_screen.dart | 6.60 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/payslip/manager_payslip_pending_full_screen.dart | 4.12 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/payslip/payslip_detail_screen.dart | 5.00 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/payslip/payslip_module_screen.dart | 727 B | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/payslip/widgets/payslip_detail_sheet.dart | 5.02 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/payslip/payslip_detail_screen.dart | 5.14 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/payslip/payslip_module_screen.dart | 832 B | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/payslip/widgets/payslip_detail_sheet.dart | 6.14 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/payslip/widgets/payslip_document_view.dart | 10.04 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/payslip/widgets/payslip_record_card.dart | 3.97 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/performance/manager_evaluation_detail_screen.dart | 4.47 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/performance/manager_new_evaluation_screen.dart | 11.79 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/performance/performance_evaluation_module_screen.dart | 14.82 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/performance/performance_under_planning_screen.dart | 6.43 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/performance/manager_evaluation_detail_screen.dart | 4.38 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/performance/manager_new_evaluation_screen.dart | 12.78 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/performance/performance_evaluation_module_screen.dart | 12.66 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/performance/performance_under_planning_screen.dart | 6.14 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/performance/widgets/evaluation_employee_summary_card.dart | 6.14 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/performance/widgets/evaluation_metadata_section.dart | 3.76 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/performance/widgets/evaluation_pipeline_stepper.dart | 3.17 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -1688,41 +1730,41 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/productivity/widgets/productivity_coming_soon.dart | 1.61 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/productivity/widgets/productivity_glass_header.dart | 1.14 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/productivity/widgets/productivity_screen_shell.dart | 1.47 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/purchase_management/bloc/invoice_receiving_detail_cubit.dart | 2.82 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/purchase_management/bloc/mr_detail_cubit.dart | 1.31 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/purchase_management/bloc/purchase_management_hub_cubit.dart | 4.57 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/purchase_management/data/purchase_models.dart | 27.27 KB | Flutter app code | Data model and JSON/DTO mapping. |
-| lib/ui/presentation/purchase_management/data/purchase_repository.dart | 13.22 KB | Flutter app code | Repository layer for reading/writing data. |
+| lib/ui/presentation/purchase_management/data/purchase_models.dart | 35.91 KB | Flutter app code | Data model and JSON/DTO mapping. |
+| lib/ui/presentation/purchase_management/data/purchase_repository.dart | 16.87 KB | Flutter app code | Repository layer for reading/writing data. |
 | lib/ui/presentation/purchase_management/data/purchase_status.dart | 6.02 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/purchase_management/screens/draft_invoice_list_screen.dart | 6.72 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/purchase_management/screens/invoice_receiving_create_screen.dart | 10.00 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/purchase_management/screens/invoice_receiving_detail_screen.dart | 18.37 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/purchase_management/screens/invoice_receiving_list_screen.dart | 12.40 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/purchase_management/screens/mr_detail_screen.dart | 13.08 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/purchase_management/screens/mr_list_screen.dart | 10.60 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/purchase_management/screens/purchase_lpo_hub_screen.dart | 15.23 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/purchase_management/screens/purchase_management_hub_screen.dart | 23.64 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/purchase_management/screens/purchase_mr_hub_screen.dart | 8.08 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/purchase_management/screens/purchase_rfq_hub_screen.dart | 15.75 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/purchase_management/screens/rfq_list_screen.dart | 15.28 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/purchase_management/providers/purchase_providers.dart | 4.56 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/purchase_management/screens/draft_invoice_list_screen.dart | 10.17 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/purchase_management/screens/invoice_receiving_create_screen.dart | 10.33 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/purchase_management/screens/invoice_receiving_detail_screen.dart | 19.03 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/purchase_management/screens/invoice_receiving_list_screen.dart | 12.58 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/purchase_management/screens/mr_detail_screen.dart | 13.03 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/purchase_management/screens/mr_list_screen.dart | 10.93 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/purchase_management/screens/purchase_lpo_hub_screen.dart | 15.71 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/purchase_management/screens/purchase_management_hub_screen.dart | 15.74 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/purchase_management/screens/purchase_mr_hub_screen.dart | 8.39 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/purchase_management/screens/purchase_rfq_hub_screen.dart | 16.21 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/purchase_management/screens/rfq_list_screen.dart | 15.95 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/purchase_management/theme/purchase_theme.dart | 2.90 KB | Flutter app code | Feature-specific UI theme and styling constants. |
-| lib/ui/presentation/purchase_management/utils/purchase_number_format.dart | 791 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/purchase_management/widgets/lpo_smart_filter_sheet.dart | 18.50 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/purchase_management/utils/purchase_number_format.dart | 986 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/purchase_management/widgets/lpo_smart_filter_sheet.dart | 18.98 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/purchase_management/widgets/purchase_background.dart | 553 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/purchase_management/widgets/purchase_coming_soon_plate.dart | 6.00 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/purchase_management/widgets/purchase_compact_hub_card.dart | 8.16 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/purchase_management/widgets/purchase_draft_invoice_row.dart | 7.52 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/purchase_management/widgets/purchase_filter_picker_dialog.dart | 11.19 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/purchase_management/widgets/purchase_coming_soon_plate.dart | 6.24 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/purchase_management/widgets/purchase_compact_hub_card.dart | 8.47 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/purchase_management/widgets/purchase_dev_role_toggle_bar.dart | 3.50 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/purchase_management/widgets/purchase_draft_invoice_row.dart | 9.68 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/purchase_management/widgets/purchase_filter_picker_dialog.dart | 13.53 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/purchase_management/widgets/purchase_glass_header.dart | 2.62 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/purchase_management/widgets/purchase_hero_card.dart | 3.82 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/purchase_management/widgets/purchase_hub_card.dart | 5.59 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/purchase_management/widgets/purchase_hub_list_scaffold.dart | 9.91 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/purchase_management/widgets/purchase_hub_view_switch.dart | 7.78 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/purchase_management/widgets/purchase_list_widgets.dart | 4.79 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/purchase_management/widgets/purchase_management_ai_view.dart | 803 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/purchase_management/widgets/purchase_management_analytics_view.dart | 764 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/purchase_management/widgets/purchase_status_chip.dart | 1000 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/purchase_management/widgets/purchase_trend_badge.dart | 2.59 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/purchase_management/widgets/purchase_hero_card.dart | 3.99 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/purchase_management/widgets/purchase_hub_card.dart | 5.82 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/purchase_management/widgets/purchase_hub_list_scaffold.dart | 10.28 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/purchase_management/widgets/purchase_hub_view_switch.dart | 8.12 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/purchase_management/widgets/purchase_invoice_detail_sheet.dart | 17.58 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/purchase_management/widgets/purchase_list_widgets.dart | 5.01 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/purchase_management/widgets/purchase_management_ai_view.dart | 838 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/purchase_management/widgets/purchase_management_analytics_view.dart | 795 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/purchase_management/widgets/purchase_status_chip.dart | 1.07 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/purchase_management/widgets/purchase_trend_badge.dart | 2.71 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/qr_code/bloc/qr_code_bloc.dart | 1.47 KB | Flutter app code | BLoC logic for state and event handling. |
 | lib/ui/presentation/qr_code/bloc/qr_code_event.dart | 281 B | Flutter app code | BLoC event definitions. |
 | lib/ui/presentation/qr_code/bloc/qr_code_state.dart | 582 B | Flutter app code | BLoC/Cubit state definitions. |
@@ -1731,59 +1773,55 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/qr_code/qr_code_screen.dart | 7.49 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/qr_code/qr_scanner_screen.dart | 24.19 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/qr_code/widgets/qr_code_display_widget.dart | 7.08 KB | Flutter app code | Reusable Flutter UI widget. |
-| lib/ui/presentation/qr_survey/bloc/qr_survey_bloc.dart | 652 B | Flutter app code | BLoC logic for state and event handling. |
-| lib/ui/presentation/qr_survey/bloc/qr_survey_event.dart | 551 B | Flutter app code | BLoC event definitions. |
-| lib/ui/presentation/qr_survey/bloc/qr_survey_state.dart | 717 B | Flutter app code | BLoC/Cubit state definitions. |
 | lib/ui/presentation/qr_survey/models/qr_document_model.dart | 1021 B | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/ui/presentation/qr_survey/models/qr_media_model.dart | 1.57 KB | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/ui/presentation/qr_survey/models/qr_question_model.dart | 2.41 KB | Flutter app code | Data model and JSON/DTO mapping. |
-| lib/ui/presentation/qr_survey/screens/list_documents_screen.dart | 4.23 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/qr_survey/screens/list_media_screen.dart | 6.79 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/qr_survey/screens/list_questions_screen.dart | 9.39 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/qr_survey/screens/qr_code_wrapper.dart | 3.80 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/qr_survey/screens/qr_survey_authenticated_screen.dart | 4.90 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/qr_survey/screens/qr_survey_content_wrapper.dart | 4.69 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/qr_survey/providers/qr_survey_data_provider.dart | 1.14 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/qr_survey/screens/list_documents_screen.dart | 4.41 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/qr_survey/screens/list_media_screen.dart | 7.05 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/qr_survey/screens/list_questions_screen.dart | 9.74 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/qr_survey/screens/qr_code_wrapper.dart | 3.90 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/qr_survey/screens/qr_survey_authenticated_screen.dart | 5.02 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/qr_survey/screens/qr_survey_content_wrapper.dart | 4.80 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/qr_survey/services/qr_survey_api_service.dart | 5.35 KB | Flutter app code | Service helper for business logic or integration. |
-| lib/ui/presentation/recruitment/a1_assessment_detail_screen.dart | 6.86 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/recruitment/a2_assessment_form_screen.dart | 6.72 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/recruitment/c1_candidates_list_screen.dart | 7.86 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/recruitment/c2_candidate_detail_screen.dart | 12.82 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/recruitment/d1_recruitment_dashboard_panel.dart | 11.56 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/recruitment/o1_offer_detail_screen.dart | 10.94 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/recruitment/r1_recruitment_landing_screen.dart | 23.31 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/recruitment/r2_requisition_detail_screen.dart | 17.17 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/recruitment/r3_new_requisition_screen.dart | 12.93 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/recruitment/a1_assessment_detail_screen.dart | 6.41 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/recruitment/a2_assessment_form_screen.dart | 7.19 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/recruitment/c1_candidates_list_screen.dart | 7.12 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/recruitment/c2_candidate_detail_screen.dart | 12.36 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/recruitment/d1_recruitment_dashboard_panel.dart | 11.70 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/recruitment/o1_offer_detail_screen.dart | 10.10 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/recruitment/r1_recruitment_landing_screen.dart | 23.73 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/recruitment/r2_requisition_detail_screen.dart | 16.87 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/recruitment/r3_new_requisition_screen.dart | 13.45 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/recruitment/recruitment_referral_screen.dart | 4.24 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/recruitment/recruitment_under_planning_screen.dart | 2.21 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/search/screens/widget_search_screen.dart | 405 B | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/signin/bloc/sign_in_bloc.dart | 3.82 KB | Flutter app code | BLoC logic for state and event handling. |
-| lib/ui/presentation/signin/bloc/sign_in_event.dart | 441 B | Flutter app code | BLoC event definitions. |
-| lib/ui/presentation/signin/bloc/sign_in_state.dart | 775 B | Flutter app code | BLoC/Cubit state definitions. |
-| lib/ui/presentation/signin/data/model.dart | 59.81 KB | Flutter app code | Data model and JSON/DTO mapping. |
-| lib/ui/presentation/signin/data/repository.dart | 5.84 KB | Flutter app code | Repository layer for reading/writing data. |
-| lib/ui/presentation/signin/sign_in_screen.dart | 16.88 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/splash_screen/splash_screen.dart | 13.87 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/signin/bloc/sign_in_bloc.dart | 3.93 KB | Flutter app code | BLoC logic for state and event handling. |
+| lib/ui/presentation/signin/bloc/sign_in_event.dart | 458 B | Flutter app code | BLoC event definitions. |
+| lib/ui/presentation/signin/bloc/sign_in_state.dart | 808 B | Flutter app code | BLoC/Cubit state definitions. |
+| lib/ui/presentation/signin/data/model.dart | 63.80 KB | Flutter app code | Data model and JSON/DTO mapping. |
+| lib/ui/presentation/signin/data/repository.dart | 6.01 KB | Flutter app code | Repository layer for reading/writing data. |
+| lib/ui/presentation/signin/sign_in_screen.dart | 17.32 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/splash_screen/splash_screen.dart | 14.11 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/splash_screen/widgets/app_update_popup.dart | 15.25 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/task_sheet/add_task_sheet.dart | 61.02 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/task_sheet/EmployeeShiftRequestPage.dart | 46.71 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/task_sheet/EmptyShiftPage.dart | 12.80 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/task_sheet/task_sheet_screen.dart | 23.71 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/task_sheet/TaskDetailsPage.dart | 25.65 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/tasks/bloc/tasks_bloc.dart | 15.35 KB | Flutter app code | BLoC logic for state and event handling. |
-| lib/ui/presentation/tasks/bloc/tasks_event.dart | 2.67 KB | Flutter app code | BLoC event definitions. |
-| lib/ui/presentation/tasks/bloc/tasks_state.dart | 2.05 KB | Flutter app code | BLoC/Cubit state definitions. |
 | lib/ui/presentation/tasks/data/assignable_user_model.dart | 305 B | Flutter app code | Data model and JSON/DTO mapping. |
-| lib/ui/presentation/tasks/data/local_tasks_hive_service.dart | 1.44 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/ui/presentation/tasks/data/local_tasks_hive_service.dart | 1.50 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/ui/presentation/tasks/data/task_model.dart | 3.25 KB | Flutter app code | Data model and JSON/DTO mapping. |
-| lib/ui/presentation/tasks/data/tasks_api_service.dart | 13.09 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/ui/presentation/tasks/data/tasks_api_service.dart | 13.50 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/ui/presentation/tasks/data/tasks_repository.dart | 2.32 KB | Flutter app code | Repository layer for reading/writing data. |
-| lib/ui/presentation/tasks/task_details_screen.dart | 40.92 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/tasks/tasks_screen.dart | 30.38 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/tasks/logic/tasks_provider.dart | 10.78 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/tasks/task_details_screen.dart | 39.25 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/tasks/tasks_screen.dart | 31.16 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/tasks_dashboard/models/team_model.dart | 2.89 KB | Flutter app code | Data model and JSON/DTO mapping. |
-| lib/ui/presentation/tasks_dashboard/screens/add_task.dart | 78.96 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/tasks_dashboard/screens/task_details.dart | 67.10 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/tasks_dashboard/screens/tasks_dashboard_screen.dart | 42.06 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/tasks_dashboard/screens/user_reports_screen.dart | 27.45 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/tasks_dashboard/screens/add_task.dart | 81.68 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/tasks_dashboard/screens/task_details.dart | 69.13 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/tasks_dashboard/screens/tasks_dashboard_screen.dart | 42.94 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/tasks_dashboard/screens/user_reports_screen.dart | 27.23 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/tasks_dashboard/services/task_options_api_service.dart | 5.98 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/ui/presentation/tasks_dashboard/services/teams_api_service.dart | 5.83 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/ui/presentation/tasks_dashboard/widgets/task_card_widget.dart | 1.93 KB | Flutter app code | Reusable Flutter UI widget. |
@@ -1793,8 +1831,8 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/timesheet/foreman/attendance/at1_capture_mode_sheet.dart | 5.28 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/foreman/attendance/at2_capture_camera.dart | 8.04 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/foreman/attendance/at4_capture_summary.dart | 6.37 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/timesheet/foreman/attendance/timesheet_capture_camera_panel.dart | 61.87 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/timesheet/foreman/enrollment/fm_face_enroll_capture_screen.dart | 23.48 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/timesheet/foreman/attendance/timesheet_capture_camera_panel.dart | 65.07 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/timesheet/foreman/enrollment/fm_face_enroll_capture_screen.dart | 28.38 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/timesheet/foreman/enrollment/fm_face_enroll_file_id_screen.dart | 5.05 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/timesheet/foreman/enrollment/widgets/fm_face_enroll_oval_overlay.dart | 2.89 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/foreman/enrollment/widgets/fm_face_enroll_processing_sheet.dart | 3.38 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -1804,9 +1842,9 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/timesheet/foreman/fm_project_picker_screen.dart | 7.65 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/timesheet/foreman/fm_projects_list.dart | 3.17 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/foreman/fm_site_management_home_screen.dart | 8.99 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/timesheet/foreman/fm_sync_queue_screen.dart | 4.88 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/timesheet/foreman/fm_sync_queue_screen.dart | 5.03 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/timesheet/foreman/fm_tasks_hub_screen.dart | 3.77 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/timesheet/foreman/fm_timesheet_capture_submit_screen.dart | 35.27 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/timesheet/foreman/fm_timesheet_capture_submit_screen.dart | 35.78 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/timesheet/foreman/fm_timesheet_print_report_screen.dart | 9.72 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/timesheet/foreman/fm_timesheet_records_screen.dart | 12.83 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/timesheet/foreman/fm_timesheet_submitted_list_screen.dart | 6.53 KB | Flutter app code | Flutter screen or page UI. |
@@ -1817,43 +1855,44 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/timesheet/live_location_map.dart | 5.59 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/models/timesheet_capture_session_entry.dart | 597 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/pm/pm_attendance_review.dart | 9.85 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/timesheet/pm/pm_timesheet_home_screen.dart | 9.03 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/timesheet/pm/pm_timesheet_home_screen.dart | 9.54 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/timesheet/pm/pm_timesheet_submissions_screen.dart | 3.82 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/timesheet/pm/pm_worker_enrol.dart | 10.83 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/pm/pm1_dashboard.dart | 9.25 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/timesheet/pm/pm2_project_detail.dart | 9.21 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/timesheet/pm/pm2_project_detail.dart | 9.47 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/project_chat_contacts.dart | 1.94 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/project_chat_entry.dart | 548 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/project_chat_picker_screen.dart | 19.26 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/timesheet/project_record_card.dart | 10.71 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/timesheet/site_management/sm_monitor_project_screen.dart | 17.96 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/timesheet/site_management/sm_monitor_project_screen.dart | 18.57 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/timesheet/site_management/widgets/sm_common.dart | 2.56 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/site_management/widgets/sm_foremen_section.dart | 7.50 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/site_management/widgets/sm_monitoring_tab.dart | 7.26 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/site_management/widgets/sm_progress_section.dart | 10.59 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/timesheet/site_management_module_entry_screen.dart | 460 B | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/timesheet/site_management_module_entry_screen.dart | 545 B | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/timesheet/site_photos_gallery.dart | 6.72 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/site_report_form.dart | 6.62 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/timesheet/site_reports/models/tm_site_photo_draft.dart | 1.37 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/timesheet/site_reports/models/tm_site_photo_draft.dart | 2.13 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/site_reports/models/tm_site_report_composer_result.dart | 357 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/timesheet/site_reports/tm_site_report_actions.dart | 5.80 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/timesheet/site_reports/tm_site_report_composer_screen.dart | 17.65 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/timesheet/site_reports/tm_site_report_folder_screen.dart | 9.45 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/timesheet/site_reports/tm_site_report_gallery_screen.dart | 7.80 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/timesheet/site_reports/tm_site_report_pdf_screen.dart | 5.03 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/timesheet/site_reports/tm_site_report_view_pdf.dart | 3.93 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/timesheet/site_reports/tm_site_report_actions.dart | 5.90 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/timesheet/site_reports/tm_site_report_composer_screen.dart | 18.89 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/timesheet/site_reports/tm_site_report_folder_screen.dart | 9.96 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/timesheet/site_reports/tm_site_report_gallery_screen.dart | 8.15 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/timesheet/site_reports/tm_site_report_pdf_screen.dart | 5.44 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/timesheet/site_reports/tm_site_report_photos_page.dart | 1.28 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/timesheet/site_reports/tm_site_report_view_pdf.dart | 3.95 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/site_reports/tm_site_reports_for_project_screen.dart | 1.68 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/timesheet/site_reports/tm_site_reports_list_screen.dart | 11.60 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/timesheet/site_reports/tm_site_reports_list_screen.dart | 12.49 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/timesheet/site_reports/widgets/tm_report_format_sheet.dart | 7.03 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/site_reports/widgets/tm_report_generation_sheet.dart | 6.87 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/site_reports/widgets/tm_site_image_viewer_sheet.dart | 6.42 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/timesheet/site_reports/widgets/tm_site_photo_description_carousel.dart | 9.71 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/timesheet/site_reports/widgets/tm_site_photo_description_carousel.dart | 13.89 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/site_reports/widgets/tm_site_report_company_app_bar.dart | 1.84 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/timesheet_async_state.dart | 3.05 KB | Flutter app code | BLoC/Cubit state definitions. |
 | lib/ui/presentation/timesheet/timesheet_chat_launcher.dart | 5.29 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/timesheet_chat_resolve.dart | 3.13 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/timesheet_dev_role_toggle_bar.dart | 3.65 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/timesheet/timesheet_entry_mode_scope.dart | 927 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/timesheet/timesheet_entry_mode_scope.dart | 1019 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/timesheet_menu_tile.dart | 3.74 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/timesheet_module_entry_screen.dart | 2.93 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/timesheet/timesheet_module_home_screen.dart | 985 B | Flutter app code | Flutter screen or page UI. |
@@ -1889,27 +1928,26 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/timesheet/widgets/tm_pdf_bytes_preview_screen.dart | 4.52 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/timesheet/widgets/tm_project_face_enroll_tab.dart | 7.85 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/widgets/tm_project_location_section.dart | 12.27 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/timesheet/widgets/tm_project_site_reports_tab.dart | 11.33 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/timesheet/widgets/tm_share_pdf_sheet.dart | 10.85 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/timesheet/widgets/tm_project_site_reports_tab.dart | 11.79 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/timesheet/widgets/tm_share_pdf_sheet.dart | 11.16 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/widgets/tm_site_report_card.dart | 3.95 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/widgets/tm_site_report_folder_card.dart | 6.02 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/widgets/tm_site_report_row.dart | 6.61 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/widgets/tm_team_members_sheet.dart | 19.09 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/timesheet/widgets/tm_timesheet_entry_row.dart | 7.98 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/todo_list/bloc/todo_bloc.dart | 24.18 KB | Flutter app code | BLoC logic for state and event handling. |
-| lib/ui/presentation/todo_list/bloc/todo_event.dart | 4.88 KB | Flutter app code | BLoC event definitions. |
-| lib/ui/presentation/todo_list/bloc/todo_state.dart | 3.65 KB | Flutter app code | BLoC/Cubit state definitions. |
 | lib/ui/presentation/todo_list/data/task_member_model.dart | 3.77 KB | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/ui/presentation/todo_list/data/todo_list_model.dart | 3.05 KB | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/ui/presentation/todo_list/data/todo_model.dart | 10.40 KB | Flutter app code | Data model and JSON/DTO mapping. |
-| lib/ui/presentation/todo_list/screens/todo_category_screen.dart | 9.47 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/todo_list/screens/todo_list_screen.dart | 12.95 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/todo_list/screens/todo_search_screen.dart | 7.03 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/todo_list/providers/todo_firebase_provider.dart | 16.74 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/todo_list/providers/todo_provider.dart | 12.48 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/todo_list/screens/todo_category_screen.dart | 9.71 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/todo_list/screens/todo_list_screen.dart | 13.33 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/todo_list/screens/todo_search_screen.dart | 7.25 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/todo_list/services/team_members_api_service.dart | 9.08 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/ui/presentation/todo_list/services/todo_database_service.dart | 11.25 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/ui/presentation/todo_list/services/todo_firebase_service.dart | 38.89 KB | Flutter app code | Service helper for business logic or integration. |
-| lib/ui/presentation/todo_list/widgets/add_list_dialog.dart | 4.57 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/todo_list/widgets/add_todo_bottom_sheet.dart | 28.46 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/todo_list/widgets/add_list_dialog.dart | 4.75 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/todo_list/widgets/add_todo_bottom_sheet.dart | 29.31 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/todo_list/widgets/todo_item_widget.dart | 6.24 KB | Flutter app code | Reusable Flutter UI widget. |
 | lib/ui/tasks/tasks_dashboard_screen.dart | 0 B | Flutter app code | Flutter screen or page UI. |
 | lib/ui/widgets/back_icon.dart | 740 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -1929,14 +1967,11 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/widgets/footer_widget.dart | 613 B | Flutter app code | Reusable Flutter UI widget. |
 | lib/ui/widgets/glass_sub_app_screen_header.dart | 16.46 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/widgets/glass_tab_widget.dart | 5.76 KB | Flutter app code | Reusable Flutter UI widget. |
-| lib/ui/widgets/global_search/bloc/global_search_bloc.dart | 6.66 KB | Flutter app code | BLoC logic for state and event handling. |
-| lib/ui/widgets/global_search/bloc/global_search_event.dart | 1.19 KB | Flutter app code | BLoC event definitions. |
-| lib/ui/widgets/global_search/bloc/global_search_state.dart | 4.37 KB | Flutter app code | BLoC/Cubit state definitions. |
-| lib/ui/widgets/global_search_category_screen.dart | 8.19 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/widgets/global_search_category_screen.dart | 8.50 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/widgets/global_search_header.dart | 6.80 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/widgets/global_search_item_builder.dart | 13.78 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/widgets/global_search_result_card.dart | 13.01 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/widgets/global_search_screen.dart | 17.46 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/widgets/global_search_screen.dart | 17.93 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/widgets/global_search_theme.dart | 3.55 KB | Flutter app code | Feature-specific UI theme and styling constants. |
 | lib/ui/widgets/glossy_affect.dart | 436 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/widgets/header_widget.dart | 21.98 KB | Flutter app code | Reusable Flutter UI widget. |
@@ -1951,14 +1986,14 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/widgets/title_bar_with_icon_and_back_widget.dart | 2.70 KB | Flutter app code | Reusable Flutter UI widget. |
 | lib/ui/widgets/update_dialog.dart | 8.32 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/widgets/wave_clip_path.dart | 427 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/utils/api_logger.dart | 6.18 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/utils/api_logger.dart | 6.34 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/utils/api_query.dart | 6.47 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/utils/color_utils.dart | 942 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/utils/custom_navigate.dart | 4.09 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/utils/di.dart | 5.31 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/utils/di.dart | 5.43 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/utils/dimens.dart | 1.29 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/utils/extensions/size_extension.dart | 181 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/utils/generated_routes.dart | 17.18 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/utils/generated_routes.dart | 19.41 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/utils/global_search_navigation_helper.dart | 10.58 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/utils/orientation_helper.dart | 739 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/utils/safe_insets.dart | 3.31 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -1966,8 +2001,8 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/utils/string_utils.dart | 1.04 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/utils/uaepass_logger.dart | 3.70 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/utils/url_encoder.dart | 1.33 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/utils/urll_utils.dart | 1.24 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/utils/Util.dart | 6.82 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/utils/urll_utils.dart | 1.39 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/utils/Util.dart | 7.22 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | packages/cunning_document_scanner/analysis_options.yaml | 154 B | Local package/plugin | YAML configuration file. |
 | packages/cunning_document_scanner/android/build.gradle | 1.05 KB | Local package/plugin | Gradle build configuration for Android. |
 | packages/cunning_document_scanner/android/settings.gradle | 46 B | Local package/plugin | Gradle build configuration for Android. |
@@ -2209,15 +2244,15 @@ Quick reference for the project files: path, size, category, and a short respons
 | packages/face_liveness_detector/README.md | 6.76 KB | Local package/plugin | Markdown documentation file. |
 | packages/face_liveness_detector/test/rekognition_face_liveness_test.dart | 16 B | Local package/plugin | Dart file in the Flutter app; purpose follows its folder and name. |
 | proguard-rules.pro | 3.62 KB | Project root/configuration | Project file; use its path and extension to locate its role. |
-| PROJECT_FILE_INDEX.md | 304.47 KB | Project root/configuration | Markdown documentation file. |
-| PROJECT_FULL_AUDIT_REPORT.md | 27.60 KB | Project root/configuration | Markdown documentation file. |
-| pubspec.lock | 82.49 KB | Project root/configuration | Pinned Dart/Flutter dependency versions. |
-| pubspec.yaml | 5.76 KB | Project root/configuration | Flutter project manifest for packages, assets, and fonts. |
+| PROJECT_FILE_INDEX.md | 304.85 KB | Project root/configuration | Markdown documentation file. |
+| PROJECT_FULL_AUDIT_REPORT.md | 41.19 KB | Project root/configuration | Markdown documentation file. |
+| pubspec.lock | 85.21 KB | Project root/configuration | Pinned Dart/Flutter dependency versions. |
+| pubspec.yaml | 6.01 KB | Project root/configuration | Flutter project manifest for packages, assets, and fonts. |
 | qrcodeapp.php | 7.28 KB | Project root/configuration | PHP helper/page related to QR or web integration. |
 | scripts/convert_minifasnet_to_tflite.py | 2.87 KB | Developer/automation scripts | Python automation script or API example. |
-| scripts/copy_amplify_liveness_config.sh | 1.51 KB | Developer/automation scripts | Shell automation script for project maintenance. |
-| scripts/fix_ios_native_assets.sh | 516 B | Developer/automation scripts | Shell automation script for project maintenance. |
-| scripts/generate_project_file_index.ps1 | 8.34 KB | Developer/automation scripts | PowerShell automation script for project maintenance. |
+| scripts/copy_amplify_liveness_config.sh | 1.55 KB | Developer/automation scripts | Shell automation script for project maintenance. |
+| scripts/fix_ios_native_assets.sh | 532 B | Developer/automation scripts | Shell automation script for project maintenance. |
+| scripts/generate_project_file_index.ps1 | 8.37 KB | Developer/automation scripts | PowerShell automation script for project maintenance. |
 | scripts/state_management_audit.ps1 | 1.49 KB | Developer/automation scripts | PowerShell automation script for project maintenance. |
 | startup_check.png | 29.68 KB | Project root/configuration | PNG image asset. |
 | templates/apple-app-site-association | 244 B | Code generation templates | Project file; use its path and extension to locate its role. |
@@ -2255,12 +2290,11 @@ Quick reference for the project files: path, size, category, and a short respons
 | templates/simple/repository.tmpl | 268 B | Code generation templates | Code generation template. |
 | templates/simple/screen.tmpl | 2.20 KB | Code generation templates | Code generation template. |
 | templates/simple/state.tmpl | 833 B | Code generation templates | Code generation template. |
-| test/anti_spoof_test.dart | 15.31 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
+| test/anti_spoof_test.dart | 15.78 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/home/home_widget_visibility_test.dart | 1.55 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/hr_management/hr_effective_view_test.dart | 3.12 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/minifasnet_preprocessor_test.dart | 1.15 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
-| test/my_projects_user_projects_test.dart | 2.94 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
+| test/my_projects_user_projects_test.dart | 3.02 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/projects_dashboard_aggregator_test.dart | 1.85 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/projects_group_manager_test.dart | 4.52 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/tasks_api_service_test.dart | 2.34 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
-| test/widget_test.dart | 190 B | Automated tests | Automated Flutter/Dart test for app behavior. |
