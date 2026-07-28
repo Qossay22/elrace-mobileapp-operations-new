@@ -41,7 +41,6 @@ class TmSiteReportComposerScreen extends StatefulWidget {
 
   final FolderModel? folder;
   final String projectName;
-
   /// Default photo location label (flat mode); falls back to [projectName].
   final String locationHint;
   final bool useDefaultFolder;
@@ -60,8 +59,7 @@ class TmSiteReportComposerScreen extends StatefulWidget {
       _TmSiteReportComposerScreenState();
 }
 
-class _TmSiteReportComposerScreenState
-    extends State<TmSiteReportComposerScreen> {
+class _TmSiteReportComposerScreenState extends State<TmSiteReportComposerScreen> {
   final _titleController = TextEditingController();
   final _pdfNameController = TextEditingController();
   final _picker = ImagePicker();
@@ -437,7 +435,6 @@ class _TmSiteReportComposerScreenState
                             label: stackButtons ? 'Capture' : 'Multi capture',
                             icon: PhosphorIcons.camera(),
                             onPressed: _pickCamera,
-                            fitLabel: true,
                           );
                           final upload = TmSecondaryButton(
                             label: 'Upload',
@@ -485,7 +482,8 @@ class _TmSiteReportComposerScreenState
                   TmSitePhotoDescriptionCarousel(
                     drafts: active,
                     projectName: widget.projectName,
-                    initialIndex: _editorStartIndex.clamp(0, active.length - 1),
+                    initialIndex:
+                        _editorStartIndex.clamp(0, active.length - 1),
                     onRemove: _removeDraft,
                   ),
                 ] else ...[
@@ -510,7 +508,9 @@ class _TmSiteReportComposerScreenState
                 TimesheetModuleLayout.screenPaddingH,
               ),
               child: TmPrimaryButton(
-                label: widget.isEditMode ? 'Regenerate PDF' : 'Generate report',
+                label: widget.isEditMode
+                    ? 'Regenerate PDF'
+                    : 'Generate report',
                 icon: PhosphorIcons.filePdf(),
                 onPressed: hasPhotos ? _startGenerate : null,
               ),
