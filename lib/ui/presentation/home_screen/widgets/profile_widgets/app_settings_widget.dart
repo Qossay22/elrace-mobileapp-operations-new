@@ -10,14 +10,16 @@ import 'package:el_race/ui/presentation/Notification/notification_mute_settings_
 import 'package:el_race/ui/presentation/home_screen/bloc/home_bloc.dart';
 import 'package:el_race/ui/presentation/home_screen/screens/home_screen.dart';
 import 'package:el_race/ui/presentation/signin/sign_in_screen.dart';
+import 'package:el_race/ui/presentation/qr_code/qr_scanner_screen.dart';
 import 'package:el_race/core/timesheet/providers/timesheet_session_reset.dart';
 import 'package:el_race/ui/presentation/attendance_reports/attendance_reports_session.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/profile_box/profile_box_bloc.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/profile_box/profile_box_event.dart';
+import 'package:el_race/providers/profile_box_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderScope;
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
 class AppSettingsWidget extends StatelessWidget {
   static const bool _showLogoutButton = true;
@@ -240,10 +242,11 @@ class AppSettingsWidget extends StatelessWidget {
                         ),
                         child: ElevatedButton(
                           onPressed: () async {
-                            final profileBoxBloc =
-                                context.read<ProfileBoxBloc>();
-                            if (profileBoxBloc.state.isProfileVisible) {
-                              profileBoxBloc.add(const ProfileBoxHidden());
+                            final provider = Provider.of<ProfileBoxProvider>(
+                                context,
+                                listen: false);
+                            if (provider.isProfileVisible) {
+                              provider.hideProfileBox();
                             }
                             await Util.saveAndChangeLocale(context, 'en');
                           },
@@ -274,10 +277,11 @@ class AppSettingsWidget extends StatelessWidget {
                       ),
                       child: ElevatedButton(
                         onPressed: () async {
-                          final profileBoxBloc =
-                              context.read<ProfileBoxBloc>();
-                          if (profileBoxBloc.state.isProfileVisible) {
-                            profileBoxBloc.add(const ProfileBoxHidden());
+                          final provider = Provider.of<ProfileBoxProvider>(
+                              context,
+                              listen: false);
+                          if (provider.isProfileVisible) {
+                            provider.hideProfileBox();
                           }
                           await Util.saveAndChangeLocale(context, 'ar');
                         },
@@ -338,18 +342,16 @@ class AppSettingsWidget extends StatelessWidget {
                     Text(translate('profile.mute_notifications'),
                         style: GoogleFonts.poppins(fontSize: 11)),
                     const Spacer(),
-                    BlocBuilder<ProfileBoxBloc, ProfileBoxState>(
-                      builder: (context, state) {
+                    Consumer<ProfileBoxProvider>(
+                      builder: (context, provider, child) {
                         return SizedBox(
                           height: 10.57,
                           child: Transform.scale(
                             scale: 0.7, // تصغير الحجم
                             child: Switch(
-                              value: state.muteNotifications,
+                              value: provider.muteNotifications,
                               onChanged: (v) {
-                                context.read<ProfileBoxBloc>().add(
-                                      ProfileMuteNotificationsSet(v),
-                                    );
+                                provider.setMuteNotifications(v);
                               },
                               activeColor: appFontColor,
                               activeTrackColor: const Color(
@@ -524,9 +526,10 @@ class AppSettingsWidget extends StatelessWidget {
                     // print('🚪 Logout button pressed');
 
                     // Hide profile box first (before showing dialog)
-                    final profileBoxBloc = context.read<ProfileBoxBloc>();
-                    if (profileBoxBloc.state.isProfileVisible) {
-                      profileBoxBloc.add(const ProfileBoxHidden());
+                    final provider =
+                        Provider.of<ProfileBoxProvider>(context, listen: false);
+                    if (provider.isProfileVisible) {
+                      provider.hideProfileBox();
                     }
 
                     // Wait a bit for the animation to complete

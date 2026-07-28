@@ -4,12 +4,12 @@ import 'dart:typed_data';
 import 'package:el_race/chat/models/chat.dart';
 import 'package:el_race/chat/repositories/chat_repository.dart';
 import 'package:el_race/core/theme/timesheet_module_theme.dart';
-import 'package:el_race/core/timesheet/providers/timesheet_data_providers.dart';
 import 'package:el_race/ui/chat/chat_screen.dart';
+import 'package:el_race/core/timesheet/providers/timesheet_data_providers.dart';
 import 'package:el_race/ui/presentation/timesheet/project_chat_picker_screen.dart';
 import 'package:el_race/ui/presentation/timesheet/timesheet_chat_resolve.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:share_plus/share_plus.dart';
@@ -138,8 +138,8 @@ class _ShareBodyState extends ConsumerState<_ShareBody> {
 
     try {
       final projectId = widget.projectId!.trim();
-      final staff =
-          await ref.read(timesheetProjectStaffProvider(projectId).future);
+      final staff = await ref
+          .read(timesheetProjectStaffProvider(projectId).future);
       final memberUids = await TimesheetChatResolve.firebaseUidsForStaff(staff);
 
       await ChatRepository.instance.ensureProjectGroupChat(
@@ -186,8 +186,7 @@ class _ShareBodyState extends ConsumerState<_ShareBody> {
 
   Future<void> _sendToDm(String chatId) async {
     Navigator.of(context).pop();
-    final file =
-        await TmSharePdfSheet._writeTemp(widget.pdfBytes, widget.fileName);
+    final file = await TmSharePdfSheet._writeTemp(widget.pdfBytes, widget.fileName);
     try {
       await ChatRepository.instance.sendFile(chatId, file, mimeType: 'pdf');
       if (!context.mounted) return;
@@ -220,11 +219,9 @@ class _ShareBodyState extends ConsumerState<_ShareBody> {
           child: CircularProgressIndicator(strokeWidth: 2),
         );
       case _ShareSendPhase.sent:
-        return Icon(PhosphorIcons.checkCircle(),
-            color: const Color(0xFF3DDC84));
+        return Icon(PhosphorIcons.checkCircle(), color: const Color(0xFF3DDC84));
       case _ShareSendPhase.error:
-        return Icon(PhosphorIcons.warningCircle(),
-            color: TimesheetModuleColors.danger);
+        return Icon(PhosphorIcons.warningCircle(), color: TimesheetModuleColors.danger);
     }
   }
 

@@ -1,6 +1,6 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
-import 'package:el_race/core/hr_management/network/hr_api_client_factory.dart';
 import 'package:el_race/core/hr_management/models/hr_request_summary.dart';
+import 'package:el_race/core/hr_management/providers/hr_management_providers.dart';
 import 'package:el_race/core/theme/hr_module_colors.dart';
 import 'package:el_race/core/theme/hr_module_layout.dart';
 import 'package:el_race/core/theme/hr_module_typography.dart';
@@ -10,19 +10,19 @@ import 'package:el_race/core/widgets/hr_management/hr_requests_gradient_scaffold
 import 'package:el_race/core/widgets/hr_management/hr_search_bar.dart';
 import 'package:el_race/core/widgets/hr_management/hr_themed_pickers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// M4 — Search older team requests (SRD §4.4) via `/api/hr/team_requests/search`.
-class HrManagerSearchOlderScreen extends StatefulWidget {
+class HrManagerSearchOlderScreen extends ConsumerStatefulWidget {
   const HrManagerSearchOlderScreen({super.key});
 
   @override
-  State<HrManagerSearchOlderScreen> createState() =>
+  ConsumerState<HrManagerSearchOlderScreen> createState() =>
       _HrManagerSearchOlderScreenState();
 }
 
-class _HrManagerSearchOlderScreenState
-    extends State<HrManagerSearchOlderScreen> {
-  final _client = createHrApiClient();
+class _HrManagerSearchOlderScreenState extends ConsumerState<HrManagerSearchOlderScreen> {
   final _queryCtrl = TextEditingController();
   final _scroll = ScrollController();
   String? _department;
@@ -89,7 +89,8 @@ class _HrManagerSearchOlderScreenState
       }
     });
     try {
-      final env = await _client.searchTeamRequests(
+      final client = ref.read(hrApiClientProvider);
+      final env = await client.searchTeamRequests(
         query: _queryCtrl.text,
         department: _department,
         requestType: _type,
@@ -125,7 +126,8 @@ class _HrManagerSearchOlderScreenState
     if (_loading || !_hasMore) return;
     setState(() => _loading = true);
     try {
-      final env = await _client.searchTeamRequests(
+      final client = ref.read(hrApiClientProvider);
+      final env = await client.searchTeamRequests(
         query: _queryCtrl.text,
         department: _department,
         requestType: _type,
@@ -262,8 +264,7 @@ class _HrManagerSearchOlderScreenState
                     children: [
                       Expanded(
                         child: FilledButton(
-                          onPressed:
-                              _loading ? null : () => _search(reset: true),
+                          onPressed: _loading ? null : () => _search(reset: true),
                           style: FilledButton.styleFrom(
                             backgroundColor: HrModuleColors.primary,
                             padding: EdgeInsets.symmetric(vertical: 12.th),
@@ -296,8 +297,7 @@ class _HrManagerSearchOlderScreenState
                 padding: EdgeInsets.symmetric(horizontal: 16.tw),
                 child: Text(
                   _error!,
-                  style:
-                      TextStyle(color: HrModuleColors.danger, fontSize: 12.tsp),
+                  style: TextStyle(color: HrModuleColors.danger, fontSize: 12.tsp),
                 ),
               ),
             Padding(

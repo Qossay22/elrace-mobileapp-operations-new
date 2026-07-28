@@ -1,34 +1,22 @@
-import 'package:el_race/core/performance/bloc/performance_planning_cubit.dart';
+import 'package:el_race/core/performance/providers/performance_providers.dart';
 import 'package:el_race/core/theme/hr_module_colors.dart';
 import 'package:el_race/core/theme/hr_module_layout.dart';
 import 'package:el_race/core/theme/hr_module_typography.dart';
 import 'package:el_race/core/widgets/performance/performance_gradient_scaffold.dart';
 import 'package:el_race/ui/presentation/performance/manager_new_evaluation_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 
 /// Shown when manager taps New — cycle launch is next month.
-class PerformanceUnderPlanningScreen extends StatefulWidget {
+class PerformanceUnderPlanningScreen extends ConsumerWidget {
   const PerformanceUnderPlanningScreen({super.key});
 
   @override
-  State<PerformanceUnderPlanningScreen> createState() =>
-      _PerformanceUnderPlanningScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final planningAsync = ref.watch(performancePlanningProvider);
 
-class _PerformanceUnderPlanningScreenState
-    extends State<PerformanceUnderPlanningScreen> {
-  @override
-  void initState() {
-    super.initState();
-    final cubit = context.read<PerformancePlanningCubit>();
-    Future.microtask(cubit.load);
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return PerformanceGradientScaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -40,28 +28,21 @@ class _PerformanceUnderPlanningScreenState
           style: HrModuleTypography.pageTitle().copyWith(fontSize: 18.sp),
         ),
       ),
-      body: BlocBuilder<PerformancePlanningCubit, PerformancePlanningState>(
-        builder: (context, state) {
-          if (state.isLoading && state.info == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final info = state.info;
-          if (info == null) {
-            return _Body(
-              title: 'Under planning',
-              launchLabel: _fallbackLaunchLabel(),
-              message:
-                  'The evaluation cycle opens next month. You can prepare a draft when the cycle is active.',
-              onContinue: () => _openForm(context),
-            );
-          }
-          return _Body(
-            title: info.title,
-            launchLabel: info.launchDateLabel,
-            message: info.message,
-            onContinue: () => _openForm(context),
-          );
-        },
+      body: planningAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => _Body(
+          title: 'Under planning',
+          launchLabel: _fallbackLaunchLabel(),
+          message:
+              'The evaluation cycle opens next month. You can prepare a draft when the cycle is active.',
+          onContinue: () => _openForm(context),
+        ),
+        data: (info) => _Body(
+          title: info.title,
+          launchLabel: info.launchDateLabel,
+          message: info.message,
+          onContinue: () => _openForm(context),
+        ),
       ),
     );
   }
@@ -100,8 +81,7 @@ class _Body extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding:
-            EdgeInsets.symmetric(horizontal: HrModuleLayout.screenPaddingH.w),
+        padding: EdgeInsets.symmetric(horizontal: HrModuleLayout.screenPaddingH.w),
         child: Container(
           width: double.infinity,
           padding: EdgeInsets.all(20.r),
@@ -124,9 +104,9 @@ class _Body extends StatelessWidget {
                 title,
                 textAlign: TextAlign.center,
                 style: HrModuleTypography.pageTitle().copyWith(
-                  fontSize: 22.sp,
-                  color: HrModuleColors.primary,
-                ),
+                      fontSize: 22.sp,
+                      color: HrModuleColors.primary,
+                    ),
               ),
               SizedBox(height: 12.h),
               Container(
@@ -142,18 +122,18 @@ class _Body extends StatelessWidget {
                     Text(
                       'Launch date',
                       style: HrModuleTypography.caption().copyWith(
-                        fontSize: 11.sp,
-                        color: HrModuleColors.mutedText,
-                      ),
+                            fontSize: 11.sp,
+                            color: HrModuleColors.mutedText,
+                          ),
                     ),
                     SizedBox(height: 4.h),
                     Text(
                       launchLabel,
                       textAlign: TextAlign.center,
                       style: HrModuleTypography.sectionHeading().copyWith(
-                        fontSize: 18.sp,
-                        color: HrModuleColors.primary,
-                      ),
+                            fontSize: 18.sp,
+                            color: HrModuleColors.primary,
+                          ),
                     ),
                   ],
                 ),
@@ -163,10 +143,10 @@ class _Body extends StatelessWidget {
                 message,
                 textAlign: TextAlign.center,
                 style: HrModuleTypography.body().copyWith(
-                  fontSize: 14.sp,
-                  color: HrModuleColors.mutedText,
-                  height: 1.45,
-                ),
+                      fontSize: 14.sp,
+                      color: HrModuleColors.mutedText,
+                      height: 1.45,
+                    ),
               ),
               SizedBox(height: 24.h),
               FilledButton(
@@ -181,9 +161,9 @@ class _Body extends StatelessWidget {
                 child: Text(
                   'Prepare evaluation',
                   style: HrModuleTypography.sectionHeading().copyWith(
-                    fontSize: 15.sp,
-                    color: Colors.white,
-                  ),
+                        fontSize: 15.sp,
+                        color: Colors.white,
+                      ),
                 ),
               ),
             ],

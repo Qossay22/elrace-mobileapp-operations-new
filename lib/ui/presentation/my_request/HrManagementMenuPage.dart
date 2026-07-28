@@ -7,10 +7,11 @@ import 'package:el_race/ui/presentation/my_request/RequestPermission.dart';
 import 'package:el_race/ui/widgets/header_widget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class HrManagementMenuPage extends StatelessWidget {
+class HrManagementMenuPage extends ConsumerWidget {
   const HrManagementMenuPage({super.key});
 
   Widget _pillButton({
@@ -55,7 +56,7 @@ class HrManagementMenuPage extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef _) {
     final login = SharedPref.getLoginData();
 
     return Scaffold(

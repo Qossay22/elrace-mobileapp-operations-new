@@ -3,6 +3,7 @@ import 'package:el_race/ui/presentation/purchase_management/utils/purchase_numbe
 import 'package:el_race/ui/presentation/purchase_management/theme/purchase_theme.dart';
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_trend_badge.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// Compact square hub card (RFQ / MR) — reference: income/spending dashboard tiles.
@@ -102,8 +103,7 @@ class PurchaseCompactHubCard extends StatelessWidget {
               Row(
                 children: [
                   if (badge != null) PurchaseStatusPill(label: badge!),
-                  if (badge != null && trendLabel != null)
-                    SizedBox(width: 4.tw),
+                  if (badge != null && trendLabel != null) SizedBox(width: 4.tw),
                   if (trendLabel != null)
                     Expanded(
                       child: PurchaseTrendBadge(

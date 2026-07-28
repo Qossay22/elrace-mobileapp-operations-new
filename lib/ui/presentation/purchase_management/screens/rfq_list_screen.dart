@@ -5,12 +5,14 @@ import 'package:el_race/core/purchase/purchase_dev_role_provider.dart';
 import 'package:el_race/ui/presentation/purchase_management/data/purchase_models.dart';
 import 'package:el_race/ui/presentation/purchase_management/data/purchase_repository.dart';
 import 'package:el_race/ui/presentation/purchase_management/data/purchase_status.dart';
+import 'package:el_race/ui/presentation/purchase_management/utils/purchase_number_format.dart';
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_background.dart';
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_glass_header.dart';
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_list_widgets.dart';
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_status_chip.dart';
 import 'package:el_race/ui/presentation/lpo/screens/lpo_pdf_viewer_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 
@@ -212,29 +214,29 @@ class _RfqListScreenState extends State<RfqListScreen>
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: Column(
-          children: [
-            PurchaseManagementGlassHeader(
-              title: widget.title,
-              showBack: true,
-              onBack: () => Navigator.pop(context),
+        children: [
+          PurchaseManagementGlassHeader(
+            title: widget.title,
+            showBack: true,
+            onBack: () => Navigator.pop(context),
+          ),
+          Expanded(
+            child: Column(
+              children: [
+                PurchaseSearchBar(controller: _searchController),
+                if (!widget.lockStatusFilter)
+                  PurchaseFilterChips(
+                    filters: _statusFilters,
+                    labels: _filterLabels,
+                    selected: _statusFilter,
+                    onSelect: _applyStatusFilter,
+                  ),
+                Expanded(child: _buildBody()),
+              ],
             ),
-            Expanded(
-              child: Column(
-                children: [
-                  PurchaseSearchBar(controller: _searchController),
-                  if (!widget.lockStatusFilter)
-                    PurchaseFilterChips(
-                      filters: _statusFilters,
-                      labels: _filterLabels,
-                      selected: _statusFilter,
-                      onSelect: _applyStatusFilter,
-                    ),
-                  Expanded(child: _buildBody()),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
+      ),
       ),
     );
   }
@@ -267,7 +269,8 @@ class _RfqListScreenState extends State<RfqListScreen>
           return const Padding(
             padding: EdgeInsets.all(16),
             child: Center(
-                child: CircularProgressIndicator(color: Color(0xFF7DB3E8))),
+                child: CircularProgressIndicator(
+                    color: Color(0xFF7DB3E8))),
           );
         }
         return _RfqCard(
@@ -383,9 +386,10 @@ class _RfqCard extends StatelessWidget {
               Align(
                 alignment: Alignment.centerRight,
                 child: Text(
-                  item.amountDisplay.isNotEmpty
-                      ? item.amountDisplay
-                      : 'AED ${item.amountTotal.toStringAsFixed(0)}',
+                  formatPurchaseAed(
+                    item.amountTotal,
+                    currency: item.currency.isNotEmpty ? item.currency : 'AED',
+                  ),
                   style: GoogleFonts.poppins(
                     fontSize: 17.tsp,
                     fontWeight: FontWeight.w800,
@@ -445,7 +449,8 @@ class _RfqQuickViewSheet extends StatelessWidget {
                     ),
                   ),
                 ),
-                PurchaseStatusChip(label: status.label, color: status.color),
+                PurchaseStatusChip(
+                    label: status.label, color: status.color),
               ],
             ),
             SizedBox(height: 14.th),
@@ -458,9 +463,10 @@ class _RfqQuickViewSheet extends StatelessWidget {
             if (item.amountTotal > 0)
               _SheetRow(
                 label: 'Amount',
-                value: item.amountDisplay.isNotEmpty
-                    ? item.amountDisplay
-                    : 'AED ${item.amountTotal.toStringAsFixed(2)}',
+                value: formatPurchaseAed(
+                  item.amountTotal,
+                  currency: item.currency.isNotEmpty ? item.currency : 'AED',
+                ),
               ),
           ],
         ),

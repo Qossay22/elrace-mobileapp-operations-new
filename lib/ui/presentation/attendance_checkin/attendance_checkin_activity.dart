@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:el_race/core/services/attendance_status_sync_service.dart';
 import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/ui/presentation/attendance_checkin/providers/checkin_activity_controller.dart';
@@ -23,7 +21,6 @@ class AttendanceCheckInActivity extends StatefulWidget {
 
 class _AttendanceCheckInActivityState extends State<AttendanceCheckInActivity> {
   late final CheckinActivityController _controller;
-  late final StreamSubscription<CheckinActivityState> _controllerSubscription;
   late final bool _checkinWidgetDisabled;
   bool _searchOpen = false;
 
@@ -31,8 +28,7 @@ class _AttendanceCheckInActivityState extends State<AttendanceCheckInActivity> {
   void initState() {
     super.initState();
     _controller = CheckinActivityController();
-    _controllerSubscription =
-        _controller.stream.listen((_) => _onControllerChanged());
+    _controller.addListener(_onControllerChanged);
     // Cached once: reading login prefs is a full JSON parse, too costly
     // to repeat on every rebuild.
     _checkinWidgetDisabled = _resolveCheckinWidgetDisabled();
@@ -82,8 +78,8 @@ class _AttendanceCheckInActivityState extends State<AttendanceCheckInActivity> {
 
   @override
   void dispose() {
-    _controllerSubscription.cancel();
-    _controller.close();
+    _controller.removeListener(_onControllerChanged);
+    _controller.dispose();
     super.dispose();
   }
 
@@ -210,8 +206,10 @@ class _AttendanceCheckInActivityState extends State<AttendanceCheckInActivity> {
                         : CheckinEligibilitySection(
                             contextModel: contextModel,
                             checkinWidgetDisabled: _checkinWidgetDisabled,
-                            selectedProjectId: state.selectedProject?.projectId,
-                            selectedProjectName: state.selectedProject?.name,
+                            selectedProjectId:
+                                state.selectedProject?.projectId,
+                            selectedProjectName:
+                                state.selectedProject?.name,
                             onValidateBeforeCheckIn:
                                 _controller.validateSelectedProjectLocation,
                             onActionComplete: _onActionComplete,

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:el_race/core/logging/app_logger.dart';
 import 'package:el_race/ui/presentation/tasks/data/assignable_user_model.dart';
 import 'package:el_race/ui/presentation/tasks/data/task_model.dart';
 import 'package:el_race/utils/api_logger.dart';
@@ -68,7 +67,8 @@ class TasksApiService {
       final result = decoded['result'];
       return result;
     } catch (e) {
-      AppLogger.warning('TasksApiService: failed to decode response', error: e);
+      // print('Error decoding response: $e');
+      // print('Response body: ${response.body}');
       throw TasksApiException('Invalid response from server');
     }
   }
@@ -123,6 +123,12 @@ class TasksApiService {
       );
       final duration = DateTime.now().difference(startTime);
 
+      // print('====== GET USER TASKS REQUEST ======');
+      // print('URL: $uri');
+      // print('Status Code: ${response.statusCode}');
+      // print('Response Body: ${response.body}');
+      // print('====================================');
+
       _guardStatus(response);
       if (response.statusCode != 200) {
         throw TasksApiException(
@@ -140,6 +146,11 @@ class TasksApiService {
         duration: duration,
       );
 
+      // Print response for debugging
+      // print('====== GET USER TASKS RESPONSE ======');
+      // print('Result: $result');
+      // print('=====================================');
+
       if (_isSuccessResult(result) || result is List) {
         final data = _extractTasksPayload(result);
         if (data == null) return const [];
@@ -150,10 +161,10 @@ class TasksApiService {
           (result is Map ? result['message'] : null) ?? 'Unable to fetch tasks';
       throw TasksApiException(message);
     } catch (e) {
+      // print('Error in fetchTasks: $e');
       if (e is TasksApiException) {
         rethrow;
       }
-      AppLogger.warning('TasksApiService: fetchTasks failed', error: e);
       throw TasksApiException('Network error: ${e.toString()}');
     }
   }
@@ -260,12 +271,14 @@ class TasksApiService {
       },
     };
 
-    AppLogger.debug('TasksApiService: submit task request', data: {
-      'endpoint': uri.toString(),
-      'authorization': 'Bearer $token',
-      'body': body,
-      'task_id': taskId,
-    });
+    print('═══════════════════════════════════════════════════');
+    print('🔵 SUBMIT TASK API CALL');
+    print('═══════════════════════════════════════════════════');
+    print('📍 URL: $uri');
+    print('🔑 Token: ${token.substring(0, 20)}...');
+    print('📦 Body: $body');
+    print('📋 Task ID: $taskId');
+    print('═══════════════════════════════════════════════════');
 
     final response = await _getWithBody(
       uri: uri,
@@ -273,35 +286,29 @@ class TasksApiService {
       body: body,
     );
 
-    AppLogger.debug('TasksApiService: submit task response', data: {
-      'status_code': response.statusCode,
-      'response_body': response.body,
-    });
+    print('📥 Response Status Code: ${response.statusCode}');
+    print('📥 Response Body: ${response.body}');
+    print('═══════════════════════════════════════════════════');
 
     _guardStatus(response);
     if (response.statusCode != 200) {
-      AppLogger.warning('TasksApiService: submit task non-200', data: {
-        'status_code': response.statusCode,
-      });
+      print('❌ Submit task failed with status: ${response.statusCode}');
       throw TasksApiException('Failed to submit task',
           code: response.statusCode);
     }
 
     final result = _decodeResult(response);
-    AppLogger.debug('TasksApiService: submit task decoded', data: {
-      'result': result,
-    });
+    print('✅ Decoded Result: $result');
 
     if (result is Map && result['status'] == 'success') {
-      AppLogger.info('TasksApiService: task submitted successfully', data: {
-        'message': result['message'],
-      });
+      print('✅ Task submitted successfully: ${result['message']}');
+      print('═══════════════════════════════════════════════════\n');
       return (result['message'] as String?) ?? 'Task submitted';
     }
 
-    AppLogger.warning('TasksApiService: submit task failed', data: {
-      'message': result is Map ? result['message'] : result,
-    });
+    print(
+        '❌ Submit task failed: ${result is Map ? result['message'] : result}');
+    print('═══════════════════════════════════════════════════\n');
     throw TasksApiException(
         (result is Map ? result['message'] : null) ?? 'Unable to submit task');
   }

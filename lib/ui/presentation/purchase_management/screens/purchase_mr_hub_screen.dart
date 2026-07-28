@@ -11,6 +11,7 @@ import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_dra
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_hub_list_scaffold.dart';
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_status_chip.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class PurchaseMrHubScreen extends StatefulWidget {

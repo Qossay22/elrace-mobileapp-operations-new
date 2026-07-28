@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:el_race/core/theme/timesheet_module_theme.dart';
+import 'package:el_race/report_module/data/provider/reports_provider.dart';
 import 'package:el_race/ui/presentation/timesheet/site_reports/tm_site_report_actions.dart';
 import 'package:el_race/ui/presentation/timesheet/site_reports/widgets/tm_site_report_company_app_bar.dart';
 import 'package:el_race/ui/presentation/timesheet/timesheet_async_state.dart';
@@ -9,6 +10,7 @@ import 'package:el_race/ui/presentation/timesheet/widgets/tm_pdf_bytes_preview_s
 import 'package:el_race/ui/presentation/timesheet/widgets/tm_share_pdf_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:provider/provider.dart';
 
 /// In-app PDF viewer with share (project chat / external / download).
 class TmSiteReportPdfScreen extends StatefulWidget {
@@ -75,6 +77,7 @@ class _TmSiteReportPdfScreenState extends State<TmSiteReportPdfScreen> {
   Future<void> _pdfMenu() async {
     final reportId = widget.reportId;
     if (reportId == null || !widget.allowRenameDelete) return;
+    final provider = Provider.of<ReportProvider>(context, listen: false);
     final action = await showModalBottomSheet<String>(
       context: context,
       backgroundColor: TimesheetModuleColors.surface,
@@ -93,7 +96,7 @@ class _TmSiteReportPdfScreenState extends State<TmSiteReportPdfScreen> {
             ListTile(
               leading: Icon(PhosphorIcons.trash(),
                   color: TimesheetModuleColors.danger),
-              title: const Text(
+              title: Text(
                 'Delete PDF',
                 style: TextStyle(color: TimesheetModuleColors.danger),
               ),
@@ -107,12 +110,14 @@ class _TmSiteReportPdfScreenState extends State<TmSiteReportPdfScreen> {
     if (action == 'rename') {
       await TmSiteReportActions.renamePdf(
         context,
+        provider: provider,
         reportId: reportId,
         currentName: widget.title,
       );
     } else if (action == 'delete') {
       final ok = await TmSiteReportActions.deletePdf(
         context,
+        provider: provider,
         reportId: reportId,
       );
       if (ok && mounted) Navigator.of(context).pop(true);

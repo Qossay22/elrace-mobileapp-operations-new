@@ -1,6 +1,7 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
 import 'package:el_race/ui/presentation/purchase_management/theme/purchase_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// Glass "coming soon" plate with themed vector illustration.
@@ -51,8 +52,7 @@ class PurchaseComingSoonPlate extends StatelessWidget {
               ),
               SizedBox(height: 16.th),
               Container(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 14.tw, vertical: 6.th),
+                padding: EdgeInsets.symmetric(horizontal: 14.tw, vertical: 6.th),
                 decoration: BoxDecoration(
                   color: PurchaseTheme.accentBlue.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(20.tr),

@@ -2,15 +2,14 @@ import 'dart:typed_data';
 
 import 'package:el_race/report_module/data/models/folder_model.dart';
 import 'package:el_race/report_module/data/models/report_model.dart';
+import 'package:el_race/report_module/data/provider/reports_provider.dart';
 import 'package:el_race/report_module/data/report_pdf_templates.dart';
 import 'package:el_race/report_module/data/repositories/company_repository.dart';
 import 'package:el_race/report_module/data/services/pdf_service.dart';
-import 'package:el_race/report_module/presentation/bloc/report_bloc.dart';
 import 'package:el_race/ui/presentation/timesheet/site_reports/tm_site_report_pdf_screen.dart';
 import 'package:el_race/ui/presentation/timesheet/site_reports/widgets/tm_report_format_sheet.dart';
 import 'package:el_race/ui/presentation/timesheet/site_reports/widgets/tm_report_generation_sheet.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// View PDF: pick format (default = saved) → open saved link or preview another layout.
 class TmSiteReportViewPdf {
@@ -18,16 +17,15 @@ class TmSiteReportViewPdf {
 
   static Future<void> open(
     BuildContext context, {
+    required ReportProvider provider,
     required ReportModel report,
     required FolderModel folder,
     required String projectName,
     String? projectId,
   }) async {
-    final reportBloc = context.read<ReportBloc>();
-    final detail = await reportBloc.fetchReportDetailFromApi(report.id);
+    final detail = await provider.fetchReportDetailFromApi(report.id);
     final photoCount = detail?.reportItems.length ?? 0;
 
-    if (!context.mounted) return;
     final choice = await TmReportFormatSheet.show(
       context,
       photoCount: photoCount,

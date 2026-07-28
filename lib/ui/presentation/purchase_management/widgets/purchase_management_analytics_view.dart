@@ -12,7 +12,8 @@ class PurchaseManagementAnalyticsView extends StatelessWidget {
     return PurchaseComingSoonPlate(
       bottomPadding: bottomPadding,
       title: 'Purchase Analytics',
-      message: 'Spend trends, RFQ/LPO breakdowns, and department insights '
+      message:
+          'Spend trends, RFQ/LPO breakdowns, and department insights '
           'will appear here. We are building this dashboard for you.',
       illustration: const PurchaseAnalyticsVectorIllustration(),
     );

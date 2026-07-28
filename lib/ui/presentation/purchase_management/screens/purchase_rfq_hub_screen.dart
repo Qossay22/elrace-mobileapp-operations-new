@@ -1,13 +1,12 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
 import 'dart:async';
 
-import 'package:el_race/core/purchase/purchase_access.dart';
 import 'package:el_race/core/purchase/purchase_dev_role_provider.dart';
-import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/ui/presentation/Email%20Approval/utils/approval_display_helpers.dart';
 import 'package:el_race/ui/presentation/purchase_management/data/purchase_models.dart';
 import 'package:el_race/ui/presentation/purchase_management/data/purchase_repository.dart';
 import 'package:el_race/ui/presentation/purchase_management/data/purchase_status.dart';
+import 'package:el_race/ui/presentation/purchase_management/providers/purchase_providers.dart';
 import 'package:el_race/ui/presentation/purchase_management/screens/invoice_receiving_create_screen.dart';
 import 'package:el_race/ui/presentation/purchase_management/screens/invoice_receiving_detail_screen.dart';
 import 'package:el_race/ui/presentation/purchase_management/theme/purchase_theme.dart';
@@ -15,20 +14,22 @@ import 'package:el_race/ui/presentation/purchase_management/widgets/lpo_smart_fi
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_hub_list_scaffold.dart';
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_status_chip.dart';
 import 'package:el_race/ui/presentation/lpo/screens/lpo_pdf_viewer_screen.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class PurchaseRfqHubScreen extends StatefulWidget {
+class PurchaseRfqHubScreen extends ConsumerStatefulWidget {
   const PurchaseRfqHubScreen({super.key, this.testRole});
 
   final PurchaseDevTestRole? testRole;
 
   @override
-  State<PurchaseRfqHubScreen> createState() => _PurchaseRfqHubScreenState();
+  ConsumerState<PurchaseRfqHubScreen> createState() =>
+      _PurchaseRfqHubScreenState();
 }
 
-class _PurchaseRfqHubScreenState extends State<PurchaseRfqHubScreen> {
+class _PurchaseRfqHubScreenState extends ConsumerState<PurchaseRfqHubScreen> {
   final _repo = PurchaseRepository();
   final _scrollController = ScrollController();
   final _searchController = TextEditingController();
@@ -45,19 +46,14 @@ class _PurchaseRfqHubScreenState extends State<PurchaseRfqHubScreen> {
   String _keyword = '';
   PurchaseListFilters _smartFilters = const PurchaseListFilters();
 
-  PurchaseAccess get _access {
-    if (kDebugMode && widget.testRole != null) {
-      return purchaseAccessForDevRole(widget.testRole!);
-    }
-    return purchaseAccessFromData(SharedPref.getLoginData().result?.data);
-  }
-
   bool get _isInvoiceSegment {
-    return _access.canSeeInvoiceReceiving && _segment == 2;
+    final access = ref.read(purchaseAccessProvider);
+    return access.canSeeInvoiceReceiving && _segment == 2;
   }
 
   List<String> get _segmentLabels {
-    if (_access.canSeeInvoiceReceiving) {
+    final access = ref.read(purchaseAccessProvider);
+    if (access.canSeeInvoiceReceiving) {
       return const ['Waiting', 'All RFQs', 'Invoice Receiving'];
     }
     return const ['Waiting', 'All RFQs'];
@@ -223,9 +219,8 @@ class _PurchaseRfqHubScreenState extends State<PurchaseRfqHubScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final access = _access;
-    final itemCount =
-        _isInvoiceSegment ? _invoiceItems.length : _rfqItems.length;
+    final access = ref.watch(purchaseAccessProvider);
+    final itemCount = _isInvoiceSegment ? _invoiceItems.length : _rfqItems.length;
 
     return Stack(
       children: [

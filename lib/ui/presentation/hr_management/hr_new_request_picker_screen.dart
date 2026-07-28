@@ -11,6 +11,7 @@ import 'package:el_race/ui/presentation/my_request/RequestLeavePageNew.dart';
 import 'package:el_race/ui/presentation/my_request/RequestPermission.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// E2 — New request type picker (SRD §3.2): frequent grid + “More” groups.
 class HrNewRequestPickerScreen extends StatelessWidget {
@@ -129,8 +130,7 @@ class HrNewRequestPickerScreen extends StatelessWidget {
             ),
             SizedBox(height: 12.th),
             Theme(
-              data:
-                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
                 tilePadding: EdgeInsets.zero,
                 initiallyExpanded: true,
@@ -225,8 +225,7 @@ class _SectionCard extends StatelessWidget {
         children: [
           Text(
             title,
-            style:
-                HrModuleTypography.sectionHeading().copyWith(fontSize: 15.tsp),
+            style: HrModuleTypography.sectionHeading().copyWith(fontSize: 15.tsp),
           ),
           SizedBox(height: 12.th),
           child,
@@ -260,8 +259,7 @@ class _RequestTypeTile extends StatelessWidget {
         child: Ink(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(HrModuleLayout.cardRadius),
-            border:
-                Border.all(color: HrModuleColors.border.withValues(alpha: 0.5)),
+            border: Border.all(color: HrModuleColors.border.withValues(alpha: 0.5)),
           ),
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 6.tw, vertical: 10.th),

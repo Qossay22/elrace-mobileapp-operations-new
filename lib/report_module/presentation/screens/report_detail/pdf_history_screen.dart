@@ -8,16 +8,15 @@ import 'package:el_race/report_module/core/constants/text_styles.dart';
 import 'package:el_race/report_module/core/utils/flush_bar.dart';
 import 'package:el_race/report_module/data/models/report_detail_model.dart';
 import 'package:el_race/report_module/data/models/report_pdf_model.dart';
+import 'package:el_race/report_module/data/provider/reports_provider.dart';
 import 'package:el_race/report_module/data/repositories/company_repository.dart';
 import 'package:el_race/report_module/data/services/pdf_service.dart';
-import 'package:el_race/report_module/presentation/bloc/report_bloc.dart';
 import 'package:el_race/report_module/presentation/bottom_sheets/show_option_sheet.dart';
 import 'package:el_race/report_module/presentation/screens/report_detail/pdf_preview_screen.dart';
 import 'package:el_race/report_module/presentation/widgets/bottom_appbar.dart';
 import 'package:el_race/report_module/presentation/widgets/pdf_tile.dart';
 import 'package:el_race/report_module/presentation/widgets/square_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../widgets/custom_textfield.dart';
@@ -56,7 +55,8 @@ class _PdfCreationScreenState extends State<PdfCreationScreen> {
   }
 
   _loadPdfHistory() async {
-    _pdfs = await context.read<ReportBloc>().fetchReports(
+    _pdfs = await reportProvider.fetchReports(
+        empId: ReportProvider.empID,
         reportId: widget.reportDetailModel.report.id,
         folderId: widget.reportDetailModel.report.folderId);
     if (mounted) setState(() {});
@@ -89,9 +89,7 @@ class _PdfCreationScreenState extends State<PdfCreationScreen> {
           ),
         ),
         title: Image.asset(
-          _companyLogo ??
-              CompanyRepository.company?.logo ??
-              'assets/logo/logo.png',
+          _companyLogo ?? CompanyRepository.company?.logo ?? 'assets/logo/logo.png',
           height: 60,
         ),
         bottom: getBottomAppBar(context,
@@ -203,13 +201,11 @@ class _PdfCreationScreenState extends State<PdfCreationScreen> {
                               final name = pdf.fileName.isEmpty
                                   ? 'report.pdf'
                                   : pdf.fileName;
-                              final fileName =
-                                  name.endsWith('.pdf') ? name : '$name.pdf';
+                              final fileName = name.endsWith('.pdf') ? name : '$name.pdf';
                               final dir = await getTemporaryDirectory();
                               final file = File('${dir.path}/$fileName');
                               await file.writeAsBytes(response.bodyBytes);
-                              final box =
-                                  context.findRenderObject() as RenderBox?;
+                              final box = context.findRenderObject() as RenderBox?;
                               await Share.shareXFiles(
                                 [XFile(file.path, mimeType: 'application/pdf')],
                                 sharePositionOrigin: box != null
@@ -225,8 +221,7 @@ class _PdfCreationScreenState extends State<PdfCreationScreen> {
                           final confirm = await showEditOptions(context,
                               options: ['Confirm Delete', "Cancel"]);
                           if (confirm == 0) {
-                            final deleted = await context
-                                .read<ReportBloc>()
+                            final deleted = await reportProvider
                                 .deleteReportPdf(fileId: pdf.id);
                             if (deleted) {
                               await _loadPdfHistory();
@@ -262,10 +257,11 @@ class _PdfCreationScreenState extends State<PdfCreationScreen> {
 
     try {
       // Re-fetch the latest list so the limit/duplicate checks use fresh data.
-      final freshPdfs = await context.read<ReportBloc>().fetchReports(
-            reportId: widget.reportDetailModel.report.id,
-            folderId: widget.reportDetailModel.report.folderId,
-          );
+      final freshPdfs = await reportProvider.fetchReports(
+        empId: ReportProvider.empID,
+        reportId: widget.reportDetailModel.report.id,
+        folderId: widget.reportDetailModel.report.folderId,
+      );
       _pdfs = freshPdfs;
       if (mounted) setState(() {});
 
@@ -310,20 +306,21 @@ class _PdfCreationScreenState extends State<PdfCreationScreen> {
       _generationStatus = 'Uploading PDF...';
       if (mounted) setState(() {});
 
-      final uploadedPdf = await context.read<ReportBloc>().uploadReportPdf(
-            reportId: widget.reportDetailModel.report.id,
-            folderId: widget.reportDetailModel.report.folderId,
-            fileName: nameController.text,
-            pdfBytes: pdfBytes,
-            onProgress: (uploadProgress) {
-              if (!mounted) return;
-              setState(() {
-                _generationProgress =
-                    (70 + (uploadProgress * 30)).clamp(70.0, 100.0);
-                _generationStatus = 'Uploading PDF...';
-              });
-            },
-          );
+      final uploadedPdf = await reportProvider.uploadReportPdf(
+        empId: ReportProvider.empID,
+        reportId: widget.reportDetailModel.report.id,
+        folderId: widget.reportDetailModel.report.folderId,
+        fileName: nameController.text,
+        pdfBytes: pdfBytes,
+        onProgress: (uploadProgress) {
+          if (!mounted) return;
+          setState(() {
+            _generationProgress =
+                (70 + (uploadProgress * 30)).clamp(70.0, 100.0);
+            _generationStatus = 'Uploading PDF...';
+          });
+        },
+      );
 
       if (uploadedPdf != null) {
         _generationProgress = 100;
@@ -331,7 +328,8 @@ class _PdfCreationScreenState extends State<PdfCreationScreen> {
         if (mounted) setState(() {});
 
         // Try to refresh the full list from the server
-        final serverPdfs = await context.read<ReportBloc>().fetchReports(
+        final serverPdfs = await reportProvider.fetchReports(
+            empId: ReportProvider.empID,
             reportId: widget.reportDetailModel.report.id,
             folderId: widget.reportDetailModel.report.folderId);
 

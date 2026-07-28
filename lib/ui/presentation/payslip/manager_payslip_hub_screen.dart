@@ -1,5 +1,5 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
-import 'package:el_race/core/payslip/bloc/pending_payslip_cubit.dart';
+import 'package:el_race/core/payslip/providers/payslip_providers.dart';
 import 'package:el_race/core/theme/hr_module_colors.dart';
 import 'package:el_race/core/theme/hr_metallic_decorations.dart';
 import 'package:el_race/core/theme/hr_service_screen_backdrop.dart';
@@ -9,33 +9,24 @@ import 'package:el_race/ui/presentation/payslip/manager_payslip_pending_full_scr
 import 'package:el_race/ui/presentation/payslip/widgets/payslip_record_card.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // Stakeholder: pending queue for managers. Module 4 TASKS reserve team payslips for HR —
 // product may restrict this screen to [HrEffectiveView.hrManager] only on release.
 
 /// Manager landing — pending counter tile + last five pending (card list).
-class ManagerPayslipHubScreen extends StatefulWidget {
+class ManagerPayslipHubScreen extends ConsumerWidget {
   const ManagerPayslipHubScreen({super.key});
 
   @override
-  State<ManagerPayslipHubScreen> createState() =>
-      _ManagerPayslipHubScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final countAsync = ref.watch(payslipPendingCountProvider);
+    final peekAsync = ref.watch(payslipPendingPeekProvider);
 
-class _ManagerPayslipHubScreenState extends State<ManagerPayslipHubScreen> {
-  @override
-  void initState() {
-    super.initState();
-    final cubit = context.read<PendingPayslipCubit>();
-    Future.microtask(cubit.load);
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: HrServiceScreenBackdrop.scaffoldBackground(
-          HrServiceScreenKind.payslip),
+      backgroundColor:
+          HrServiceScreenBackdrop.scaffoldBackground(HrServiceScreenKind.payslip),
       appBar: AppBar(
         backgroundColor: HrModuleColors.surface,
         foregroundColor: HrModuleColors.text,
@@ -43,9 +34,9 @@ class _ManagerPayslipHubScreenState extends State<ManagerPayslipHubScreen> {
         title: Text(
           'Payslips (team)',
           style: HrModuleTypography.pageTitle().copyWith(
-            fontSize: 18.tsp,
-            fontWeight: FontWeight.w800,
-          ),
+                fontSize: 18.tsp,
+                fontWeight: FontWeight.w800,
+              ),
         ),
       ),
       body: HrServiceScreenBackdrop.wrap(
@@ -58,75 +49,63 @@ class _ManagerPayslipHubScreenState extends State<ManagerPayslipHubScreen> {
             32.th,
           ),
           children: [
-            if (kDebugMode)
-              Padding(
-                padding: EdgeInsets.only(bottom: 12.th),
-                child: Text(
-                  'Dev: use HR hub role toggle. Pending list is mock data.',
-                  style:
-                      HrModuleTypography.caption().copyWith(fontSize: 11.tsp),
-                ),
+          if (kDebugMode)
+            Padding(
+              padding: EdgeInsets.only(bottom: 12.th),
+              child: Text(
+                'Dev: use HR hub role toggle. Pending list is mock data.',
+                style: HrModuleTypography.caption().copyWith(fontSize: 11.tsp),
               ),
-            BlocBuilder<PendingPayslipCubit, PendingPayslipState>(
-              builder: (context, state) {
-                if (state.isLoading && state.count == 0) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (state.error != null && state.count == 0) {
-                  return Text('Error: ${state.error}');
-                }
-                return _PendingCounterTile(
-                  count: state.count,
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const ManagerPayslipPendingFullScreen(),
-                      ),
-                    );
-                  },
+            ),
+          countAsync.when(
+            data: (count) => _PendingCounterTile(
+              count: count,
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const ManagerPayslipPendingFullScreen(),
+                  ),
                 );
               },
             ),
-            SizedBox(height: 24.th),
-            Text(
-              'Latest pending',
-              style: HrModuleTypography.sectionHeading()
-                  .copyWith(fontSize: 15.tsp),
-            ),
-            SizedBox(height: 6.th),
-            Text(
-              'Last five in queue',
-              style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp),
-            ),
-            SizedBox(height: 12.th),
-            BlocBuilder<PendingPayslipCubit, PendingPayslipState>(
-              builder: (context, state) {
-                if (state.isLoading && state.peek.isEmpty) {
-                  return const SizedBox.shrink();
-                }
-                if (state.error != null && state.peek.isEmpty) {
-                  return const SizedBox.shrink();
-                }
-                if (state.peek.isEmpty) {
-                  return Text(
-                    'No pending payslips.',
-                    style: HrModuleTypography.body(),
-                  );
-                }
-                return Column(
-                  children: [
-                    for (final s in state.peek) ...[
-                      PayslipRecordCard(
-                        summary: s,
-                        compact: true,
-                      ),
-                      SizedBox(height: 10.th),
-                    ],
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, _) => Text('Error: $e'),
+          ),
+          SizedBox(height: 24.th),
+          Text(
+            'Latest pending',
+            style: HrModuleTypography.sectionHeading().copyWith(fontSize: 15.tsp),
+          ),
+          SizedBox(height: 6.th),
+          Text(
+            'Last five in queue',
+            style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp),
+          ),
+          SizedBox(height: 12.th),
+          peekAsync.when(
+            data: (list) {
+              if (list.isEmpty) {
+                return Text(
+                  'No pending payslips.',
+                  style: HrModuleTypography.body(),
+                );
+              }
+              return Column(
+                children: [
+                  for (final s in list) ...[
+                    PayslipRecordCard(
+                      summary: s,
+                      compact: true,
+                    ),
+                    SizedBox(height: 10.th),
                   ],
-                );
-              },
-            ),
-          ],
+                ],
+              );
+            },
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
+          ),
+        ],
         ),
       ),
     );
@@ -178,14 +157,13 @@ class _PendingCounterTile extends StatelessWidget {
                   children: [
                     Text(
                       'Pending payslips',
-                      style: HrModuleTypography.sectionHeading().copyWith(
-                          fontSize: 16.tsp, fontWeight: FontWeight.w700),
+                      style: HrModuleTypography.sectionHeading()
+                          .copyWith(fontSize: 16.tsp, fontWeight: FontWeight.w700),
                     ),
                     SizedBox(height: 4.th),
                     Text(
                       'Tap to open full list with pagination',
-                      style: HrModuleTypography.caption()
-                          .copyWith(fontSize: 12.tsp),
+                      style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp),
                     ),
                   ],
                 ),
@@ -193,10 +171,10 @@ class _PendingCounterTile extends StatelessWidget {
               Text(
                 '$count',
                 style: HrModuleTypography.sectionHeading().copyWith(
-                  fontSize: 32.tsp,
-                  fontWeight: FontWeight.w800,
-                  color: HrModuleColors.primary,
-                ),
+                      fontSize: 32.tsp,
+                      fontWeight: FontWeight.w800,
+                      color: HrModuleColors.primary,
+                    ),
               ),
               SizedBox(width: 4.tw),
               const Icon(

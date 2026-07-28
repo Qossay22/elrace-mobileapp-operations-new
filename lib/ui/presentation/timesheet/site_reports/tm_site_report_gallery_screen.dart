@@ -3,7 +3,7 @@ import 'package:el_race/core/widgets/timesheet/timesheet_widgets.dart';
 import 'package:el_race/report_module/data/models/folder_model.dart';
 import 'package:el_race/report_module/data/models/report_item_model.dart';
 import 'package:el_race/report_module/data/models/report_model.dart';
-import 'package:el_race/report_module/presentation/bloc/report_bloc.dart';
+import 'package:el_race/report_module/data/provider/reports_provider.dart';
 import 'package:el_race/ui/presentation/timesheet/site_reports/models/tm_site_report_composer_result.dart';
 import 'package:el_race/ui/presentation/timesheet/site_reports/tm_site_report_composer_screen.dart';
 import 'package:el_race/ui/presentation/timesheet/site_reports/tm_site_report_pdf_screen.dart';
@@ -12,8 +12,8 @@ import 'package:el_race/ui/presentation/timesheet/site_reports/widgets/tm_site_r
 import 'package:el_race/ui/presentation/timesheet/timesheet_async_state.dart';
 import 'package:el_race/ui/presentation/timesheet/widgets/tm_fast_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:provider/provider.dart';
 
 /// Gallery for one report — view photos, edit/add/remove, regenerate PDF.
 class TmSiteReportGalleryScreen extends StatefulWidget {
@@ -41,6 +41,9 @@ class _TmSiteReportGalleryScreenState extends State<TmSiteReportGalleryScreen> {
   bool _loading = true;
   List<ReportItemModel> _items = const [];
 
+  ReportProvider get _provider =>
+      Provider.of<ReportProvider>(context, listen: false);
+
   @override
   void initState() {
     super.initState();
@@ -49,9 +52,7 @@ class _TmSiteReportGalleryScreenState extends State<TmSiteReportGalleryScreen> {
 
   Future<void> _load() async {
     setState(() => _loading = true);
-    final detail = await context
-        .read<ReportBloc>()
-        .fetchReportDetailFromApi(widget.report.id);
+    final detail = await _provider.fetchReportDetailFromApi(widget.report.id);
     if (!mounted) return;
     final items = detail?.reportItems ?? const [];
     setState(() {
@@ -71,16 +72,18 @@ class _TmSiteReportGalleryScreenState extends State<TmSiteReportGalleryScreen> {
   Future<void> _openComposer() async {
     final result = await Navigator.of(context).push<TmSiteReportComposerResult>(
       MaterialPageRoute(
-        builder: (_) => TmSiteReportComposerScreen(
-          folder: widget.folder,
-          projectName: widget.projectName,
-          existingReport: widget.report,
+        builder: (_) => ChangeNotifierProvider<ReportProvider>.value(
+          value: _provider,
+          child: TmSiteReportComposerScreen(
+            folder: widget.folder,
+            projectName: widget.projectName,
+            existingReport: widget.report,
+          ),
         ),
       ),
     );
     if (!mounted) return;
     await _load();
-    if (!mounted) return;
     if (result != null && result.pdfUrl.trim().isNotEmpty) {
       await Navigator.of(context).push<void>(
         MaterialPageRoute(

@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:el_race/core/hr_management/hr_effective_view.dart';
+import 'package:el_race/core/hr_management/models/hr_request_detail.dart';
 import 'package:el_race/core/hr_management/models/hr_request_summary.dart';
 import 'package:el_race/core/hr_management/network/hr_api_client.dart';
-import 'package:el_race/services/api_client.dart'
-    show AuthInterceptor, AuthErrorInterceptor, RetryInterceptor;
+import 'package:el_race/services/api_client.dart' show AuthInterceptor, AuthErrorInterceptor, RetryInterceptor;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Bumped after login persistence or logout so Riverpod re-reads [SharedPref] login
@@ -26,8 +26,7 @@ void bumpLoginSessionRiverpod(ProviderContainer container) {
     // Per FIX_IMPLEMENTATION_PLAN.md Phase 6.2 — this file was touched by
     // Phase 4.3(3), so its swallowed errors get a minimum debugPrint rather
     // than staying silent.
-    debugPrint(
-        '⚠️ [hr_management_providers] bumpLoginSessionRiverpod: swallowed $e');
+    debugPrint('⚠️ [hr_management_providers] bumpLoginSessionRiverpod: swallowed $e');
   }
 }
 
@@ -121,8 +120,7 @@ class HrRequestListNotifier extends AsyncNotifier<List<HrRequestSummary>> {
   }
 }
 
-final hrTeamKpisProvider =
-    FutureProvider.autoDispose<Map<String, int>>((ref) async {
+final hrTeamKpisProvider = FutureProvider.autoDispose<Map<String, int>>((ref) async {
   ref.watch(loginSessionRevisionProvider);
   final client = ref.watch(hrApiClientProvider);
   final env = await client.fetchTeamKpis(period: 'month');
@@ -166,3 +164,12 @@ class HrTeamRequestListNotifier extends AsyncNotifier<List<HrRequestSummary>> {
     });
   }
 }
+
+/// Legacy mock detail provider — unused; HR Management opens [HrDetailsScreen] instead.
+@Deprecated('Use openHrRequestDetail → HrDetailsScreen')
+final hrRequestDetailProvider = FutureProvider.autoDispose
+    .family<HrRequestDetail, HrDetailQuery>((ref, q) async {
+  throw UnsupportedError(
+    'HR detail uses HrDetailsScreen and /api/get_hr_request_details',
+  );
+});

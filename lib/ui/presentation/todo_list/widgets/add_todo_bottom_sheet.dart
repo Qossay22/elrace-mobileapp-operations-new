@@ -2,14 +2,14 @@ import 'package:el_race/report_module/data/models/report_detail_model.dart';
 import 'package:el_race/report_module/data/services/report_hive_service.dart';
 import 'package:el_race/report_module/presentation/screens/report_detail/report_detail.dart';
 import 'package:el_race/ui/presentation/todo_list/data/todo_model.dart';
-import 'package:el_race/ui/presentation/todo_list/bloc/todo_bloc.dart';
+import 'package:el_race/ui/presentation/todo_list/providers/todo_firebase_provider.dart';
 import 'package:el_race/ui/presentation/todo_list/services/team_members_api_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class AddTodoBottomSheet extends StatefulWidget {
   final TodoFilter filter;
@@ -509,7 +509,7 @@ class _AddTodoBottomSheetState extends State<AddTodoBottomSheet> {
 
     setState(() => _isLoading = true);
 
-    final provider = context.read<TodoBloc>();
+    final provider = context.read<TodoFirebaseProvider>();
     bool success;
 
     if (isEditing) {
@@ -572,7 +572,7 @@ class _AddTodoBottomSheetState extends State<AddTodoBottomSheet> {
     );
 
     if (confirm == true && mounted) {
-      await context.read<TodoBloc>().deleteTodo(widget.todo!);
+      await context.read<TodoFirebaseProvider>().deleteTodo(widget.todo!);
       if (mounted) Navigator.pop(context);
     }
   }

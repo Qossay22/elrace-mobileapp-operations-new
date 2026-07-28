@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:el_race/core/logging/app_logger.dart';
 import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/ui/presentation/signin/data/model.dart';
 import 'package:el_race/utils/api_query.dart';
@@ -13,19 +12,19 @@ class UserRepo {
 
   Future<Response> loginApiCall(
       String email, String password, String deviceId) async {
-    AppLogger.info('Login API start', data: {
-      'email': email,
-      'device_id': deviceId,
-    });
+    print('\n🔐 ========== LOGIN API START ==========');
+    print('📧 Email: $email');
+    print('🔒 Password: ${password.replaceAll(RegExp(r'.'), '*')}');
+    print('📱 Device ID: $deviceId');
 
     // Get FCM token from SharedPreferences
     String? fcmToken = SharedPref().getPreferenceString(fcm_token);
 
     // If FCM token is null or empty, log a warning
     if (fcmToken.isEmpty) {
-      AppLogger.warning('FCM token is empty during login');
+      print('⚠️ Warning: FCM token is empty during login');
     } else {
-      AppLogger.debug('FCM token available', data: {'fcm_token': fcmToken});
+      print('✅ FCM token available: ${fcmToken.substring(0, 20)}...');
     }
 
     final headers = {
@@ -55,18 +54,16 @@ class UserRepo {
           }
         };
 
-        AppLogger.debug('Sending login request', data: {
-          'url': '${UrlUtil.baseUrl}$path',
-          'body': body,
-        });
+        print('\n📤 Login Request Body:');
+        print(const JsonEncoder.withIndent('  ').convert(body));
+        print('\n⏳ Sending login request to: ${UrlUtil.baseUrl}$path');
 
         response = await apiQuery.postQuery(path, headers, body, 'login', true);
         final code = response?.statusCode ?? 0;
         final data = response?.data;
         final isSuccess = data is Map &&
             data['result'] is Map &&
-            (data['result']['success'] == true ||
-                data['result']['token'] != null);
+            (data['result']['success'] == true || data['result']['token'] != null);
         if (code == 200 && isSuccess) {
           break;
         }
@@ -75,48 +72,47 @@ class UserRepo {
       final ok = response?.statusCode == 200 &&
           data is Map &&
           data['result'] is Map &&
-          (data['result']['success'] == true ||
-              data['result']['token'] != null);
+          (data['result']['success'] == true || data['result']['token'] != null);
       if (ok) break;
     }
 
-    AppLogger.debug('Login response received', data: {
-      'status_code': response?.statusCode,
-      'data_type': response?.data.runtimeType.toString(),
-    });
+    print('\n📥 Login Response Status: ${response?.statusCode}');
+    print('📦 Response Data Type: ${response?.data.runtimeType}');
 
     if (response?.data != null) {
-      AppLogger.debug('Login response payload', data: response!.data);
+      print('📄 Full Login Response:');
+      print(const JsonEncoder.withIndent('  ').convert(response!.data));
 
       // Parse and display important data
       try {
         final data = response.data;
         if (data['result'] != null) {
           final result = data['result'];
-          AppLogger.info('Login successful', data: {
-            'has_token': result['token'] != null,
-          });
+          print('\n✅ Login Successful!');
+          print('🔑 Token: ${result['token']?.toString().substring(0, 30)}...');
 
           if (result['data'] != null) {
             final userData = result['data'];
-            AppLogger.debug('Login user summary', data: {
-              'emp_id': userData['emp_id'],
-              'emp_profile_id': userData['emp_profile_id'],
-              'company_id': userData['company_id'],
-              'qr_status': userData['qr_status'],
-            });
+            print('\n👤 User Data:');
+            print('  - Employee ID: ${userData['emp_id']}');
+            print('  - Employee Profile ID: ${userData['emp_profile_id']}');
+            print('  - Name: ${userData['name']}');
+            print('  - Username: ${userData['username']}');
+            print('  - Company ID: ${userData['company_id']}');
+            print('  - QR Status: ${userData['qr_status']}');
           }
         } else if (data['error'] != null) {
-          AppLogger.warning('Login failed', data: {'error': data['error']});
+          print('\n❌ Login Failed!');
+          print('Error: ${data['error']}');
         }
       } catch (e) {
-        AppLogger.warning('Could not parse login response', error: e);
+        print('⚠️ Could not parse login response: $e');
       }
     } else {
-      AppLogger.warning('No login response data received');
+      print('❌ No response data received');
     }
 
-    AppLogger.info('Login API end');
+    print('🔐 ========== LOGIN API END ==========\n');
 
     return response!;
   }
@@ -138,10 +134,18 @@ class UserRepo {
     String? userData = sharedPreferences.getString('loginResponse');
 
     if (userData == null) {
+      // print('⚠️ No login data found in SharedPreferences');
       return null;
     }
 
+    // print('\n📖 Retrieved login data from SharedPreferences');
     final loginData = LoginResponseModel.fromJson(jsonDecode(userData));
+
+    // print('👤 Current User:');
+    // print('  - Employee ID: ${loginData.result?.data?.emp_id}');
+    // print('  - Employee Profile ID: ${loginData.result?.data?.emp_profile_id}');
+    // print('  - Token: ${loginData.result?.token?.substring(0, 30)}...');
+    // print('  - QR Status: ${loginData.result?.data?.qr_status}');
 
     return loginData;
   }

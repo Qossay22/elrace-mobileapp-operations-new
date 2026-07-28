@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-class InstructionViewController {
+class InstructionViewController extends GetxController {
+  var data = Get.arguments;
+
   final Map<String, IconData> instructionIcons = {
     "Make sure your face is clearly visible": Icons.face_retouching_natural,
     "Look straight into the camera": Icons.center_focus_strong_rounded,
@@ -16,4 +19,6 @@ class InstructionViewController {
     "Remove any face covering",
     "Avoid blurry shots",
   ];
+
+
 }

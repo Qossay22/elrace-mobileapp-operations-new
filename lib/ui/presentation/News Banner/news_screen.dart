@@ -1,8 +1,6 @@
 import 'package:el_race/data/models/announcement_model.dart';
 import 'package:el_race/data/services/announcements_api_service.dart';
-import 'package:el_race/ui/presentation/News%20Banner/bloc/news_bloc.dart';
-import 'package:el_race/ui/presentation/News%20Banner/bloc/news_event.dart';
-import 'package:el_race/ui/presentation/News%20Banner/bloc/news_state.dart';
+import 'package:el_race/providers/announcements_provider.dart';
 import 'package:el_race/ui/presentation/News%20Banner/news_detail_screen_api.dart';
 import 'package:el_race/ui/widgets/header_widget.dart';
 import 'package:el_race/utils/color_utils.dart';
@@ -10,34 +8,37 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_translate/flutter_translate.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
-class NewsScreen extends StatelessWidget {
+class NewsScreen extends StatefulWidget {
   const NewsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => NewsBloc()
-        ..add(const NewsRequested(category: AnnouncementCategory.news)),
-      child: const _NewsView(),
-    );
-  }
+  State<NewsScreen> createState() => _NewsScreenState();
 }
 
-class _NewsView extends StatelessWidget {
-  const _NewsView();
+class _NewsScreenState extends State<NewsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Fetch news on screen load
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AnnouncementsProvider>().fetchAnnouncements(
+            category: AnnouncementCategory.news,
+          );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: const HeaderWidget(),
-      body: BlocBuilder<NewsBloc, NewsState>(
-        builder: (context, state) {
+      body: Consumer<AnnouncementsProvider>(
+        builder: (context, provider, child) {
           return RefreshIndicator(
-            onRefresh: () => _refresh(context),
+            onRefresh: () => provider.refresh(),
             child: CustomScrollView(
               physics: const AlwaysScrollableScrollPhysics(
                 parent: BouncingScrollPhysics(),
@@ -76,25 +77,20 @@ class _NewsView extends StatelessWidget {
                 ),
 
                 // Content based on state
-                if (state.isLoading)
+                if (provider.isLoading)
                   _buildLoadingState()
-                else if (state.hasError)
-                  _buildErrorState(context, state)
-                else if (state.isEmpty)
+                else if (provider.hasError)
+                  _buildErrorState(provider)
+                else if (provider.isEmpty)
                   _buildEmptyState()
-                else if (state.hasData)
-                  _buildNewsList(state.announcements),
+                else if (provider.hasData)
+                  _buildNewsList(provider.announcements),
               ],
             ),
           );
         },
       ),
     );
-  }
-
-  Future<void> _refresh(BuildContext context) async {
-    final bloc = context.read<NewsBloc>()..add(const NewsRefreshRequested());
-    await bloc.stream.firstWhere((state) => !state.isLoading);
   }
 
   /// Build loading state
@@ -104,7 +100,7 @@ class _NewsView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const CircularProgressIndicator(
+            CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(appFontColor),
             ),
             SizedBox(height: 16.h),
@@ -122,7 +118,7 @@ class _NewsView extends StatelessWidget {
   }
 
   /// Build error state
-  Widget _buildErrorState(BuildContext context, NewsState state) {
+  Widget _buildErrorState(AnnouncementsProvider provider) {
     return SliverFillRemaining(
       child: Center(
         child: Padding(
@@ -145,7 +141,7 @@ class _NewsView extends StatelessWidget {
               ),
               SizedBox(height: 8.h),
               Text(
-                state.errorMessage ?? 'An error occurred',
+                provider.errorMessage ?? 'An error occurred',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   fontSize: 14.sp,
@@ -154,8 +150,7 @@ class _NewsView extends StatelessWidget {
               ),
               SizedBox(height: 24.h),
               ElevatedButton.icon(
-                onPressed: () =>
-                    context.read<NewsBloc>().add(const NewsRefreshRequested()),
+                onPressed: () => provider.refresh(),
                 icon: const Icon(Icons.refresh),
                 label: const Text('Retry'),
                 style: ElevatedButton.styleFrom(
@@ -218,7 +213,7 @@ class _NewsView extends StatelessWidget {
         delegate: SliverChildBuilderDelegate(
           (context, index) {
             final newsItem = newsList[index];
-            return _buildNewsCard(context, newsItem,
+            return _buildNewsCard(newsItem,
                 isLast: index == newsList.length - 1);
           },
           childCount: newsList.length,
@@ -228,11 +223,7 @@ class _NewsView extends StatelessWidget {
   }
 
   /// Build individual news card
-  Widget _buildNewsCard(
-    BuildContext context,
-    AnnouncementModel newsItem, {
-    required bool isLast,
-  }) {
+  Widget _buildNewsCard(AnnouncementModel newsItem, {required bool isLast}) {
     final bottomMargin = isLast ? (kBottomNavigationBarHeight + 20.h) : 3.h;
 
     return Container(
@@ -241,7 +232,7 @@ class _NewsView extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.12),
+            color: Colors.black.withOpacity(0.12),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -302,7 +293,7 @@ class _NewsView extends StatelessWidget {
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.4),
+                    color: Colors.black.withOpacity(0.4),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -318,7 +309,7 @@ class _NewsView extends StatelessWidget {
                           begin: Alignment.topCenter,
                           end: Alignment.center,
                           colors: [
-                            const Color(0xFF000000).withValues(alpha: 0.50),
+                            const Color(0xFF000000).withOpacity(0.50),
                             Colors.transparent,
                           ],
                           stops: const [0.0, 0.6],
@@ -336,7 +327,7 @@ class _NewsView extends StatelessWidget {
                 top: 10.h,
                 bottom: 14.h,
               ),
-              child: _buildReferenceDescription(context, newsItem),
+              child: _buildReferenceDescription(newsItem),
             ),
           ],
         ),
@@ -381,10 +372,7 @@ class _NewsView extends StatelessWidget {
     );
   }
 
-  Widget _buildReferenceDescription(
-    BuildContext context,
-    AnnouncementModel newsItem,
-  ) {
+  Widget _buildReferenceDescription(AnnouncementModel newsItem) {
     final description = newsItem.description.trim();
     final preview = description.length > 165
         ? '${description.substring(0, 165).trim()}...'

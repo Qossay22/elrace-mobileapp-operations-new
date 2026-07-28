@@ -1,9 +1,9 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
 import 'dart:typed_data';
 
-import 'package:el_race/core/hr_management/hr_effective_view.dart';
-import 'package:el_race/core/recruitment/bloc/recruitment_offer_detail_cubit.dart';
+import 'package:el_race/core/hr_management/providers/hr_management_providers.dart';
 import 'package:el_race/core/recruitment/models/recruitment_entities.dart';
+import 'package:el_race/core/recruitment/providers/requisition_providers.dart';
 import 'package:el_race/core/recruitment/recruitment_salary_visibility.dart';
 import 'package:el_race/core/theme/hr_badge_kind.dart';
 import 'package:el_race/core/theme/hr_module_colors.dart';
@@ -15,56 +15,41 @@ import 'package:el_race/core/widgets/hr_management/hr_detail_row.dart';
 import 'package:el_race/core/widgets/hr_management/hr_status_badge.dart';
 import 'package:el_race/core/widgets/recruitment/recruitment_gradient_scaffold.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 
 /// O1 — Offer letter detail (SRD §5.1).
-class O1OfferDetailScreen extends StatelessWidget {
+class O1OfferDetailScreen extends ConsumerWidget {
   const O1OfferDetailScreen({super.key, required this.offerId});
 
   final String offerId;
 
   @override
-  Widget build(BuildContext context) {
-    context.read<RecruitmentOfferDetailCubit>().load(offerId);
-    final view = hrEffectiveViewFromLoginPref();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final view = ref.watch(hrEffectiveViewProvider);
+    final async = ref.watch(recruitmentOfferDetailProvider(offerId));
 
-    return BlocBuilder<RecruitmentOfferDetailCubit,
-        RecruitmentOfferDetailState>(
-      builder: (context, state) {
-        if (state.isLoading) {
-          return RecruitmentGradientScaffold(
-            appBar: AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              title: const Text('Offer'),
-            ),
-            body: const Center(child: CircularProgressIndicator()),
-          );
-        }
-        if (state.error != null) {
-          return RecruitmentGradientScaffold(
-            appBar: AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              title: const Text('Offer'),
-            ),
-            body: Center(child: Text(state.error!)),
-          );
-        }
-        final o = state.detail;
-        if (o == null) {
-          return RecruitmentGradientScaffold(
-            appBar: AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              title: const Text('Offer'),
-            ),
-            body: const Center(child: Text('Offer not found.')),
-          );
-        }
+    return async.when(
+      loading: () => RecruitmentGradientScaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: const Text('Offer'),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (e, _) => RecruitmentGradientScaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: const Text('Offer'),
+        ),
+        body: Center(child: Text('$e')),
+      ),
+      data: (o) {
         final showComp = recruitmentShowsOfferCompensation(view: view);
         return RecruitmentGradientScaffold(
           appBar: AppBar(
@@ -74,8 +59,7 @@ class O1OfferDetailScreen extends StatelessWidget {
             foregroundColor: HrModuleColors.text,
             title: Text(
               'Offer letter',
-              style: HrModuleTypography.sectionHeading()
-                  .copyWith(fontSize: 18.tsp),
+              style: HrModuleTypography.sectionHeading().copyWith(fontSize: 18.tsp),
             ),
             actions: [
               IconButton(
@@ -120,11 +104,7 @@ class O1OfferDetailScreen extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.mail_outline,
-                      color: HrModuleColors.primary,
-                      size: 32.tsp,
-                    ),
+                    Icon(Icons.mail_outline, color: HrModuleColors.primary, size: 32.tsp),
                     SizedBox(width: 12.tw),
                     Expanded(
                       child: Column(
@@ -132,20 +112,12 @@ class O1OfferDetailScreen extends StatelessWidget {
                         children: [
                           Text(
                             o.candidateName,
-                            style: HrModuleTypography.cardTitle()
-                                .copyWith(fontSize: 17.tsp),
+                            style: HrModuleTypography.cardTitle().copyWith(fontSize: 17.tsp),
                           ),
-                          Text(o.positionTitle,
-                              style: HrModuleTypography.body()),
-                          Text(
-                            o.referenceNumber,
-                            style: HrModuleTypography.caption(),
-                          ),
+                          Text(o.positionTitle, style: HrModuleTypography.body()),
+                          Text(o.referenceNumber, style: HrModuleTypography.caption()),
                           SizedBox(height: 6.th),
-                          HrStatusBadge(
-                            uiStatus: o.uiStatus,
-                            kind: HrBadgeKind.offer,
-                          ),
+                          HrStatusBadge(uiStatus: o.uiStatus, kind: HrBadgeKind.offer),
                         ],
                       ),
                     ),
@@ -155,13 +127,11 @@ class O1OfferDetailScreen extends StatelessWidget {
               SizedBox(height: 16.th),
               Text(
                 'Offer details',
-                style: HrModuleTypography.sectionHeading()
-                    .copyWith(fontSize: 14.tsp),
+                style: HrModuleTypography.sectionHeading().copyWith(fontSize: 14.tsp),
               ),
               HrDetailRow(label: 'Position', value: o.positionTitle),
               HrDetailRow(label: 'Department', value: o.department),
-              HrDetailRow(
-                  label: 'Reporting manager', value: o.reportingManager),
+              HrDetailRow(label: 'Reporting manager', value: o.reportingManager),
               HrDetailRow(label: 'Location', value: o.location),
               if (o.joiningDate != null)
                 HrDetailRow(
@@ -182,29 +152,16 @@ class O1OfferDetailScreen extends StatelessWidget {
               SizedBox(height: 12.th),
               Text(
                 'Status',
-                style: HrModuleTypography.sectionHeading()
-                    .copyWith(fontSize: 14.tsp),
+                style: HrModuleTypography.sectionHeading().copyWith(fontSize: 14.tsp),
               ),
               _timelineTile('Draft', o.uiStatus == 'DRAFT'),
-              _timelineTile(
-                'Sent',
-                o.uiStatus == 'SENT' ||
-                    o.uiStatus == 'ACCEPTED' ||
-                    o.uiStatus == 'DECLINED' ||
-                    o.uiStatus == 'EXPIRED',
-              ),
-              _timelineTile(
-                'Outcome',
-                o.uiStatus == 'ACCEPTED' ||
-                    o.uiStatus == 'DECLINED' ||
-                    o.uiStatus == 'EXPIRED',
-              ),
+              _timelineTile('Sent', o.uiStatus == 'SENT' || o.uiStatus == 'ACCEPTED' || o.uiStatus == 'DECLINED' || o.uiStatus == 'EXPIRED'),
+              _timelineTile('Outcome', o.uiStatus == 'ACCEPTED' || o.uiStatus == 'DECLINED' || o.uiStatus == 'EXPIRED'),
               SizedBox(height: 12.th),
               if (showComp && o.salaryBreakdownLines != null) ...[
                 Text(
                   'Compensation',
-                  style: HrModuleTypography.sectionHeading()
-                      .copyWith(fontSize: 14.tsp),
+                  style: HrModuleTypography.sectionHeading().copyWith(fontSize: 14.tsp),
                 ),
                 ...o.salaryBreakdownLines!.map(
                   (line) => Padding(
@@ -263,10 +220,8 @@ class O1OfferDetailScreen extends StatelessWidget {
         ('Joining', DateFormat('dd MMM yyyy').format(o.joiningDate!)),
     ];
     final timeline = <String>[
-      if (o.sentAt != null)
-        'Sent: ${DateFormat('dd MMM yyyy').format(o.sentAt!)}',
-      if (o.expiryAt != null)
-        'Expires: ${DateFormat('dd MMM yyyy').format(o.expiryAt!)}',
+      if (o.sentAt != null) 'Sent: ${DateFormat('dd MMM yyyy').format(o.sentAt!)}',
+      if (o.expiryAt != null) 'Expires: ${DateFormat('dd MMM yyyy').format(o.expiryAt!)}',
     ];
     if (includeCompensation && o.salaryBreakdownLines != null) {
       timeline.addAll(

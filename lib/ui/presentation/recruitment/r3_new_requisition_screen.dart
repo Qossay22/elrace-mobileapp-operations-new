@@ -1,5 +1,5 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
-import 'package:el_race/core/hr_management/hr_effective_view.dart';
+import 'package:el_race/core/hr_management/providers/hr_management_providers.dart';
 import 'package:el_race/core/recruitment/recruitment_salary_visibility.dart';
 import 'package:el_race/core/theme/hr_module_colors.dart';
 import 'package:el_race/core/theme/hr_module_layout.dart';
@@ -9,17 +9,20 @@ import 'package:el_race/core/widgets/recruitment/recruitment_gradient_scaffold.d
 import 'package:el_race/core/widgets/recruitment/recruitment_tag_input_field.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 /// R3 — New requisition (SRD §3.3).
-class R3NewRequisitionScreen extends StatefulWidget {
+class R3NewRequisitionScreen extends ConsumerStatefulWidget {
   const R3NewRequisitionScreen({super.key});
 
   @override
-  State<R3NewRequisitionScreen> createState() => _R3NewRequisitionScreenState();
+  ConsumerState<R3NewRequisitionScreen> createState() =>
+      _R3NewRequisitionScreenState();
 }
 
-class _R3NewRequisitionScreenState extends State<R3NewRequisitionScreen> {
+class _R3NewRequisitionScreenState extends ConsumerState<R3NewRequisitionScreen> {
   final _formKey = GlobalKey<FormState>();
   String? _jobTitle;
   String? _department;
@@ -94,7 +97,7 @@ class _R3NewRequisitionScreenState extends State<R3NewRequisitionScreen> {
 
   void _submit({required bool draft}) {
     if (!draft && !_formKey.currentState!.validate()) return;
-    final view = hrEffectiveViewFromLoginPref();
+    final view = ref.read(hrEffectiveViewProvider);
     if (!draft && _jobTitle == null) {
       Fluttertoast.showToast(msg: 'Select job title');
       return;
@@ -155,7 +158,7 @@ class _R3NewRequisitionScreenState extends State<R3NewRequisitionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final view = hrEffectiveViewFromLoginPref();
+    final view = ref.watch(hrEffectiveViewProvider);
     final showSalary = recruitmentShowsRequisitionSalary(
       view: view,
       raisedBy: _loginName()!,

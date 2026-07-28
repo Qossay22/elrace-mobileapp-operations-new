@@ -1,5 +1,5 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
-import 'package:el_race/core/recruitment/bloc/recruitment_assessment_detail_cubit.dart';
+import 'package:el_race/core/recruitment/providers/requisition_providers.dart';
 import 'package:el_race/core/theme/hr_module_colors.dart';
 import 'package:el_race/core/theme/hr_module_layout.dart';
 import 'package:el_race/core/theme/hr_module_typography.dart';
@@ -8,11 +8,12 @@ import 'package:el_race/core/widgets/recruitment/recruitment_gradient_scaffold.d
 import 'package:el_race/core/widgets/recruitment/recruitment_star_rating.dart';
 import 'package:el_race/ui/presentation/recruitment/a2_assessment_form_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 
 /// A1 — Assessment detail (SRD §4.3).
-class A1AssessmentDetailScreen extends StatelessWidget {
+class A1AssessmentDetailScreen extends ConsumerWidget {
   const A1AssessmentDetailScreen({super.key, required this.assessmentId});
 
   final String assessmentId;
@@ -33,47 +34,34 @@ class A1AssessmentDetailScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    context.read<RecruitmentAssessmentDetailCubit>().load(assessmentId);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final async = ref.watch(recruitmentAssessmentDetailProvider(assessmentId));
 
-    return BlocBuilder<RecruitmentAssessmentDetailCubit,
-        RecruitmentAssessmentDetailState>(
-      builder: (context, state) {
-        if (state.isLoading) {
-          return RecruitmentGradientScaffold(
-            appBar: AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              title: const Text('Assessment'),
-            ),
-            body: const Center(child: CircularProgressIndicator()),
-          );
-        }
-        if (state.error != null) {
-          return RecruitmentGradientScaffold(
-            appBar: AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              title: const Text('Assessment'),
-            ),
-            body: Center(child: Text(state.error!)),
-          );
-        }
-        final a = state.detail;
-        if (a == null) {
-          return RecruitmentGradientScaffold(
-            appBar: AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              title: const Text('Assessment'),
-            ),
-            body: const Center(child: Text('Assessment not found.')),
-          );
-        }
-        final avg =
-            (a.technical + a.problemSolving + a.communication + a.culturalFit) /
-                4.0;
-        final canEdit = a.isDraft && a.interviewerEmpId == a.currentUserEmpId;
+    return async.when(
+      loading: () => RecruitmentGradientScaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: const Text('Assessment'),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (e, _) => RecruitmentGradientScaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: const Text('Assessment'),
+        ),
+        body: Center(child: Text('$e')),
+      ),
+      data: (a) {
+        final avg = (a.technical +
+                a.problemSolving +
+                a.communication +
+                a.culturalFit) /
+            4.0;
+        final canEdit = a.isDraft &&
+            a.interviewerEmpId == a.currentUserEmpId;
 
         return RecruitmentGradientScaffold(
           appBar: AppBar(
@@ -83,8 +71,7 @@ class A1AssessmentDetailScreen extends StatelessWidget {
             foregroundColor: HrModuleColors.text,
             title: Text(
               a.roundName,
-              style: HrModuleTypography.sectionHeading()
-                  .copyWith(fontSize: 18.tsp),
+              style: HrModuleTypography.sectionHeading().copyWith(fontSize: 18.tsp),
             ),
             actions: [
               if (canEdit)
@@ -108,8 +95,7 @@ class A1AssessmentDetailScreen extends StatelessWidget {
             children: [
               Text(
                 a.candidateName,
-                style:
-                    HrModuleTypography.cardTitle().copyWith(fontSize: 17.tsp),
+                style: HrModuleTypography.cardTitle().copyWith(fontSize: 17.tsp),
               ),
               Text(
                 '${a.interviewer} · ${DateFormat('dd MMM yyyy').format(a.interviewDate)}',
@@ -124,8 +110,7 @@ class A1AssessmentDetailScreen extends StatelessWidget {
               SizedBox(height: 20.th),
               Text(
                 'Criteria',
-                style: HrModuleTypography.sectionHeading()
-                    .copyWith(fontSize: 14.tsp),
+                style: HrModuleTypography.sectionHeading().copyWith(fontSize: 14.tsp),
               ),
               HrDetailRow(
                 label: 'Technical knowledge',
@@ -146,26 +131,22 @@ class A1AssessmentDetailScreen extends StatelessWidget {
               SizedBox(height: 12.th),
               Text(
                 'Strengths',
-                style: HrModuleTypography.sectionHeading()
-                    .copyWith(fontSize: 14.tsp),
+                style: HrModuleTypography.sectionHeading().copyWith(fontSize: 14.tsp),
               ),
               Text(a.strengths, style: HrModuleTypography.body()),
               SizedBox(height: 12.th),
               Text(
                 'Concerns',
-                style: HrModuleTypography.sectionHeading()
-                    .copyWith(fontSize: 14.tsp),
+                style: HrModuleTypography.sectionHeading().copyWith(fontSize: 14.tsp),
               ),
               Text(a.concerns, style: HrModuleTypography.body()),
               SizedBox(height: 12.th),
               Text(
                 'Recommendation',
-                style: HrModuleTypography.sectionHeading()
-                    .copyWith(fontSize: 14.tsp),
+                style: HrModuleTypography.sectionHeading().copyWith(fontSize: 14.tsp),
               ),
               Container(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 12.tw, vertical: 6.th),
+                padding: EdgeInsets.symmetric(horizontal: 12.tw, vertical: 6.th),
                 decoration: BoxDecoration(
                   color: _recColor(a.recommendation).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(999),
@@ -182,8 +163,7 @@ class A1AssessmentDetailScreen extends StatelessWidget {
               SizedBox(height: 12.th),
               Text(
                 'Comments',
-                style: HrModuleTypography.sectionHeading()
-                    .copyWith(fontSize: 14.tsp),
+                style: HrModuleTypography.sectionHeading().copyWith(fontSize: 14.tsp),
               ),
               Text(a.comments, style: HrModuleTypography.body()),
             ],

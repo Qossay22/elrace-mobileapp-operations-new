@@ -1,9 +1,9 @@
-import 'package:el_race/ui/presentation/todo_list/bloc/todo_bloc.dart';
+import 'package:el_race/ui/presentation/todo_list/providers/todo_firebase_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class AddListDialog extends StatefulWidget {
   final String? listId;
@@ -139,7 +139,7 @@ class _AddListDialogState extends State<AddListDialog> {
 
     setState(() => _isLoading = true);
 
-    final provider = context.read<TodoBloc>();
+    final provider = context.read<TodoFirebaseProvider>();
     bool success;
 
     if (isEditing) {

@@ -1,11 +1,11 @@
 import 'dart:math' as math;
 
-import 'package:el_race/report_module/presentation/bloc/report_bloc.dart';
+import 'package:el_race/report_module/data/models/folder_model.dart';
+import 'package:el_race/report_module/data/provider/reports_provider.dart';
 import 'package:el_race/report_module/data/repositories/company_repository.dart';
 import 'package:el_race/ui/presentation/task_sheet/add_task_sheet.dart';
 import 'package:el_race/ui/presentation/productivity/widgets/productivity_screen_shell.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -22,6 +22,7 @@ class _UserReportsScreenState extends State<UserReportsScreen> {
   bool _isLoading = true;
   bool _isCreatingProject = false;
   String _searchQuery = '';
+  List<FolderModel> _folders = [];
 
   @override
   void initState() {
@@ -34,12 +35,14 @@ class _UserReportsScreenState extends State<UserReportsScreen> {
 
     try {
       await CompanyRepository().getCompany();
-      final reportBloc = context.read<ReportBloc>();
-      await reportBloc.init(base: 'https://erp.elrace.com');
-      await reportBloc.fetchAllFolders();
+      ReportProvider().init(base: 'https://erp.elrace.com');
+      await reportProvider.fetchAllFolders();
 
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _folders = reportProvider.folders;
+          _isLoading = false;
+        });
       }
     } catch (_) {
       if (mounted) {
@@ -136,7 +139,8 @@ class _UserReportsScreenState extends State<UserReportsScreen> {
                                             ),
                                             backgroundColor:
                                                 const Color(0xFFC91118),
-                                            behavior: SnackBarBehavior.floating,
+                                            behavior:
+                                                SnackBarBehavior.floating,
                                             margin: EdgeInsets.all(16.w),
                                           ),
                                         );
@@ -147,12 +151,10 @@ class _UserReportsScreenState extends State<UserReportsScreen> {
                                       setDialogState(() {});
 
                                       try {
-                                        await context
-                                            .read<ReportBloc>()
-                                            .createFolder(
-                                              title: projectName,
-                                              description: companyName,
-                                            );
+                                        await reportProvider.createFolder(
+                                          title: projectName,
+                                          description: companyName,
+                                        );
                                         await _loadData();
 
                                         if (mounted) {
@@ -180,8 +182,8 @@ class _UserReportsScreenState extends State<UserReportsScreen> {
                                         }
                                       } finally {
                                         if (mounted) {
-                                          setState(
-                                              () => _isCreatingProject = false);
+                                          setState(() =>
+                                              _isCreatingProject = false);
                                           setDialogState(() {});
                                         }
                                       }
@@ -228,217 +230,213 @@ class _UserReportsScreenState extends State<UserReportsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final displayItems = _folders
+        .where((folder) {
+          if (_searchQuery.trim().isEmpty) return true;
+          final query = _searchQuery.trim().toLowerCase();
+          return folder.name.toLowerCase().contains(query) ||
+              folder.description.toLowerCase().contains(query);
+        })
+        .toList();
+
     return ProductivityScreenShell(
       title: 'My Reports',
-      body: BlocBuilder<ReportBloc, ReportState>(
-        builder: (context, reportState) {
-          final displayItems = reportState.folders.where((folder) {
-            if (_searchQuery.trim().isEmpty) return true;
-            final query = _searchQuery.trim().toLowerCase();
-            return folder.name.toLowerCase().contains(query) ||
-                folder.description.toLowerCase().contains(query);
-          }).toList();
-
-          return SafeArea(
-            top: false,
-            child: Column(
+      body: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            SizedBox(height: 12.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(height: 12.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Image.asset(
+                  'assets/png/my-reports-frame.png',
+                  width: 22.w,
+                  height: 22.w,
+                  fit: BoxFit.contain,
+                  color: const Color(0xFF151A36),
+                  colorBlendMode: BlendMode.srcIn,
+                ),
+                SizedBox(width: 8.w),
+                Text(
+                  'My Reports',
+                  style: GoogleFonts.poppins(
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF151A36),
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 12.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 18.w),
+              child: SizedBox(
+                width: double.infinity,
+                height: 46.h,
+                child: Stack(
                   children: [
-                    Image.asset(
-                      'assets/png/my-reports-frame.png',
-                      width: 22.w,
-                      height: 22.w,
-                      fit: BoxFit.contain,
-                      color: const Color(0xFF151A36),
-                      colorBlendMode: BlendMode.srcIn,
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12.r),
+                          border: Border.all(
+                            color: const Color(0xFFB9BBC3),
+                            width: 1,
+                          ),
+                        ),
+                      ),
                     ),
-                    SizedBox(width: 8.w),
-                    Text(
-                      'My Reports',
-                      style: GoogleFonts.poppins(
-                        fontSize: 20.sp,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF151A36),
-                        letterSpacing: 0.2,
+                    Positioned.fill(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12.r),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const AddTaskSheet(),
+                              ),
+                            );
+                          },
+                          child: Center(
+                            child: Text(
+                              'Add a new request',
+                              style: GoogleFonts.poppins(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 12.h),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 18.w),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 46.h,
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12.r),
-                              border: Border.all(
-                                color: const Color(0xFFB9BBC3),
-                                width: 1,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Positioned.fill(
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(12.r),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const AddTaskSheet(),
-                                  ),
-                                );
-                              },
-                              child: Center(
-                                child: Text(
-                                  'Add a new request',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 16.h),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 18.w),
-                  child: Container(
-                    height: 52.h,
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF4F4F4),
-                      borderRadius: BorderRadius.circular(28.r),
-                      border: Border.all(
-                        color: const Color(0xFFB9BBC3),
-                        width: 1,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            onChanged: (value) {
-                              setState(() => _searchQuery = value);
-                            },
-                            style: GoogleFonts.poppins(
-                              fontSize: 16.sp,
-                              color: const Color(0xFF22263A),
-                            ),
-                            decoration: InputDecoration(
-                              hintText: 'Search',
-                              border: InputBorder.none,
-                              hintStyle: GoogleFonts.poppins(
-                                fontSize: 16.sp,
-                                color: const Color(0xFFA3A6B1),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Icon(
-                          Icons.search,
-                          size: 22.w,
-                          color: const Color(0xFFA3A6B1),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20.h),
-                Padding(
-                  padding: EdgeInsets.only(left: 20.w),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Projects Reports',
-                          style: GoogleFonts.poppins(
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFF878B98),
-                            letterSpacing: 0.4,
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: _isCreatingProject
-                            ? null
-                            : _showCreateProjectDialog,
-                        child: Container(
-                          width: 44.w,
-                          height: 44.w,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF27304E),
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(14.r),
-                              bottomLeft: Radius.circular(14.r),
-                            ),
-                          ),
-                          alignment: Alignment.center,
-                          child: Icon(
-                            Icons.add,
-                            size: 26.w,
-                            color: _isCreatingProject
-                                ? Colors.white70
-                                : Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 12.h),
-                Expanded(
-                  child: _isLoading || reportState.isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : displayItems.isEmpty
-                          ? Center(
-                              child: Text(
-                                'No reports found',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 15.sp,
-                                  fontWeight: FontWeight.w500,
-                                  color: const Color(0xFF9AA0A6),
-                                ),
-                              ),
-                            )
-                          : ListView.builder(
-                              padding: EdgeInsets.only(bottom: 18.h),
-                              itemCount: displayItems.length,
-                              itemBuilder: (context, index) {
-                                final folder = displayItems[index];
-                                return _ReportCard(
-                                  title: folder.name.trim().isEmpty
-                                      ? 'Project Name'
-                                      : folder.name,
-                                  subtitle: folder.description.trim().isEmpty
-                                      ? 'Company Name'
-                                      : folder.description,
-                                  seed: int.tryParse(folder.id) ?? (index + 1),
-                                );
-                              },
-                            ),
-                ),
-              ],
+              ),
             ),
-          );
-        },
+            SizedBox(height: 16.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 18.w),
+              child: Container(
+                height: 52.h,
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF4F4F4),
+                  borderRadius: BorderRadius.circular(28.r),
+                  border: Border.all(
+                    color: const Color(0xFFB9BBC3),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        onChanged: (value) {
+                          setState(() => _searchQuery = value);
+                        },
+                        style: GoogleFonts.poppins(
+                          fontSize: 16.sp,
+                          color: const Color(0xFF22263A),
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'Search',
+                          border: InputBorder.none,
+                          hintStyle: GoogleFonts.poppins(
+                            fontSize: 16.sp,
+                            color: const Color(0xFFA3A6B1),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      Icons.search,
+                      size: 22.w,
+                      color: const Color(0xFFA3A6B1),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 20.h),
+            Padding(
+              padding: EdgeInsets.only(left: 20.w),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Projects Reports',
+                      style: GoogleFonts.poppins(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF878B98),
+                        letterSpacing: 0.4,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: _isCreatingProject ? null : _showCreateProjectDialog,
+                    child: Container(
+                      width: 44.w,
+                      height: 44.w,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF27304E),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(14.r),
+                          bottomLeft: Radius.circular(14.r),
+                        ),
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.add,
+                        size: 26.w,
+                        color: _isCreatingProject
+                            ? Colors.white70
+                            : Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 12.h),
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : displayItems.isEmpty
+                      ? Center(
+                          child: Text(
+                            'No reports found',
+                            style: GoogleFonts.poppins(
+                              fontSize: 15.sp,
+                              fontWeight: FontWeight.w500,
+                              color: const Color(0xFF9AA0A6),
+                            ),
+                          ),
+                        )
+                      : ListView.builder(
+                          padding: EdgeInsets.only(bottom: 18.h),
+                          itemCount: displayItems.length,
+                          itemBuilder: (context, index) {
+                            final folder = displayItems[index];
+                            return _ReportCard(
+                              title: folder.name.trim().isEmpty
+                                  ? 'Project Name'
+                                  : folder.name,
+                              subtitle: folder.description.trim().isEmpty
+                                  ? 'Company Name'
+                                  : folder.description,
+                              seed: int.tryParse(folder.id) ?? (index + 1),
+                            );
+                          },
+                        ),
+            ),
+          ],
+        ),
       ),
     );
   }

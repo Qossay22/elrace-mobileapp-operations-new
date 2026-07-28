@@ -1,15 +1,7 @@
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:el_race/core/services/attendance_status_sync_service.dart';
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_hr_widgets_cubit.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_library_widgets_cubit.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_lpo_widget_cubit.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_notes_widget_cubit.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_petty_cash_widget_cubit.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_projects_widgets_cubit.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_slider/home_slider_bloc.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_slider/home_slider_event.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_timesheet_widget_cubit.dart';
+import 'package:el_race/ui/presentation/home_screen/provider/slider_provider.dart';
 import 'package:el_race/ui/presentation/home_screen/widgets/home_city_helper.dart';
 import 'package:el_race/ui/presentation/home_screen/widgets/home_floating_comms_bar.dart';
 import 'package:el_race/ui/presentation/home_screen/widgets/home_glass_app_bar.dart';
@@ -24,7 +16,9 @@ import 'package:el_race/ui/presentation/home_screen/providers/home_widget_api_cl
 import 'package:el_race/ui/presentation/home_screen/providers/home_widget_refresh_service.dart';
 import 'package:el_race/utils/Util.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 
 class MainHomeContentWidget extends StatefulWidget {
   const MainHomeContentWidget({super.key});
@@ -51,7 +45,7 @@ class _MainHomeContentWidgetState extends State<MainHomeContentWidget> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      context.read<HomeSliderBloc>().add(const HomeSliderRequested());
+      context.read<SliderProvider>().fetchAnnouncementsForBanner();
       // Warm visible widgets once at entry so card providers mostly read cache.
       HomeWidgetApiClient.refreshIfStale(
         onlyCodes: HomeWidgetRefreshService.visibleCategoryCodes(),
@@ -68,18 +62,20 @@ class _MainHomeContentWidgetState extends State<MainHomeContentWidget> {
   }
 
   void _measureHeaderAndInit() {
-    final box = _headerZoneKey.currentContext?.findRenderObject() as RenderBox?;
+    final box =
+        _headerZoneKey.currentContext?.findRenderObject() as RenderBox?;
     final screenHeight = MediaQuery.sizeOf(context).height;
-    final measured =
-        box != null && box.hasSize ? box.size.height : screenHeight * 0.52;
+    final measured = box != null && box.hasSize
+        ? box.size.height
+        : screenHeight * 0.52;
     if ((measured - _panelAnchorTop).abs() < 1 && _panelAnchorTop > 0) return;
     setState(() => _panelAnchorTop = measured);
   }
 
   Future<void> _onRefresh() async {
-    final homeContext = context;
+    final container = ProviderScope.containerOf(context);
     final futures = <Future<void>>[
-      HomeWidgetRefreshService.refresh(),
+      HomeWidgetRefreshService.refresh(container),
       DefaultCacheManager().emptyCache(),
       AttendanceStatusSyncService.refreshFromServer(
         reason: 'pull_to_refresh',
@@ -87,30 +83,17 @@ class _MainHomeContentWidgetState extends State<MainHomeContentWidget> {
       HomeCityHelper.fetchCity(force: true),
     ];
     if (mounted) {
-      futures.add(Util.fetchHomeScreenData(homeContext));
-      futures.add(homeContext.read<HomeAttendanceWidgetCubit>().refresh());
-      futures.add(homeContext.read<HomeHrmsWidgetCubit>().refresh());
-      futures.add(homeContext.read<HomeMyDocumentsWidgetCubit>().refresh());
-      futures.add(homeContext.read<HomeMediaWidgetCubit>().refresh());
-      futures.add(homeContext.read<HomeLpoWidgetCubit>().refresh());
-      futures.add(homeContext.read<HomeNotesWidgetCubit>().refresh());
-      futures.add(homeContext.read<HomePettyCashWidgetCubit>().refresh());
-      futures.add(homeContext.read<HomeMyProjectsWidgetCubit>().refresh());
-      futures.add(homeContext.read<HomeSiteManagementWidgetCubit>().refresh());
-      futures.add(homeContext.read<HomeMyReportsWidgetCubit>().refresh());
-      futures.add(homeContext.read<HomeTimesheetWidgetCubit>().refresh());
-      final sliderBloc = homeContext.read<HomeSliderBloc>()
-        ..add(const HomeSliderRefreshRequested());
-      futures.add(
-        sliderBloc.stream.firstWhere((state) => !state.isLoading).then((_) {}),
-      );
+      futures.add(Future(() => Util.fetchHomeScreenData(context)));
+      futures.add(context.read<SliderProvider>().refresh());
     }
     // Never let the pull-to-refresh spinner hang forever: cap each task and
     // swallow its errors so a single slow/failed request can't block the
     // RefreshIndicator from settling.
     await Future.wait(
       futures.map(
-        (f) => f.timeout(const Duration(seconds: 15)).catchError((Object _) {}),
+        (f) => f
+            .timeout(const Duration(seconds: 15))
+            .catchError((Object _) {}),
       ),
     );
     if (mounted) {

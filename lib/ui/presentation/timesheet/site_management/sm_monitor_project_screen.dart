@@ -13,6 +13,7 @@ import 'package:el_race/ui/presentation/timesheet/site_management/widgets/sm_pro
 import 'package:el_race/ui/presentation/timesheet/timesheet_async_state.dart';
 import 'package:el_race/ui/presentation/timesheet/widgets/tm_fast_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -21,14 +22,15 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 /// Search-first: shows a project search until a project is selected. Once
 /// selected, the search collapses into a project header with Info (progress +
 /// foremen) and Monitoring (camera + map) tabs.
-class SmMonitorProjectScreen extends StatefulWidget {
+class SmMonitorProjectScreen extends ConsumerStatefulWidget {
   const SmMonitorProjectScreen({super.key});
 
   @override
-  State<SmMonitorProjectScreen> createState() => _SmMonitorProjectScreenState();
+  ConsumerState<SmMonitorProjectScreen> createState() =>
+      _SmMonitorProjectScreenState();
 }
 
-class _SmMonitorProjectScreenState extends State<SmMonitorProjectScreen>
+class _SmMonitorProjectScreenState extends ConsumerState<SmMonitorProjectScreen>
     with SingleTickerProviderStateMixin {
   final ProjectRemoteDataSource _ds = ProjectRemoteDataSource();
   final TextEditingController _searchCtrl = TextEditingController();
@@ -364,8 +366,7 @@ class _ProjectResultTile extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(12),
-        decoration:
-            smGlassCardDecoration(radius: TimesheetModuleLayout.cardRadiusMd),
+        decoration: smGlassCardDecoration(radius: TimesheetModuleLayout.cardRadiusMd),
         child: Row(
           children: [
             _ClientLogo(url: project.clientImageUrl, size: 44),
@@ -510,9 +511,7 @@ class _SelectedProjectHeader extends StatelessWidget {
   }
 
   Widget _pmAvatar() {
-    final url = project.managerPhoto?.trim() ??
-        project.projectManagerPhoto?.trim() ??
-        '';
+    final url = project.managerPhoto?.trim() ?? project.projectManagerPhoto?.trim() ?? '';
     const size = 20.0;
     return Container(
       width: size,

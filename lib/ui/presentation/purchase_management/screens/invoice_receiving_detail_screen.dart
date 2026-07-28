@@ -1,22 +1,22 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
-import 'package:el_race/core/utils/shared_pref.dart';
-import 'package:el_race/core/purchase/purchase_access.dart';
 import 'package:el_race/core/purchase/purchase_dev_role_provider.dart';
 import 'package:el_race/ui/presentation/purchase_management/data/purchase_models.dart';
 import 'package:el_race/ui/presentation/purchase_management/data/purchase_status.dart';
-import 'package:el_race/ui/presentation/purchase_management/bloc/invoice_receiving_detail_cubit.dart';
+import 'package:el_race/ui/presentation/purchase_management/providers/purchase_providers.dart';
 import 'package:el_race/ui/presentation/purchase_management/theme/purchase_theme.dart';
+import 'package:el_race/ui/presentation/purchase_management/utils/purchase_number_format.dart';
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_background.dart';
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_glass_header.dart';
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_status_chip.dart';
 import 'package:el_race/ui/presentation/lpo/screens/lpo_pdf_viewer_screen.dart';
 import 'package:el_race/ui/presentation/purchase_management/data/purchase_repository.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 
-class InvoiceReceivingDetailScreen extends StatelessWidget {
+class InvoiceReceivingDetailScreen extends ConsumerWidget {
   const InvoiceReceivingDetailScreen({
     super.key,
     required this.invoiceId,
@@ -27,128 +27,127 @@ class InvoiceReceivingDetailScreen extends StatelessWidget {
   final PurchaseDevTestRole? testRole;
 
   @override
-  Widget build(BuildContext context) {
-    context
-        .read<InvoiceReceivingDetailCubit>()
-        .load(invoiceId, testRole: testRole);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final detailAsync = ref.watch(invoiceDetailProvider(invoiceId));
     return PurchaseBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: BlocBuilder<InvoiceReceivingDetailCubit,
-            InvoiceReceivingDetailState>(
-          builder: (context, state) {
-            if (state.isLoading) {
-              return Column(
-                children: [
-                  PurchaseManagementGlassHeader(
-                    title: translate('home.purchase.invoice_detail_title'),
-                    showBack: true,
-                    onBack: () => Navigator.pop(context),
-                  ),
-                  const Expanded(
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: Color(0xFF7DB3E8),
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            }
-            if (state.error != null && state.detail == null) {
-              return Column(
-                children: [
-                  PurchaseManagementGlassHeader(
-                    title: translate('home.purchase.invoice_detail_title'),
-                    showBack: true,
-                    onBack: () => Navigator.pop(context),
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        state.error!,
-                        style: GoogleFonts.poppins(
-                          color: Colors.red,
-                          fontSize: 13.tsp,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            }
-            final detail = state.detail;
-            if (detail == null) {
-              return Column(
-                children: [
-                  PurchaseManagementGlassHeader(
-                    title: translate('home.purchase.invoice_detail_title'),
-                    showBack: true,
-                    onBack: () => Navigator.pop(context),
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        'Not found',
-                        style: GoogleFonts.poppins(color: Colors.white54),
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            }
-            return _InvoiceDetailContent(
-              detail: detail,
-              invoiceId: invoiceId,
-              isReceiving: state.isReceiving,
-            );
-          },
+        body: detailAsync.when(
+        loading: () => Column(
+          children: [
+            PurchaseManagementGlassHeader(
+              title: translate('home.purchase.invoice_detail_title'),
+              showBack: true,
+              onBack: () => Navigator.pop(context),
+            ),
+            const Expanded(
+                child: Center(
+                    child: CircularProgressIndicator(
+                        color: Color(0xFF7DB3E8)))),
+          ],
         ),
+        error: (e, _) => Column(
+          children: [
+            PurchaseManagementGlassHeader(
+              title: translate('home.purchase.invoice_detail_title'),
+              showBack: true,
+              onBack: () => Navigator.pop(context),
+            ),
+            Expanded(
+                child: Center(
+                    child: Text(e.toString(),
+                        style: GoogleFonts.poppins(
+                            color: Colors.red, fontSize: 13.tsp)))),
+          ],
+        ),
+        data: (detail) {
+          if (detail == null) {
+            return Column(
+              children: [
+                PurchaseManagementGlassHeader(
+                  title: translate('home.purchase.invoice_detail_title'),
+                  showBack: true,
+                  onBack: () => Navigator.pop(context),
+                ),
+                Expanded(
+                    child: Center(
+                        child: Text('Not found',
+                            style: GoogleFonts.poppins(
+                                color: Colors.white54)))),
+              ],
+            );
+          }
+          return _InvoiceDetailContent(
+            detail: detail,
+            invoiceId: invoiceId,
+            testRole: testRole,
+          );
+        },
+      ),
       ),
     );
   }
 }
 
-class _InvoiceDetailContent extends StatefulWidget {
+class _InvoiceDetailContent extends ConsumerStatefulWidget {
   const _InvoiceDetailContent({
     required this.detail,
     required this.invoiceId,
-    required this.isReceiving,
+    this.testRole,
   });
 
   final InvoiceReceivingDetail detail;
   final int invoiceId;
-  final bool isReceiving;
+  final PurchaseDevTestRole? testRole;
 
   @override
-  State<_InvoiceDetailContent> createState() => _InvoiceDetailContentState();
+  ConsumerState<_InvoiceDetailContent> createState() =>
+      _InvoiceDetailContentState();
 }
 
-class _InvoiceDetailContentState extends State<_InvoiceDetailContent> {
+class _InvoiceDetailContentState extends ConsumerState<_InvoiceDetailContent> {
+  bool _receiving = false;
+
   Future<void> _receive() async {
-    final cubit = context.read<InvoiceReceivingDetailCubit>();
-    final ok = await cubit.receive(widget.invoiceId);
-    if (!mounted) return;
-    if (ok) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invoice marked as received.')),
+    setState(() => _receiving = true);
+    final repo = PurchaseRepository();
+    try {
+      final updated = await repo.receiveInvoiceReceiving(
+        widget.invoiceId,
+        testRole: widget.testRole,
       );
-      Navigator.pop(context, true);
-      return;
+      if (!mounted) return;
+      if (updated == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Receive failed. Check PR role.')),
+        );
+        setState(() => _receiving = false);
+        return;
+      }
+      ref.invalidate(invoiceDetailProvider(widget.invoiceId));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Invoice marked as received.')),
+        );
+        Navigator.pop(context, true);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+      setState(() => _receiving = false);
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(cubit.state.error ?? 'Receive failed.')),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     final detail = widget.detail;
-    final access =
-        purchaseAccessFromData(SharedPref.getLoginData().result?.data);
+    final access = ref.watch(purchaseAccessProvider);
     final status = invoiceStatusFromApi(detail.state);
     final showReceive = detail.canReceive ||
-        (access.canReceiveInvoice && detail.state.toUpperCase() == 'DRAFT');
+        (access.canReceiveInvoice &&
+            detail.state.toUpperCase() == 'DRAFT');
 
     return Column(
       children: [
@@ -174,12 +173,10 @@ class _InvoiceDetailContentState extends State<_InvoiceDetailContent> {
                     _DetailRow(label: 'Invoice No.', value: detail.invoiceNo),
                     _DetailRow(label: 'LPO No.', value: detail.lpoNo),
                     _DetailRow(label: 'Vendor', value: detail.partner),
-                    _DetailRow(
-                        label: 'Invoice Date', value: detail.invoiceDate),
+                    _DetailRow(label: 'Invoice Date', value: detail.invoiceDate),
                     _DetailRow(label: 'Due Date', value: detail.dueDate),
                     _DetailRow(label: 'Currency', value: detail.currency),
-                    _DetailRow(
-                        label: 'Payment State', value: detail.paymentState),
+                    _DetailRow(label: 'Payment State', value: detail.paymentState),
                     if (detail.narration.isNotEmpty)
                       _DetailRow(label: 'Notes', value: detail.narration),
                   ],
@@ -189,7 +186,8 @@ class _InvoiceDetailContentState extends State<_InvoiceDetailContent> {
                 _AmountsCard(detail: detail),
                 SizedBox(height: 12.th),
                 // Lines
-                if (detail.lines.isNotEmpty) _LinesSection(lines: detail.lines),
+                if (detail.lines.isNotEmpty)
+                  _LinesSection(lines: detail.lines),
                 SizedBox(height: 12.th),
                 // Attachments
                 if (detail.attachments.isNotEmpty)
@@ -205,14 +203,14 @@ class _InvoiceDetailContentState extends State<_InvoiceDetailContent> {
                     width: double.infinity,
                     height: 48.th,
                     child: ElevatedButton(
-                      onPressed: widget.isReceiving ? null : _receive,
+                      onPressed: _receiving ? null : _receive,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.tr),
                         ),
                       ),
-                      child: widget.isReceiving
+                      child: _receiving
                           ? const SizedBox(
                               width: 22,
                               height: 22,
@@ -263,20 +261,25 @@ class _AmountsCard extends StatelessWidget {
         children: [
           _AmountRow(
               label: 'Untaxed Amount',
-              value:
-                  '${detail.currency} ${detail.amountUntaxed.toStringAsFixed(2)}',
+              value: formatPurchaseAed(
+                detail.amountUntaxed,
+                currency: detail.currency.isNotEmpty ? detail.currency : 'AED',
+              ),
               isBold: false),
           _AmountRow(
               label: 'Taxes',
-              value:
-                  '${detail.currency} ${detail.amountTax.toStringAsFixed(2)}',
+              value: formatPurchaseAed(
+                detail.amountTax,
+                currency: detail.currency.isNotEmpty ? detail.currency : 'AED',
+              ),
               isBold: false),
           Divider(color: const Color(0xFFE0E4EE), height: 16.th),
           _AmountRow(
               label: 'Total',
-              value: detail.amountDisplay.isNotEmpty
-                  ? detail.amountDisplay
-                  : '${detail.currency} ${detail.amountTotal.toStringAsFixed(2)}',
+              value: formatPurchaseAed(
+                detail.amountTotal,
+                currency: detail.currency.isNotEmpty ? detail.currency : 'AED',
+              ),
               isBold: true),
         ],
       ),
@@ -307,7 +310,8 @@ class _AmountRow extends StatelessWidget {
               style: GoogleFonts.poppins(
                   fontSize: isBold ? 15.tsp : 12.tsp,
                   color: PurchaseTheme.textPrimary,
-                  fontWeight: isBold ? FontWeight.w800 : FontWeight.w600)),
+                  fontWeight:
+                      isBold ? FontWeight.w800 : FontWeight.w600)),
         ],
       ),
     );
@@ -336,7 +340,8 @@ class _LinesSection extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10.tr),
-                border: Border.all(color: const Color(0xFFE0E4EE), width: 0.8),
+                border: Border.all(
+                    color: const Color(0xFFE0E4EE), width: 0.8),
               ),
               child: Row(
                 children: [
@@ -354,7 +359,7 @@ class _LinesSection extends StatelessWidget {
                               color: const Color(0xFF1E2A4A)),
                         ),
                         Text(
-                          'Qty: ${line.qty} × ${line.priceUnit.toStringAsFixed(2)}',
+                          'Qty: ${line.qty} × ${formatPurchaseAed(line.priceUnit, currency: '')}',
                           style: GoogleFonts.poppins(
                               fontSize: 10.5.tsp,
                               color: const Color(0xFF8A9BB5)),
@@ -363,7 +368,7 @@ class _LinesSection extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    line.subtotal.toStringAsFixed(2),
+                    formatPurchaseAed(line.subtotal, currency: ''),
                     style: GoogleFonts.poppins(
                         fontSize: 12.tsp,
                         fontWeight: FontWeight.w700,
@@ -407,7 +412,8 @@ class _AttachmentsSection extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10.tr),
-                border: Border.all(color: const Color(0xFFE0E4EE), width: 0.8),
+                border: Border.all(
+                    color: const Color(0xFFE0E4EE), width: 0.8),
               ),
               child: Row(
                 children: [
@@ -427,12 +433,14 @@ class _AttachmentsSection extends StatelessWidget {
                   TextButton(
                     onPressed: () async {
                       final repo = PurchaseRepository();
-                      final url = await repo.fetchInvoiceReportUrl(invoiceId);
+                      final url =
+                          await repo.fetchInvoiceReportUrl(invoiceId);
                       if (url != null && ctx.mounted) {
                         Navigator.push(
                           ctx,
                           MaterialPageRoute(
-                            builder: (_) => LpoPdfViewerScreen(pdfUrl: url),
+                            builder: (_) =>
+                                LpoPdfViewerScreen(pdfUrl: url),
                           ),
                         );
                       }
@@ -442,7 +450,8 @@ class _AttachmentsSection extends StatelessWidget {
                       padding: EdgeInsets.symmetric(
                           horizontal: 10.tw, vertical: 4.th),
                       textStyle: GoogleFonts.poppins(
-                          fontSize: 11.tsp, fontWeight: FontWeight.w600),
+                          fontSize: 11.tsp,
+                          fontWeight: FontWeight.w600),
                       side: const BorderSide(
                           color: PurchaseTheme.textPrimary, width: 0.8),
                       shape: RoundedRectangleBorder(

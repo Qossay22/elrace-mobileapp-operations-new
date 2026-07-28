@@ -10,6 +10,7 @@ import 'package:el_race/ui/presentation/hr_management/widgets/employee_profile_m
 import 'package:el_race/ui/presentation/my_projects/presentation/utils/projects_dashboard_access.dart';
 import 'package:el_race/utils/di.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 abstract final class _ProfilePalette {
@@ -473,8 +474,8 @@ class _SearchPane extends StatelessWidget {
                               ),
                             )
                           : ListView.separated(
-                              padding: EdgeInsets.fromLTRB(
-                                  16.tw, 4.th, 16.tw, 20.th),
+                              padding:
+                                  EdgeInsets.fromLTRB(16.tw, 4.th, 16.tw, 20.th),
                               itemCount: results.length,
                               separatorBuilder: (_, __) =>
                                   SizedBox(height: 8.th),
@@ -761,11 +762,13 @@ class _ProfileDetailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final name =
-        profile?.name.isNotEmpty == true ? profile!.name : listItem.displayName;
+    final name = profile?.name.isNotEmpty == true
+        ? profile!.name
+        : listItem.displayName;
     final arabic = profile?.arabicName;
-    final fileId =
-        profile?.empId.isNotEmpty == true ? profile!.empId : listItem.fileId;
+    final fileId = profile?.empId.isNotEmpty == true
+        ? profile!.empId
+        : listItem.fileId;
     final photo = (profile?.profilePhotoUrl ?? listItem.photoUrl).trim();
     final job = profile?.jobTitle?.trim().isNotEmpty == true
         ? profile!.jobTitle!
@@ -793,9 +796,7 @@ class _ProfileDetailView extends StatelessWidget {
           if (loading)
             const Expanded(child: Center(child: _KpiShimmer()))
           else if (error != null)
-            Expanded(
-                child: Center(
-                    child: _ErrorBlock(message: error!, onRetry: onRetry)))
+            Expanded(child: Center(child: _ErrorBlock(message: error!, onRetry: onRetry)))
           else if (profile != null) ...[
             Expanded(
               flex: 5,
@@ -1146,8 +1147,9 @@ class _InfoTable extends StatelessWidget {
     ].join(' · ');
     final country = (info.country ?? '').trim();
     final flag = _flagEmoji(info.countryCode);
-    final countryVal =
-        country.isEmpty ? '—' : (flag == null ? country : '$flag  $country');
+    final countryVal = country.isEmpty
+        ? '—'
+        : (flag == null ? country : '$flag  $country');
 
     final cells = [
       ('Direct Manager', info.directManager ?? '—'),
@@ -1156,9 +1158,18 @@ class _InfoTable extends StatelessWidget {
       ('Education', education.isEmpty ? '—' : education),
       (
         'Experience',
-        (info.experienceYears ?? '').trim().isEmpty
-            ? '—'
-            : '${info.experienceYears} years',
+        () {
+          final raw = (info.experienceYears ?? '').trim();
+          if (raw.isEmpty) return '—';
+          // API may return "2 years 10 days" or a bare number.
+          final lower = raw.toLowerCase();
+          if (lower.contains('year') ||
+              lower.contains('month') ||
+              lower.contains('day')) {
+            return raw;
+          }
+          return '$raw years';
+        }(),
       ),
       ('Visa Co.', info.visaCo ?? '—'),
       ('Email', info.email ?? '—'),

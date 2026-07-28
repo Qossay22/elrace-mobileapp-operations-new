@@ -1,17 +1,18 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
 import 'package:el_race/report_module/data/models/folder_model.dart';
 import 'package:el_race/report_module/data/models/report_model.dart';
+import 'package:el_race/report_module/data/provider/reports_provider.dart';
 import 'package:el_race/report_module/data/repositories/company_repository.dart';
-import 'package:el_race/report_module/presentation/bloc/report_bloc.dart';
 import 'package:el_race/ui/presentation/my_projects/presentation/theme/projects_dashboard_theme.dart';
 import 'package:el_race/ui/presentation/timesheet/site_reports/tm_site_report_actions.dart';
 import 'package:el_race/ui/presentation/timesheet/site_reports/tm_site_report_gallery_screen.dart';
 import 'package:el_race/ui/presentation/timesheet/site_reports/tm_site_report_view_pdf.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
 class _ProjectSiteReportItem {
   const _ProjectSiteReportItem({
@@ -42,6 +43,7 @@ class ProjectAnalyticsSiteReportTab extends StatefulWidget {
 
 class _ProjectAnalyticsSiteReportTabState
     extends State<ProjectAnalyticsSiteReportTab> {
+  final ReportProvider _reportProvider = ReportProvider();
   bool _loading = true;
   String? _error;
   String _search = '';
@@ -54,6 +56,12 @@ class _ProjectAnalyticsSiteReportTabState
     _load();
   }
 
+  @override
+  void dispose() {
+    _reportProvider.dispose();
+    super.dispose();
+  }
+
   Future<void> _load() async {
     if (!mounted) return;
     setState(() {
@@ -61,19 +69,18 @@ class _ProjectAnalyticsSiteReportTabState
       _error = null;
     });
     try {
-      final reportBloc = context.read<ReportBloc>();
       await CompanyRepository().getCompany();
-      await reportBloc.init(base: 'https://erp.elrace.com');
-      await reportBloc.fetchAllFolders(projectId: widget.projectId);
-      final folders = List<FolderModel>.from(reportBloc.folders);
+      await _reportProvider.init(base: 'https://erp.elrace.com');
+      final folders =
+          await _reportProvider.fetchFoldersForProject(widget.projectId);
 
       final collected = <_ProjectSiteReportItem>[];
       for (final folder in folders) {
-        await reportBloc.fetchAllReports(
+        await _reportProvider.fetchAllReports(
           folderID: folder.id,
           projectId: widget.projectId,
         );
-        for (final report in reportBloc.reports) {
+        for (final report in _reportProvider.reports) {
           collected.add(
             _ProjectSiteReportItem(report: report, folder: folder),
           );
@@ -111,9 +118,8 @@ class _ProjectAnalyticsSiteReportTabState
 
   Future<void> _openPdf(_ProjectSiteReportItem item) async {
     final report = item.report;
-    final reportBloc = context.read<ReportBloc>();
     if (!report.hasGeneratedPdf && report.reportType == null) {
-      final detail = await reportBloc.fetchReportDetailFromApi(report.id);
+      final detail = await _reportProvider.fetchReportDetailFromApi(report.id);
       final hasPhotos = (detail?.reportItems.length ?? 0) >= 3;
       if (!hasPhotos) {
         if (!mounted) return;
@@ -134,6 +140,7 @@ class _ProjectAnalyticsSiteReportTabState
       if (!mounted) return;
       await TmSiteReportViewPdf.open(
         context,
+        provider: _reportProvider,
         report: report,
         folder: item.folder,
         projectName: widget.projectName,
@@ -147,12 +154,15 @@ class _ProjectAnalyticsSiteReportTabState
   Future<void> _openGallery(_ProjectSiteReportItem item) async {
     await Navigator.of(context).push<void>(
       MaterialPageRoute(
-        builder: (_) => TmSiteReportGalleryScreen(
-          report: item.report,
-          folder: item.folder,
-          folderName: item.folder.name,
-          projectName: widget.projectName,
-          projectId: widget.projectId,
+        builder: (_) => ChangeNotifierProvider<ReportProvider>.value(
+          value: _reportProvider,
+          child: TmSiteReportGalleryScreen(
+            report: item.report,
+            folder: item.folder,
+            folderName: item.folder.name,
+            projectName: widget.projectName,
+            projectId: widget.projectId,
+          ),
         ),
       ),
     );
@@ -280,13 +290,13 @@ class _ProjectAnalyticsSiteReportTabState
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.tr),
-                      borderSide: const BorderSide(
+                      borderSide: BorderSide(
                         color: ProjectsDashboardTheme.glassHighlight,
                       ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.tr),
-                      borderSide: const BorderSide(
+                      borderSide: BorderSide(
                         color: ProjectsDashboardTheme.glassHighlight,
                       ),
                     ),
@@ -346,6 +356,7 @@ class _ProjectAnalyticsSiteReportTabState
                           onPdf: () => _openPdf(item),
                           onMore: () => TmSiteReportActions.showReportMenu(
                             context,
+                            provider: _reportProvider,
                             report: item.report,
                             onChanged: _load,
                           ),
@@ -380,7 +391,8 @@ class _ProjectsSiteReportCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final report = item.report;
-    final updated = DateFormat('dd MMM yyyy · HH:mm').format(report.updatedAt);
+    final updated =
+        DateFormat('dd MMM yyyy · HH:mm').format(report.updatedAt);
 
     return Material(
       color: Colors.transparent,
@@ -481,8 +493,8 @@ class _ProjectsSiteReportCard extends StatelessWidget {
                 style: GoogleFonts.poppins(
                   fontSize: 10.tsp,
                   fontWeight: FontWeight.w500,
-                  color:
-                      ProjectsDashboardTheme.greyPanel.withValues(alpha: 0.85),
+                  color: ProjectsDashboardTheme.greyPanel
+                      .withValues(alpha: 0.85),
                 ),
               ),
               SizedBox(height: 10.th),
@@ -537,9 +549,12 @@ class _ActionChip extends StatelessWidget {
         child: Ink(
           padding: EdgeInsets.symmetric(vertical: 8.th),
           decoration: BoxDecoration(
-            gradient:
-                emphasized ? ProjectsDashboardTheme.maroonAccentGradient : null,
-            color: emphasized ? null : Colors.white.withValues(alpha: 0.10),
+            gradient: emphasized
+                ? ProjectsDashboardTheme.maroonAccentGradient
+                : null,
+            color: emphasized
+                ? null
+                : Colors.white.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(10.tr),
             border: Border.all(
               color: ProjectsDashboardTheme.glassHighlight,

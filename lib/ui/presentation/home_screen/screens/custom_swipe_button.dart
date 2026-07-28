@@ -15,6 +15,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_translate/flutter_translate.dart';
+import 'package:get/get.dart';
 import 'package:el_race/core/services/app_config_service.dart';
 import 'package:google_fonts/google_fonts.dart' show GoogleFonts;
 import 'package:el_race/core/biometric/unified_biometric_helper.dart';
@@ -92,10 +93,12 @@ class CustomSwipeButtonState extends State<CustomSwipeButton>
   double get _midTrackPad => widget.midSectionLayout ? 4.0 : 0.0;
 
   /// Thumb fits inside track height (not too small/large).
-  double get _knob =>
-      widget.midSectionLayout ? (_trackH - _midTrackPad * 2) : knobSize;
+  double get _knob => widget.midSectionLayout
+      ? (_trackH - _midTrackPad * 2)
+      : knobSize;
 
-  double get _maxDragOffset => math.max(0, buttonWidth - _knob - _midTrackPad);
+  double get _maxDragOffset =>
+      math.max(0, buttonWidth - _knob - _midTrackPad);
 
   /// Done for today: has both times and is not in an active check-in session.
   bool _hasCompletedAttendanceToday() {
@@ -104,9 +107,11 @@ class CustomSwipeButtonState extends State<CustomSwipeButton>
         _isValidAttendanceTime(_checkOutDisplayTime);
   }
 
-  DateTime _dubaiNow() => DateTime.now().toUtc().add(const Duration(hours: 4));
+  DateTime _dubaiNow() =>
+      DateTime.now().toUtc().add(const Duration(hours: 4));
 
-  bool _hasCheckInDataToday() => _isValidAttendanceTime(_checkInDisplayTime);
+  bool _hasCheckInDataToday() =>
+      _isValidAttendanceTime(_checkInDisplayTime);
 
   /// Check-out swipe allowed from 4:30 PM Dubai.
   bool _isCheckOutAllowedByTime() {
@@ -597,8 +602,7 @@ class CustomSwipeButtonState extends State<CustomSwipeButton>
         return AlertDialog(
           backgroundColor: Colors.white,
           surfaceTintColor: Colors.white,
-          insetPadding:
-              const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
           ),
@@ -745,7 +749,7 @@ class CustomSwipeButtonState extends State<CustomSwipeButton>
 
     final parts = message
         .split(RegExp(r'[,،]\s*'))
-        .map((part) => _sanitizeAttendanceText(part))
+      .map((part) => _sanitizeAttendanceText(part))
         .where((part) => part.isNotEmpty)
         .toList();
 
@@ -769,7 +773,7 @@ class CustomSwipeButtonState extends State<CustomSwipeButton>
     await SharedPref().setPreferencesBoolean('isCheckedIn', false);
     await SharedPref().setPreferenceInt('checkInRecordId', 0);
     await SharedPref().setPreferencesString('checkInDisplayTime', '00:00:00');
-    await TimerController.instance.stopTimer();
+    await Get.find<TimerController>().stopTimer();
     await AutoCheckoutService.cancelAutoCheckout();
     await CheckInReminderNotificationService().updateReminders();
     _stopLiveTimer();
@@ -787,7 +791,7 @@ class CustomSwipeButtonState extends State<CustomSwipeButton>
 
   Future<void> _restoreAfterCheckOutFailure() async {
     await SharedPref().setPreferencesBoolean('isCheckedIn', true);
-    await TimerController.instance.startTimer();
+    await Get.find<TimerController>().startTimer();
     await AutoCheckoutService.scheduleAutoCheckout();
     await CheckInReminderNotificationService().updateReminders();
     _startLiveTimer();
@@ -893,7 +897,7 @@ class CustomSwipeButtonState extends State<CustomSwipeButton>
       sl.get<CheckInBloc>().add(CheckInET());
       // await startTimer to guarantee isCheckedIn=true is persisted
       // BEFORE updateReminders() reads SharedPref
-      await TimerController.instance.startTimer();
+      await Get.find<TimerController>().startTimer();
 
       // جدولة Auto Check-out في الساعة 5:10 مساءً
       await AutoCheckoutService.scheduleAutoCheckout();
@@ -916,7 +920,7 @@ class CustomSwipeButtonState extends State<CustomSwipeButton>
           .add(CheckOutET(checkInRecordId, isAutoCheckout: false));
       // await stopTimer to guarantee isCheckedIn=false is persisted
       // BEFORE updateReminders() reads SharedPref
-      await TimerController.instance.stopTimer();
+      await Get.find<TimerController>().stopTimer();
 
       // إلغاء جدولة Auto Check-out عند Check-out اليدوي
       await AutoCheckoutService.cancelAutoCheckout();
@@ -1022,7 +1026,8 @@ class CustomSwipeButtonState extends State<CustomSwipeButton>
     final labelColor = widget.midSectionLayout
         ? HomeGlassTheme.textPrimary
         : const Color(0xFF151544);
-    final trackRadius = widget.midSectionLayout ? _trackH / 2 : 40.0;
+    final trackRadius =
+        widget.midSectionLayout ? _trackH / 2 : 40.0;
     return Container(
       width: buttonWidth,
       height: _trackH,
@@ -1284,122 +1289,119 @@ class CustomSwipeButtonState extends State<CustomSwipeButton>
       ],
       child: widget.midSectionLayout
           ? _buildSwipeGesture()
-          : Stack(
-              // legacy home widget embed with times row
+          : Stack( // legacy home widget embed with times row
+        children: [
+          Center(
+            child: Stack(
+              clipBehavior: Clip.none,
               children: [
-                Center(
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      // Finger animation GIF on top left (behind swipe)
-                      if (!widget.compactStyle && !widget.midSectionLayout)
-                        Positioned(
-                          left: -80,
-                          top: -80,
-                          child: Opacity(
-                            opacity: 0.4,
-                            child: ClipRRect(
-                              borderRadius: const BorderRadius.only(
-                                bottomRight: Radius.circular(23),
-                              ),
-                              child: Image.asset(
-                                'assets/gif/finger-print.gif',
-                                width: 150,
-                                height: 160,
-                                fit: BoxFit.cover,
-                              ),
+                // Finger animation GIF on top left (behind swipe)
+                if (!widget.compactStyle && !widget.midSectionLayout)
+                  Positioned(
+                  left: -80,
+                  top: -80,
+                  child: Opacity(
+                    opacity: 0.4,
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        bottomRight: Radius.circular(23),
+                      ),
+                      child: Image.asset(
+                        'assets/gif/finger-print.gif',
+                        width: 150,
+                        height: 160,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildSwipeGesture(),
+                    if (!widget.midSectionLayout) ...[
+                      SizedBox(height: 24.h),
+                      SizedBox(
+                        width: buttonWidth,
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  _checkInDisplayTime,
+                                  style: GoogleFonts.poppins(
+                                    color: labelColor,
+                                    fontSize: 10.sp,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Text(
+                                  _checkOutDisplayTime,
+                                  style: GoogleFonts.poppins(
+                                    color: labelColor,
+                                    fontSize: 10.sp,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _buildSwipeGesture(),
-                          if (!widget.midSectionLayout) ...[
-                            SizedBox(height: 24.h),
-                            SizedBox(
-                              width: buttonWidth,
-                              child: Column(
+                            SizedBox(height: 8.h),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 25.w),
+                              child: Stack(
+                                alignment: Alignment.center,
                                 children: [
                                   Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
-                                        _checkInDisplayTime,
-                                        style: GoogleFonts.poppins(
-                                          color: labelColor,
-                                          fontSize: 10.sp,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      Text(
-                                        _checkOutDisplayTime,
-                                        style: GoogleFonts.poppins(
-                                          color: labelColor,
-                                          fontSize: 10.sp,
-                                          fontWeight: FontWeight.w500,
+                                      Expanded(
+                                        child: Image.asset(
+                                          'assets/newapp/row.png',
+                                          height: 3,
+                                          fit: BoxFit.fill,
                                         ),
                                       ),
                                     ],
                                   ),
-                                  SizedBox(height: 8.h),
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 25.w),
-                                    child: Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: Image.asset(
-                                                'assets/newapp/row.png',
-                                                height: 3,
-                                                fit: BoxFit.fill,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Image.asset(
-                                              'assets/newapp/left.png',
-                                              width: 10.w,
-                                              height: 15.w,
-                                            ),
-                                            Image.asset(
-                                              'assets/newapp/right.png',
-                                              width: 10.w,
-                                              height: 15.w,
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Image.asset(
+                                        'assets/newapp/left.png',
+                                        width: 10.w,
+                                        height: 15.w,
+                                      ),
+                                      Image.asset(
+                                        'assets/newapp/right.png',
+                                        width: 10.w,
+                                        height: 15.w,
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
                             ),
                           ],
-                        ],
+                        ),
                       ),
                     ],
-                  ),
+                  ],
                 ),
-                if (_isApiLoading && !widget.midSectionLayout)
-                  const Positioned.fill(
-                    child: AbsorbPointer(
-                      absorbing: true,
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    ),
-                  ),
               ],
             ),
+          ),
+          if (_isApiLoading && !widget.midSectionLayout)
+            const Positioned.fill(
+              child: AbsorbPointer(
+                absorbing: true,
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+            ),
+          ],
+      ),
     );
   }
 }

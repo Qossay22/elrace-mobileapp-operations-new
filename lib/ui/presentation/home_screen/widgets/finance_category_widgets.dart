@@ -1,158 +1,156 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
 import 'package:el_race/ui/presentation/PettyCash/PettyCashScreen.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_petty_cash_widget_cubit.dart';
+import 'package:el_race/ui/presentation/home_screen/providers/home_petty_cash_widget_provider.dart';
 import 'package:el_race/ui/presentation/signin/data/model.dart';
 import 'package:el_race/ui/presentation/home_screen/widgets/category_widget_gradient_border.dart';
 import 'package:el_race/utils/Util.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// v7 Finance category — Petty Cash full-width card.
-class FinanceCategoryPettyCashCard extends StatelessWidget {
+class FinanceCategoryPettyCashCard extends ConsumerWidget {
   const FinanceCategoryPettyCashCard({super.key, this.tabletCompact = false});
 
   final bool tabletCompact;
 
   @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<HomePettyCashWidgetCubit, PettyCashWidgetRecord>(
-      builder: (context, data) {
-        if (!data.isAuthorized) {
-          return const _PettyCashUnauthorizedCard();
-        }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final data = ref.watch(homePettyCashWidgetProvider);
 
-        final availableColor =
-            data.isOverspent ? const Color(0xFFFF6B7A) : Colors.white;
-        final trendColor = _trendColor(data);
+    if (!data.isAuthorized) {
+      return const _PettyCashUnauthorizedCard();
+    }
 
-        return _PettyCashFullCardShell(
-          height: null,
-          onTap: () => Util.pushPage(const PettyCashScreen(), context),
-          iconBadge: const _PettyCashIconBadge(),
-          pattern: Stack(
-            clipBehavior: Clip.hardEdge,
-            fit: StackFit.expand,
-            children: [
-              Positioned(
-                right: -36.w,
-                top: -48.uh,
-                child: Container(
-                  width: 200.w,
-                  height: 200.w,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        const Color(0xFF4ADE80).withValues(alpha: 0.26),
-                        const Color(0xFF4ADE80).withValues(alpha: 0.08),
-                        Colors.transparent,
-                      ],
-                      stops: const [0.0, 0.42, 1.0],
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                right: 4.w,
-                top: 2.uh,
-                child: CustomPaint(
-                  size: Size(108.w, 108.w),
-                  painter: _PettyCashRingPainter(),
-                ),
-              ),
-              Positioned(
-                right: 2.w,
-                bottom: -6.uh,
-                child: Text(
-                  'د.إ',
-                  style: GoogleFonts.poppins(
-                    fontSize: 58.usp,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white.withValues(alpha: 0.18),
-                    height: 1,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'BALANCE',
-                style: GoogleFonts.poppins(
-                  fontSize: 10.usp,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF9CA3AF),
-                  letterSpacing: 0.55,
-                  height: 1.1,
-                ),
-              ),
-              SizedBox(height: 4.uh),
-              Text(
-                'Petty Cash',
-                style: GoogleFonts.poppins(
-                  fontSize: 17.usp,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                  height: 1.1,
-                ),
-              ),
-              SizedBox(height: 8.uh),
-              IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _PettyCashStatColumn(
-                      label: 'Available',
-                      value: data.availableDisplay,
-                      valueColor: availableColor,
-                      valueFontSize: 22.usp,
-                    ),
-                    const _PettyCashStatDivider(),
-                    _PettyCashStatColumn(
-                      label: 'Spent',
-                      value: data.spentDisplay,
-                      valueColor: const Color(0xFFF59E3D),
-                      valueFontSize: 22.usp,
-                    ),
+    final availableColor =
+        data.isOverspent ? const Color(0xFFFF6B7A) : Colors.white;
+    final trendColor = _trendColor(data);
+
+    return _PettyCashFullCardShell(
+      height: null,
+      onTap: () => Util.pushPage(const PettyCashScreen(), context),
+      iconBadge: const _PettyCashIconBadge(),
+      pattern: Stack(
+        clipBehavior: Clip.hardEdge,
+        fit: StackFit.expand,
+        children: [
+          Positioned(
+            right: -36.w,
+            top: -48.uh,
+            child: Container(
+              width: 200.w,
+              height: 200.w,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    const Color(0xFF4ADE80).withValues(alpha: 0.26),
+                    const Color(0xFF4ADE80).withValues(alpha: 0.08),
+                    Colors.transparent,
                   ],
+                  stops: const [0.0, 0.42, 1.0],
                 ),
               ),
-              SizedBox(height: 6.uh),
-              if (data.trendLabel.isNotEmpty)
-                Text(
-                  data.trendLabel,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.poppins(
-                    fontSize: 11.usp,
-                    fontWeight: FontWeight.w600,
-                    color: trendColor,
-                    height: 1.15,
-                  ),
+            ),
+          ),
+          Positioned(
+            right: 4.w,
+            top: 2.uh,
+            child: CustomPaint(
+              size: Size(108.w, 108.w),
+              painter: _PettyCashRingPainter(),
+            ),
+          ),
+          Positioned(
+            right: 2.w,
+            bottom: -6.uh,
+            child: Text(
+              'د.إ',
+              style: GoogleFonts.poppins(
+                fontSize: 58.usp,
+                fontWeight: FontWeight.w700,
+                color: Colors.white.withValues(alpha: 0.18),
+                height: 1,
+              ),
+            ),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'BALANCE',
+            style: GoogleFonts.poppins(
+              fontSize: 10.usp,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF9CA3AF),
+              letterSpacing: 0.55,
+              height: 1.1,
+            ),
+          ),
+          SizedBox(height: 4.uh),
+          Text(
+            'Petty Cash',
+            style: GoogleFonts.poppins(
+              fontSize: 17.usp,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+              height: 1.1,
+            ),
+          ),
+          SizedBox(height: 8.uh),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _PettyCashStatColumn(
+                  label: 'Available',
+                  value: data.availableDisplay,
+                  valueColor: availableColor,
+                  valueFontSize: 22.usp,
                 ),
-              if (data.pendingLabel.isNotEmpty) ...[
-                SizedBox(height: 2.uh),
-                Text(
-                  data.pendingLabel,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.poppins(
-                    fontSize: 10.usp,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFFF59E0B),
-                    height: 1.1,
-                  ),
+                const _PettyCashStatDivider(),
+                _PettyCashStatColumn(
+                  label: 'Spent',
+                  value: data.spentDisplay,
+                  valueColor: const Color(0xFFF59E3D),
+                  valueFontSize: 22.usp,
                 ),
               ],
-            ],
+            ),
           ),
-        );
-      },
+          SizedBox(height: 6.uh),
+          if (data.trendLabel.isNotEmpty)
+            Text(
+              data.trendLabel,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.poppins(
+                fontSize: 11.usp,
+                fontWeight: FontWeight.w600,
+                color: trendColor,
+                height: 1.15,
+              ),
+            ),
+          if (data.pendingLabel.isNotEmpty) ...[
+            SizedBox(height: 2.uh),
+            Text(
+              data.pendingLabel,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.poppins(
+                fontSize: 10.usp,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFFF59E0B),
+                height: 1.1,
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
@@ -239,8 +237,8 @@ class _PettyCashFullCardShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final innerRadius = (22.ur - CategoryWidgetGradientBorder.width)
-        .clamp(0.0, double.infinity);
+    final innerRadius =
+        (22.ur - CategoryWidgetGradientBorder.width).clamp(0.0, double.infinity);
 
     return Material(
       color: Colors.transparent,
@@ -262,7 +260,8 @@ class _PettyCashFullCardShell extends StatelessWidget {
                 clipBehavior: Clip.hardEdge,
                 fit: StackFit.expand,
                 children: [
-                  if (pattern != null) IgnorePointer(child: pattern!),
+                  if (pattern != null)
+                    IgnorePointer(child: pattern!),
                   Padding(
                     padding: EdgeInsets.fromLTRB(14.w, 12.uh, 46.w, 12.uh),
                     child: LayoutBuilder(

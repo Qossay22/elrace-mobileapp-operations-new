@@ -12,7 +12,6 @@ import 'package:el_race/core/timesheet/services/capture_queue_service.dart';
 import 'package:el_race/core/timesheet/services/timesheet_capture_session_store.dart';
 import 'package:el_race/core/site_management/face_recognition/data/repositories/face_db_repository.dart';
 import 'package:el_race/core/site_management/face_recognition/face_match_session.dart';
-import 'package:el_race/core/site_management/face_recognition/face_match_session_cubit.dart';
 import 'package:el_race/core/site_management/face_recognition/face_pilot_log_store.dart';
 import 'package:el_race/core/timesheet/services/timesheet_roster_face_matcher.dart';
 import 'package:el_race/core/utils/shared_pref.dart';
@@ -30,7 +29,6 @@ import 'package:el_race/ui/presentation/timesheet/widgets/face_recognition/tm_fa
 import 'package:el_race/ui/presentation/timesheet/widgets/face_recognition/tm_timesheet_capture_confirm_sheet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -102,9 +100,8 @@ class _FmTimesheetCaptureSubmitScreenState
     super.initState();
     final day = widget.args.date;
     final now = DateTime.now();
-    _startDateTime =
-        DateTime(day.year, day.month, day.day, now.hour, now.minute)
-            .subtract(const Duration(hours: 9));
+    _startDateTime = DateTime(day.year, day.month, day.day, now.hour, now.minute)
+        .subtract(const Duration(hours: 9));
     _endDateTime = DateTime(day.year, day.month, day.day, now.hour, now.minute);
     unawaited(_bootCapture());
   }
@@ -172,9 +169,8 @@ class _FmTimesheetCaptureSubmitScreenState
     if (_faceDbRefreshing) return;
     setState(() => _faceDbRefreshing = true);
     try {
-      final result = await ref
-          .read(faceRecognitionServiceProvider)
-          .syncFaceDbForceRefresh();
+      final result =
+          await ref.read(faceRecognitionServiceProvider).syncFaceDbForceRefresh();
       if (!mounted) return;
       _applySyncResult(result, manualRefresh: true);
     } finally {
@@ -184,7 +180,8 @@ class _FmTimesheetCaptureSubmitScreenState
 
   void _applySyncResult(FaceSyncResult result, {bool manualRefresh = false}) {
     final service = ref.read(faceRecognitionServiceProvider);
-    final countSuffix = result.count > 0 ? ' · ${result.count} templates' : '';
+    final countSuffix =
+        result.count > 0 ? ' · ${result.count} templates' : '';
     final prefix = switch (result.status) {
       FaceSyncStatus.synced => manualRefresh
           ? 'Face DB reloaded$countSuffix'
@@ -192,8 +189,8 @@ class _FmTimesheetCaptureSubmitScreenState
       FaceSyncStatus.upToDate => manualRefresh
           ? 'Face DB checked$countSuffix'
           : 'Face DB ready$countSuffix',
-      FaceSyncStatus.failed
-          when result.message?.startsWith('offline_cache') == true =>
+      FaceSyncStatus.failed when result.message?.startsWith('offline_cache') ==
+              true =>
         'Face DB offline$countSuffix',
       FaceSyncStatus.failed => 'Face DB sync failed',
       FaceSyncStatus.empty => 'No enrolled faces on server',
@@ -207,7 +204,8 @@ class _FmTimesheetCaptureSubmitScreenState
       snackText = '$snackText · engine: ${service.engineError}';
     }
     if (kDebugMode && FacePilotLogStore.lastExportPath != null) {
-      snackText = '$snackText · pilot log: ${FacePilotLogStore.lastExportPath}';
+      snackText =
+          '$snackText · pilot log: ${FacePilotLogStore.lastExportPath}';
     }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -319,7 +317,7 @@ class _FmTimesheetCaptureSubmitScreenState
       return;
     }
 
-    context.read<FaceMatchSessionCubit>().record(
+    ref.read(faceMatchSessionProvider.notifier).record(
           FaceMatchSessionRecord(
             outcome: FaceMatchUiOutcome.inTeam,
             bestScore: matchScore,
@@ -330,8 +328,8 @@ class _FmTimesheetCaptureSubmitScreenState
             capturedAt: DateTime.now(),
           ),
         );
-    context.read<FaceMatchSessionCubit>().markConfirmed();
-    _setOverlayHint(
+    ref.read(faceMatchSessionProvider.notifier).markConfirmed();
+  _setOverlayHint(
       TimesheetFaceOverlayHint.inTeam(
         name: resolved.name,
         fileId: resolved.displayFileId,
@@ -386,15 +384,13 @@ class _FmTimesheetCaptureSubmitScreenState
         .toList();
     if (recent.isNotEmpty) {
       final lastCapturedAt = recent.last.capturedAt;
-      if (DateTime.now().difference(lastCapturedAt) <
-          _alreadyAttendedCooldown) {
+      if (DateTime.now().difference(lastCapturedAt) < _alreadyAttendedCooldown) {
         // Too soon after capture — skip the nag so it feels realistic.
         return;
       }
     }
     _showCaptureNotice(resolved, TmFaceCaptureNoticeKind.alreadyAttended);
-    debugPrint(
-        'FaceCaptureSession: already attended emp=${resolved.employeeId}');
+    debugPrint('FaceCaptureSession: already attended emp=${resolved.employeeId}');
   }
 
   void _onOutOfTeamRecognized(
@@ -402,7 +398,7 @@ class _FmTimesheetCaptureSubmitScreenState
     AttendanceCaptureDraft _,
     double matchScore,
   ) {
-    context.read<FaceMatchSessionCubit>().record(
+    ref.read(faceMatchSessionProvider.notifier).record(
           FaceMatchSessionRecord(
             outcome: FaceMatchUiOutcome.outOfTeam,
             bestScore: matchScore,
@@ -436,7 +432,7 @@ class _FmTimesheetCaptureSubmitScreenState
     double? bestScore,
     String? closestName,
   }) {
-    context.read<FaceMatchSessionCubit>().record(
+    ref.read(faceMatchSessionProvider.notifier).record(
           FaceMatchSessionRecord(
             outcome: FaceMatchUiOutcome.belowThreshold,
             bestScore: bestScore ?? 0,
@@ -649,154 +645,151 @@ class _FmTimesheetCaptureSubmitScreenState
         if (leave) Navigator.of(this.context).pop();
       },
       child: Scaffold(
-        backgroundColor: TimesheetModuleColors.navy,
-        body: Stack(
-          fit: StackFit.expand,
-          children: [
-            TimesheetCaptureCameraPanel(
-              key: _cameraKey,
-              capture: _captureArgs,
-              showShutter: false,
-              fillHeight: true,
-              externalChrome: true,
-              autoCaptureEnabled: true,
-              overlayHint: _overlayHint,
-              capturedEmployeeIds: _capturedEmployeeIds,
-              projectLaborEmployeeIds: _projectLaborEmployeeIds,
-              rosterEmployees: _faceMatchRoster,
-              faceRecognition: ref.read(faceRecognitionServiceProvider),
-              onRosterEmployeeMatched: _onRosterMatched,
-              onAlreadyAttended: _onAlreadyAttended,
-              onOutOfTeamRecognized: _onOutOfTeamRecognized,
-              onNoEmbeddingMatch: _onNoEmbeddingMatch,
-              onCaptureMatched: _onCaptureMatched,
-              onChromeChanged: _onChromeChanged,
+      backgroundColor: TimesheetModuleColors.navy,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          TimesheetCaptureCameraPanel(
+            key: _cameraKey,
+            capture: _captureArgs,
+            showShutter: false,
+            fillHeight: true,
+            externalChrome: true,
+            autoCaptureEnabled: true,
+            overlayHint: _overlayHint,
+            capturedEmployeeIds: _capturedEmployeeIds,
+            projectLaborEmployeeIds: _projectLaborEmployeeIds,
+            rosterEmployees: _faceMatchRoster,
+            faceRecognition: ref.read(faceRecognitionServiceProvider),
+            onRosterEmployeeMatched: _onRosterMatched,
+            onAlreadyAttended: _onAlreadyAttended,
+            onOutOfTeamRecognized: _onOutOfTeamRecognized,
+            onNoEmbeddingMatch: _onNoEmbeddingMatch,
+            onCaptureMatched: _onCaptureMatched,
+            onChromeChanged: _onChromeChanged,
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: _NavyTitleBar(
+              onBack: () async {
+                if (widget.returnCaptures) {
+                  _returnTimer?.cancel();
+                  Navigator.of(this.context)
+                      .pop<List<TimesheetCaptureSessionEntry>>(
+                    List<TimesheetCaptureSessionEntry>.from(_captures),
+                  );
+                  return;
+                }
+                final leave = await _confirmLeaveIfNeeded();
+                if (!mounted) return;
+                if (leave) Navigator.of(this.context).pop();
+              },
             ),
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: _NavyTitleBar(
-                onBack: () async {
-                  if (widget.returnCaptures) {
-                    _returnTimer?.cancel();
-                    Navigator.of(this.context)
-                        .pop<List<TimesheetCaptureSessionEntry>>(
-                      List<TimesheetCaptureSessionEntry>.from(_captures),
-                    );
-                    return;
-                  }
-                  final leave = await _confirmLeaveIfNeeded();
-                  if (!mounted) return;
-                  if (leave) Navigator.of(this.context).pop();
-                },
-              ),
+          ),
+          Positioned(
+            top: headerTop,
+            left: 10,
+            right: 10,
+            child: _CaptureProjectHeader(
+              projectName: widget.args.projectName,
+              taskName: widget.args.taskName,
+              dateLabel: dateLabel,
             ),
-            Positioned(
-              top: headerTop,
-              left: 10,
-              right: 10,
-              child: _CaptureProjectHeader(
-                projectName: widget.args.projectName,
-                taskName: widget.args.taskName,
-                dateLabel: dateLabel,
-              ),
+          ),
+          Positioned(
+            top: headerTop + 88,
+            right: 10,
+            child: _CaptureCameraRail(
+              chrome: chrome,
+              onFlip: camera?.switchCameraExternal,
+              onFlash: camera?.toggleFlashExternal,
+              onCapture: camera?.capturePhoto,
             ),
-            Positioned(
-              top: headerTop + 88,
-              right: 10,
-              child: _CaptureCameraRail(
-                chrome: chrome,
-                onFlip: camera?.switchCameraExternal,
-                onFlash: camera?.toggleFlashExternal,
-                onCapture: camera?.capturePhoto,
-              ),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TmFaceDbFallbackBanner(
-                    availability: _availability,
-                    phaseAFallback:
-                        !_phaseBActive && _faceMatchRoster.isNotEmpty,
-                  ),
-                  if (chrome?.livenessShowSpoofWarning == true)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-                      child: TmLivenessBlockedBanner(
-                        message:
-                            chrome?.livenessMessage?.trim().isNotEmpty == true
-                                ? chrome!.livenessMessage!.trim()
-                                : 'Live face verification failed.',
-                        onRetry: camera?.retryLivenessSpoofExternal,
-                      ),
-                    ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
-                    child: TmFaceCaptureStatusIconRow(
-                      embeddingOn: _phaseBActive,
-                      faceDbReady: _faceDbReady,
-                      faceDbTemplateCount: _faceDbTemplateCount,
-                      onRefreshFaceDb: _refreshFaceDb,
-                      refreshingFaceDb: _faceDbRefreshing,
-                      geofenceOk: chrome?.geofenceOk == true,
-                      canCapture: chrome?.canCapture == true,
-                      livenessPhase:
-                          chrome?.livenessPhase ?? LivenessGatePhase.idle,
-                      livenessMessage: chrome?.livenessMessage,
-                      onRetryLiveness: chrome?.livenessShowSpoofWarning == true
-                          ? camera?.retryLivenessSpoofExternal
-                          : null,
-                    ),
-                  ),
-                  _CaptureSubmitBar(
-                    captureCount: captureCount,
-                    isSubmitting: _isSubmitting,
-                    bottomInset: bottomInset,
-                    submitLabel: widget.returnCaptures ? 'Done' : null,
-                    onSubmit: widget.returnCaptures
-                        ? () {
-                            _returnTimer?.cancel();
-                            Navigator.of(context)
-                                .pop<List<TimesheetCaptureSessionEntry>>(
-                              List<TimesheetCaptureSessionEntry>.from(
-                                  _captures),
-                            );
-                          }
-                        : _submit,
-                  ),
-                ],
-              ),
-            ),
-            if (notice != null)
-              Positioned(
-                left: 12,
-                right: 12,
-                bottom: bottomInset + 132,
-                child: TmFaceCaptureNoticeTile(
-                  key: ValueKey(
-                    '${notice.employee.employeeId}_${notice.kind.name}',
-                  ),
-                  employee: notice.employee,
-                  kind: notice.kind,
-                  matchScore: notice.matchScore,
-                  onDismissed: _clearNoticeToast,
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TmFaceDbFallbackBanner(
+                  availability: _availability,
+                  phaseAFallback:
+                      !_phaseBActive && _faceMatchRoster.isNotEmpty,
                 ),
+                if (chrome?.livenessShowSpoofWarning == true)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                    child: TmLivenessBlockedBanner(
+                      message: chrome?.livenessMessage?.trim().isNotEmpty == true
+                          ? chrome!.livenessMessage!.trim()
+                          : 'Live face verification failed.',
+                      onRetry: camera?.retryLivenessSpoofExternal,
+                    ),
+                  ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+                  child: TmFaceCaptureStatusIconRow(
+                    embeddingOn: _phaseBActive,
+                    faceDbReady: _faceDbReady,
+                    faceDbTemplateCount: _faceDbTemplateCount,
+                    onRefreshFaceDb: _refreshFaceDb,
+                    refreshingFaceDb: _faceDbRefreshing,
+                    geofenceOk: chrome?.geofenceOk == true,
+                    canCapture: chrome?.canCapture == true,
+                    livenessPhase: chrome?.livenessPhase ?? LivenessGatePhase.idle,
+                    livenessMessage: chrome?.livenessMessage,
+                    onRetryLiveness: chrome?.livenessShowSpoofWarning == true
+                        ? camera?.retryLivenessSpoofExternal
+                        : null,
+                  ),
+                ),
+                _CaptureSubmitBar(
+                  captureCount: captureCount,
+                  isSubmitting: _isSubmitting,
+                  bottomInset: bottomInset,
+                  submitLabel: widget.returnCaptures ? 'Done' : null,
+                  onSubmit: widget.returnCaptures
+                      ? () {
+                          _returnTimer?.cancel();
+                          Navigator.of(context)
+                              .pop<List<TimesheetCaptureSessionEntry>>(
+                            List<TimesheetCaptureSessionEntry>.from(_captures),
+                          );
+                        }
+                      : _submit,
+                ),
+              ],
+            ),
+          ),
+          if (notice != null)
+            Positioned(
+              left: 12,
+              right: 12,
+              bottom: bottomInset + 132,
+              child: TmFaceCaptureNoticeTile(
+                key: ValueKey(
+                  '${notice.employee.employeeId}_${notice.kind.name}',
+                ),
+                employee: notice.employee,
+                kind: notice.kind,
+                matchScore: notice.matchScore,
+                onDismissed: _clearNoticeToast,
               ),
-            if (_showNoMatchNotice)
-              TmFaceNoMatchNotice(
-                bestScore: _noMatchBestScore,
-                suspectedName: _noMatchClosestName,
-                onDismiss: _dismissNoMatch,
-              ),
-          ],
-        ),
+            ),
+          if (_showNoMatchNotice)
+            TmFaceNoMatchNotice(
+              bestScore: _noMatchBestScore,
+              suspectedName: _noMatchClosestName,
+              onDismiss: _dismissNoMatch,
+            ),
+        ],
       ),
+    ),
     );
   }
 }

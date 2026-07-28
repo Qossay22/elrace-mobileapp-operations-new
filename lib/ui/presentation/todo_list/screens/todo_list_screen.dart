@@ -1,15 +1,15 @@
 import 'package:el_race/core/utils/shared_pref.dart';
-import 'package:el_race/ui/presentation/todo_list/bloc/todo_bloc.dart';
+import 'package:el_race/ui/presentation/todo_list/providers/todo_firebase_provider.dart';
 import 'package:el_race/ui/presentation/todo_list/screens/todo_category_screen.dart';
 import 'package:el_race/ui/presentation/todo_list/screens/todo_search_screen.dart';
 import 'package:el_race/ui/presentation/todo_list/widgets/add_list_dialog.dart';
 import 'package:el_race/ui/widgets/header_widget.dart';
 import 'package:el_race/utils/color_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class TodoListScreen extends StatefulWidget {
   const TodoListScreen({super.key});
@@ -23,7 +23,7 @@ class _TodoListScreenState extends State<TodoListScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TodoBloc>().initialize();
+      context.read<TodoFirebaseProvider>().initialize();
     });
   }
 
@@ -47,9 +47,8 @@ class _TodoListScreenState extends State<TodoListScreen> {
           const SizedBox(height: 24),
           // Categories List
           Expanded(
-            child: BlocBuilder<TodoBloc, TodoState>(
-              builder: (context, state) {
-                final provider = context.read<TodoBloc>();
+            child: Consumer<TodoFirebaseProvider>(
+              builder: (context, provider, child) {
                 return SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -399,7 +398,7 @@ class _TodoListScreenState extends State<TodoListScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              context.read<TodoBloc>().deleteTodoList(listId);
+              context.read<TodoFirebaseProvider>().deleteTodoList(listId);
             },
             child: Text(
               translate('common.delete'),

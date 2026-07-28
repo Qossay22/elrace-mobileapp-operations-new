@@ -5,14 +5,14 @@ import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/report_module/core/constants/colors.dart';
 import 'package:el_race/report_module/core/constants/text_styles.dart';
 import 'package:el_race/report_module/data/models/report_detail_model.dart';
-import 'package:el_race/ui/presentation/tasks/bloc/tasks_bloc.dart';
+import 'package:el_race/ui/presentation/tasks/logic/tasks_provider.dart';
 import 'package:el_race/ui/presentation/tasks/task_details_screen.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 /// Bottom sheet لإنشاء Task من Report مع pre-filled data
 /// UX: سهل، واضح، وسريع
@@ -100,7 +100,7 @@ class _CreateTaskFromReportSheetState extends State<CreateTaskFromReportSheet> {
   }
 
   Future<void> _ensureAssignableUsers() async {
-    final tasksProvider = context.read<TasksBloc>();
+    final tasksProvider = Provider.of<TasksProvider>(context, listen: false);
     if (!tasksProvider.usersLoaded && !tasksProvider.isLoadingUsers) {
       await tasksProvider.loadAssignableUsers();
     }
@@ -144,7 +144,7 @@ class _CreateTaskFromReportSheetState extends State<CreateTaskFromReportSheet> {
       _isLoading = true;
     });
 
-    final tasksProvider = context.read<TasksBloc>();
+    final tasksProvider = Provider.of<TasksProvider>(context, listen: false);
 
     final commentText = _commentController.text.trim().isEmpty
         ? null
@@ -415,9 +415,8 @@ class _CreateTaskFromReportSheetState extends State<CreateTaskFromReportSheet> {
                 ),
                 SizedBox(width: 12.w),
                 Expanded(
-                  child: BlocBuilder<TasksBloc, TasksState>(
-                    builder: (context, state) {
-                      final tasksProvider = context.read<TasksBloc>();
+                  child: Consumer<TasksProvider>(
+                    builder: (context, tasksProvider, _) {
                       if (tasksProvider.isLoadingUsers &&
                           tasksProvider.assignableUsers.isEmpty) {
                         return Container(

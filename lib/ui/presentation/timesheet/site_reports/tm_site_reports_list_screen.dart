@@ -2,8 +2,8 @@ import 'package:el_race/core/theme/timesheet_module_theme.dart';
 import 'package:el_race/core/widgets/timesheet/timesheet_widgets.dart';
 import 'package:el_race/report_module/data/models/folder_model.dart';
 import 'package:el_race/report_module/data/models/report_model.dart';
+import 'package:el_race/report_module/data/provider/reports_provider.dart';
 import 'package:el_race/report_module/data/repositories/company_repository.dart';
-import 'package:el_race/report_module/presentation/bloc/report_bloc.dart';
 import 'package:el_race/ui/presentation/timesheet/site_reports/models/tm_site_report_composer_result.dart';
 import 'package:el_race/ui/presentation/timesheet/site_reports/tm_site_report_actions.dart';
 import 'package:el_race/ui/presentation/timesheet/site_reports/tm_site_report_composer_screen.dart';
@@ -14,8 +14,8 @@ import 'package:el_race/ui/presentation/timesheet/site_reports/widgets/tm_site_r
 import 'package:el_race/ui/presentation/timesheet/timesheet_async_state.dart';
 import 'package:el_race/ui/presentation/timesheet/widgets/tm_site_report_row.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:provider/provider.dart';
 
 /// Flat Site Reports list — no project picker, no folder drill-down.
 class TmSiteReportsListScreen extends StatefulWidget {
@@ -23,12 +23,16 @@ class TmSiteReportsListScreen extends StatefulWidget {
     super.key,
     this.title = 'Site Reports',
     this.embedInParent = false,
+    this.reportProvider,
   });
 
   final String title;
 
   /// When true, render only the list body (for PM/FM project detail tabs).
   final bool embedInParent;
+
+  /// Optional shared provider (PM/FM tabs).
+  final ReportProvider? reportProvider;
 
   @override
   State<TmSiteReportsListScreen> createState() =>
@@ -38,6 +42,8 @@ class TmSiteReportsListScreen extends StatefulWidget {
 class _TmSiteReportsListScreenState extends State<TmSiteReportsListScreen> {
   static const int _pageSize = 15;
 
+  late final ReportProvider _provider;
+  bool _ownsProvider = false;
   bool _loading = true;
   bool _loadingMore = false;
   bool _hasMore = false;
@@ -50,6 +56,12 @@ class _TmSiteReportsListScreenState extends State<TmSiteReportsListScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.reportProvider != null) {
+      _provider = widget.reportProvider!;
+    } else {
+      _provider = ReportProvider();
+      _ownsProvider = true;
+    }
     _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) => _bootstrap());
   }
@@ -59,15 +71,16 @@ class _TmSiteReportsListScreenState extends State<TmSiteReportsListScreen> {
     _scrollController
       ..removeListener(_onScroll)
       ..dispose();
+    if (_ownsProvider) {
+      _provider.dispose();
+    }
     super.dispose();
   }
 
   Future<void> _bootstrap() async {
     try {
       await CompanyRepository().getCompany();
-      if (mounted) {
-        await context.read<ReportBloc>().init(base: 'https://erp.elrace.com');
-      }
+      await _provider.init(base: 'https://erp.elrace.com');
     } catch (_) {}
     await _load(reset: true);
   }
@@ -89,11 +102,11 @@ class _TmSiteReportsListScreenState extends State<TmSiteReportsListScreen> {
       });
     }
     try {
-      final result = await context.read<ReportBloc>().fetchSiteReports(
-            offset: 0,
-            limit: _pageSize,
-            append: false,
-          );
+      final result = await _provider.fetchSiteReports(
+        offset: 0,
+        limit: _pageSize,
+        append: false,
+      );
       if (!mounted) return;
       setState(() {
         _reports = result.reports;
@@ -116,11 +129,11 @@ class _TmSiteReportsListScreenState extends State<TmSiteReportsListScreen> {
     if (_loadingMore || !_hasMore) return;
     setState(() => _loadingMore = true);
     try {
-      final result = await context.read<ReportBloc>().fetchSiteReports(
-            offset: _reports.length,
-            limit: _pageSize,
-            append: true,
-          );
+      final result = await _provider.fetchSiteReports(
+        offset: _reports.length,
+        limit: _pageSize,
+        append: true,
+      );
       if (!mounted) return;
       setState(() {
         _reports = result.reports;
@@ -150,13 +163,17 @@ class _TmSiteReportsListScreenState extends State<TmSiteReportsListScreen> {
   }
 
   Future<void> _openComposer({ReportModel? existing}) async {
-    final result = await Navigator.of(context).push<TmSiteReportComposerResult>(
+    final result =
+        await Navigator.of(context).push<TmSiteReportComposerResult>(
       MaterialPageRoute(
-        builder: (_) => TmSiteReportComposerScreen(
-          folder: existing != null ? _folderFor(existing) : null,
-          locationHint: '',
-          useDefaultFolder: true,
-          existingReport: existing,
+        builder: (_) => ChangeNotifierProvider<ReportProvider>.value(
+          value: _provider,
+          child: TmSiteReportComposerScreen(
+            folder: existing != null ? _folderFor(existing) : null,
+            locationHint: '',
+            useDefaultFolder: true,
+            existingReport: existing,
+          ),
         ),
       ),
     );
@@ -179,12 +196,15 @@ class _TmSiteReportsListScreenState extends State<TmSiteReportsListScreen> {
   Future<void> _openGallery(ReportModel report) async {
     await Navigator.of(context).push<void>(
       MaterialPageRoute(
-        builder: (_) => TmSiteReportGalleryScreen(
-          report: report,
-          folder: _folderFor(report),
-          folderName: 'Site Reports',
-          projectName: '',
-          projectId: '',
+        builder: (_) => ChangeNotifierProvider<ReportProvider>.value(
+          value: _provider,
+          child: TmSiteReportGalleryScreen(
+            report: report,
+            folder: _folderFor(report),
+            folderName: 'Site Reports',
+            projectName: '',
+            projectId: '',
+          ),
         ),
       ),
     );
@@ -192,9 +212,8 @@ class _TmSiteReportsListScreenState extends State<TmSiteReportsListScreen> {
   }
 
   Future<void> _openPdf(ReportModel report) async {
-    final reportBloc = context.read<ReportBloc>();
     if (!report.hasGeneratedPdf && report.reportType == null) {
-      final detail = await reportBloc.fetchReportDetailFromApi(report.id);
+      final detail = await _provider.fetchReportDetailFromApi(report.id);
       final hasPhotos = (detail?.reportItems.length ?? 0) >= 3;
       if (!hasPhotos) {
         if (!mounted) return;
@@ -214,6 +233,7 @@ class _TmSiteReportsListScreenState extends State<TmSiteReportsListScreen> {
       if (!mounted) return;
       await TmSiteReportViewPdf.open(
         context,
+        provider: _provider,
         report: report,
         folder: _folderFor(report),
         projectName: '',
@@ -228,7 +248,8 @@ class _TmSiteReportsListScreenState extends State<TmSiteReportsListScreen> {
     final q = _search.trim().toLowerCase();
     if (q.isEmpty) return _reports;
     return _reports.where((r) {
-      return r.name.toLowerCase().contains(q) || r.id.toLowerCase().contains(q);
+      return r.name.toLowerCase().contains(q) ||
+          r.id.toLowerCase().contains(q);
     }).toList();
   }
 
@@ -296,8 +317,7 @@ class _TmSiteReportsListScreenState extends State<TmSiteReportsListScreen> {
                       TimesheetModuleLayout.screenPaddingH,
                       88,
                     ),
-                    itemCount:
-                        reports.length + (_loadingMore || _hasMore ? 1 : 0),
+                    itemCount: reports.length + (_loadingMore || _hasMore ? 1 : 0),
                     separatorBuilder: (_, __) => const SizedBox(
                       height: TimesheetModuleLayout.cardSpacing,
                     ),
@@ -322,6 +342,7 @@ class _TmSiteReportsListScreenState extends State<TmSiteReportsListScreen> {
                         onPdf: () => _openPdf(report),
                         onMore: () => TmSiteReportActions.showReportMenu(
                           context,
+                          provider: _provider,
                           report: report,
                           onChanged: () => _load(reset: true),
                         ),

@@ -3,9 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../bloc/qr_survey_bloc.dart';
+import 'package:provider/provider.dart';
 import '../models/qr_media_model.dart';
+import '../providers/qr_survey_data_provider.dart';
 
 class ListMediaScreen extends StatefulWidget {
   final List<dynamic> mediaList;
@@ -100,8 +100,8 @@ class _ListMediaScreenState extends State<ListMediaScreen> {
   @override
   Widget build(BuildContext context) {
     // Verify this screen was accessed via QR code
-    final state = context.read<QrSurveyBloc>().state;
-    if (!state.isFromQrCode) {
+    final provider = Provider.of<QrSurveyDataProvider>(context, listen: false);
+    if (!provider.isFromQrCode) {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Access Denied'),

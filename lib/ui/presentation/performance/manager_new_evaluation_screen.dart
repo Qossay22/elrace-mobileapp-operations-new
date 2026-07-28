@@ -1,6 +1,6 @@
 import 'package:el_race/core/performance/models/performance_employee_option.dart';
-import 'package:el_race/core/performance/bloc/manager_new_evaluation_cubit.dart';
-import 'package:el_race/core/performance/bloc/performance_evaluation_list_cubit.dart';
+import 'package:el_race/core/performance/models/performance_evaluation.dart';
+import 'package:el_race/core/performance/providers/performance_providers.dart';
 import 'package:el_race/core/theme/hr_module_colors.dart';
 import 'package:el_race/core/theme/hr_module_layout.dart';
 import 'package:el_race/core/theme/hr_module_typography.dart';
@@ -11,43 +11,64 @@ import 'package:el_race/ui/presentation/performance/widgets/evaluation_pipeline_
 import 'package:el_race/ui/presentation/performance/widgets/personal_competencies_section.dart';
 import 'package:el_race/ui/presentation/performance/widgets/performance_themed_dropdown.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Manager creates / scores a personal competencies evaluation.
-class ManagerNewEvaluationScreen extends StatefulWidget {
+class ManagerNewEvaluationScreen extends ConsumerStatefulWidget {
   const ManagerNewEvaluationScreen({super.key});
 
   @override
-  State<ManagerNewEvaluationScreen> createState() =>
+  ConsumerState<ManagerNewEvaluationScreen> createState() =>
       _ManagerNewEvaluationScreenState();
 }
 
 class _ManagerNewEvaluationScreenState
-    extends State<ManagerNewEvaluationScreen> {
+    extends ConsumerState<ManagerNewEvaluationScreen> {
+  PerformanceEmployeeOption? _employee;
+  late int _year;
+  String? _evaluationId;
   List<int> _scores = [];
+  bool _busy = false;
 
   @override
   void initState() {
     super.initState();
-    final cubit = context.read<ManagerNewEvaluationCubit>();
-    Future.microtask(cubit.loadEmployees);
+    _year = DateTime.now().year;
   }
 
   Future<void> _prepareDraft() async {
-    final cubit = context.read<ManagerNewEvaluationCubit>();
-    final ok = await cubit.prepareDraft();
-    if (!mounted) return;
-    if (!ok && cubit.state.error != null) {
-      _snack(cubit.state.error!);
+    final emp = _employee;
+    if (emp == null) {
+      _snack('Select an employee first.');
+      return;
+    }
+    setState(() => _busy = true);
+    try {
+      final client = ref.read(performanceApiClientProvider);
+      final env = await client.createEvaluation(
+        employeeId: int.parse(emp.id),
+        year: _year,
+      );
+      if (!env.success || env.data == null) {
+        _snack(env.error ?? 'Could not create evaluation');
+        return;
+      }
+      final id = env.data!['id']?.toString();
+      if (id == null || id.isEmpty) {
+        _snack('Invalid response from server');
+        return;
+      }
+      setState(() => _evaluationId = id);
+      ref.invalidate(performanceEvaluationDetailProvider(id));
+    } finally {
+      if (mounted) setState(() => _busy = false);
     }
   }
 
-  Future<void> _save() async {
-    final cubit = context.read<ManagerNewEvaluationCubit>();
-    final id = cubit.state.evaluationId;
-    final detail = cubit.state.detail;
-    if (id == null || detail == null) {
+  Future<void> _save(PerformanceEvaluationDetail detail) async {
+    final id = _evaluationId;
+    if (id == null) {
       _snack('Prepare the draft first.');
       return;
     }
@@ -62,34 +83,59 @@ class _ManagerNewEvaluationScreenState
         return;
       }
     }
-    final listCubit = context.read<PerformanceEvaluationListCubit>();
-    final savedId = await cubit.save(_scores);
-    if (!mounted) return;
-    if (savedId == null) {
-      if (cubit.state.error != null) _snack(cubit.state.error!);
-      return;
+    setState(() => _busy = true);
+    try {
+      final client = ref.read(performanceApiClientProvider);
+      final lines = [
+        for (var i = 0; i < rows.length; i++)
+          {
+            'line_id': int.tryParse(rows[i].lineId) ?? rows[i].lineId,
+            'user_score': _scores[i],
+          },
+      ];
+      final env = await client.saveEvaluation(id: id, lines: lines);
+      if (!env.success) {
+        _snack(env.error ?? 'Save failed');
+        return;
+      }
+      ref.invalidate(performanceEvaluationListProvider);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Evaluation saved')),
+      );
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(
+          builder: (_) => ManagerEvaluationDetailScreen(evaluationId: id),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
     }
-    listCubit.refresh();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Evaluation saved')),
-    );
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(
-        builder: (_) => ManagerEvaluationDetailScreen(evaluationId: savedId),
-      ),
-    );
   }
 
   void _snack(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
+  void _onEmployeeChanged(PerformanceEmployeeOption? v) {
+    setState(() => _employee = v);
+  }
+
   void _noopEmployee(PerformanceEmployeeOption? _) {}
+
+  void _onYearChanged(int? v) {
+    if (v != null) setState(() => _year = v);
+  }
 
   void _noopYear(int? _) {}
 
   @override
   Widget build(BuildContext context) {
+    final employeesAsync = ref.watch(performanceEmployeeOptionsProvider);
+    final detailAsync = _evaluationId == null
+        ? null
+        : ref.watch(performanceEvaluationDetailProvider(_evaluationId!));
+
     return PerformanceGradientScaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -101,15 +147,11 @@ class _ManagerNewEvaluationScreenState
           style: HrModuleTypography.pageTitle().copyWith(fontSize: 18.sp),
         ),
       ),
-      body: BlocBuilder<ManagerNewEvaluationCubit, ManagerNewEvaluationState>(
-        builder: (context, state) {
-          if (state.isLoadingEmployees && state.employees.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (state.error != null && state.employees.isEmpty) {
-            return Center(child: Text(state.error!));
-          }
-          final employees = state.employees;
+      body: employeesAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(child: Text('$e')),
+        data: (employees) {
+          _employee ??= employees.isNotEmpty ? employees.first : null;
           final years = List.generate(5, (i) => DateTime.now().year - i);
 
           return ListView(
@@ -133,12 +175,12 @@ class _ManagerNewEvaluationScreenState
                     Text(
                       'Employee',
                       style: HrModuleTypography.caption().copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
                     SizedBox(height: 6.h),
                     PerformanceThemedDropdown<PerformanceEmployeeOption>(
-                      value: state.selectedEmployee,
+                      value: _employee,
                       items: employees
                           .map(
                             (e) => DropdownMenuItem(
@@ -150,47 +192,37 @@ class _ManagerNewEvaluationScreenState
                             ),
                           )
                           .toList(),
-                      onChanged: state.evaluationId == null
-                          ? context
-                              .read<ManagerNewEvaluationCubit>()
-                              .selectEmployee
-                          : _noopEmployee,
+                      onChanged:
+                          _evaluationId == null ? _onEmployeeChanged : _noopEmployee,
                     ),
                     SizedBox(height: 12.h),
                     Text(
                       'Evaluation year',
                       style: HrModuleTypography.caption().copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
                     SizedBox(height: 6.h),
                     PerformanceThemedDropdown<int>(
-                      value: state.year,
+                      value: _year,
                       items: years
                           .map((y) => DropdownMenuItem(
                                 value: y,
                                 child: Text('$y'),
                               ))
                           .toList(),
-                      onChanged: state.evaluationId == null
-                          ? (v) {
-                              if (v != null) {
-                                context
-                                    .read<ManagerNewEvaluationCubit>()
-                                    .setYear(v);
-                              }
-                            }
-                          : _noopYear,
+                      onChanged:
+                          _evaluationId == null ? _onYearChanged : _noopYear,
                     ),
-                    if (state.evaluationId == null) ...[
+                    if (_evaluationId == null) ...[
                       SizedBox(height: 16.h),
                       FilledButton(
-                        onPressed: state.isBusy ? null : _prepareDraft,
+                        onPressed: _busy ? null : _prepareDraft,
                         style: FilledButton.styleFrom(
                           backgroundColor: HrModuleColors.primary,
                           padding: EdgeInsets.symmetric(vertical: 14.h),
                         ),
-                        child: state.isBusy
+                        child: _busy
                             ? SizedBox(
                                 height: 20.h,
                                 width: 20.h,
@@ -205,21 +237,20 @@ class _ManagerNewEvaluationScreenState
                   ],
                 ),
               ),
-              if (state.evaluationId != null) ...[
+              if (detailAsync != null) ...[
                 SizedBox(height: 14.h),
-                if (state.isLoadingDetail)
-                  const Padding(
+                detailAsync.when(
+                  loading: () => const Padding(
                     padding: EdgeInsets.all(24),
                     child: Center(child: CircularProgressIndicator()),
-                  )
-                else if (state.detail == null)
-                  Text(state.error ?? 'Evaluation not found.')
-                else
-                  Builder(builder: (context) {
-                    final detail = state.detail!;
+                  ),
+                  error: (e, _) => Text('$e'),
+                  data: (detail) {
+                    if (detail == null) {
+                      return const Text('Evaluation not found.');
+                    }
                     if (_scores.length != detail.competencies.length) {
-                      _scores =
-                          detail.competencies.map((r) => r.userScore).toList();
+                      _scores = detail.competencies.map((r) => r.userScore).toList();
                     }
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -232,10 +263,10 @@ class _ManagerNewEvaluationScreenState
                                 detail.pepReference,
                                 style: HrModuleTypography.sectionHeading()
                                     .copyWith(
-                                  fontSize: 14.sp,
-                                  color: HrModuleColors.danger,
-                                  fontWeight: FontWeight.w700,
-                                ),
+                                      fontSize: 14.sp,
+                                      color: HrModuleColors.danger,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                               ),
                               SizedBox(height: 8.h),
                               EvaluationPipelineStepper(
@@ -252,14 +283,14 @@ class _ManagerNewEvaluationScreenState
                         SizedBox(height: 16.h),
                         _sectionCard(
                           child: PersonalCompetenciesScoreEditor(
-                            key: ValueKey(state.evaluationId),
+                            key: ValueKey(_evaluationId),
                             templateRows: detail.competencies,
                             onScoresChanged: (s) => setState(() => _scores = s),
                           ),
                         ),
                         SizedBox(height: 16.h),
                         FilledButton(
-                          onPressed: state.isBusy ? null : _save,
+                          onPressed: _busy ? null : () => _save(detail),
                           style: FilledButton.styleFrom(
                             backgroundColor: HrModuleColors.success,
                             padding: EdgeInsets.symmetric(vertical: 14.h),
@@ -267,14 +298,15 @@ class _ManagerNewEvaluationScreenState
                           child: Text(
                             'Save evaluation',
                             style: HrModuleTypography.sectionHeading().copyWith(
-                              fontSize: 15.sp,
-                              color: Colors.white,
-                            ),
+                                  fontSize: 15.sp,
+                                  color: Colors.white,
+                                ),
                           ),
                         ),
                       ],
                     );
-                  }),
+                  },
+                ),
               ],
             ],
           );

@@ -14,6 +14,7 @@ import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_dra
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_hub_list_scaffold.dart';
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_status_chip.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 
@@ -182,29 +183,29 @@ class _MrListScreenState extends State<MrListScreen>
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: Column(
-          children: [
-            PurchaseManagementGlassHeader(
-              title: widget.title,
-              showBack: true,
-              onBack: () => Navigator.pop(context),
+        children: [
+          PurchaseManagementGlassHeader(
+            title: widget.title,
+            showBack: true,
+            onBack: () => Navigator.pop(context),
+          ),
+          Expanded(
+            child: Column(
+              children: [
+                PurchaseSearchBar(controller: _searchController),
+                if (!widget.lockStatusFilter)
+                  PurchaseFilterChips(
+                    filters: _statusFilters,
+                    labels: _filterLabels,
+                    selected: _statusFilter,
+                    onSelect: _applyStatusFilter,
+                  ),
+                Expanded(child: _buildBody()),
+              ],
             ),
-            Expanded(
-              child: Column(
-                children: [
-                  PurchaseSearchBar(controller: _searchController),
-                  if (!widget.lockStatusFilter)
-                    PurchaseFilterChips(
-                      filters: _statusFilters,
-                      labels: _filterLabels,
-                      selected: _statusFilter,
-                      onSelect: _applyStatusFilter,
-                    ),
-                  Expanded(child: _buildBody()),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
+      ),
       ),
     );
   }
@@ -224,8 +225,7 @@ class _MrListScreenState extends State<MrListScreen>
       return Center(
         child: Text(
           translate('home.purchase.no_records'),
-          style: GoogleFonts.poppins(
-              color: PurchaseTheme.textMuted, fontSize: 14.tsp),
+          style: GoogleFonts.poppins(color: PurchaseTheme.textMuted, fontSize: 14.tsp),
         ),
       );
     }
@@ -301,8 +301,7 @@ class _MrCard extends StatelessWidget {
                 ),
                 SizedBox(width: 8.tw),
                 Expanded(
-                  child: _InfoRow(
-                      icon: Icons.person_outline, text: item.requester),
+                  child: _InfoRow(icon: Icons.person_outline, text: item.requester),
                 ),
               ],
             ),

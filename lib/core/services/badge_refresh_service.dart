@@ -52,11 +52,11 @@ class BadgeRefreshService {
     } finally {
       _inFlight = false;
     }
-    notifySubscribers();
+    notifyListeners();
   }
 
   /// Re-run all registered widget callbacks (cheap local reads).
-  static void notifySubscribers() {
+  static void notifyListeners() {
     for (final callback in List.of(_listeners.values)) {
       try {
         callback();

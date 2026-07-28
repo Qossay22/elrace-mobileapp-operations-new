@@ -1,6 +1,6 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
-import 'package:el_race/core/hr_management/bloc/hr_effective_view_cubit.dart';
 import 'package:el_race/core/hr_management/hr_effective_view.dart';
+import 'package:el_race/core/hr_management/providers/hr_management_providers.dart';
 import 'package:el_race/core/hr_management/routing/hr_route_names.dart';
 import 'package:el_race/core/theme/hr_module_colors.dart';
 import 'package:el_race/core/theme/hr_module_layout.dart';
@@ -9,199 +9,212 @@ import 'package:el_race/core/widgets/hr_management/hr_module_glass_header.dart';
 import 'package:el_race/ui/presentation/my_projects/presentation/utils/projects_dashboard_access.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// First screen inside HR Management — pick a service (hub pattern).
-class HrManagementHubScreen extends StatelessWidget {
+class HrManagementHubScreen extends ConsumerWidget {
   const HrManagementHubScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final view = ref.watch(hrEffectiveViewProvider);
     final isManagement = ProjectsDashboardAccess.isManagementUser();
+    final canSeeCompanyDocs =
+        ProjectsDashboardAccess.canAccessCompanyDocuments();
 
-    return BlocBuilder<HrEffectiveViewCubit, HrEffectiveViewState>(
-      builder: (context, state) {
-        final view = state.view;
-        return HrModuleGlassShell(
-          title: 'HR Management',
-          accentTint: HrModuleHeaderTints.hub,
-          trailing: kDebugMode
-              ? [
-                  _HubDevViewMenu(
-                    current: view,
-                    onSelect: (v) =>
-                        context.read<HrEffectiveViewCubit>().setOverride(v),
-                    onClear: () =>
-                        context.read<HrEffectiveViewCubit>().setOverride(null),
-                  ),
-                ]
-              : const [],
-          body: SafeArea(
-            top: false,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(
-                HrModuleLayout.screenPaddingH.tw,
-                10.th,
-                HrModuleLayout.screenPaddingH.tw,
-                8.th,
+    return HrModuleGlassShell(
+      title: 'HR Management',
+      accentTint: HrModuleHeaderTints.hub,
+      trailing: kDebugMode
+          ? [
+              _HubDevViewMenu(
+                current: view,
+                onSelect: (v) => ref
+                    .read(hrDevViewOverrideProvider.notifier)
+                    .setOverride(v),
+                onClear: () => ref
+                    .read(hrDevViewOverrideProvider.notifier)
+                    .setOverride(null),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    view == HrEffectiveView.employee
-                        ? 'Your workplace services — simple, secure, in one hub.'
-                        : 'Lead your team with clarity — built for managers and HR.',
-                    style: HrModuleTypography.body().copyWith(
-                      fontSize: 12.5.tsp,
-                      height: 1.35,
-                      color: const Color(0xFF6B7280),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  SizedBox(height: 10.th),
-                  Expanded(
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: _HubServiceTile(
-                            icon: Icons.folder_shared_outlined,
-                            title: 'HR requests',
-                            subtitle:
-                                'My requests, team queue, new leave & asset requests',
-                            bgGradient: const [
-                              Color(0xFF283A5C),
-                              Color(0xFF344864),
-                              Color(0xFF3F5680),
-                            ],
-                            titleGradient: const [
-                              Color(0xFFB8C4FF),
-                              Color(0xFFFFFFFF),
-                              Color(0xFFE8ECFF),
-                            ],
-                            onTap: () => Navigator.of(context)
-                                .pushNamed(HrRouteNames.requests),
-                          ),
-                        ),
-                        if (isManagement) ...[
-                          SizedBox(height: 8.th),
-                          Expanded(
-                            child: _HubServiceTile(
-                              icon: Icons.badge_outlined,
-                              title: 'Employees Profile',
-                              subtitle:
-                                  'Search staff by name or file id — instant results',
-                              bgGradient: const [
-                                Color(0xFF6E2A38),
-                                Color(0xFF8B2635),
-                                Color(0xFFA53D4C),
-                              ],
-                              titleGradient: const [
-                                Color(0xFFFFD6DD),
-                                Color(0xFFFFFFFF),
-                                Color(0xFFF5C2CC),
-                              ],
-                              onTap: () => Navigator.of(context)
-                                  .pushNamed(HrRouteNames.employeesProfile),
-                            ),
-                          ),
-                        ],
-                        SizedBox(height: 8.th),
-                        Expanded(
-                          child: _HubServiceTile(
-                            icon: Icons.work_outline_rounded,
-                            title: 'Recruitment',
-                            subtitle: view == HrEffectiveView.employee
-                                ? 'Open positions and employee referrals'
-                                : 'Requisitions, candidates, offers, referrals',
-                            bgGradient: const [
-                              Color(0xFF5A3D48),
-                              Color(0xFF6B4A56),
-                              Color(0xFF7D5865),
-                            ],
-                            titleGradient: const [
-                              Color(0xFFFFD4DC),
-                              Color(0xFFFFFFFF),
-                              Color(0xFFF5B8C4),
-                            ],
-                            onTap: () => Navigator.of(context)
-                                .pushNamed(HrRouteNames.recruitment),
-                          ),
-                        ),
-                        SizedBox(height: 8.th),
-                        Expanded(
-                          child: _HubServiceTile(
-                            icon: Icons.fact_check_outlined,
-                            title: 'Performance evaluation',
-                            subtitle: view == HrEffectiveView.employee
-                                ? 'Personal competencies and scores'
-                                : 'Evaluations, status, and HR fields',
-                            bgGradient: const [
-                              Color(0xFF525862),
-                              Color(0xFF5E646E),
-                              Color(0xFF6A707A),
-                            ],
-                            titleGradient: const [
-                              Color(0xFFE2E4EA),
-                              Color(0xFFFFFFFF),
-                              Color(0xFFC8CDD9),
-                            ],
-                            onTap: () => Navigator.of(context)
-                                .pushNamed(HrRouteNames.performance),
-                          ),
-                        ),
-                        SizedBox(height: 8.th),
-                        Expanded(
-                          child: _HubServiceTile(
-                            icon: Icons.receipt_long_outlined,
-                            title: 'Payslips',
-                            subtitle: view == HrEffectiveView.employee
-                                ? 'View, filter, and download PDF'
-                                : 'Pending queue and full list',
-                            bgGradient: const [
-                              Color(0xFF454066),
-                              Color(0xFF504B74),
-                              Color(0xFF5B5680),
-                            ],
-                            titleGradient: const [
-                              Color(0xFFD4C4FF),
-                              Color(0xFFFFFFFF),
-                              Color(0xFFB8A8E8),
-                            ],
-                            onTap: () => Navigator.of(context)
-                                .pushNamed(HrRouteNames.payslips),
-                          ),
-                        ),
-                        SizedBox(height: 8.th),
-                        Expanded(
-                          child: _HubServiceTile(
-                            icon: Icons.campaign_outlined,
-                            title: 'Circulars & announcements',
-                            subtitle:
-                                'Official company circulars and HR announcements',
-                            bgGradient: const [
-                              Color(0xFF2F5A48),
-                              Color(0xFF3A6B55),
-                              Color(0xFF457C62),
-                            ],
-                            titleGradient: const [
-                              Color(0xFFD4EBE0),
-                              Color(0xFFFFFFFF),
-                              Color(0xFFB8DFD0),
-                            ],
-                            onTap: () => Navigator.of(context)
-                                .pushNamed(HrRouteNames.circularAnnouncements),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            ]
+          : const [],
+      body: SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            HrModuleLayout.screenPaddingH.tw,
+            4.th,
+            HrModuleLayout.screenPaddingH.tw,
+            8.th,
           ),
-        );
-      },
+          child: ListView(
+            physics: const BouncingScrollPhysics(),
+            children: [
+              SizedBox(
+                height: 110.th,
+                child: _HubServiceTile(
+                  icon: Icons.folder_shared_outlined,
+                  title: 'HR requests',
+                  subtitle:
+                      'My requests, team queue, new leave & asset requests',
+                  bgGradient: const [
+                    Color(0xFF283A5C),
+                    Color(0xFF344864),
+                    Color(0xFF3F5680),
+                  ],
+                  titleGradient: const [
+                    Color(0xFFB8C4FF),
+                    Color(0xFFFFFFFF),
+                    Color(0xFFE8ECFF),
+                  ],
+                  onTap: () => Navigator.of(context)
+                      .pushNamed(HrRouteNames.requests),
+                ),
+              ),
+              if (isManagement) ...[
+                SizedBox(height: 8.th),
+                SizedBox(
+                  height: 110.th,
+                  child: _HubServiceTile(
+                    icon: Icons.badge_outlined,
+                    title: 'Employees Profile',
+                    subtitle:
+                        'Search staff by name or file id — instant results',
+                    bgGradient: const [
+                      Color(0xFF6E2A38),
+                      Color(0xFF8B2635),
+                      Color(0xFFA53D4C),
+                    ],
+                    titleGradient: const [
+                      Color(0xFFFFD6DD),
+                      Color(0xFFFFFFFF),
+                      Color(0xFFF5C2CC),
+                    ],
+                    onTap: () => Navigator.of(context)
+                        .pushNamed(HrRouteNames.employeesProfile),
+                  ),
+                ),
+              ],
+              SizedBox(height: 8.th),
+              SizedBox(
+                height: 110.th,
+                child: _HubServiceTile(
+                  icon: Icons.work_outline_rounded,
+                  title: 'Recruitment',
+                  subtitle: view == HrEffectiveView.employee
+                      ? 'Open positions and employee referrals'
+                      : 'Requisitions, candidates, offers, referrals',
+                  bgGradient: const [
+                    Color(0xFF5A3D48),
+                    Color(0xFF6B4A56),
+                    Color(0xFF7D5865),
+                  ],
+                  titleGradient: const [
+                    Color(0xFFFFD4DC),
+                    Color(0xFFFFFFFF),
+                    Color(0xFFF5B8C4),
+                  ],
+                  onTap: () => Navigator.of(context)
+                      .pushNamed(HrRouteNames.recruitment),
+                ),
+              ),
+              SizedBox(height: 8.th),
+              SizedBox(
+                height: 110.th,
+                child: _HubServiceTile(
+                  icon: Icons.fact_check_outlined,
+                  title: 'Performance evaluation',
+                  subtitle: view == HrEffectiveView.employee
+                      ? 'Personal competencies and scores'
+                      : 'Evaluations, status, and HR fields',
+                  bgGradient: const [
+                    Color(0xFF525862),
+                    Color(0xFF5E646E),
+                    Color(0xFF6A707A),
+                  ],
+                  titleGradient: const [
+                    Color(0xFFE2E4EA),
+                    Color(0xFFFFFFFF),
+                    Color(0xFFC8CDD9),
+                  ],
+                  onTap: () => Navigator.of(context)
+                      .pushNamed(HrRouteNames.performance),
+                ),
+              ),
+              SizedBox(height: 8.th),
+              SizedBox(
+                height: 110.th,
+                child: _HubServiceTile(
+                  icon: Icons.receipt_long_outlined,
+                  title: 'Payslips',
+                  subtitle: view == HrEffectiveView.employee
+                      ? 'View, filter, and download PDF'
+                      : 'Pending queue and full list',
+                  bgGradient: const [
+                    Color(0xFF454066),
+                    Color(0xFF504B74),
+                    Color(0xFF5B5680),
+                  ],
+                  titleGradient: const [
+                    Color(0xFFD4C4FF),
+                    Color(0xFFFFFFFF),
+                    Color(0xFFB8A8E8),
+                  ],
+                  onTap: () =>
+                      Navigator.of(context).pushNamed(HrRouteNames.payslips),
+                ),
+              ),
+              SizedBox(height: 8.th),
+              SizedBox(
+                height: 110.th,
+                child: _HubServiceTile(
+                  icon: Icons.campaign_outlined,
+                  title: 'Circulars & announcements',
+                  subtitle:
+                      'Official company circulars and HR announcements',
+                  bgGradient: const [
+                    Color(0xFF2F5A48),
+                    Color(0xFF3A6B55),
+                    Color(0xFF457C62),
+                  ],
+                  titleGradient: const [
+                    Color(0xFFD4EBE0),
+                    Color(0xFFFFFFFF),
+                    Color(0xFFB8DFD0),
+                  ],
+                  onTap: () => Navigator.of(context)
+                      .pushNamed(HrRouteNames.circularAnnouncements),
+                ),
+              ),
+              if (canSeeCompanyDocs) ...[
+                SizedBox(height: 8.th),
+                SizedBox(
+                  height: 110.th,
+                  child: _HubServiceTile(
+                    icon: Icons.folder_copy_outlined,
+                    title: 'Company Documents',
+                    subtitle:
+                        'Browse operating-unit folders and company files',
+                    bgGradient: const [
+                      Color(0xFF2A3F5C),
+                      Color(0xFF334E70),
+                      Color(0xFF3D5A80),
+                    ],
+                    titleGradient: const [
+                      Color(0xFFC8D8F0),
+                      Color(0xFFFFFFFF),
+                      Color(0xFFAEC4E0),
+                    ],
+                    onTap: () => Navigator.of(context)
+                        .pushNamed(HrRouteNames.companyDocuments),
+                  ),
+                ),
+              ],
+              SizedBox(height: 8.th),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

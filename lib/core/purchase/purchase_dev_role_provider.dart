@@ -1,5 +1,6 @@
 import 'package:el_race/core/purchase/purchase_access.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Dev-only role simulation for Purchase Management (single test account).
 enum PurchaseDevTestRole {
@@ -21,6 +22,19 @@ extension PurchaseDevTestRoleX on PurchaseDevTestRole {
         PurchaseDevTestRole.manager => 'manager',
         PurchaseDevTestRole.management => 'management',
       };
+}
+
+/// Debug-only override; cleared on reset. Also exposed for [PurchaseRepository].
+final purchaseDevRoleOverrideProvider =
+    NotifierProvider<PurchaseDevRoleOverrideNotifier, PurchaseDevTestRole?>(
+  PurchaseDevRoleOverrideNotifier.new,
+);
+
+class PurchaseDevRoleOverrideNotifier extends Notifier<PurchaseDevTestRole?> {
+  @override
+  PurchaseDevTestRole? build() => null;
+
+  void setOverride(PurchaseDevTestRole? role) => state = role;
 }
 
 /// Active test role param for API calls (debug builds only).

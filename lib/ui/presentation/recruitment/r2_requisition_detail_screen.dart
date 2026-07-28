@@ -1,8 +1,8 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
-import 'package:el_race/core/hr_management/hr_effective_view.dart';
+import 'package:el_race/core/hr_management/providers/hr_management_providers.dart';
 import 'package:el_race/core/recruitment/models/recruitment_entities.dart';
 import 'package:el_race/core/recruitment/models/requisition.dart';
-import 'package:el_race/core/recruitment/bloc/requisition_detail_cubit.dart';
+import 'package:el_race/core/recruitment/providers/requisition_providers.dart';
 import 'package:el_race/core/recruitment/recruitment_salary_visibility.dart';
 import 'package:el_race/core/theme/hr_badge_kind.dart';
 import 'package:el_race/core/theme/hr_module_colors.dart';
@@ -19,23 +19,24 @@ import 'package:el_race/core/widgets/recruitment/recruitment_pipeline_summary.da
 import 'package:el_race/ui/presentation/recruitment/c2_candidate_detail_screen.dart';
 import 'package:el_race/ui/presentation/recruitment/o1_offer_detail_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 
 /// R2 — Requisition detail (SRD §3.2).
-class R2RequisitionDetailScreen extends StatefulWidget {
+class R2RequisitionDetailScreen extends ConsumerStatefulWidget {
   const R2RequisitionDetailScreen({super.key, required this.requisitionId});
 
   final String requisitionId;
 
   @override
-  State<R2RequisitionDetailScreen> createState() =>
+  ConsumerState<R2RequisitionDetailScreen> createState() =>
       _R2RequisitionDetailScreenState();
 }
 
-class _R2RequisitionDetailScreenState extends State<R2RequisitionDetailScreen>
+class _R2RequisitionDetailScreenState extends ConsumerState<R2RequisitionDetailScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   String? _stageChip;
@@ -44,8 +45,6 @@ class _R2RequisitionDetailScreenState extends State<R2RequisitionDetailScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    final cubit = context.read<RequisitionDetailCubit>();
-    Future.microtask(() => cubit.load(widget.requisitionId));
   }
 
   @override
@@ -68,7 +67,7 @@ class _R2RequisitionDetailScreenState extends State<R2RequisitionDetailScreen>
       ('Vacancies', '${r.vacancies}'),
       ('Raised by', r.raisedBy),
     ];
-    final view = hrEffectiveViewFromLoginPref();
+    final view = ref.read(hrEffectiveViewProvider);
     if (recruitmentShowsRequisitionSalary(
       view: view,
       raisedBy: r.raisedBy,
@@ -97,65 +96,46 @@ class _R2RequisitionDetailScreenState extends State<R2RequisitionDetailScreen>
 
   Future<void> _refreshDetail() async {
     // Roles refresh on re-login only (product decision 2026-07-20).
-    await context
-        .read<RequisitionDetailCubit>()
-        .load(widget.requisitionId, force: true);
+    ref.invalidate(requisitionDetailProvider(widget.requisitionId));
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<RequisitionDetailCubit, RequisitionDetailState>(
-      builder: (context, state) {
-        if (state.isLoading) {
-          return const RecruitmentGradientScaffold(
-            body: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                HrModuleGlassHeader(
-                  title: 'Requisition',
-                  accentTint: HrModuleHeaderTints.recruitment,
-                ),
-                Expanded(child: Center(child: CircularProgressIndicator())),
-              ],
+    final async = ref.watch(requisitionDetailProvider(widget.requisitionId));
+
+    return async.when(
+      loading: () => RecruitmentGradientScaffold(
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const HrModuleGlassHeader(
+              title: 'Requisition',
+              accentTint: HrModuleHeaderTints.recruitment,
             ),
-          );
-        }
-        if (state.error != null) {
-          return RecruitmentGradientScaffold(
-            body: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const HrModuleGlassHeader(
-                  title: 'Requisition',
-                  accentTint: HrModuleHeaderTints.recruitment,
-                ),
-                Expanded(
-                  child: Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(24.tw),
-                      child: Text(state.error!, textAlign: TextAlign.center),
-                    ),
-                  ),
-                ),
-              ],
+            const Expanded(child: Center(child: CircularProgressIndicator())),
+          ],
+        ),
+      ),
+      error: (e, _) => RecruitmentGradientScaffold(
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const HrModuleGlassHeader(
+              title: 'Requisition',
+              accentTint: HrModuleHeaderTints.recruitment,
             ),
-          );
-        }
-        final d = state.detail;
-        if (d == null) {
-          return const RecruitmentGradientScaffold(
-            body: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                HrModuleGlassHeader(
-                  title: 'Requisition',
-                  accentTint: HrModuleHeaderTints.recruitment,
+            Expanded(
+              child: Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24.tw),
+                  child: Text('$e', textAlign: TextAlign.center),
                 ),
-                Expanded(child: Center(child: Text('Requisition not found.'))),
-              ],
+              ),
             ),
-          );
-        }
+          ],
+        ),
+      ),
+      data: (d) {
         final r = d.requisition;
         final daysOpen = DateTime.now().difference(r.openedAt).inDays;
         final candidates = _filterCandidates(d.candidates);
@@ -244,8 +224,7 @@ class _R2RequisitionDetailScreenState extends State<R2RequisitionDetailScreen>
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.work_outline,
-                  color: HrModuleColors.primary, size: 28.tsp),
+              Icon(Icons.work_outline, color: HrModuleColors.primary, size: 28.tsp),
               SizedBox(width: 10.tw),
               Expanded(
                 child: Column(
@@ -253,14 +232,12 @@ class _R2RequisitionDetailScreenState extends State<R2RequisitionDetailScreen>
                   children: [
                     Text(
                       r.jobTitle,
-                      style: HrModuleTypography.cardTitle()
-                          .copyWith(fontSize: 17.tsp),
+                      style: HrModuleTypography.cardTitle().copyWith(fontSize: 17.tsp),
                     ),
                     SizedBox(height: 4.th),
                     Text(
                       '${r.department} · ${r.location}',
-                      style:
-                          HrModuleTypography.body().copyWith(fontSize: 13.tsp),
+                      style: HrModuleTypography.body().copyWith(fontSize: 13.tsp),
                     ),
                   ],
                 ),
@@ -288,7 +265,7 @@ class _R2RequisitionDetailScreenState extends State<R2RequisitionDetailScreen>
   }
 
   Widget _positionDetailsBlock(RequisitionDetailModel d, Requisition r) {
-    final view = hrEffectiveViewFromLoginPref();
+    final view = ref.watch(hrEffectiveViewProvider);
     final showSalary = recruitmentShowsRequisitionSalary(
       view: view,
       raisedBy: r.raisedBy,
@@ -306,7 +283,9 @@ class _R2RequisitionDetailScreenState extends State<R2RequisitionDetailScreen>
         HrDetailRow(label: 'Job title', value: r.jobTitle),
         HrDetailRow(label: 'Location', value: r.location),
         HrDetailRow(label: 'Vacancies', value: '${r.vacancies}'),
-        if (showSalary && d.salaryMinAed != null && d.salaryMaxAed != null) ...[
+        if (showSalary &&
+            d.salaryMinAed != null &&
+            d.salaryMaxAed != null) ...[
           HrDetailRow(
             label: 'Salary (AED)',
             value: '${d.salaryMinAed} – ${d.salaryMaxAed}',
@@ -323,9 +302,9 @@ class _R2RequisitionDetailScreenState extends State<R2RequisitionDetailScreen>
             title: Text(
               'Description',
               style: HrModuleTypography.body().copyWith(
-                fontSize: 14.tsp,
-                fontWeight: FontWeight.w600,
-              ),
+                    fontSize: 14.tsp,
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
             children: [
               Align(
@@ -464,8 +443,7 @@ class _R2RequisitionDetailScreenState extends State<R2RequisitionDetailScreen>
             (o) => Card(
               child: ListTile(
                 title: Text(o.candidateName),
-                subtitle: Text(
-                    '${o.uiStatus} · ${o.sentAt != null ? DateFormat('dd MMM yyyy').format(o.sentAt!) : '—'}'),
+                subtitle: Text('${o.uiStatus} · ${o.sentAt != null ? DateFormat('dd MMM yyyy').format(o.sentAt!) : '—'}'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   Navigator.of(context).push<void>(

@@ -5,7 +5,7 @@ import 'package:el_race/ui/presentation/attendance_checkin/models/checkin_contex
 import 'package:el_race/ui/presentation/attendance_checkin/services/checkin_geofence_service.dart';
 import 'package:el_race/ui/presentation/attendance_checkin/services/checkin_route_service.dart';
 import 'package:el_race/ui/presentation/home_screen/repository/location_reop.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -56,9 +56,8 @@ class CheckinActivityState {
       error: clearError ? null : (error ?? this.error),
       context: context ?? this.context,
       userPosition: userPosition ?? this.userPosition,
-      selectedProject: clearSelectedProject
-          ? null
-          : (selectedProject ?? this.selectedProject),
+      selectedProject:
+          clearSelectedProject ? null : (selectedProject ?? this.selectedProject),
       userManuallySelectedProject:
           userManuallySelectedProject ?? this.userManuallySelectedProject,
       distancePreview: distancePreview ?? this.distancePreview,
@@ -70,7 +69,7 @@ class CheckinActivityState {
   }
 }
 
-class CheckinActivityController extends Cubit<CheckinActivityState> {
+class CheckinActivityController extends ChangeNotifier {
   CheckinActivityController({
     CheckinContextRepository? repository,
     LocationRepo? locationRepo,
@@ -79,8 +78,7 @@ class CheckinActivityController extends Cubit<CheckinActivityState> {
   })  : _repository = repository ?? CheckinContextRepository(),
         _locationRepo = locationRepo ?? LocationRepo(),
         _geofence = geofenceService ?? const CheckinGeofenceService(),
-        _routeService = routeService ?? const CheckinRouteService(),
-        super(const CheckinActivityState());
+        _routeService = routeService ?? const CheckinRouteService();
 
   final CheckinContextRepository _repository;
   final LocationRepo _locationRepo;
@@ -93,13 +91,11 @@ class CheckinActivityController extends Cubit<CheckinActivityState> {
   int _routeRequestId = 0;
   DateTime _lastPositionNotify = DateTime.fromMillisecondsSinceEpoch(0);
 
-  void _emitState() {
-    if (!isClosed) emit(_state);
-  }
+  CheckinActivityState get state => _state;
 
   Future<void> initialize() async {
     _state = _state.copyWith(loading: true, clearError: true);
-    _emitState();
+    notifyListeners();
 
     // Start GPS immediately so the map can render without waiting on the API.
     unawaited(_startLocationUpdates());
@@ -118,13 +114,13 @@ class CheckinActivityController extends Cubit<CheckinActivityState> {
         loading: false,
       );
       _autoSelectProject();
-      _emitState();
+      notifyListeners();
     } catch (e) {
       _state = _state.copyWith(
         loading: false,
         error: e.toString(),
       );
-      _emitState();
+      notifyListeners();
     }
   }
 
@@ -143,10 +139,10 @@ class CheckinActivityController extends Cubit<CheckinActivityState> {
         clearError: true,
       );
       _autoSelectProject();
-      _emitState();
+      notifyListeners();
     } catch (e) {
       _state = _state.copyWith(error: e.toString());
-      _emitState();
+      notifyListeners();
     }
   }
 
@@ -169,7 +165,7 @@ class CheckinActivityController extends Cubit<CheckinActivityState> {
       // last-known fix is still usable until the stream delivers a fresh one.
       if (_state.userPosition == null) {
         _state = _state.copyWith(error: e.toString());
-        _emitState();
+        notifyListeners();
       }
     }
 
@@ -183,7 +179,7 @@ class CheckinActivityController extends Cubit<CheckinActivityState> {
       onError: (Object e) {
         if (_state.userPosition != null) return;
         _state = _state.copyWith(error: e.toString());
-        _emitState();
+        notifyListeners();
       },
     );
   }
@@ -208,7 +204,7 @@ class CheckinActivityController extends Cubit<CheckinActivityState> {
         geofenceChanged ||
         now.difference(_lastPositionNotify) >= const Duration(seconds: 1)) {
       _lastPositionNotify = now;
-      _emitState();
+      notifyListeners();
     }
   }
 
@@ -219,14 +215,14 @@ class CheckinActivityController extends Cubit<CheckinActivityState> {
     );
     _updateGeofencePreview();
     _scheduleRouteRefresh();
-    _emitState();
+    notifyListeners();
   }
 
   void _autoSelectProject({bool notify = true}) {
     final projects = _state.checkinProjects;
     if (projects.isEmpty) {
       _state = _state.copyWith(clearSelectedProject: true);
-      if (notify) _emitState();
+      if (notify) notifyListeners();
       return;
     }
 
@@ -240,7 +236,7 @@ class CheckinActivityController extends Cubit<CheckinActivityState> {
     _state = _state.copyWith(selectedProject: nearest);
     _updateGeofencePreview(notify: false);
     _scheduleRouteRefresh(notify: false);
-    if (notify) _emitState();
+    if (notify) notifyListeners();
   }
 
   void _scheduleRouteRefresh({bool notify = true}) {
@@ -255,13 +251,13 @@ class CheckinActivityController extends Cubit<CheckinActivityState> {
     final pos = _state.userPosition;
     if (project == null || pos == null) {
       _state = _state.copyWith(routePoints: const [], routeLoading: false);
-      if (notify) _emitState();
+      if (notify) notifyListeners();
       return;
     }
 
     final requestId = ++_routeRequestId;
     _state = _state.copyWith(routeLoading: true);
-    if (notify) _emitState();
+    if (notify) notifyListeners();
 
     final points = await _routeService.fetchRoute(
       userLat: pos.latitude,
@@ -272,7 +268,7 @@ class CheckinActivityController extends Cubit<CheckinActivityState> {
 
     if (requestId != _routeRequestId) return;
     _state = _state.copyWith(routePoints: points, routeLoading: false);
-    if (notify) _emitState();
+    if (notify) notifyListeners();
   }
 
   void _updateGeofencePreview({bool notify = true}) {
@@ -282,7 +278,7 @@ class CheckinActivityController extends Cubit<CheckinActivityState> {
         distancePreview: null,
         isInsideGeofence: false,
       );
-      if (notify) _emitState();
+      if (notify) notifyListeners();
       return;
     }
 
@@ -295,7 +291,7 @@ class CheckinActivityController extends Cubit<CheckinActivityState> {
       isInsideGeofence: preview.isInside,
     );
     _scheduleRouteRefresh(notify: false);
-    if (notify) _emitState();
+    if (notify) notifyListeners();
   }
 
   TimesheetGeoPoint? get _userGeoPoint {
@@ -309,12 +305,12 @@ class CheckinActivityController extends Cubit<CheckinActivityState> {
     final pos = _state.userPosition;
     if (project == null) {
       _state = _state.copyWith(error: 'Select a project before check-in.');
-      _emitState();
+      notifyListeners();
       return false;
     }
     if (pos == null) {
       _state = _state.copyWith(error: 'Waiting for GPS location.');
-      _emitState();
+      notifyListeners();
       return false;
     }
 
@@ -326,26 +322,26 @@ class CheckinActivityController extends Cubit<CheckinActivityState> {
       );
       if (result['status'] == 'success') {
         _state = _state.copyWith(clearError: true);
-        _emitState();
+        notifyListeners();
         return true;
       }
       _state = _state.copyWith(
         error: result['message']?.toString() ??
             'You are not within the project location.',
       );
-      _emitState();
+      notifyListeners();
       return false;
     } catch (e) {
       _state = _state.copyWith(error: e.toString());
-      _emitState();
+      notifyListeners();
       return false;
     }
   }
 
   @override
-  Future<void> close() async {
+  void dispose() {
     _routeDebounce?.cancel();
-    await _positionSub?.cancel();
-    return super.close();
+    _positionSub?.cancel();
+    super.dispose();
   }
 }

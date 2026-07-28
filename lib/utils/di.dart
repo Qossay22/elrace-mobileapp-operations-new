@@ -1,4 +1,3 @@
-import 'package:el_race/core/logging/app_logger.dart';
 import 'package:el_race/ui/presentation/Email%20Approval/bloc/approval_bloc.dart';
 import 'package:el_race/ui/presentation/home_screen/bloc/home_bloc.dart';
 import 'package:el_race/ui/presentation/landing_screen/bloc/checkin_in_bloc/check_in_bloc.dart';
@@ -47,12 +46,12 @@ void _registerLazySingletonIfNeeded<T extends Object>(T Function() factory) {
 Future<void> initDI() async {
   // Prevent double initialization
   if (_diInitialized && sl.isRegistered<HomeBloc>()) {
-    AppLogger.debug('DI already initialized; skipping');
+    print('ℹ️ DI already initialized, skipping...');
     return;
   }
 
   try {
-    AppLogger.info('Initializing dependency injection');
+    print('🔧 Initializing Dependency Injection...');
 
     // Register Repositories
     _registerSingletonIfNeeded<UserRepo>(UserRepo());
@@ -60,8 +59,7 @@ Future<void> initDI() async {
     _registerSingletonIfNeeded<AttendanceRepo>(AttendanceRepo());
     _registerSingletonIfNeeded<LoginResponseModel>(LoginResponseModel());
 
-    _registerSingletonIfNeeded<UaepassConfig>(
-        UaepassConfig.forCurrentEnvironment());
+    _registerSingletonIfNeeded<UaepassConfig>(UaepassConfig.forCurrentEnvironment());
     _registerSingletonIfNeeded<FlutterSecureStorage>(
       const FlutterSecureStorage(),
     );
@@ -118,9 +116,9 @@ Future<void> initDI() async {
     // sl.registerLazySingleton(() => GetProjectAttachmentsUseCase(repository: sl()));
 
     _diInitialized = true;
-    AppLogger.info('Dependency injection initialization complete');
+    print('✅ DI initialization complete');
   } catch (e) {
-    AppLogger.error('Dependency injection setup failed', error: e);
+    print('❌ Error in DI setup: $e');
     // Continue with basic setup
   }
 }

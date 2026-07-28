@@ -1,8 +1,7 @@
 import 'package:el_race/core/theme/timesheet_module_theme.dart';
 import 'package:el_race/report_module/data/models/report_model.dart';
-import 'package:el_race/report_module/presentation/bloc/report_bloc.dart';
+import 'package:el_race/report_module/data/provider/reports_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Rename / delete dialogs wired to legacy report APIs.
@@ -42,9 +41,9 @@ class TmSiteReportActions {
 
   static Future<bool> renameReport(
     BuildContext context, {
+    required ReportProvider provider,
     required ReportModel report,
   }) async {
-    final reportBloc = context.read<ReportBloc>();
     final name = await _promptName(
       context,
       title: 'Rename report',
@@ -52,18 +51,15 @@ class TmSiteReportActions {
       initial: report.name,
     );
     if (name == null || name.isEmpty || name == report.name) return false;
-    await reportBloc.updateReport(
-      name: name,
-      reportId: report.id,
-    );
+    await provider.updateReport(name: name, reportId: report.id);
     return true;
   }
 
   static Future<bool> deleteReport(
     BuildContext context, {
+    required ReportProvider provider,
     required ReportModel report,
   }) async {
-    final reportBloc = context.read<ReportBloc>();
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -80,7 +76,7 @@ class TmSiteReportActions {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text(
+            child: Text(
               'Delete',
               style: TextStyle(color: TimesheetModuleColors.danger),
             ),
@@ -89,16 +85,16 @@ class TmSiteReportActions {
       ),
     );
     if (ok != true) return false;
-    await reportBloc.deleteReport(reportId: report.id);
+    await provider.deleteReport(reportId: report.id);
     return true;
   }
 
   static Future<bool> renamePdf(
     BuildContext context, {
+    required ReportProvider provider,
     required String reportId,
     required String currentName,
   }) async {
-    final reportBloc = context.read<ReportBloc>();
     final name = await _promptName(
       context,
       title: 'Rename PDF',
@@ -106,7 +102,7 @@ class TmSiteReportActions {
       initial: currentName.replaceAll('.pdf', ''),
     );
     if (name == null || name.isEmpty) return false;
-    return reportBloc.renameReportPdf(
+    return provider.renameReportPdf(
       fileId: reportId,
       newFileName: name.endsWith('.pdf') ? name : '$name.pdf',
     );
@@ -114,9 +110,9 @@ class TmSiteReportActions {
 
   static Future<bool> deletePdf(
     BuildContext context, {
+    required ReportProvider provider,
     required String reportId,
   }) async {
-    final reportBloc = context.read<ReportBloc>();
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -133,7 +129,7 @@ class TmSiteReportActions {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text(
+            child: Text(
               'Delete',
               style: TextStyle(color: TimesheetModuleColors.danger),
             ),
@@ -142,11 +138,12 @@ class TmSiteReportActions {
       ),
     );
     if (ok != true) return false;
-    return reportBloc.deleteReportPdf(fileId: reportId);
+    return provider.deleteReportPdf(fileId: reportId);
   }
 
   static Future<void> showReportMenu(
     BuildContext context, {
+    required ReportProvider provider,
     required ReportModel report,
     required VoidCallback onChanged,
   }) async {
@@ -166,9 +163,8 @@ class TmSiteReportActions {
               onTap: () => Navigator.pop(ctx, 'rename'),
             ),
             ListTile(
-              leading: Icon(PhosphorIcons.trash(),
-                  color: TimesheetModuleColors.danger),
-              title: const Text(
+              leading: Icon(PhosphorIcons.trash(), color: TimesheetModuleColors.danger),
+              title: Text(
                 'Delete report',
                 style: TextStyle(color: TimesheetModuleColors.danger),
               ),
@@ -180,11 +176,11 @@ class TmSiteReportActions {
     );
     if (!context.mounted || action == null) return;
     if (action == 'rename') {
-      if (await renameReport(context, report: report)) {
+      if (await renameReport(context, provider: provider, report: report)) {
         onChanged();
       }
     } else if (action == 'delete') {
-      if (await deleteReport(context, report: report)) {
+      if (await deleteReport(context, provider: provider, report: report)) {
         onChanged();
       }
     }

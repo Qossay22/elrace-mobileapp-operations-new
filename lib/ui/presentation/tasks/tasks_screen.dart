@@ -2,17 +2,17 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:el_race/core/utils/shared_pref.dart';
-import 'package:el_race/report_module/presentation/bloc/report_bloc.dart';
+import 'package:el_race/report_module/data/provider/reports_provider.dart';
 import 'package:el_race/ui/presentation/tasks/data/task_model.dart';
-import 'package:el_race/ui/presentation/tasks/bloc/tasks_bloc.dart';
+import 'package:el_race/ui/presentation/tasks/logic/tasks_provider.dart';
 import 'package:el_race/ui/presentation/tasks/task_details_screen.dart';
 import 'package:el_race/ui/presentation/productivity/widgets/productivity_screen_shell.dart';
 import 'package:el_race/utils/color_utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class TasksScreen extends StatelessWidget {
   const TasksScreen({super.key, this.highPriorityOnly = false});
@@ -22,7 +22,7 @@ class TasksScreen extends StatelessWidget {
   static bool _isHighPriority(String? priority) =>
       priority == '2' || priority == '3';
 
-  List<TaskModel> _visibleTasks(TasksBloc provider) {
+  List<TaskModel> _visibleTasks(TasksProvider provider) {
     final items = provider.tasks;
     if (!highPriorityOnly) return items;
     return items
@@ -32,7 +32,7 @@ class TasksScreen extends StatelessWidget {
 
   Future<void> _showCreateTaskSheet(
     BuildContext context,
-    TasksBloc provider,
+    TasksProvider provider,
   ) async {
     if (provider.assignableUsers.isEmpty && !provider.isLoadingUsers) {
       await provider.loadAssignableUsers();
@@ -419,12 +419,12 @@ class TasksScreen extends StatelessWidget {
 
   Future<void> _showLinkReportDialog(
     BuildContext context,
-    TasksBloc provider,
+    TasksProvider provider,
     TaskModel task,
   ) async {
-    final reportBloc = context.read<ReportBloc>();
+    final reportProvider = context.read<ReportProvider>();
 
-    if (reportBloc.reports.isEmpty) {
+    if (reportProvider.reports.isEmpty) {
       if (context.mounted) {
         Fluttertoast.showToast(
           msg: 'No reports found. Please create or load reports first.',
@@ -439,7 +439,7 @@ class TasksScreen extends StatelessWidget {
     }
 
     final linkedIds = task.reportIds.map((r) => r.toString()).toSet();
-    final availableReports = reportBloc.reports
+    final availableReports = reportProvider.reports
         .where((r) => !linkedIds.contains(r.id.toString()))
         .toList();
 
@@ -528,7 +528,7 @@ class TasksScreen extends StatelessWidget {
 
   Widget _buildTaskTile(
     BuildContext context,
-    TasksBloc provider,
+    TasksProvider provider,
     TaskModel task,
   ) {
     final id = task.id;
@@ -632,9 +632,8 @@ class TasksScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TasksBloc, TasksState>(
-      builder: (context, state) {
-        final tasksProvider = context.read<TasksBloc>();
+    return Consumer2<TasksProvider, ReportProvider>(
+      builder: (context, tasksProvider, reportProvider, _) {
         if (tasksProvider.status == TasksStatus.initial) {
           Future.microtask(tasksProvider.loadTasks);
           Future.microtask(tasksProvider.loadAssignableUsers);

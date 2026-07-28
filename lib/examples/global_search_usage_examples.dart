@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:el_race/ui/widgets/global_search_screen.dart';
-import 'package:el_race/ui/widgets/global_search/bloc/global_search_bloc.dart';
-import 'package:el_race/ui/widgets/global_search/bloc/global_search_event.dart';
-import 'package:el_race/ui/widgets/global_search/bloc/global_search_state.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:el_race/providers/global_search_provider.dart';
+import 'package:provider/provider.dart';
 
 /// Example implementations showing how to integrate Global Search
 /// into different parts of your app
@@ -192,12 +190,12 @@ class ProgrammaticSearchExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => GlobalSearchBloc(),
+    return ChangeNotifierProvider(
+      create: (_) => GlobalSearchProvider(),
       child: Scaffold(
         appBar: AppBar(title: const Text('Quick Search')),
-        body: BlocBuilder<GlobalSearchBloc, GlobalSearchState>(
-          builder: (context, state) {
+        body: Consumer<GlobalSearchProvider>(
+          builder: (context, provider, _) {
             return Column(
               children: [
                 // Quick search buttons
@@ -208,21 +206,13 @@ class ProgrammaticSearchExample extends StatelessWidget {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          context.read<GlobalSearchBloc>().add(
-                                const GlobalSearchQueryChanged(
-                                  keyword: 'urgent',
-                                ),
-                              );
+                          provider.search(keyword: 'urgent');
                         },
                         child: const Text('Urgent Tasks'),
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          context.read<GlobalSearchBloc>().add(
-                                const GlobalSearchQueryChanged(
-                                  keyword: 'pending',
-                                ),
-                              );
+                          provider.search(keyword: 'pending');
                         },
                         child: const Text('Pending Expenses'),
                       ),
@@ -232,7 +222,7 @@ class ProgrammaticSearchExample extends StatelessWidget {
 
                 // Results
                 Expanded(
-                  child: _buildResults(context, state),
+                  child: _buildResults(provider),
                 ),
               ],
             );
@@ -242,21 +232,19 @@ class ProgrammaticSearchExample extends StatelessWidget {
     );
   }
 
-  Widget _buildResults(BuildContext context, GlobalSearchState state) {
-    if (state.isLoading) {
+  Widget _buildResults(GlobalSearchProvider provider) {
+    if (provider.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (state.hasError) {
+    if (provider.hasError) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(state.errorMessage ?? 'Error'),
+            Text(provider.errorMessage ?? 'Error'),
             ElevatedButton(
-              onPressed: () => context
-                  .read<GlobalSearchBloc>()
-                  .add(const GlobalSearchRetryRequested()),
+              onPressed: () => provider.retry(),
               child: const Text('Retry'),
             ),
           ],
@@ -264,14 +252,14 @@ class ProgrammaticSearchExample extends StatelessWidget {
       );
     }
 
-    if (state.results.isEmpty) {
+    if (provider.results.isEmpty) {
       return const Center(child: Text('No results'));
     }
 
     return ListView.builder(
-      itemCount: state.results.length,
+      itemCount: provider.results.length,
       itemBuilder: (context, index) {
-        final item = state.results[index];
+        final item = provider.results[index];
         return ListTile(
           title: Text(item.title),
           subtitle: Text(item.subtitle ?? ''),
@@ -352,14 +340,14 @@ class QuickSearchCard extends StatelessWidget {
 /// Example 8: Deep Link to Search
 /// ============================================
 /// Add route in lib/utils/generated_routes.dart:
-///
+/// 
 /// ```dart
 /// case '/global_search':
 ///   return CupertinoPageRoute(
 ///     builder: (_) => const GlobalSearchScreen(),
 ///   );
 /// ```
-///
+/// 
 /// Then navigate using:
 /// ```dart
 /// Navigator.pushNamed(context, '/global_search');
@@ -370,13 +358,13 @@ class QuickSearchCard extends StatelessWidget {
 /// ============================================
 /// If you want to open search with a specific category
 /// (requires modifying GlobalSearchScreen to accept initial category)
-///
+/// 
 /// Future enhancement - GlobalSearchScreen could accept:
 /// ```dart
 /// class GlobalSearchScreen extends StatefulWidget {
 ///   final String? initialCategory;
 ///   final String? initialKeyword;
-///
+///   
 ///   const GlobalSearchScreen({
 ///     super.key,
 ///     this.initialCategory,
@@ -389,13 +377,13 @@ class QuickSearchCard extends StatelessWidget {
 /// Example 10: Search from Notification
 /// ============================================
 /// Handle notification taps to open search
-///
+/// 
 /// In your notification handler:
 /// ```dart
 /// void _handleNotificationTap(Map<String, dynamic> data) {
 ///   final type = data['type'];
 ///   final keyword = data['keyword'];
-///
+///   
 ///   Navigator.push(
 ///     context,
 ///     MaterialPageRoute(

@@ -21,6 +21,8 @@ import 'package:el_race/ui/presentation/home_screen/widgets/glass_tap_icon.dart'
 import 'package:el_race/ui/widgets/global_search_screen.dart';
 import 'package:el_race/utils/Util.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 
 class HomeGlassAppBar extends StatefulWidget {
   const HomeGlassAppBar({
@@ -167,7 +169,7 @@ class _HomeGlassAppBarState extends State<HomeGlassAppBar> {
       context,
       routeName: '/chat_list',
       shell: GlassSubScreenShell.chat,
-      child: const ChatListScreen(),
+      child: const ChatShellScreen(),
     );
   }
 
@@ -631,64 +633,62 @@ class _HomeGlassAppBarState extends State<HomeGlassAppBar> {
             ),
           )
         : ClipRRect(
-            borderRadius: BorderRadius.circular(999),
-            clipBehavior: compact ? Clip.hardEdge : Clip.antiAlias,
-            child: AdaptiveGlassLayer(
-              borderRadius: BorderRadius.circular(999),
-              sigma: lightSoftPill ? 18 : 25,
-              fallbackColor: Colors.white.withValues(
-                alpha: lightSoftPill ? 0.42 : 0.78,
-              ),
-              child: Container(
-                padding: EdgeInsets.fromLTRB(
-                  hPad,
-                  compact ? 7.th : vPad,
-                  hPad,
-                  vPad,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(999),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.white
-                          .withValues(alpha: lightSoftPill ? 0.45 : 0.72),
-                      Colors.white
-                          .withValues(alpha: lightSoftPill ? 0.28 : 0.48),
-                    ],
-                  ),
-                  border: Border.all(
-                    color: Colors.white.withValues(
-                      alpha: lightSoftPill ? 0.55 : 0.90,
-                    ),
-                    width: lightSoftPill ? 1 : 1.2,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(
-                        alpha: lightSoftPill ? 0.04 : 0.08,
-                      ),
-                      blurRadius: lightSoftPill ? 12 : 18,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: _barRow(
-                  compact: compact,
-                  expand: expand,
-                  showComms: showComms,
-                  showLogo: showLogo,
-                  iconSize: iconSize,
-                  iconGlyph: iconGlyph,
-                  gap: gap,
-                  profileSize: profileSize,
-                  hPad: hPad,
-                  vPad: vPad,
-                ),
-              ),
+        borderRadius: BorderRadius.circular(999),
+        clipBehavior: compact ? Clip.hardEdge : Clip.antiAlias,
+        child: AdaptiveGlassLayer(
+          borderRadius: BorderRadius.circular(999),
+          sigma: lightSoftPill ? 18 : 25,
+          fallbackColor: Colors.white.withValues(
+            alpha: lightSoftPill ? 0.42 : 0.78,
+          ),
+          child: Container(
+            padding: EdgeInsets.fromLTRB(
+              hPad,
+              compact ? 7.th : vPad,
+              hPad,
+              vPad,
             ),
-          );
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(999),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white.withValues(alpha: lightSoftPill ? 0.45 : 0.72),
+                  Colors.white.withValues(alpha: lightSoftPill ? 0.28 : 0.48),
+                ],
+              ),
+              border: Border.all(
+                color: Colors.white.withValues(
+                  alpha: lightSoftPill ? 0.55 : 0.90,
+                ),
+                width: lightSoftPill ? 1 : 1.2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(
+                    alpha: lightSoftPill ? 0.04 : 0.08,
+                  ),
+                  blurRadius: lightSoftPill ? 12 : 18,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: _barRow(
+              compact: compact,
+              expand: expand,
+              showComms: showComms,
+              showLogo: showLogo,
+              iconSize: iconSize,
+              iconGlyph: iconGlyph,
+              gap: gap,
+              profileSize: profileSize,
+              hPad: hPad,
+              vPad: vPad,
+            ),
+          ),
+        ),
+      );
 
     if (widget.omitOuterPadding) return bar;
     return Padding(
@@ -852,8 +852,8 @@ class _GlassWellBadgeIcon extends StatelessWidget {
                       border: Border.all(color: Colors.white, width: 1.5),
                       boxShadow: [
                         BoxShadow(
-                          color:
-                              HomeGlassTheme.accentRed.withValues(alpha: 0.35),
+                          color: HomeGlassTheme.accentRed
+                              .withValues(alpha: 0.35),
                           blurRadius: 4,
                         ),
                       ],

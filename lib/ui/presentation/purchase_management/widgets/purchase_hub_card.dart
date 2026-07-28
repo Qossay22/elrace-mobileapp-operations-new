@@ -1,6 +1,7 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
 import 'package:el_race/ui/presentation/purchase_management/data/purchase_models.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class PurchaseHubCardTile extends StatelessWidget {
@@ -135,7 +136,8 @@ extension PurchaseHubCardKindX on PurchaseHubCardKind {
         PurchaseHubCardKind.waitingRfqs =>
           'Pending validation or draft / sent / to approve',
         PurchaseHubCardKind.totalRfqs => 'All RFQs in your scope',
-        PurchaseHubCardKind.pendingMrs => 'Draft through approved requisitions',
+        PurchaseHubCardKind.pendingMrs =>
+          'Draft through approved requisitions',
         PurchaseHubCardKind.lpos => 'Confirmed purchase orders',
         PurchaseHubCardKind.invoiceReceiving => 'Create or receive invoices',
       };

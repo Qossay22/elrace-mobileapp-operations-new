@@ -1,34 +1,36 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
-import 'package:el_race/core/purchase/purchase_access.dart';
 import 'package:el_race/core/purchase/purchase_dev_role_provider.dart';
-import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/ui/presentation/purchase_management/data/purchase_models.dart';
 import 'package:el_race/ui/presentation/purchase_management/data/purchase_repository.dart';
+import 'package:el_race/ui/presentation/purchase_management/providers/purchase_providers.dart';
 import 'package:el_race/ui/presentation/purchase_management/screens/invoice_receiving_create_screen.dart';
 import 'package:el_race/ui/presentation/purchase_management/screens/invoice_receiving_detail_screen.dart';
 import 'package:el_race/ui/presentation/purchase_management/data/purchase_status.dart';
 import 'package:el_race/ui/presentation/purchase_management/theme/purchase_theme.dart';
+import 'package:el_race/ui/presentation/purchase_management/utils/purchase_number_format.dart';
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_background.dart';
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_glass_header.dart';
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_list_widgets.dart';
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_status_chip.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'dart:async';
 
-class InvoiceReceivingListScreen extends StatefulWidget {
+class InvoiceReceivingListScreen extends ConsumerStatefulWidget {
   const InvoiceReceivingListScreen({super.key, this.testRole});
 
   final PurchaseDevTestRole? testRole;
 
   @override
-  State<InvoiceReceivingListScreen> createState() =>
+  ConsumerState<InvoiceReceivingListScreen> createState() =>
       _InvoiceReceivingListScreenState();
 }
 
-class _InvoiceReceivingListScreenState extends State<InvoiceReceivingListScreen>
+class _InvoiceReceivingListScreenState
+    extends ConsumerState<InvoiceReceivingListScreen>
     with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
@@ -157,75 +159,58 @@ class _InvoiceReceivingListScreenState extends State<InvoiceReceivingListScreen>
     if (created == true) _fetchItems();
   }
 
-  Future<void> _openDetail(InvoiceReceivingItem item) async {
-    final changed = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => InvoiceReceivingDetailScreen(
-          invoiceId: item.id,
-          testRole: widget.testRole,
-        ),
-      ),
-    );
-    if (changed == true && mounted) {
-      _fetchItems();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final access = kDebugMode && widget.testRole != null
-        ? purchaseAccessForDevRole(widget.testRole!)
-        : purchaseAccessFromData(SharedPref.getLoginData().result?.data);
+    final access = ref.watch(purchaseAccessProvider);
 
     return PurchaseBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: Column(
-          children: [
-            PurchaseManagementGlassHeader(
-              title: 'Invoice Receiving',
-              showBack: true,
-              onBack: () => Navigator.pop(context),
-            ),
-            Expanded(
-              child: Stack(
-                children: [
-                  Column(
-                    children: [
-                      PurchaseSearchBar(controller: _searchController),
-                      PurchaseFilterChips(
-                        filters: _statusFilters,
-                        labels: _filterLabels,
-                        selected: _statusFilter,
-                        onSelect: _applyStatusFilter,
-                      ),
-                      Expanded(child: _buildBody()),
-                    ],
-                  ),
-                  if (access.canCreateInvoice)
-                    Positioned(
-                      right: 16.tw,
-                      bottom: 16.th,
-                      child: FloatingActionButton.extended(
-                        onPressed: _openCreate,
-                        backgroundColor: PurchaseTheme.accentBlue,
-                        icon: const Icon(Icons.add, color: Colors.white),
-                        label: Text(
-                          'Create',
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
+        children: [
+          PurchaseManagementGlassHeader(
+            title: 'Invoice Receiving',
+            showBack: true,
+            onBack: () => Navigator.pop(context),
+          ),
+          Expanded(
+            child: Stack(
+              children: [
+                Column(
+                  children: [
+                    PurchaseSearchBar(controller: _searchController),
+                    PurchaseFilterChips(
+                      filters: _statusFilters,
+                      labels: _filterLabels,
+                      selected: _statusFilter,
+                      onSelect: _applyStatusFilter,
+                    ),
+                    Expanded(child: _buildBody()),
+                  ],
+                ),
+                if (access.canCreateInvoice)
+                  Positioned(
+                    right: 16.tw,
+                    bottom: 16.th,
+                    child: FloatingActionButton.extended(
+                      onPressed: _openCreate,
+                      backgroundColor: PurchaseTheme.accentBlue,
+                      icon: const Icon(Icons.add, color: Colors.white),
+                      label: Text(
+                        'Create',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
                         ),
                       ),
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
       ),
     );
   }
@@ -264,7 +249,15 @@ class _InvoiceReceivingListScreenState extends State<InvoiceReceivingListScreen>
         }
         return _InvoiceReceivingRow(
           item: _items[index],
-          onTap: () => _openDetail(_items[index]),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => InvoiceReceivingDetailScreen(
+                invoiceId: _items[index].id,
+                testRole: widget.testRole,
+              ),
+            ),
+          ),
         );
       },
     );
@@ -282,14 +275,13 @@ class _InvoiceReceivingRow extends StatelessWidget {
     final status = invoiceStatusFromApi(item.state);
     // Display name: prefer the Odoo sequence name, fall back to invoiceNo.
     final displayName = item.name.isNotEmpty ? item.name : item.invoiceNo;
-    final hasSecondaryNo = item.name.isNotEmpty &&
-        item.invoiceNo.isNotEmpty &&
-        item.name != item.invoiceNo;
-    final amountText = item.amountDisplay.isNotEmpty
-        ? item.amountDisplay
-        : (item.amount > 0
-            ? '${item.currency} ${item.amount.toStringAsFixed(2)}'
-            : '');
+    final hasSecondaryNo = item.name.isNotEmpty && item.invoiceNo.isNotEmpty && item.name != item.invoiceNo;
+    final amountText = item.amount > 0
+        ? formatPurchaseAed(
+            item.amount,
+            currency: item.currency.isNotEmpty ? item.currency : 'AED',
+          )
+        : '';
 
     return GestureDetector(
       onTap: onTap,

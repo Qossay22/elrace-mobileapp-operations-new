@@ -2,7 +2,7 @@ import 'package:el_race/core/theme/timesheet_module_theme.dart';
 import 'package:el_race/core/widgets/timesheet/timesheet_widgets.dart';
 import 'package:el_race/report_module/data/models/folder_model.dart';
 import 'package:el_race/report_module/data/models/report_model.dart';
-import 'package:el_race/report_module/presentation/bloc/report_bloc.dart';
+import 'package:el_race/report_module/data/provider/reports_provider.dart';
 import 'package:el_race/ui/presentation/timesheet/site_reports/models/tm_site_report_composer_result.dart';
 import 'package:el_race/ui/presentation/timesheet/site_reports/tm_site_report_actions.dart';
 import 'package:el_race/ui/presentation/timesheet/site_reports/tm_site_report_composer_screen.dart';
@@ -13,8 +13,8 @@ import 'package:el_race/ui/presentation/timesheet/site_reports/widgets/tm_site_r
 import 'package:el_race/ui/presentation/timesheet/timesheet_async_state.dart';
 import 'package:el_race/ui/presentation/timesheet/widgets/tm_site_report_row.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:provider/provider.dart';
 
 enum TmFolderEntryAction {
   none,
@@ -48,6 +48,9 @@ class _TmSiteReportFolderScreenState extends State<TmSiteReportFolderScreen> {
   String? _busyReportId;
   bool _handledEntry = false;
 
+  ReportProvider get _provider =>
+      Provider.of<ReportProvider>(context, listen: false);
+
   @override
   void initState() {
     super.initState();
@@ -58,12 +61,11 @@ class _TmSiteReportFolderScreenState extends State<TmSiteReportFolderScreen> {
     if (!mounted) return;
     setState(() => _loading = true);
     try {
-      final reportBloc = context.read<ReportBloc>();
-      await reportBloc.fetchAllReports(
+      await _provider.fetchAllReports(
         folderID: widget.folder.id,
         projectId: widget.projectId,
       );
-      _reports = List<ReportModel>.from(reportBloc.reports);
+      _reports = List<ReportModel>.from(_provider.reports);
     } catch (_) {
       _reports = const [];
     }
@@ -81,12 +83,16 @@ class _TmSiteReportFolderScreenState extends State<TmSiteReportFolderScreen> {
   }
 
   Future<void> _openComposer({ReportModel? existing}) async {
-    final result = await Navigator.of(context).push<TmSiteReportComposerResult>(
+    final result =
+        await Navigator.of(context).push<TmSiteReportComposerResult>(
       MaterialPageRoute(
-        builder: (_) => TmSiteReportComposerScreen(
-          folder: widget.folder,
-          projectName: widget.projectName,
-          existingReport: existing,
+        builder: (_) => ChangeNotifierProvider<ReportProvider>.value(
+          value: _provider,
+          child: TmSiteReportComposerScreen(
+            folder: widget.folder,
+            projectName: widget.projectName,
+            existingReport: existing,
+          ),
         ),
       ),
     );
@@ -109,12 +115,15 @@ class _TmSiteReportFolderScreenState extends State<TmSiteReportFolderScreen> {
   Future<void> _openGallery(ReportModel report) async {
     await Navigator.of(context).push<void>(
       MaterialPageRoute(
-        builder: (_) => TmSiteReportGalleryScreen(
-          report: report,
-          folder: widget.folder,
-          folderName: widget.folder.name,
-          projectName: widget.projectName,
-          projectId: widget.projectId,
+        builder: (_) => ChangeNotifierProvider<ReportProvider>.value(
+          value: _provider,
+          child: TmSiteReportGalleryScreen(
+            report: report,
+            folder: widget.folder,
+            folderName: widget.folder.name,
+            projectName: widget.projectName,
+            projectId: widget.projectId,
+          ),
         ),
       ),
     );
@@ -122,9 +131,8 @@ class _TmSiteReportFolderScreenState extends State<TmSiteReportFolderScreen> {
   }
 
   Future<void> _openPdf(ReportModel report) async {
-    final reportBloc = context.read<ReportBloc>();
     if (!report.hasGeneratedPdf && report.reportType == null) {
-      final detail = await reportBloc.fetchReportDetailFromApi(report.id);
+      final detail = await _provider.fetchReportDetailFromApi(report.id);
       final hasPhotos = (detail?.reportItems.length ?? 0) >= 3;
       if (!hasPhotos) {
         if (!mounted) return;
@@ -139,11 +147,11 @@ class _TmSiteReportFolderScreenState extends State<TmSiteReportFolderScreen> {
       }
     }
 
-    if (!mounted) return;
     setState(() => _busyReportId = report.id);
     try {
       await TmSiteReportViewPdf.open(
         context,
+        provider: _provider,
         report: report,
         folder: widget.folder,
         projectName: widget.projectName,
@@ -158,7 +166,8 @@ class _TmSiteReportFolderScreenState extends State<TmSiteReportFolderScreen> {
     final q = _search.trim().toLowerCase();
     if (q.isEmpty) return _reports;
     return _reports.where((r) {
-      return r.name.toLowerCase().contains(q) || r.id.toLowerCase().contains(q);
+      return r.name.toLowerCase().contains(q) ||
+          r.id.toLowerCase().contains(q);
     }).toList();
   }
 
@@ -249,9 +258,9 @@ class _TmSiteReportFolderScreenState extends State<TmSiteReportFolderScreen> {
                                 busy: _busyReportId == report.id,
                                 onGallery: () => _openGallery(report),
                                 onPdf: () => _openPdf(report),
-                                onMore: () =>
-                                    TmSiteReportActions.showReportMenu(
+                                onMore: () => TmSiteReportActions.showReportMenu(
                                   context,
+                                  provider: _provider,
                                   report: report,
                                   onChanged: _load,
                                 ),

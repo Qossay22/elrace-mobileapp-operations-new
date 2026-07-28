@@ -1,11 +1,10 @@
 import 'package:el_race/report_module/core/constants/colors.dart';
 import 'package:el_race/report_module/core/constants/text_styles.dart';
 import 'package:el_race/report_module/data/models/report_model.dart';
-import 'package:el_race/report_module/presentation/bloc/report_bloc.dart';
+import 'package:el_race/report_module/data/provider/reports_provider.dart';
 import 'package:el_race/report_module/presentation/screens/report_detail/report_detail.dart';
 import 'package:el_race/report_module/data/models/report_detail_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 class ReportTile extends StatefulWidget {
@@ -32,8 +31,7 @@ class _ReportTileState extends State<ReportTile> {
   @override
   void initState() {
     super.initState();
-    _reportDetailFuture =
-        context.read<ReportBloc>().getReportDetail(widget.report);
+    _reportDetailFuture = reportProvider.getReportDetail(widget.report);
   }
 
   @override

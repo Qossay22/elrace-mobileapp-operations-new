@@ -1,17 +1,17 @@
 import 'package:el_race/core/timesheet/routing/timesheet_route_names.dart';
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_projects_widgets_cubit.dart';
+import 'package:el_race/ui/presentation/home_screen/providers/home_projects_widgets_provider.dart';
 import 'package:el_race/ui/presentation/home_screen/widgets/category_widget_gradient_border.dart';
 import 'package:el_race/ui/presentation/home_screen/widgets/home_my_projects_navigation.dart';
 import 'package:el_race/ui/presentation/home_screen/widgets/home_my_reports_navigation.dart';
 import 'package:el_race/ui/presentation/signin/data/model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// v7 Projects category widgets (My Projects, Site Management, My Reports).
-class ProjectsCategoryMyProjectsCard extends StatelessWidget {
+class ProjectsCategoryMyProjectsCard extends ConsumerWidget {
   const ProjectsCategoryMyProjectsCard({
     super.key,
     this.tabletCompact = false,
@@ -20,115 +20,112 @@ class ProjectsCategoryMyProjectsCard extends StatelessWidget {
   final bool tabletCompact;
 
   @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<HomeMyProjectsWidgetCubit, MyProjectsWidgetRecord>(
-      builder: (context, data) {
-        final rowCount = data.topProjects.length;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final data = ref.watch(homeMyProjectsWidgetProvider);
+    final rowCount = data.topProjects.length;
 
-        return _ProjectsFullCardShell(
-          onTap: () => HomeMyProjectsNavigation.openProjectsModule(context),
-          gradient: const LinearGradient(
-            begin: Alignment.centerRight,
-            end: Alignment.centerLeft,
-            colors: [
-              Color(0xFF9AA5B5),
-              Color(0xFFB0BAC8),
-              Color(0xFFC5CED8),
-              Color(0xFFDCE2EA),
-              Color(0xFFF0F3F7),
-            ],
+    return _ProjectsFullCardShell(
+      onTap: () => HomeMyProjectsNavigation.openProjectsModule(context),
+      gradient: const LinearGradient(
+        begin: Alignment.centerRight,
+        end: Alignment.centerLeft,
+        colors: [
+          Color(0xFF9AA5B5),
+          Color(0xFFB0BAC8),
+          Color(0xFFC5CED8),
+          Color(0xFFDCE2EA),
+          Color(0xFFF0F3F7),
+        ],
+      ),
+      iconBadge: const _ProjectsIconBadge(
+        icon: Icons.apartment_rounded,
+        gradient: [Color(0xFF2A3F6B), Color(0xFF1A2A4F)],
+      ),
+      pattern: Stack(
+        clipBehavior: Clip.hardEdge,
+        children: [
+          Positioned(
+            right: -36.w,
+            top: -44.uh,
+            child: _ConcentricRingsPattern(size: 210.w),
           ),
-          iconBadge: const _ProjectsIconBadge(
-            icon: Icons.apartment_rounded,
-            gradient: [Color(0xFF2A3F6B), Color(0xFF1A2A4F)],
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'ACTIVE PROJECTS',
+            style: GoogleFonts.poppins(
+              fontSize: 7.5.usp,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF7A849C),
+              letterSpacing: 0.6,
+            ),
           ),
-          pattern: Stack(
-            clipBehavior: Clip.hardEdge,
-            children: [
-              Positioned(
-                right: -36.w,
-                top: -44.uh,
-                child: _ConcentricRingsPattern(size: 210.w),
+          SizedBox(height: 3.uh),
+          Text(
+            data.titleLine,
+            style: GoogleFonts.poppins(
+              fontSize: 14.5.usp,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF1A2A4F),
+              height: 1.15,
+            ),
+          ),
+          SizedBox(height: rowCount == 0 ? 8.uh : 14.uh),
+          if (rowCount == 0)
+            Text(
+              'No projects yet',
+              style: GoogleFonts.poppins(
+                fontSize: 11.usp,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF5A6A82),
               ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'ACTIVE PROJECTS',
-                style: GoogleFonts.poppins(
-                  fontSize: 7.5.usp,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF7A849C),
-                  letterSpacing: 0.6,
+            )
+          else ...[
+            for (var i = 0; i < rowCount; i++) ...[
+              if (i > 0)
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 6.uh),
+                  child: Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: const Color(0xFF1A2A4F).withValues(alpha: 0.07),
+                  ),
+                ),
+              _MyProjectsRow(
+                project: data.topProjects[i],
+                onTap: () => HomeMyProjectsNavigation.openProject(
+                  context,
+                  data.topProjects[i].id,
                 ),
               ),
-              SizedBox(height: 3.uh),
-              Text(
-                data.titleLine,
-                style: GoogleFonts.poppins(
-                  fontSize: 14.5.usp,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1A2A4F),
-                  height: 1.15,
-                ),
-              ),
-              SizedBox(height: rowCount == 0 ? 8.uh : 14.uh),
-              if (rowCount == 0)
-                Text(
-                  'No projects yet',
+            ],
+            if (data.moreProjectsCount > 0) ...[
+              SizedBox(height: 10.uh),
+              GestureDetector(
+                onTap: () =>
+                    HomeMyProjectsNavigation.openProjectsModule(context),
+                child: Text(
+                  '+ ${data.moreProjectsCount} more projects',
                   style: GoogleFonts.poppins(
-                    fontSize: 11.usp,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF5A6A82),
+                    fontSize: 10.5.usp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF3E7BFA),
                   ),
-                )
-              else ...[
-                for (var i = 0; i < rowCount; i++) ...[
-                  if (i > 0)
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 6.uh),
-                      child: Divider(
-                        height: 1,
-                        thickness: 1,
-                        color: const Color(0xFF1A2A4F).withValues(alpha: 0.07),
-                      ),
-                    ),
-                  _MyProjectsRow(
-                    project: data.topProjects[i],
-                    onTap: () => HomeMyProjectsNavigation.openProject(
-                      context,
-                      data.topProjects[i].id,
-                    ),
-                  ),
-                ],
-                if (data.moreProjectsCount > 0) ...[
-                  SizedBox(height: 10.uh),
-                  GestureDetector(
-                    onTap: () =>
-                        HomeMyProjectsNavigation.openProjectsModule(context),
-                    child: Text(
-                      '+ ${data.moreProjectsCount} more projects',
-                      style: GoogleFonts.poppins(
-                        fontSize: 10.5.usp,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF3E7BFA),
-                      ),
-                    ),
-                  ),
-                ],
-              ],
+                ),
+              ),
             ],
-          ),
-        );
-      },
+          ],
+        ],
+      ),
     );
   }
 }
 
-class ProjectsCategorySiteManagementCard extends StatelessWidget {
+class ProjectsCategorySiteManagementCard extends ConsumerWidget {
   const ProjectsCategorySiteManagementCard({
     super.key,
     this.tabletCompact = false,
@@ -137,109 +134,105 @@ class ProjectsCategorySiteManagementCard extends StatelessWidget {
   final bool tabletCompact;
 
   @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<HomeSiteManagementWidgetCubit,
-        SiteManagementWidgetRecord>(
-      builder: (context, data) {
-        final countLabel =
-            data.activeSitesCount > 0 ? '${data.activeSitesCount}' : '—';
-        final chips = data.locationChips;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final data = ref.watch(homeSiteManagementWidgetProvider);
+    final countLabel =
+        data.activeSitesCount > 0 ? '${data.activeSitesCount}' : '—';
+    final chips = data.locationChips;
 
-        return _ProjectsHalfCardShell(
-          height: null,
-          onTap: () => Navigator.of(context).pushNamed(
-            TimesheetRouteNames.siteManagementHome,
-          ),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFFFF1D9),
-              Color(0xFFFFE0B0),
-              Color(0xFFFFCC85),
-              Color(0xFFF4A460),
-            ],
-          ),
-          iconBadge: const _ProjectsIconBadge(
-            icon: Icons.engineering_rounded,
-            gradient: [Color(0xFFF59E3D), Color(0xFFE07B1A)],
-          ),
-          pattern: Align(
-            alignment: Alignment.bottomRight,
-            child: CustomPaint(
-              size: Size(88.w, 72.uh),
-              painter: _BlueprintGridPainter(),
+    return _ProjectsHalfCardShell(
+      height: null,
+      onTap: () => Navigator.of(context).pushNamed(
+        TimesheetRouteNames.siteManagementHome,
+      ),
+      gradient: const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color(0xFFFFF1D9),
+          Color(0xFFFFE0B0),
+          Color(0xFFFFCC85),
+          Color(0xFFF4A460),
+        ],
+      ),
+      iconBadge: const _ProjectsIconBadge(
+        icon: Icons.engineering_rounded,
+        gradient: [Color(0xFFF59E3D), Color(0xFFE07B1A)],
+      ),
+      pattern: Align(
+        alignment: Alignment.bottomRight,
+        child: CustomPaint(
+          size: Size(88.w, 72.uh),
+          painter: _BlueprintGridPainter(),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'SITES',
+            style: GoogleFonts.poppins(
+              fontSize: 8.usp,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFFE07B1A),
+              letterSpacing: 0.5,
             ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'SITES',
-                style: GoogleFonts.poppins(
-                  fontSize: 8.usp,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFFE07B1A),
-                  letterSpacing: 0.5,
-                ),
-              ),
-              SizedBox(height: 2.uh),
-              Text(
-                'Site Management',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.poppins(
-                  fontSize: 11.5.usp,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF7A3E00),
-                ),
-              ),
-              SizedBox(height: 6.uh),
-              Text(
-                countLabel,
-                style: GoogleFonts.poppins(
-                  fontSize: 24.usp,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF7A3E00),
-                  height: 1,
-                ),
-              ),
-              SizedBox(height: 3.uh),
-              Text(
-                data.trendLabel,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.poppins(
-                  fontSize: 8.5.usp,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFFF59E3D),
-                  height: 1.2,
-                ),
-              ),
-              if (chips.isNotEmpty) ...[
-                SizedBox(height: 6.uh),
-                SizedBox(
-                  height: 22.uh,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: chips.length,
-                    separatorBuilder: (_, __) => SizedBox(width: 6.w),
-                    itemBuilder: (context, index) {
-                      return _ProjectsSoftPill(label: chips[index]);
-                    },
-                  ),
-                ),
-              ],
-            ],
+          SizedBox(height: 2.uh),
+          Text(
+            'Site Management',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.poppins(
+              fontSize: 11.5.usp,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF7A3E00),
+            ),
           ),
-        );
-      },
+          SizedBox(height: 6.uh),
+          Text(
+            countLabel,
+            style: GoogleFonts.poppins(
+              fontSize: 24.usp,
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF7A3E00),
+              height: 1,
+            ),
+          ),
+          SizedBox(height: 3.uh),
+          Text(
+            data.trendLabel,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.poppins(
+              fontSize: 8.5.usp,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFFF59E3D),
+              height: 1.2,
+            ),
+          ),
+          if (chips.isNotEmpty) ...[
+            SizedBox(height: 6.uh),
+            SizedBox(
+              height: 22.uh,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                itemCount: chips.length,
+                separatorBuilder: (_, __) => SizedBox(width: 6.w),
+                itemBuilder: (context, index) {
+                  return _ProjectsSoftPill(label: chips[index]);
+                },
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
 
-class ProjectsCategoryMyReportsCard extends StatelessWidget {
+class ProjectsCategoryMyReportsCard extends ConsumerWidget {
   const ProjectsCategoryMyReportsCard({
     super.key,
     this.tabletCompact = false,
@@ -248,113 +241,110 @@ class ProjectsCategoryMyReportsCard extends StatelessWidget {
   final bool tabletCompact;
 
   @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<HomeMyReportsWidgetCubit, MyReportsWidgetRecord>(
-      builder: (context, data) {
-        final trendColor = _reportsTrendColor(data.trendDirection);
-        final valueStyle = GoogleFonts.poppins(
-          fontSize: data.value == '—' ? 24.usp : 28.usp,
-          fontWeight: FontWeight.w800,
-          color: Colors.white,
-          height: 1,
-        );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final data = ref.watch(homeMyReportsWidgetProvider);
+    final trendColor = _reportsTrendColor(data.trendDirection);
+    final valueStyle = GoogleFonts.poppins(
+      fontSize: data.value == '—' ? 24.usp : 28.usp,
+      fontWeight: FontWeight.w800,
+      color: Colors.white,
+      height: 1,
+    );
 
-        return _ProjectsHalfCardShell(
-          height: null,
-          onTap: () => HomeMyReportsNavigation.open(
-            context,
-            metricType: data.metricType,
+    return _ProjectsHalfCardShell(
+      height: null,
+      onTap: () => HomeMyReportsNavigation.open(
+        context,
+        metricType: data.metricType,
+      ),
+      gradient: const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color(0xFF1A1F2E),
+          Color(0xFF2A2D40),
+          Color(0xFF1A1F2E),
+        ],
+      ),
+      iconBadge: const _ProjectsIconBadge(
+        icon: Icons.show_chart_rounded,
+        gradient: [Color(0xFFE63946), Color(0xFFB81D32)],
+      ),
+      pattern: Stack(
+        children: [
+          Positioned.fill(
+            child: CustomPaint(painter: _ReportsChartPatternPainter()),
           ),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF1A1F2E),
-              Color(0xFF2A2D40),
-              Color(0xFF1A1F2E),
-            ],
-          ),
-          iconBadge: const _ProjectsIconBadge(
-            icon: Icons.show_chart_rounded,
-            gradient: [Color(0xFFE63946), Color(0xFFB81D32)],
-          ),
-          pattern: Stack(
-            children: [
-              Positioned.fill(
-                child: CustomPaint(painter: _ReportsChartPatternPainter()),
-              ),
-              Positioned.fill(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        const Color(0xFF1A1F2E).withValues(alpha: 0.92),
-                        const Color(0xFF1A1F2E).withValues(alpha: 0.5),
-                      ],
-                    ),
-                  ),
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    const Color(0xFF1A1F2E).withValues(alpha: 0.92),
+                    const Color(0xFF1A1F2E).withValues(alpha: 0.5),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'PERFORMANCE',
-                style: GoogleFonts.poppins(
-                  fontSize: 8.usp,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFFB8BEC8),
-                  letterSpacing: 0.5,
-                ),
-              ),
-              SizedBox(height: 2.uh),
-              Text(
-                'My Reports',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.poppins(
-                  fontSize: 11.5.usp,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
-              SizedBox(height: 8.uh),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.centerLeft,
-                child: Text(data.value, style: valueStyle),
-              ),
-              SizedBox(height: 4.uh),
-              Text(
-                data.trendLabel,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.poppins(
-                  fontSize: 8.5.usp,
-                  fontWeight: FontWeight.w600,
-                  color: trendColor,
-                  height: 1.2,
-                ),
-              ),
-              SizedBox(height: 8.uh),
-              Text(
-                'Updated ${data.updatedAt} · Live',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.poppins(
-                  fontSize: 7.5.usp,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white.withValues(alpha: 0.45),
-                ),
-              ),
-            ],
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'PERFORMANCE',
+            style: GoogleFonts.poppins(
+              fontSize: 8.usp,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFFB8BEC8),
+              letterSpacing: 0.5,
+            ),
           ),
-        );
-      },
+          SizedBox(height: 2.uh),
+          Text(
+            'My Reports',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.poppins(
+              fontSize: 11.5.usp,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(height: 8.uh),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(data.value, style: valueStyle),
+          ),
+          SizedBox(height: 4.uh),
+          Text(
+            data.trendLabel,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.poppins(
+              fontSize: 8.5.usp,
+              fontWeight: FontWeight.w600,
+              color: trendColor,
+              height: 1.2,
+            ),
+          ),
+          SizedBox(height: 8.uh),
+          Text(
+            'Updated ${data.updatedAt} · Live',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.poppins(
+              fontSize: 7.5.usp,
+              fontWeight: FontWeight.w500,
+              color: Colors.white.withValues(alpha: 0.45),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -482,8 +472,7 @@ class _ProgressStatusDot extends StatelessWidget {
               gradient: _MyProjectsTrafficPalette.dotGradient,
               boxShadow: [
                 BoxShadow(
-                  color:
-                      _MyProjectsTrafficPalette.green.withValues(alpha: 0.16),
+                  color: _MyProjectsTrafficPalette.green.withValues(alpha: 0.16),
                   blurRadius: 3,
                   spreadRadius: 0.5,
                 ),
@@ -530,8 +519,8 @@ class _ProjectProgressBar extends StatelessWidget {
                 return Stack(
                   fit: StackFit.expand,
                   children: [
-                    const DecoratedBox(
-                      decoration: BoxDecoration(
+                    DecoratedBox(
+                      decoration: const BoxDecoration(
                         gradient: _MyProjectsTrafficPalette.gradient,
                       ),
                     ),
@@ -631,8 +620,8 @@ class _ProjectsHalfCardShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final innerRadius = (22.ur - CategoryWidgetGradientBorder.width)
-        .clamp(0.0, double.infinity);
+    final innerRadius =
+        (22.ur - CategoryWidgetGradientBorder.width).clamp(0.0, double.infinity);
 
     return Material(
       color: Colors.transparent,
@@ -706,8 +695,8 @@ class _ProjectsFullCardShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final innerRadius = (22.ur - CategoryWidgetGradientBorder.width)
-        .clamp(0.0, double.infinity);
+    final innerRadius =
+        (22.ur - CategoryWidgetGradientBorder.width).clamp(0.0, double.infinity);
 
     return Material(
       color: Colors.transparent,

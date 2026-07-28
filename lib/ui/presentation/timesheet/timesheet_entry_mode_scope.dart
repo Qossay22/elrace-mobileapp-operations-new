@@ -1,9 +1,9 @@
-import 'package:el_race/core/timesheet/bloc/timesheet_entry_mode_cubit.dart';
+import 'package:el_race/core/timesheet/providers/timesheet_entry_mode_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Sets [TimesheetEntryModeCubit] for the whole module navigation stack.
-class TimesheetEntryModeScope extends StatefulWidget {
+/// Sets [timesheetEntryModeProvider] for the whole module navigation stack.
+class TimesheetEntryModeScope extends ConsumerStatefulWidget {
   const TimesheetEntryModeScope({
     super.key,
     required this.mode,
@@ -14,17 +14,18 @@ class TimesheetEntryModeScope extends StatefulWidget {
   final Widget child;
 
   @override
-  State<TimesheetEntryModeScope> createState() =>
+  ConsumerState<TimesheetEntryModeScope> createState() =>
       _TimesheetEntryModeScopeState();
 }
 
-class _TimesheetEntryModeScopeState extends State<TimesheetEntryModeScope> {
+class _TimesheetEntryModeScopeState
+    extends ConsumerState<TimesheetEntryModeScope> {
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      context.read<TimesheetEntryModeCubit>().setMode(widget.mode);
+      ref.read(timesheetEntryModeStateProvider.notifier).setMode(widget.mode);
     });
   }
 

@@ -3,17 +3,15 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:el_race/ui/presentation/News%20Banner/news_detail_screen_api.dart';
 import 'package:el_race/ui/presentation/News%20Banner/news_screen.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_slider/home_slider_bloc.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_slider/home_slider_event.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_slider/home_slider_state.dart';
+import 'package:el_race/ui/presentation/home_screen/provider/slider_provider.dart';
 import 'package:el_race/ui/presentation/home_screen/widgets/home_mid_section.dart';
 import 'package:el_race/ui/presentation/home_screen/widgets/mid_section_scroll_lock.dart';
 import 'package:el_race/utils/Util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 /// News card + check-in/prayer strip — strip centered on card bottom edge.
 class HomeNewsBlock extends StatefulWidget {
@@ -26,8 +24,7 @@ class HomeNewsBlock extends StatefulWidget {
   static const stripHorizontalInset = 8.0;
 
   /// Scales with screen height but stays within readable bounds.
-  static double _responsiveH(double design,
-      {required double min, required double max}) {
+  static double _responsiveH(double design, {required double min, required double max}) {
     return design.clamp(min, max);
   }
 
@@ -60,7 +57,9 @@ class HomeNewsBlock extends StatefulWidget {
     final h = stripHeight(context, mode: mode);
     final overlap = stripOverlap(context, mode: mode);
     final belowCard = h - overlap;
-    return belowCard + stripGapToActions(context) + stripShadowBleed(context);
+    return belowCard +
+        stripGapToActions(context) +
+        stripShadowBleed(context);
   }
 
   @override
@@ -72,9 +71,12 @@ class _HomeNewsBlockState extends State<HomeNewsBlock> {
 
   @override
   Widget build(BuildContext context) {
-    final overlap = HomeNewsBlock.stripOverlap(context, mode: _midMode);
-    final slotHeight = HomeNewsBlock.stripSlotHeight(context, mode: _midMode);
-    final stripH = HomeNewsBlock.stripHeight(context, mode: _midMode);
+    final overlap =
+        HomeNewsBlock.stripOverlap(context, mode: _midMode);
+    final slotHeight =
+        HomeNewsBlock.stripSlotHeight(context, mode: _midMode);
+    final stripH =
+        HomeNewsBlock.stripHeight(context, mode: _midMode);
     final newsCardH = _HomeNewsCardState.cardHeight(
       context,
       tabletLayout: widget.tabletLayout,
@@ -193,116 +195,110 @@ class _HomeNewsCardState extends State<HomeNewsCard> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeSliderBloc, HomeSliderState>(
-      builder: (context, slider) {
-        final count = slider.titles.isEmpty
-            ? _fallbackHeadlines.length
-            : slider.titles.length;
-        final cardH = cardHeight(context, tabletLayout: widget.tabletLayout);
-        return SizedBox(
-          height: cardH,
-          child: slider.isLoading
-              ? _cardShell(
-                  child: const Center(
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                )
-              : CarouselSlider.builder(
-                  carouselController: _carouselController,
-                  itemCount: count,
-                  options: CarouselOptions(
-                    height: cardH,
-                    viewportFraction: 1,
-                    enableInfiniteScroll: count > 1,
-                    autoPlay: count > 1,
-                    autoPlayInterval: const Duration(seconds: 6),
-                    // Strip overlaps the card — disable swipe so taps reach the mid section.
-                    scrollPhysics: const NeverScrollableScrollPhysics(),
-                    onPageChanged: (i, _) => context
-                        .read<HomeSliderBloc>()
-                        .add(HomeSliderIndexChanged(i)),
-                  ),
-                  itemBuilder: (context, itemIndex, _) {
-                    final imageUrl = _imageAt(slider, itemIndex);
-                    final isNetwork =
-                        imageUrl.startsWith('http') && slider.hasApiData;
+    final slider = context.watch<SliderProvider>();
+    final count =
+        slider.titles.isEmpty ? _fallbackHeadlines.length : slider.titles.length;
+    final cardH = cardHeight(context, tabletLayout: widget.tabletLayout);
+    return SizedBox(
+      height: cardH,
+      child: slider.isLoading
+          ? _cardShell(
+              child: const Center(
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            )
+          : CarouselSlider.builder(
+              carouselController: _carouselController,
+              itemCount: count,
+              options: CarouselOptions(
+                height: cardH,
+                viewportFraction: 1,
+                enableInfiniteScroll: count > 1,
+                autoPlay: count > 1,
+                autoPlayInterval: const Duration(seconds: 6),
+                // Strip overlaps the card — disable swipe so taps reach the mid section.
+                scrollPhysics: const NeverScrollableScrollPhysics(),
+                onPageChanged: (i, _) => slider.setCurrentIndex(i),
+              ),
+              itemBuilder: (context, itemIndex, _) {
+                final imageUrl = _imageAt(slider, itemIndex);
+                final isNetwork =
+                    imageUrl.startsWith('http') && slider.hasApiData;
 
-                    return _cardShell(
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          if (isNetwork)
-                            CachedNetworkImage(
-                              imageUrl: imageUrl,
+                return _cardShell(
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        if (isNetwork)
+                          CachedNetworkImage(
+                            imageUrl: imageUrl,
+                            fit: BoxFit.cover,
+                            placeholder: (_, __) => Image.asset(
+                              _fallbackImages[
+                                  itemIndex % _fallbackImages.length],
                               fit: BoxFit.cover,
-                              placeholder: (_, __) => Image.asset(
-                                _fallbackImages[
-                                    itemIndex % _fallbackImages.length],
-                                fit: BoxFit.cover,
-                              ),
-                              errorWidget: (_, __, ___) => Image.asset(
-                                _fallbackImages[
-                                    itemIndex % _fallbackImages.length],
-                                fit: BoxFit.cover,
-                              ),
-                            )
-                          else
-                            Image.asset(imageUrl, fit: BoxFit.cover),
-                          DecoratedBox(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  Colors.black.withValues(alpha: 0.05),
-                                  Colors.black.withValues(alpha: 0.12),
-                                  Colors.black.withValues(alpha: 0.72),
-                                ],
-                                stops: const [0.0, 0.45, 1.0],
-                              ),
+                            ),
+                            errorWidget: (_, __, ___) => Image.asset(
+                              _fallbackImages[
+                                  itemIndex % _fallbackImages.length],
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        else
+                          Image.asset(imageUrl, fit: BoxFit.cover),
+                        DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.black.withValues(alpha: 0.05),
+                                Colors.black.withValues(alpha: 0.12),
+                                Colors.black.withValues(alpha: 0.72),
+                              ],
+                              stops: const [0.0, 0.45, 1.0],
                             ),
                           ),
-                          Positioned(
-                            top: 14.uh,
-                            left: 14.w,
-                            child: _projectUpdatePill(),
+                        ),
+                        Positioned(
+                          top: 14.uh,
+                          left: 14.w,
+                          child: _projectUpdatePill(),
+                        ),
+                        Positioned(
+                          top: 14.uh,
+                          right: 14.w,
+                          child: _counterPill(
+                            slider.currentIndex + 1,
+                            count,
                           ),
-                          Positioned(
-                            top: 14.uh,
-                            right: 14.w,
-                            child: _counterPill(
-                              slider.currentIndex + 1,
-                              count,
-                            ),
+                        ),
+                        Positioned(
+                          left: 16.w,
+                          right: 16.w,
+                          bottom: _newsControlsBottom(context),
+                          child: _bottomContent(
+                            headline: _headlineAt(slider, itemIndex),
+                            dateLabel: _dateLabelAt(itemIndex),
+                            dotCount: count,
+                            activeIndex: slider.currentIndex,
+                            onRead: () => _openNewsDetail(context, itemIndex),
+                            onSeeMore: () =>
+                                Util.pushPage(const NewsScreen(), context),
+                            onDotTap: (index) {
+                              _carouselController.animateToPage(
+                                index,
+                                duration: const Duration(milliseconds: 350),
+                                curve: Curves.easeOut,
+                              );
+                            },
                           ),
-                          Positioned(
-                            left: 16.w,
-                            right: 16.w,
-                            bottom: _newsControlsBottom(context),
-                            child: _bottomContent(
-                              headline: _headlineAt(slider, itemIndex),
-                              dateLabel: _dateLabelAt(itemIndex),
-                              dotCount: count,
-                              activeIndex: slider.currentIndex,
-                              onRead: () => _openNewsDetail(context, itemIndex),
-                              onSeeMore: () =>
-                                  Util.pushPage(const NewsScreen(), context),
-                              onDotTap: (index) {
-                                _carouselController.animateToPage(
-                                  index,
-                                  duration: const Duration(milliseconds: 350),
-                                  curve: Curves.easeOut,
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-        );
-      },
+                        ),
+                      ],
+                    ),
+                  );
+              },
+            ),
     );
   }
 
@@ -411,8 +407,7 @@ class _HomeNewsCardState extends State<HomeNewsCard> {
         SizedBox(height: 8.uh),
         Row(
           children: [
-            Icon(Icons.calendar_today_outlined,
-                size: 11.usp, color: Colors.white70),
+            Icon(Icons.calendar_today_outlined, size: 11.usp, color: Colors.white70),
             SizedBox(width: 4.w),
             Text(
               dateLabel,
@@ -529,14 +524,14 @@ class _HomeNewsCardState extends State<HomeNewsCard> {
     );
   }
 
-  String _imageAt(HomeSliderState slider, int index) {
+  String _imageAt(SliderProvider slider, int index) {
     if (slider.sliderImages.isEmpty) {
       return _fallbackImages[index % _fallbackImages.length];
     }
     return slider.sliderImages[index % slider.sliderImages.length];
   }
 
-  String _headlineAt(HomeSliderState slider, int index) {
+  String _headlineAt(SliderProvider slider, int index) {
     if (slider.titles.isEmpty) {
       return _fallbackHeadlines[index % _fallbackHeadlines.length];
     }
@@ -550,7 +545,7 @@ class _HomeNewsCardState extends State<HomeNewsCard> {
   }
 
   void _openNewsDetail(BuildContext context, int index) {
-    final slider = context.read<HomeSliderBloc>().state;
+    final slider = context.read<SliderProvider>();
     final item = slider.announcementAt(index);
     Util.pushPage(
       NewsDetailScreenAPI(newsItem: item),

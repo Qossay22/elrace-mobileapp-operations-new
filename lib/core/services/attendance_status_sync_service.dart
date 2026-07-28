@@ -4,6 +4,7 @@ import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/data/services/checkin_reminder_notification_service.dart';
 import 'package:el_race/ui/presentation/Attendace_list/repository/attendance_repository.dart';
 import 'package:el_race/ui/presentation/home_screen/widgets/timer_controller.dart';
+import 'package:get/get.dart';
 
 class AttendanceStatusSnapshot {
   final bool checkedIn;
@@ -128,29 +129,21 @@ class AttendanceStatusSyncService {
     }
 
     // حفظ check_in_record_id من السيرفر
-    if (snapshot.checkedIn &&
-        snapshot.checkInRecordId != null &&
-        snapshot.checkInRecordId! > 0) {
-      await SharedPref()
-          .setPreferenceInt('checkInRecordId', snapshot.checkInRecordId!);
+    if (snapshot.checkedIn && snapshot.checkInRecordId != null && snapshot.checkInRecordId! > 0) {
+      await SharedPref().setPreferenceInt('checkInRecordId', snapshot.checkInRecordId!);
     }
 
     print('📝 _persistSnapshot: AFTER');
-    print(
-        '📝   isCheckedIn = ${SharedPref().getPreferenceBoolean('isCheckedIn')}');
-    print(
-        '📝   checkInDisplayTime = ${SharedPref().getPreferenceString('checkInDisplayTime')}');
-    print(
-        '📝   checkOutDisplayTime = ${SharedPref().getPreferenceString('checkOutDisplayTime')}');
-    print(
-        '📝   checkInTime (ms) = ${SharedPref().getPreferenceInt('checkInTime')}');
-    print(
-        '📝   checkInRecordId = ${SharedPref().getPreferenceInt('checkInRecordId')}');
+    print('📝   isCheckedIn = ${SharedPref().getPreferenceBoolean('isCheckedIn')}');
+    print('📝   checkInDisplayTime = ${SharedPref().getPreferenceString('checkInDisplayTime')}');
+    print('📝   checkOutDisplayTime = ${SharedPref().getPreferenceString('checkOutDisplayTime')}');
+    print('📝   checkInTime (ms) = ${SharedPref().getPreferenceInt('checkInTime')}');
+    print('📝   checkInRecordId = ${SharedPref().getPreferenceInt('checkInRecordId')}');
     print('📝 ===== END _persistSnapshot =====\n');
 
     // Reload the timer controller so it reflects the server's check-in time.
     try {
-      final timerController = TimerController.instance;
+      final timerController = Get.find<TimerController>();
       await timerController.reloadState();
     } catch (_) {}
 

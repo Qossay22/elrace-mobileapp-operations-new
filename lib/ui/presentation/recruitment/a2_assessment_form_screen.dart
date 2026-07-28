@@ -1,14 +1,17 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
+import 'package:el_race/core/recruitment/providers/requisition_providers.dart';
 import 'package:el_race/core/theme/hr_module_colors.dart';
 import 'package:el_race/core/theme/hr_module_layout.dart';
 import 'package:el_race/core/theme/hr_module_typography.dart';
 import 'package:el_race/core/widgets/recruitment/recruitment_gradient_scaffold.dart';
 import 'package:el_race/core/widgets/recruitment/recruitment_star_rating.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 /// A2 — Assessment form (SRD §4.4).
-class A2AssessmentFormScreen extends StatefulWidget {
+class A2AssessmentFormScreen extends ConsumerStatefulWidget {
   const A2AssessmentFormScreen({
     super.key,
     required this.candidateId,
@@ -19,10 +22,11 @@ class A2AssessmentFormScreen extends StatefulWidget {
   final String? existingAssessmentId;
 
   @override
-  State<A2AssessmentFormScreen> createState() => _A2AssessmentFormScreenState();
+  ConsumerState<A2AssessmentFormScreen> createState() =>
+      _A2AssessmentFormScreenState();
 }
 
-class _A2AssessmentFormScreenState extends State<A2AssessmentFormScreen> {
+class _A2AssessmentFormScreenState extends ConsumerState<A2AssessmentFormScreen> {
   final _formKey = GlobalKey<FormState>();
   String? _round;
   DateTime _date = DateTime.now();
@@ -87,6 +91,7 @@ class _A2AssessmentFormScreenState extends State<A2AssessmentFormScreen> {
     Fluttertoast.showToast(
       msg: draft ? 'Draft saved' : 'Assessment submitted',
     );
+    ref.invalidate(recruitmentCandidateProvider(widget.candidateId));
     Navigator.of(context).pop();
   }
 
@@ -132,8 +137,7 @@ class _A2AssessmentFormScreenState extends State<A2AssessmentFormScreen> {
             SizedBox(height: 16.th),
             Text(
               'Score the candidate',
-              style: HrModuleTypography.sectionHeading()
-                  .copyWith(fontSize: 14.tsp),
+              style: HrModuleTypography.sectionHeading().copyWith(fontSize: 14.tsp),
             ),
             RecruitmentStarInput(
               label: 'Technical knowledge *',
@@ -171,8 +175,7 @@ class _A2AssessmentFormScreenState extends State<A2AssessmentFormScreen> {
             ),
             Text(
               'Recommendation *',
-              style: HrModuleTypography.sectionHeading()
-                  .copyWith(fontSize: 14.tsp),
+              style: HrModuleTypography.sectionHeading().copyWith(fontSize: 14.tsp),
             ),
             ..._recs.map(
               (r) => RadioListTile<String>(

@@ -1,16 +1,16 @@
 import 'package:el_race/core/theme/timesheet_module_theme.dart';
 import 'package:el_race/core/widgets/timesheet/timesheet_widgets.dart';
 import 'package:el_race/report_module/data/models/folder_model.dart';
+import 'package:el_race/report_module/data/provider/reports_provider.dart';
 import 'package:el_race/report_module/data/repositories/company_repository.dart';
-import 'package:el_race/report_module/presentation/bloc/report_bloc.dart';
 import 'package:el_race/ui/presentation/timesheet/site_reports/tm_site_report_folder_screen.dart';
 import 'package:el_race/ui/presentation/timesheet/timesheet_async_state.dart';
 import 'package:el_race/ui/presentation/timesheet/widgets/tm_new_site_report_folder_sheet.dart';
 import 'package:el_race/ui/presentation/timesheet/widgets/tm_fast_network_image.dart';
 import 'package:el_race/ui/presentation/timesheet/widgets/tm_site_report_folder_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:provider/provider.dart';
 
 /// Step 1 — report folders for this project (`x_project_id`).
 class TmProjectSiteReportsTab extends StatefulWidget {
@@ -29,6 +29,7 @@ class TmProjectSiteReportsTab extends StatefulWidget {
 }
 
 class _TmProjectSiteReportsTabState extends State<TmProjectSiteReportsTab> {
+  final ReportProvider _reportProvider = ReportProvider();
   bool _loading = true;
   bool _busy = false;
   String? _error;
@@ -41,6 +42,12 @@ class _TmProjectSiteReportsTabState extends State<TmProjectSiteReportsTab> {
     _load();
   }
 
+  @override
+  void dispose() {
+    _reportProvider.dispose();
+    super.dispose();
+  }
+
   Future<void> _load() async {
     if (!mounted) return;
     setState(() {
@@ -48,11 +55,10 @@ class _TmProjectSiteReportsTabState extends State<TmProjectSiteReportsTab> {
       _error = null;
     });
     try {
-      final reportBloc = context.read<ReportBloc>();
       await CompanyRepository().getCompany();
-      await reportBloc.init(base: 'https://erp.elrace.com');
-      await reportBloc.fetchAllFolders(projectId: widget.projectId);
-      _folders = List<FolderModel>.from(reportBloc.folders);
+      await _reportProvider.init(base: 'https://erp.elrace.com');
+      _folders =
+          await _reportProvider.fetchFoldersForProject(widget.projectId);
       // Show folders immediately — do not block UI on image precache (S3 can hang).
       if (mounted) {
         setState(() => _loading = false);
@@ -80,15 +86,18 @@ class _TmProjectSiteReportsTabState extends State<TmProjectSiteReportsTab> {
   }) {
     Navigator.of(context)
         .push<void>(
-          MaterialPageRoute(
-            builder: (_) => TmSiteReportFolderScreen(
-              folder: folder,
-              projectId: widget.projectId,
-              projectName: widget.projectName,
-              entryAction: entryAction,
-            ),
+      MaterialPageRoute(
+        builder: (_) => ChangeNotifierProvider<ReportProvider>.value(
+          value: _reportProvider,
+          child: TmSiteReportFolderScreen(
+            folder: folder,
+            projectId: widget.projectId,
+            projectName: widget.projectName,
+            entryAction: entryAction,
           ),
-        )
+        ),
+      ),
+    )
         .then((_) => _load());
   }
 
@@ -101,21 +110,20 @@ class _TmProjectSiteReportsTabState extends State<TmProjectSiteReportsTab> {
 
     setState(() => _busy = true);
     try {
-      final reportBloc = context.read<ReportBloc>();
-      await reportBloc.createFolderForProject(
+      await _reportProvider.createFolderForProject(
         projectId: widget.projectId,
         title: name.trim(),
       );
-      await reportBloc.fetchAllFolders(projectId: widget.projectId);
+      await _reportProvider.fetchFoldersForProject(widget.projectId);
       FolderModel? created;
-      for (final f in reportBloc.folders) {
+      for (final f in _reportProvider.folders) {
         if (f.name.trim().toLowerCase() == name.trim().toLowerCase()) {
           created = f;
           break;
         }
       }
       created ??=
-          reportBloc.folders.isNotEmpty ? reportBloc.folders.first : null;
+          _reportProvider.folders.isNotEmpty ? _reportProvider.folders.first : null;
 
       if (!mounted || created == null) return;
       _openFolder(created, entryAction: TmFolderEntryAction.openNewReport);
@@ -253,7 +261,8 @@ class _FoldersHeader extends StatelessWidget {
             TimesheetModuleColors.primaryGradientEnd,
           ],
         ),
-        borderRadius: BorderRadius.circular(TimesheetModuleLayout.cardRadiusLg),
+        borderRadius:
+            BorderRadius.circular(TimesheetModuleLayout.cardRadiusLg),
         boxShadow: TimesheetModuleShadows.cardShadow,
       ),
       child: Column(

@@ -3,73 +3,38 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart' show kDebugMode;
 
-import 'package:el_race/core/logging/app_logger.dart';
 import 'package:el_race/core/ui/device_ui_capability.dart';
 import 'package:el_race/core/services/notification_storage_service.dart';
-import 'package:el_race/core/payslip/bloc/employee_payslip_cubit.dart';
-import 'package:el_race/core/payslip/bloc/payslip_list_cubit.dart';
-import 'package:el_race/core/payslip/bloc/payslip_detail_cubit.dart';
-import 'package:el_race/core/payslip/bloc/payslip_employee_filter_cubit.dart';
-import 'package:el_race/core/payslip/bloc/pending_payslip_cubit.dart';
-import 'package:el_race/core/hr_management/bloc/hr_effective_view_cubit.dart';
-import 'package:el_race/core/hr_management/bloc/hr_request_list_cubit.dart';
-import 'package:el_race/core/hr_management/bloc/hr_team_requests_cubit.dart';
-import 'package:el_race/core/performance/bloc/employee_performance_cubit.dart';
-import 'package:el_race/core/performance/bloc/manager_new_evaluation_cubit.dart';
-import 'package:el_race/core/performance/bloc/performance_evaluation_detail_cubit.dart';
-import 'package:el_race/core/performance/bloc/performance_evaluation_list_cubit.dart';
-import 'package:el_race/core/performance/bloc/performance_planning_cubit.dart';
-import 'package:el_race/core/recruitment/bloc/recruitment_assessment_detail_cubit.dart';
-import 'package:el_race/core/recruitment/bloc/recruitment_candidate_detail_cubit.dart';
-import 'package:el_race/core/recruitment/bloc/recruitment_candidates_cubit.dart';
-import 'package:el_race/core/recruitment/bloc/recruitment_dashboard_cubit.dart';
-import 'package:el_race/core/recruitment/bloc/recruitment_offer_detail_cubit.dart';
-import 'package:el_race/core/recruitment/bloc/recruitment_requisitions_cubit.dart';
-import 'package:el_race/core/recruitment/bloc/requisition_detail_cubit.dart';
 import 'package:el_race/core/timesheet/services/capture_queue_service.dart';
-import 'package:el_race/core/timesheet/bloc/timesheet_entry_mode_cubit.dart';
 import 'package:el_race/core/utils/app_orientations.dart';
 import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/core/security/device_security_service.dart';
 import 'package:el_race/core/services/resume_coordinator.dart';
-import 'package:el_race/core/site_management/face_recognition/face_match_session_cubit.dart';
 import 'package:el_race/chat/chat.dart';
 import 'package:el_race/data/services/hive_service.dart';
 import 'package:el_race/data/services/prayer_audio_service.dart';
 import 'package:el_race/data/services/prayer_background_service.dart';
+import 'package:el_race/providers/announcements_provider.dart';
+import 'package:el_race/providers/global_search_provider.dart';
+import 'package:el_race/providers/profile_box_provider.dart';
 import 'package:el_race/ui/presentation/call_screen/bloc/contact_bloc.dart';
 import 'package:el_race/ui/presentation/home_screen/bloc/home_bloc.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_hr_widgets_cubit.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_library_widgets_cubit.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_lpo_widget_cubit.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_notes_widget_cubit.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_petty_cash_widget_cubit.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_projects_widgets_cubit.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_slider/home_slider_bloc.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_timesheet_widget_cubit.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/profile_box/profile_box_bloc.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/profile_box/profile_box_event.dart';
 import 'package:el_race/ui/presentation/home_screen/widgets/profile_sheet_host.dart';
 import 'package:el_race/ui/presentation/media/bloc/media_bloc.dart';
 import 'package:el_race/ui/presentation/my_notes/bloc/notes_bloc.dart';
 import 'package:el_race/ui/presentation/my_request/bloc/requests_bloc.dart';
-import 'package:el_race/ui/presentation/purchase_management/bloc/invoice_receiving_detail_cubit.dart';
-import 'package:el_race/ui/presentation/purchase_management/bloc/mr_detail_cubit.dart';
-import 'package:el_race/ui/presentation/purchase_management/bloc/purchase_management_hub_cubit.dart';
 import 'package:el_race/ui/presentation/qr_code/bloc/qr_code_bloc.dart';
-import 'package:el_race/ui/presentation/qr_survey/bloc/qr_survey_bloc.dart';
-import 'package:el_race/ui/presentation/qr_survey/bloc/qr_survey_event.dart';
 import 'package:el_race/ui/presentation/signin/bloc/sign_in_bloc.dart';
 import 'package:el_race/auth/uaepass_auth_cubit.dart';
 import 'package:el_race/deep_links/uaepass_link_handler.dart';
 import 'package:el_race/ui/presentation/splash_screen/splash_screen.dart';
-import 'package:el_race/ui/presentation/todo_list/bloc/todo_bloc.dart';
+import 'package:el_race/ui/presentation/todo_list/providers/todo_firebase_provider.dart';
+import 'package:el_race/ui/presentation/qr_survey/providers/qr_survey_data_provider.dart';
 import 'package:el_race/ui/presentation/qr_survey/services/qr_survey_api_service.dart';
 import 'package:el_race/ui/presentation/qr_survey/screens/qr_code_wrapper.dart';
 import 'package:el_race/ui/presentation/tasks/data/tasks_api_service.dart';
 import 'package:el_race/ui/presentation/tasks/data/tasks_repository.dart';
-import 'package:el_race/ui/presentation/tasks/bloc/tasks_bloc.dart';
-import 'package:el_race/ui/widgets/global_search/bloc/global_search_bloc.dart';
+import 'package:el_race/ui/presentation/tasks/logic/tasks_provider.dart';
 import 'package:el_race/utils/di.dart';
 import 'package:el_race/utils/generated_routes.dart';
 import 'package:el_race/utils/orientation_helper.dart';
@@ -90,6 +55,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:app_links/app_links.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:screen_protector/screen_protector.dart';
@@ -97,8 +63,9 @@ import 'package:el_race/core/app_globals.dart';
 import 'core/services/app_config_service.dart';
 import 'core/services/attendance_status_sync_service.dart';
 import 'firebase_service.dart';
-import 'report_module/presentation/bloc/report_bloc.dart';
+import 'report_module/data/provider/reports_provider.dart';
 import 'ui/presentation/Email Approval/bloc/approval_bloc.dart';
+import 'ui/presentation/home_screen/provider/slider_provider.dart';
 
 // Background message handler - يجب أن يكون خارج main()
 @pragma('vm:entry-point')
@@ -141,8 +108,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     await NotificationStorageService.saveNotification(
       title: title.isEmpty ? 'Notification' : title,
       body: body,
-      imageUrl:
-          notification?.android?.imageUrl ?? notification?.apple?.imageUrl,
+      imageUrl: notification?.android?.imageUrl ?? notification?.apple?.imageUrl,
       data: message.data,
       category: category,
     );
@@ -438,7 +404,10 @@ Future<void> _performHeavyInitialization() async {
               const Duration(seconds: 10),
               onTimeout: () => print('⚠️ AppConfig load timeout'),
             ),
-        FirebaseService.initialize().timeout(
+        FirebaseService.initialize(
+          requestPermissions: false,
+          fetchToken: false,
+        ).timeout(
           const Duration(seconds: 10),
           onTimeout: () => print('⚠️ Firebase service init timeout'),
         ),
@@ -473,6 +442,7 @@ Future<void> _initializeNonCriticalServices() async {
 
   // Run all independent services in parallel
   await Future.wait<void>([
+    FirebaseService.completeDeferredSetup(),
     _initWorkManager(),
     _initPrayerAndCheckoutServices(),
     _initializeChatIfLoggedIn(),
@@ -574,15 +544,21 @@ Future<void> _logFcmToken() async {
     String? fcmToken = await FirebaseMessaging.instance.getToken().timeout(
       const Duration(seconds: 10),
       onTimeout: () {
-        AppLogger.warning('FCM token timeout');
+        print('⚠️ FCM token timeout');
         return null;
       },
     );
     if (fcmToken != null) {
-      AppLogger.debug('FCM token available', data: {'fcm_token': fcmToken});
+      print('');
+      print('═══════════════════════════════════════════════════════════');
+      print('🔥 FCM TOKEN :');
+      print('═══════════════════════════════════════════════════════════');
+      print(fcmToken);
+      print('═══════════════════════════════════════════════════════════');
+      print('');
     }
   } catch (e) {
-    AppLogger.warning('FCM token error', error: e);
+    print('❌ FCM token error: $e');
   }
 }
 
@@ -637,6 +613,7 @@ Future<void> _configureAppOrientations() async {
 
 /// @Deprecated — use [_configureAppOrientations]. Kept name for call sites.
 Future<void> _lockPortraitOrientation() => _configureAppOrientations();
+
 
 Future<void> _enableAndroidImmersiveMode() async {
   if (!Platform.isAndroid) return;
@@ -821,8 +798,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     );
     try {
       if (!SharedPref.isUserAuthenticated()) {
-        debugPrint(
-            '⏱️ Silent re-check: session no longer authenticated — restarting from splash');
+        debugPrint('⏱️ Silent re-check: session no longer authenticated — restarting from splash');
         _restartFromSplash();
         return;
       }
@@ -830,8 +806,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           .performSecurityCheck()
           .timeout(const Duration(seconds: 6));
       if (result.isSecure) {
-        debugPrint(
-            '⏱️ Silent security re-check passed — continuing without splash restart');
+        debugPrint('⏱️ Silent security re-check passed — continuing without splash restart');
         return;
       }
       debugPrint('⏱️ Silent security re-check FAILED — restarting from splash');
@@ -839,8 +814,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     } catch (e) {
       // Fail-open, same policy as SplashScreen's own check: a check error
       // (timeout, plugin failure) must not lock the user out.
-      debugPrint(
-          '⏱️ Silent security re-check error ($e) — fail-open, no restart');
+      debugPrint('⏱️ Silent security re-check error ($e) — fail-open, no restart');
     } finally {
       if (!isRestartingFromSplashTimeout.value) {
         _isRestartingFromTimeout = false;
@@ -889,160 +863,132 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     return ProviderScope(
       child: LocalizationProvider(
         state: LocalizationProvider.of(context).state,
-        child: MultiBlocProvider(
+        child: MultiProvider(
           providers: [
-            BlocProvider(create: (ctx) => sl<SignInBloc>()),
-            BlocProvider(create: (ctx) => TodoBloc()),
-            BlocProvider(create: (ctx) => ReportBloc()),
-            BlocProvider(
-              create: (ctx) =>
-                  TasksBloc(TasksRepository(api: TasksApiService())),
+            ChangeNotifierProvider(create: (_) => SliderProvider()),
+            ChangeNotifierProvider(create: (_) => ProfileBoxProvider()),
+            ChangeNotifierProvider(create: (_) => ReportProvider()),
+            ChangeNotifierProvider(create: (_) => TodoFirebaseProvider()),
+            ChangeNotifierProvider(create: (_) => QrSurveyDataProvider()),
+            ChangeNotifierProvider(create: (_) => AnnouncementsProvider()),
+            ChangeNotifierProvider(create: (_) => GlobalSearchProvider()),
+            ChangeNotifierProvider(
+              create: (_) =>
+                  TasksProvider(TasksRepository(api: TasksApiService())),
             ),
-            BlocProvider(create: (ctx) => sl<HomeBloc>()),
-            BlocProvider(create: (ctx) => HomeSliderBloc()),
-            BlocProvider(create: (ctx) => HomeAttendanceWidgetCubit()),
-            BlocProvider(create: (ctx) => HomeHrmsWidgetCubit()),
-            BlocProvider(create: (ctx) => HomeMyDocumentsWidgetCubit()),
-            BlocProvider(create: (ctx) => HomeMediaWidgetCubit()),
-            BlocProvider(create: (ctx) => HomeLpoWidgetCubit()),
-            BlocProvider(create: (ctx) => HrEffectiveViewCubit()),
-            BlocProvider(create: (ctx) => HrRequestListCubit()),
-            BlocProvider(create: (ctx) => HrTeamRequestsCubit()),
-            BlocProvider(create: (ctx) => HomeNotesWidgetCubit()),
-            BlocProvider(create: (ctx) => HomePettyCashWidgetCubit()),
-            BlocProvider(create: (ctx) => HomeMyProjectsWidgetCubit()),
-            BlocProvider(create: (ctx) => HomeSiteManagementWidgetCubit()),
-            BlocProvider(create: (ctx) => HomeMyReportsWidgetCubit()),
-            BlocProvider(create: (ctx) => HomeTimesheetWidgetCubit()),
-            BlocProvider(create: (ctx) => EmployeePayslipCubit()),
-            BlocProvider(create: (ctx) => PayslipDetailCubit()),
-            BlocProvider(create: (ctx) => PayslipListCubit()),
-            BlocProvider(create: (ctx) => PayslipEmployeeFilterCubit()),
-            BlocProvider(create: (ctx) => PendingPayslipCubit()),
-            BlocProvider(create: (ctx) => EmployeePerformanceCubit()),
-            BlocProvider(create: (ctx) => ManagerNewEvaluationCubit()),
-            BlocProvider(create: (ctx) => PerformanceEvaluationDetailCubit()),
-            BlocProvider(create: (ctx) => PerformanceEvaluationListCubit()),
-            BlocProvider(create: (ctx) => PerformancePlanningCubit()),
-            BlocProvider(create: (ctx) => RecruitmentAssessmentDetailCubit()),
-            BlocProvider(create: (ctx) => RecruitmentCandidateDetailCubit()),
-            BlocProvider(create: (ctx) => RecruitmentCandidatesCubit()),
-            BlocProvider(create: (ctx) => RecruitmentDashboardCubit()),
-            BlocProvider(create: (ctx) => RecruitmentOfferDetailCubit()),
-            BlocProvider(create: (ctx) => RecruitmentRequisitionsCubit()),
-            BlocProvider(create: (ctx) => RequisitionDetailCubit()),
-            BlocProvider(create: (ctx) => TimesheetEntryModeCubit()),
-            BlocProvider(create: (ctx) => FaceMatchSessionCubit()),
-            BlocProvider(create: (ctx) => ProfileBoxBloc()),
-            BlocProvider(create: (ctx) => sl<RequestsBloc>()),
-            BlocProvider(create: (ctx) => sl<ApprovalBloc>()),
-            BlocProvider(create: (ctx) => InvoiceReceivingDetailCubit()),
-            BlocProvider(create: (ctx) => MrDetailCubit()),
-            BlocProvider(create: (ctx) => PurchaseManagementHubCubit()),
-            // BlocProvider(create: (ctx) => sl<ProjectListBloc>()), // Temporarily disabled for iOS simulator
-            BlocProvider(create: (ctx) => sl<ContactBloc>()),
-            BlocProvider(create: (ctx) => sl<NotesBloc>()),
-            BlocProvider(create: (ctx) => sl<MediaBloc>()),
-            BlocProvider(create: (ctx) => QrCodeBloc()),
-            BlocProvider(create: (ctx) => QrSurveyBloc()),
-            BlocProvider(create: (ctx) => GlobalSearchBloc()),
-            BlocProvider(create: (ctx) => sl<UaepassAuthCubit>()),
           ],
-          child: ScreenUtilInit(
-            designSize: const Size(411.4, 843.4),
-            minTextAdapt: true,
-            splitScreenMode: true,
-            child: MaterialApp(
-              debugShowCheckedModeBanner: false,
-              navigatorObservers: [AppOrientations.routeObserver],
-              builder: (context, child) {
-                ScreenSizeUtil.context = context;
-                return NotificationListener<ScrollUpdateNotification>(
-                  onNotification: (notification) {
-                    if (notification.scrollDelta != null &&
-                        notification.scrollDelta! < -1) {
-                      _showAndroidSystemBarsTemporarily();
-                    }
-                    return false;
-                  },
-                  child: Listener(
-                    behavior: HitTestBehavior.translucent,
-                    onPointerMove: (event) {
-                      if (event.delta.dy < -4) {
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider(create: (ctx) => sl<SignInBloc>()),
+              BlocProvider(create: (ctx) => sl<HomeBloc>()),
+              BlocProvider(create: (ctx) => sl<RequestsBloc>()),
+              BlocProvider(create: (ctx) => sl<ApprovalBloc>()),
+              // BlocProvider(create: (ctx) => sl<ProjectListBloc>()), // Temporarily disabled for iOS simulator
+              BlocProvider(create: (ctx) => sl<ContactBloc>()),
+              BlocProvider(create: (ctx) => sl<NotesBloc>()),
+              BlocProvider(create: (ctx) => sl<MediaBloc>()),
+              BlocProvider(create: (ctx) => QrCodeBloc()),
+              BlocProvider(create: (ctx) => sl<UaepassAuthCubit>()),
+            ],
+            child: ScreenUtilInit(
+              designSize: const Size(411.4, 843.4),
+              minTextAdapt: true,
+              splitScreenMode: true,
+              child: MaterialApp(
+                debugShowCheckedModeBanner: false,
+                navigatorObservers: [AppOrientations.routeObserver],
+                builder: (context, child) {
+                  ScreenSizeUtil.context = context;
+                  return NotificationListener<ScrollUpdateNotification>(
+                    onNotification: (notification) {
+                      if (notification.scrollDelta != null &&
+                          notification.scrollDelta! < -1) {
                         _showAndroidSystemBarsTemporarily();
                       }
+                      return false;
                     },
-                    child: Stack(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            final profileBoxBloc =
-                                context.read<ProfileBoxBloc>();
-                            if (profileBoxBloc.state.isProfileVisible) {
-                              profileBoxBloc.add(const ProfileBoxHidden());
+                    child: Listener(
+                      behavior: HitTestBehavior.translucent,
+                      onPointerMove: (event) {
+                        if (event.delta.dy < -4) {
+                          _showAndroidSystemBarsTemporarily();
+                        }
+                      },
+                      child: Stack(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              final profileBoxProvider =
+                                  Provider.of<ProfileBoxProvider>(context,
+                                      listen: false);
+                              if (profileBoxProvider.isProfileVisible) {
+                                profileBoxProvider.hideProfileBox();
 
-                              /// Close the profile box
-                            }
-                          },
-                          child: child!,
-                        ),
-                        Theme(
-                          data: ThemeData(
-                            colorScheme: ColorScheme.fromSeed(
-                                seedColor: Colors.deepPurple),
-                            useMaterial3: true,
-                            fontFamily: GoogleFonts.poppins().fontFamily,
-                            textTheme:
-                                GoogleFonts.poppinsTextTheme(const TextTheme(
-                              displayLarge: TextStyle(
-                                  fontSize: 28, fontWeight: FontWeight.w700),
-                              titleMedium: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.w600),
-                              bodyMedium: TextStyle(fontSize: 14),
-                            )),
+                                /// Close the profile box
+                              }
+                            },
+                            child: child!,
                           ),
-                          child: const ProfileBoxWithSlideAnimation(),
-                        ),
-                      ],
+                          Theme(
+                            data: ThemeData(
+                              colorScheme: ColorScheme.fromSeed(
+                                  seedColor: Colors.deepPurple),
+                              useMaterial3: true,
+                              fontFamily: GoogleFonts.poppins().fontFamily,
+                              textTheme:
+                                  GoogleFonts.poppinsTextTheme(const TextTheme(
+                                displayLarge: TextStyle(
+                                    fontSize: 28, fontWeight: FontWeight.w700),
+                                titleMedium: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w600),
+                                bodyMedium: TextStyle(fontSize: 14),
+                              )),
+                            ),
+                            child: const ProfileBoxWithSlideAnimation(),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
-              navigatorKey: navKey,
-              title: 'El Race',
-              theme: ThemeData(
-                colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-                useMaterial3: true,
-                fontFamily: GoogleFonts.poppins().fontFamily,
-                pageTransitionsTheme: DeviceUiCapability.isLowEnd
-                    ? const PageTransitionsTheme(
-                        builders: {
-                          TargetPlatform.android:
-                              FadeUpwardsPageTransitionsBuilder(),
-                          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-                        },
-                      )
-                    : null,
-                textTheme: GoogleFonts.poppinsTextTheme(const TextTheme(
-                  displayLarge:
-                      TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
-                  titleMedium:
-                      TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  bodyMedium: TextStyle(fontSize: 14),
-                )),
+                  );
+                },
+                navigatorKey: navKey,
+                title: 'El Race',
+                theme: ThemeData(
+                  colorScheme:
+                      ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+                  useMaterial3: true,
+                  fontFamily: GoogleFonts.poppins().fontFamily,
+                  pageTransitionsTheme: DeviceUiCapability.isLowEnd
+                      ? const PageTransitionsTheme(
+                          builders: {
+                            TargetPlatform.android:
+                                FadeUpwardsPageTransitionsBuilder(),
+                            TargetPlatform.iOS:
+                                CupertinoPageTransitionsBuilder(),
+                          },
+                        )
+                      : null,
+                  textTheme: GoogleFonts.poppinsTextTheme(const TextTheme(
+                    displayLarge:
+                        TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
+                    titleMedium:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    bodyMedium: TextStyle(fontSize: 14),
+                  )),
+                ),
+                localizationsDelegates: [
+                  localizationDelegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                supportedLocales: localizationDelegate.supportedLocales,
+                locale: SharedPref().isArabic()
+                    ? localizationDelegate.supportedLocales.last
+                    : localizationDelegate.supportedLocales.first,
+                onGenerateRoute: onGeneratedRoutes.generatedRoutes,
+                home: const SplashScreen(),
               ),
-              localizationsDelegates: [
-                localizationDelegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: localizationDelegate.supportedLocales,
-              locale: SharedPref().isArabic()
-                  ? localizationDelegate.supportedLocales.last
-                  : localizationDelegate.supportedLocales.first,
-              onGenerateRoute: onGeneratedRoutes.generatedRoutes,
-              home: const SplashScreen(),
             ),
           ),
         ),
@@ -1155,12 +1101,9 @@ void _handleDeepLink(Uri uri, BuildContext context) async {
 
         // Store in provider with QR code flag
         final effectiveContext = navKey.currentContext ?? context;
-        effectiveContext.read<QrSurveyBloc>().add(
-              QrSurveyContentSet(
-                contentData: content,
-                fromQrCode: true,
-              ),
-            );
+        final provider =
+            Provider.of<QrSurveyDataProvider>(effectiveContext, listen: false);
+        provider.setContentData(content, fromQrCode: true);
         print('✅ Content stored in provider (from QR code)');
 
         // Check if user is logged in

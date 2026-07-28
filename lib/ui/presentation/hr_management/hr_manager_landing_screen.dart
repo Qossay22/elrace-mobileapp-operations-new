@@ -1,12 +1,10 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
 import 'dart:math';
 
-import 'package:el_race/core/hr_management/bloc/hr_effective_view_cubit.dart';
-import 'package:el_race/core/hr_management/bloc/hr_team_requests_cubit.dart';
 import 'package:el_race/core/hr_management/models/hr_request_type_option.dart';
 import 'package:el_race/core/hr_management/hr_effective_view.dart';
 import 'package:el_race/core/hr_management/models/hr_request_summary.dart';
-import 'package:el_race/core/hr_management/network/hr_api_client_factory.dart';
+import 'package:el_race/core/hr_management/providers/hr_management_providers.dart';
 import 'package:el_race/core/theme/hr_module_colors.dart';
 import 'package:el_race/core/theme/hr_module_layout.dart';
 import 'package:el_race/core/theme/hr_module_typography.dart';
@@ -22,22 +20,25 @@ import 'package:el_race/ui/presentation/hr_management/hr_personal_request_list_c
 import 'package:el_race/core/hr_management/hr_request_navigation.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 enum _TeamSort { newest, oldest, byStatus, byType }
 
 /// M1 — Manager / HR manager landing (SRD §4.1).
-class HrManagerLandingScreen extends StatefulWidget {
+class HrManagerLandingScreen extends ConsumerStatefulWidget {
   const HrManagerLandingScreen({super.key});
 
   @override
-  State<HrManagerLandingScreen> createState() => _HrManagerLandingScreenState();
+  ConsumerState<HrManagerLandingScreen> createState() =>
+      _HrManagerLandingScreenState();
 }
 
-class _HrManagerLandingScreenState extends State<HrManagerLandingScreen>
+class _HrManagerLandingScreenState
+    extends ConsumerState<HrManagerLandingScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
-  final _client = createHrApiClient();
 
   String _teamFilterId = 'all';
   String _teamSearchQuery = '';
@@ -63,7 +64,6 @@ class _HrManagerLandingScreenState extends State<HrManagerLandingScreen>
       if (mounted) setState(() {});
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<HrTeamRequestsCubit>().load();
       _loadRequestTypes();
       _loadQueue();
     });
@@ -71,14 +71,14 @@ class _HrManagerLandingScreenState extends State<HrManagerLandingScreen>
 
   Future<void> _loadRequestTypes() async {
     try {
-      final env = await _client.fetchRequestTypes();
+      final client = ref.read(hrApiClientProvider);
+      final env = await client.fetchRequestTypes();
       if (!mounted || !env.success || env.data == null) return;
       final types = env.data!
           .map(HrRequestTypeOption.fromJson)
           .where((t) => t.label.isNotEmpty)
           .toList()
-        ..sort(
-            (a, b) => a.label.toLowerCase().compareTo(b.label.toLowerCase()));
+        ..sort((a, b) => a.label.toLowerCase().compareTo(b.label.toLowerCase()));
       setState(() => _requestTypes = types);
     } catch (_) {}
   }
@@ -96,8 +96,9 @@ class _HrManagerLandingScreenState extends State<HrManagerLandingScreen>
       });
     }
     try {
+      final client = ref.read(hrApiClientProvider);
       final offset = append ? _queueRaw.length : 0;
-      final env = await _client.fetchTeamRequests(
+      final env = await client.fetchTeamRequests(
         keyword: _teamSearchQuery,
         department: _teamDeptFilter,
         type: _teamTypeFilter,
@@ -204,6 +205,16 @@ class _HrManagerLandingScreenState extends State<HrManagerLandingScreen>
       _TeamSort.oldest => 'Oldest',
       _TeamSort.byStatus => 'By status',
       _TeamSort.byType => 'By type',
+    };
+  }
+
+  Map<String, int> _teamKpis(List<HrRequestSummary> team) {
+    int c(String status) =>
+        team.where((e) => e.uiStatus.toUpperCase() == status).length;
+    return {
+      'pending': c('PENDING'),
+      'approved': c('APPROVED'),
+      'total': team.length,
     };
   }
 
@@ -396,8 +407,8 @@ class _HrManagerLandingScreenState extends State<HrManagerLandingScreen>
 
   @override
   Widget build(BuildContext context) {
-    final effective = context.watch<HrEffectiveViewCubit>().state.view;
-    final teamState = context.watch<HrTeamRequestsCubit>().state;
+    final effective = ref.watch(hrEffectiveViewProvider);
+    final teamAsync = ref.watch(hrTeamRequestListProvider);
 
     return HrRequestsGradientScaffold(
       floatingActionButton: _tabController.index == 1
@@ -416,9 +427,9 @@ class _HrManagerLandingScreenState extends State<HrManagerLandingScreen>
               label: Text(
                 'New request',
                 style: HrModuleTypography.button().copyWith(
-                  fontSize: 14.tsp,
-                  color: Colors.white,
-                ),
+                      fontSize: 14.tsp,
+                      color: Colors.white,
+                    ),
               ),
             )
           : null,
@@ -439,64 +450,70 @@ class _HrManagerLandingScreenState extends State<HrManagerLandingScreen>
                   Expanded(
                     child: Column(
                       children: [
-                        if (teamState.isLoading && teamState.items.isEmpty)
-                          _teamKpiRow(
-                            pending: '...',
-                            approved: '...',
-                            total: '...',
-                          )
-                        else if (teamState.error != null &&
-                            teamState.items.isEmpty)
-                          const SizedBox.shrink()
-                        else
-                          _teamKpiRow(
-                            pending: '${teamState.kpis['pending'] ?? 0}',
-                            approved: '${teamState.kpis['approved'] ?? 0}',
-                            total: '${teamState.kpis['total'] ?? 0}',
+                      ref.watch(hrTeamKpisProvider).when(
+                        loading: () => _teamKpiRow(
+                          pending: '…',
+                          approved: '…',
+                          total: '…',
+                        ),
+                        error: (_, __) => teamAsync.when(
+                          loading: () => _teamKpiRow(
+                            pending: '…',
+                            approved: '…',
+                            total: '…',
                           ),
-                        HrPillTabBar(
+                          error: (_, __) => const SizedBox.shrink(),
+                          data: (team) {
+                            final k = _teamKpis(team);
+                            return _teamKpiRow(
+                              pending: '${k['pending']}',
+                              approved: '${k['approved']}',
+                              total: '${k['total']}',
+                            );
+                          },
+                        ),
+                        data: (k) => _teamKpiRow(
+                          pending: '${k['pending']}',
+                          approved: '${k['approved']}',
+                          total: '${k['total']}',
+                        ),
+                      ),
+                      HrPillTabBar(
+                        controller: _tabController,
+                        tabs: const ['All requests', 'My requests'],
+                      ),
+                      Expanded(
+                        child: TabBarView(
                           controller: _tabController,
-                          tabs: const ['All requests', 'My requests'],
-                        ),
-                        Expanded(
-                          child: TabBarView(
-                            controller: _tabController,
-                            children: [
-                              if (teamState.isLoading &&
-                                  teamState.items.isEmpty)
-                                const Center(
-                                  child: CircularProgressIndicator(),
-                                )
-                              else if (teamState.error != null &&
-                                  teamState.items.isEmpty)
-                                Center(child: Text(teamState.error!))
-                              else
-                                _buildTeamTab(
-                                  context,
-                                  teamState.items,
-                                  effective,
-                                ),
-                              HrPersonalRequestListContent(
-                                searchHint:
-                                    'Search my requests — reference or type',
-                                onOpenDetail: (e) {
-                                  openHrRequestDetail(
-                                    context,
-                                    e,
-                                    managerContext: false,
-                                  );
-                                },
-                                bottomInset: 100,
+                          children: [
+                            teamAsync.when(
+                              loading: () => const Center(
+                                child: CircularProgressIndicator(),
                               ),
-                            ],
-                          ),
+                              error: (e, _) => Center(child: Text('$e')),
+                              data: (team) => _buildTeamTab(context, team, effective),
+                            ),
+                            HrPersonalRequestListContent(
+                              searchHint:
+                                  'Search my requests — reference or type',
+                              onOpenDetail: (e) {
+                                openHrRequestDetail(
+                                  context,
+                                  e,
+                                  managerContext: false,
+                                );
+                              },
+                              bottomInset: 100,
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
             ),
+          ],
+        ),
+      ),
           ),
         ],
       ),
@@ -523,7 +540,7 @@ class _HrManagerLandingScreenState extends State<HrManagerLandingScreen>
 
     return RefreshIndicator(
       onRefresh: () async {
-        await context.read<HrTeamRequestsCubit>().refresh();
+        await ref.read(hrTeamRequestListProvider.notifier).refresh();
         await _loadQueue();
       },
       child: ListView(
@@ -566,11 +583,11 @@ class _HrManagerLandingScreenState extends State<HrManagerLandingScreen>
                 child: Text(
                   'Queue',
                   style: HrModuleTypography.sectionHeading().copyWith(
-                    fontSize: 16.tsp,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.3,
-                    color: HrModuleColors.text,
-                  ),
+                        fontSize: 16.tsp,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.3,
+                        color: HrModuleColors.text,
+                      ),
                 ),
               ),
               SizedBox(width: 130.tw, child: _sortPicker()),
@@ -613,8 +630,7 @@ class _HrManagerLandingScreenState extends State<HrManagerLandingScreen>
                   e.relativeSubmittedLabel,
               ].join(' · ');
               return Padding(
-                padding:
-                    EdgeInsets.only(bottom: HrModuleLayout.cardSpacingV.th),
+                padding: EdgeInsets.only(bottom: HrModuleLayout.cardSpacingV.th),
                 child: HrRequestCard(
                   showEmployeeHeader: true,
                   employeeName: e.employeeName,
@@ -643,8 +659,7 @@ class _HrManagerLandingScreenState extends State<HrManagerLandingScreen>
                       height: 24.tw,
                       child: const CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Icon(Icons.expand_more,
-                      color: HrModuleColors.primary),
+                  : Icon(Icons.expand_more, color: HrModuleColors.primary),
               title: Text(
                 _queueLoadingMore ? 'Loading…' : 'See more',
                 style: HrModuleTypography.body().copyWith(
@@ -653,7 +668,9 @@ class _HrManagerLandingScreenState extends State<HrManagerLandingScreen>
                   color: HrModuleColors.primary,
                 ),
               ),
-              onTap: _queueLoadingMore ? null : () => _loadQueue(append: true),
+              onTap: _queueLoadingMore
+                  ? null
+                  : () => _loadQueue(append: true),
             ),
         ],
       ),

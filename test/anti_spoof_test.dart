@@ -433,8 +433,8 @@ void main() {
       test('Combined photo attack should be REJECTED', () {
         // Typical photo attack characteristics
         final photoFace = MockFace(
-          leftEyeOpenProbability: 1.0,
-          rightEyeOpenProbability: 1.0,
+          leftEyeOpenProbability: 0.95,
+          rightEyeOpenProbability: 0.95,
           headEulerAngleY: 0.0,
           headEulerAngleZ: 0.0,
         );
@@ -443,7 +443,7 @@ void main() {
         final liveness = checkLiveness(photoFace);
 
         // Combined check: BOTH must pass
-        final isVerified = score >= 0.5 && liveness;
+        final isVerified = score >= 0.7 && liveness;
 
         print('🧪 Combined photo attack check:');
         print('   Score: ${(score * 100).toInt()}%');
@@ -467,7 +467,7 @@ void main() {
         final liveness = checkLiveness(realFace);
 
         // Combined check: BOTH must pass
-        final isVerified = score >= 0.5 && liveness;
+        final isVerified = score >= 0.7 && liveness;
 
         print('🧪 Combined real face check:');
         print('   Score: ${(score * 100).toInt()}%');

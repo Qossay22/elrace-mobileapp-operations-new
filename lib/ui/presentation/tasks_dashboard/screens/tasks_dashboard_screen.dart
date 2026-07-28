@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:el_race/ui/presentation/my_reports/screens/my_reports_hub_screen.dart';
 import 'package:el_race/ui/presentation/productivity/widgets/productivity_screen_shell.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import 'dart:math' as Math;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,7 +10,7 @@ import 'package:el_race/utils/color_utils.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:el_race/ui/presentation/tasks_dashboard/screens/add_task.dart';
 import 'package:el_race/ui/presentation/tasks_dashboard/screens/task_details.dart';
-import 'package:el_race/ui/presentation/todo_list/bloc/todo_bloc.dart';
+import 'package:el_race/ui/presentation/todo_list/providers/todo_firebase_provider.dart';
 import 'package:el_race/ui/presentation/todo_list/data/todo_model.dart';
 import 'package:el_race/ui/presentation/todo_list/services/team_members_api_service.dart';
 
@@ -42,7 +42,7 @@ class _TasksDashboardScreenState extends State<TasksDashboardScreen> {
 
     // Load tasks from Firebase
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TodoBloc>().loadTodos();
+      context.read<TodoFirebaseProvider>().loadTodos();
       _loadMemberPhotos();
     });
   }
@@ -52,8 +52,7 @@ class _TasksDashboardScreenState extends State<TasksDashboardScreen> {
     setState(() => _isLoadingMemberPhotos = true);
 
     try {
-      final members = await TeamMembersApiService.instance
-          .getTeamMembers(forceRefresh: true);
+      final members = await TeamMembersApiService.instance.getTeamMembers(forceRefresh: true);
       final map = <int, String>{};
       final memberMap = <int, TeamMember>{};
       for (final m in members) {
@@ -96,10 +95,10 @@ class _TasksDashboardScreenState extends State<TasksDashboardScreen> {
   }
 
   String _memberDisplayName(String rawName) {
-    final cleaned =
-        rawName.replaceFirst(RegExp(r'^\s*\d+\s*[-:|#]*\s*'), '').trim();
-    final parts =
-        cleaned.split(RegExp(r'\s+')).where((e) => e.isNotEmpty).toList();
+    final cleaned = rawName
+        .replaceFirst(RegExp(r'^\s*\d+\s*[-:|#]*\s*'), '')
+        .trim();
+    final parts = cleaned.split(RegExp(r'\s+')).where((e) => e.isNotEmpty).toList();
     if (parts.isEmpty) return rawName.trim();
     if (parts.length == 1) return parts.first;
     return '${parts[0]} ${parts[1]}';
@@ -108,8 +107,7 @@ class _TasksDashboardScreenState extends State<TasksDashboardScreen> {
   Widget _buildAvatarForName(String name, {double size = 42}) {
     final url = _photoUrlForDisplayName(name);
     final displayName = _memberDisplayName(name);
-    final initials =
-        displayName.isNotEmpty ? displayName[0].toUpperCase() : 'U';
+    final initials = displayName.isNotEmpty ? displayName[0].toUpperCase() : 'U';
 
     if (url != null && url.isNotEmpty) {
       return Container(
@@ -169,10 +167,13 @@ class _TasksDashboardScreenState extends State<TasksDashboardScreen> {
       case TaskFilter.completed:
         return todos.where((t) => t.isCompleted).toList();
       case TaskFilter.open:
-        return todos.where((t) => !t.isCompleted && t.progress == 0).toList();
+        return todos
+            .where((t) => !t.isCompleted && t.progress == 0)
+            .toList();
       case TaskFilter.inProgress:
         return todos
-            .where((t) => !t.isCompleted && t.progress > 0 && t.progress < 1)
+            .where((t) =>
+                !t.isCompleted && t.progress > 0 && t.progress < 1)
             .toList();
     }
   }
@@ -181,9 +182,8 @@ class _TasksDashboardScreenState extends State<TasksDashboardScreen> {
   Widget build(BuildContext context) {
     return ProductivityScreenShell(
       title: 'Task Management',
-      body: BlocBuilder<TodoBloc, TodoState>(
-        builder: (context, state) {
-          final provider = context.read<TodoBloc>();
+      body: Consumer<TodoFirebaseProvider>(
+        builder: (context, provider, child) {
           final allTodos = provider.todos;
           final filteredTodos = _filterTodos(allTodos);
 
@@ -771,18 +771,17 @@ class _TaskCardState extends State<_TaskCard> {
                           const SizedBox(height: 8),
                           Builder(
                             builder: (context) {
-                              final names = (widget.todo.assignedMembers !=
-                                          null &&
-                                      widget.todo.assignedMembers!.isNotEmpty)
-                                  ? widget.todo.assignedMembers!
-                                      .map((member) => member.name.trim())
-                                      .where((name) => name.isNotEmpty)
-                                      .toList()
-                                  : (widget.todo.assignedToName ?? '')
-                                      .split(',')
-                                      .map((e) => e.trim())
-                                      .where((e) => e.isNotEmpty)
-                                      .toList();
+                              final names = (widget.todo.assignedMembers != null &&
+                                  widget.todo.assignedMembers!.isNotEmpty)
+                                ? widget.todo.assignedMembers!
+                                  .map((member) => member.name.trim())
+                                  .where((name) => name.isNotEmpty)
+                                  .toList()
+                                : (widget.todo.assignedToName ?? '')
+                                  .split(',')
+                                  .map((e) => e.trim())
+                                  .where((e) => e.isNotEmpty)
+                                  .toList();
 
                               if (names.isEmpty) {
                                 return Row(
@@ -804,69 +803,62 @@ class _TaskCardState extends State<_TaskCard> {
 
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: names.map(
-                                  (name) {
-                                    final displayName =
-                                        widget.memberDisplayName(name);
-                                    final member =
-                                        widget.memberForDisplayName(name);
-                                    final department =
-                                        member?.department?.trim();
+                                children: names
+                                    .map(
+                                      (name) {
+                                        final displayName = widget.memberDisplayName(name);
+                                        final member = widget.memberForDisplayName(name);
+                                        final department = member?.department?.trim();
 
-                                    return Padding(
-                                      padding: const EdgeInsets.only(bottom: 6),
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          widget.buildAvatar(name, size: 36),
-                                          const SizedBox(width: 8),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  displayName,
-                                                  maxLines: null,
-                                                  overflow:
-                                                      TextOverflow.visible,
-                                                  style: const TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w700,
-                                                  ),
-                                                ),
-                                                if (department != null &&
-                                                    department.isNotEmpty)
-                                                  Text(
-                                                    department,
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: const TextStyle(
-                                                      fontSize: 11,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      color: Color(0xFF9AA3AE),
+                                        return Padding(
+                                          padding:
+                                              const EdgeInsets.only(bottom: 6),
+                                          child: Row(
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              widget.buildAvatar(name, size: 36),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      displayName,
+                                                      maxLines: null,
+                                                      overflow: TextOverflow.visible,
+                                                      style: const TextStyle(
+                                                        fontSize: 14,
+                                                        fontWeight: FontWeight.w700,
+                                                      ),
                                                     ),
-                                                  ),
-                                              ],
-                                            ),
+                                                    if (department != null && department.isNotEmpty)
+                                                      Text(
+                                                        department,
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow.ellipsis,
+                                                        style: const TextStyle(
+                                                          fontSize: 11,
+                                                          fontWeight: FontWeight.w600,
+                                                          color: Color(0xFF9AA3AE),
+                                                        ),
+                                                      ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                ).toList(),
+                                        );
+                                      },
+                                    )
+                                    .toList(),
                               );
                             },
                           ),
                           if (widget.todo.listId != null)
                             Padding(
                               padding: const EdgeInsets.only(left: 44, top: 4),
-                              child: BlocBuilder<TodoBloc, TodoState>(
-                                builder: (context, state) {
-                                  final provider = context.read<TodoBloc>();
+                              child: Consumer<TodoFirebaseProvider>(
+                                builder: (context, provider, _) {
                                   final list = provider.todoLists.firstWhere(
                                     (l) => l.firebaseId == widget.todo.listId,
                                     orElse: () => provider.todoLists.isNotEmpty
@@ -1141,8 +1133,8 @@ class AddTaskButton extends StatelessWidget {
         );
 
         if (created == true && context.mounted) {
-          await context.read<TodoBloc>().loadTodos();
-          await context.read<TodoBloc>().refreshCounts();
+          await context.read<TodoFirebaseProvider>().loadTodos();
+          await context.read<TodoFirebaseProvider>().refreshCounts();
         }
       },
       child: Container(

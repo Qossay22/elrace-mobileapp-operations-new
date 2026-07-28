@@ -1,138 +1,133 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
-import 'package:el_race/core/purchase/purchase_access.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_lpo_widget_cubit.dart';
+import 'package:el_race/ui/presentation/home_screen/providers/home_lpo_widget_provider.dart';
 import 'package:el_race/ui/presentation/home_screen/widgets/category_widget_gradient_border.dart';
+import 'package:el_race/ui/presentation/purchase_management/providers/purchase_providers.dart';
 import 'package:el_race/ui/presentation/purchase_management/screens/purchase_management_hub_screen.dart';
-import 'package:el_race/ui/presentation/signin/data/model.dart';
 import 'package:el_race/utils/Util.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// v7 Purchase category — LPO full-width card.
-class PurchaseCategoryLpoCard extends StatelessWidget {
+class PurchaseCategoryLpoCard extends ConsumerWidget {
   const PurchaseCategoryLpoCard({super.key, this.tabletCompact = false});
 
   final bool tabletCompact;
 
   @override
-  Widget build(BuildContext context) {
-    final purchaseAccess = purchaseAccessFromLoginPref();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final data = ref.watch(homeLpoWidgetProvider);
+    final purchaseAccess = ref.watch(purchaseAccessProvider);
 
-    return BlocBuilder<HomeLpoWidgetCubit, LpoWidgetRecord>(
-      builder: (context, data) {
-        if (!data.isAuthorized && !purchaseAccess.hasAnyAccess) {
-          return const _LpoUnauthorizedCard();
-        }
+    if (!data.isAuthorized && !purchaseAccess.hasAnyAccess) {
+      return const _LpoUnauthorizedCard();
+    }
 
-        final title = data.titleLine.isNotEmpty
-            ? data.titleLine
-            : (data.monthLabel.isNotEmpty ? 'LPO · ${data.monthLabel}' : 'LPO');
+    final title = data.titleLine.isNotEmpty
+        ? data.titleLine
+        : (data.monthLabel.isNotEmpty ? 'LPO · ${data.monthLabel}' : 'LPO');
 
-        return _LpoFullCardShell(
-          height: null,
-          onTap: () =>
-              Util.pushPage(const PurchaseManagementHubScreen(), context),
-          iconBadge: const _LpoIconBadge(),
-          pattern: Stack(
-            clipBehavior: Clip.hardEdge,
-            children: [
-              Positioned(
-                right: -28.w,
-                bottom: -32.uh,
-                child: Container(
-                  width: 178.w,
-                  height: 178.w,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        const Color(0xFF7DB3E8).withValues(alpha: 0.44),
-                        const Color(0xFF7DB3E8).withValues(alpha: 0.14),
-                        Colors.transparent,
-                      ],
-                      stops: const [0.0, 0.45, 1.0],
-                    ),
-                  ),
-                ),
-              ),
-              Positioned.fill(
-                child: CustomPaint(painter: _LpoDiagonalBeamsPainter()),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'PURCHASE MANAGEMENT',
-                style: GoogleFonts.poppins(
-                  fontSize: 8.usp,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF7DB3E8),
-                  letterSpacing: 0.55,
-                  height: 1.1,
-                ),
-              ),
-              SizedBox(height: 3.uh),
-              Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.poppins(
-                  fontSize: 14.usp,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                  height: 1.1,
-                ),
-              ),
-              SizedBox(height: 8.uh),
-              IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _LpoStatColumn(
-                      label: 'Total',
-                      value: '${data.pendingCount + data.approvedCount}',
-                      valueColor: Colors.white,
-                      valueFontSize: 26.usp,
-                    ),
-                    const _LpoStatDivider(),
-                    _LpoStatColumn(
-                      label: 'Open',
-                      value: data.pendingLabel,
-                      valueColor: const Color(0xFFF59E0D),
-                      valueFontSize: 26.usp,
-                    ),
-                    const _LpoStatDivider(),
-                    _LpoStatColumn(
-                      label: 'Closed',
-                      value: data.approvedLabel,
-                      valueColor: const Color(0xFF4ADE80),
-                      valueFontSize: 26.usp,
-                    ),
+    return _LpoFullCardShell(
+      height: null,
+      onTap: () => Util.pushPage(const PurchaseManagementHubScreen(), context),
+      iconBadge: const _LpoIconBadge(),
+      pattern: Stack(
+        clipBehavior: Clip.hardEdge,
+        children: [
+          Positioned(
+            right: -28.w,
+            bottom: -32.uh,
+            child: Container(
+              width: 178.w,
+              height: 178.w,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    const Color(0xFF7DB3E8).withValues(alpha: 0.44),
+                    const Color(0xFF7DB3E8).withValues(alpha: 0.14),
+                    Colors.transparent,
                   ],
+                  stops: const [0.0, 0.45, 1.0],
                 ),
               ),
-              SizedBox(height: 6.uh),
-              if (data.trendLabel.isNotEmpty)
-                Text(
-                  data.trendLabel,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.poppins(
-                    fontSize: 10.usp,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF7FC0FF),
-                    height: 1.15,
-                  ),
-                ),
-            ],
+            ),
           ),
-        );
-      },
+          Positioned.fill(
+            child: CustomPaint(painter: _LpoDiagonalBeamsPainter()),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'PURCHASE MANAGEMENT',
+            style: GoogleFonts.poppins(
+              fontSize: 8.usp,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF7DB3E8),
+              letterSpacing: 0.55,
+              height: 1.1,
+            ),
+          ),
+          SizedBox(height: 3.uh),
+          Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.poppins(
+              fontSize: 14.usp,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+              height: 1.1,
+            ),
+          ),
+          SizedBox(height: 8.uh),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _LpoStatColumn(
+                  label: 'Total',
+                  value: '${data.pendingCount + data.approvedCount}',
+                  valueColor: Colors.white,
+                  valueFontSize: 26.usp,
+                ),
+                const _LpoStatDivider(),
+                _LpoStatColumn(
+                  label: 'Open',
+                  value: data.pendingLabel,
+                  valueColor: const Color(0xFFF59E0D),
+                  valueFontSize: 26.usp,
+                ),
+                const _LpoStatDivider(),
+                _LpoStatColumn(
+                  label: 'Closed',
+                  value: data.approvedLabel,
+                  valueColor: const Color(0xFF4ADE80),
+                  valueFontSize: 26.usp,
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 6.uh),
+          if (data.trendLabel.isNotEmpty)
+            Text(
+              data.trendLabel,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.poppins(
+                fontSize: 10.usp,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF7FC0FF),
+                height: 1.15,
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -209,8 +204,8 @@ class _LpoFullCardShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final innerRadius = (22.ur - CategoryWidgetGradientBorder.width)
-        .clamp(0.0, double.infinity);
+    final innerRadius =
+        (22.ur - CategoryWidgetGradientBorder.width).clamp(0.0, double.infinity);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -299,8 +294,7 @@ class _LpoIconBadge extends StatelessWidget {
           ),
         ],
       ),
-      child:
-          Icon(Icons.receipt_long_rounded, size: 18.usp, color: Colors.white),
+      child: Icon(Icons.receipt_long_rounded, size: 18.usp, color: Colors.white),
     );
   }
 }

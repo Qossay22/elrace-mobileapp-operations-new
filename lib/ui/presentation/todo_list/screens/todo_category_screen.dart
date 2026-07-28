@@ -1,13 +1,13 @@
-import 'package:el_race/ui/presentation/todo_list/bloc/todo_bloc.dart';
+import 'package:el_race/ui/presentation/todo_list/providers/todo_firebase_provider.dart';
 import 'package:el_race/ui/presentation/todo_list/widgets/add_todo_bottom_sheet.dart';
 import 'package:el_race/ui/presentation/todo_list/widgets/todo_item_widget.dart';
 import 'package:el_race/ui/widgets/header_widget.dart';
 import 'package:el_race/utils/color_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class TodoCategoryScreen extends StatefulWidget {
   final TodoFilter filter;
@@ -30,7 +30,9 @@ class _TodoCategoryScreenState extends State<TodoCategoryScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TodoBloc>().setFilter(widget.filter, listId: widget.listId);
+      context
+          .read<TodoFirebaseProvider>()
+          .setFilter(widget.filter, listId: widget.listId);
     });
   }
 
@@ -65,9 +67,8 @@ class _TodoCategoryScreenState extends State<TodoCategoryScreen> {
           const SizedBox(height: 16),
           // Todos List
           Expanded(
-            child: BlocBuilder<TodoBloc, TodoState>(
-              builder: (context, state) {
-                final provider = context.read<TodoBloc>();
+            child: Consumer<TodoFirebaseProvider>(
+              builder: (context, provider, child) {
                 if (provider.isLoading) {
                   return const Center(
                     child: CircularProgressIndicator(
@@ -181,9 +182,8 @@ class _TodoCategoryScreenState extends State<TodoCategoryScreen> {
             overflow: TextOverflow.visible,
           ),
         ),
-        BlocBuilder<TodoBloc, TodoState>(
-          builder: (context, state) {
-            final provider = context.read<TodoBloc>();
+        Consumer<TodoFirebaseProvider>(
+          builder: (context, provider, child) {
             final count = provider.todos.where((t) => !t.isCompleted).length;
             if (count == 0) return const SizedBox.shrink();
             return Container(

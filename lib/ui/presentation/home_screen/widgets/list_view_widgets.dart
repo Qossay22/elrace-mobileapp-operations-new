@@ -30,7 +30,7 @@ import 'package:el_race/ui/presentation/media/screens/media_list_screen.dart';
 import 'package:el_race/ui/presentation/my_documents/screens/my_documents_screen.dart';
 import 'package:el_race/ui/presentation/my_notes/screens/my_notes_screen.dart';
 import 'package:el_race/ui/presentation/my_projects/presentation/screens/my_project.dart';
-import 'package:el_race/ui/presentation/tasks/bloc/tasks_bloc.dart';
+import 'package:el_race/ui/presentation/tasks/logic/tasks_provider.dart';
 import 'package:el_race/ui/presentation/tasks_dashboard/screens/tasks_dashboard_screen.dart';
 import 'package:el_race/ui/presentation/my_projects/presentation/utils/projects_coming_soon.dart';
 import 'package:el_race/core/timesheet/routing/timesheet_route_names.dart';
@@ -45,6 +45,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 import '../bloc/home_bloc.dart';
 
@@ -55,10 +56,8 @@ import '../bloc/home_bloc.dart';
 enum HomeTabletWidgetsPane {
   /// HR + Projects + Clients/Vendors
   section3,
-
   /// Purchase + Productivity + Finance + Library + Coming Soon
   section2,
-
   /// Full categorized list (phone / single-column)
   all,
 }
@@ -315,9 +314,8 @@ class _ListViewWidgetsState extends State<ListViewWidgets> {
   }
 
   Widget _buildTodoListWidget({bool isReorderMode = false}) {
-    return BlocBuilder<TasksBloc, TasksState>(
-      builder: (context, state) {
-        final tasksProvider = context.read<TasksBloc>();
+    return Consumer<TasksProvider>(
+      builder: (context, tasksProvider, child) {
         if (tasksProvider.status == TasksStatus.initial) {
           Future.microtask(() => tasksProvider.loadTasks());
         }
@@ -880,7 +878,8 @@ class _ListViewWidgetsState extends State<ListViewWidgets> {
 
   /// Phone keeps side-by-side rows; tablet columns scale phone-designed cards
   /// into the narrow pane without ScreenUtil overflow.
-  bool get _isTabletPane => widget.tabletPane != HomeTabletWidgetsPane.all;
+  bool get _isTabletPane =>
+      widget.tabletPane != HomeTabletWidgetsPane.all;
 
   static const double _halfDesignWidth = 175;
   static const double _fullDesignWidth = 360;
@@ -1065,39 +1064,10 @@ class _ListViewWidgetsState extends State<ListViewWidgets> {
         );
         children.add(SizedBox(height: _isTabletPane ? 14 : 14.h));
       }
-      final showVendors = visibility.isVisible(HomeWidgetCode.vendors);
-      final showSubs = visibility.isVisible(HomeWidgetCode.subContractors);
-      if (showVendors && showSubs) {
-        if (_isTabletPane) {
-          children.add(
-            _pairCards(
-              [
-                const ClientsVendorsCategoryVendorsCard(tabletCompact: true),
-                const ClientsVendorsCategorySubContractorsCard(
-                  tabletCompact: true,
-                ),
-              ],
-              designHeight: 182,
-            ),
-          );
-        } else {
-          children.add(const ClientsVendorsCategoryVendorsSubContractorsRow());
-        }
-        children.add(SizedBox(height: _isTabletPane ? 14 : 14.h));
-      } else if (showVendors) {
+      if (visibility.isVisible(HomeWidgetCode.vendors)) {
         children.add(
           _fullWidthCard(
             ClientsVendorsCategoryVendorsCard(tabletCompact: tabletCompact),
-            designHeight: 182,
-          ),
-        );
-        children.add(SizedBox(height: _isTabletPane ? 14 : 14.h));
-      } else if (showSubs) {
-        children.add(
-          _fullWidthCard(
-            ClientsVendorsCategorySubContractorsCard(
-              tabletCompact: tabletCompact,
-            ),
             designHeight: 182,
           ),
         );
@@ -1122,16 +1092,19 @@ class _ListViewWidgetsState extends State<ListViewWidgets> {
         const ProductivityCategorySectionHeader(),
         SizedBox(height: _isTabletPane ? 10 : 10.h),
       ]);
-      if (visibility.isVisible(HomeWidgetCode.taskManagement)) {
-        children.add(
-          _fullWidthCard(
+      if (visibility.isVisible(HomeWidgetCode.taskManagement) ||
+          visibility.isVisible(HomeWidgetCode.sharedDocuments)) {
+        final cards = <Widget>[
+          if (visibility.isVisible(HomeWidgetCode.taskManagement))
             ProductivityCategoryTaskManagementCard(
               tabletCompact: tabletCompact,
             ),
-            height: _isTabletPane ? 160 : 150.h,
-            designHeight: 150,
-          ),
-        );
+          if (visibility.isVisible(HomeWidgetCode.sharedDocuments))
+            ProductivityCategorySharedDocumentsCard(
+              tabletCompact: tabletCompact,
+            ),
+        ];
+        children.add(_pairCards(cards));
         children.add(SizedBox(height: _isTabletPane ? 10 : 10.h));
       }
       if (visibility.isVisible(HomeWidgetCode.notes) ||

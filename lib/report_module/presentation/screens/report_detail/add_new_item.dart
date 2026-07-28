@@ -4,15 +4,14 @@ import 'package:el_race/report_module/core/constants/colors.dart';
 import 'package:el_race/report_module/core/constants/text_styles.dart';
 import 'package:el_race/report_module/data/models/report_detail_model.dart';
 import 'package:el_race/report_module/data/models/report_item_model.dart';
+import 'package:el_race/report_module/data/provider/reports_provider.dart';
 import 'package:el_race/report_module/data/repositories/company_repository.dart';
-import 'package:el_race/report_module/presentation/bloc/report_bloc.dart';
 import 'package:el_race/report_module/presentation/screens/report_detail/camera_screen.dart';
 import 'package:el_race/report_module/presentation/screens/report_detail/image_editing_screen.dart';
 import 'package:el_race/report_module/presentation/widgets/bottom_appbar.dart';
 import 'package:el_race/report_module/presentation/widgets/square_button.dart';
 import 'package:el_race/utils/color_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../widgets/custom_textfield.dart';
@@ -202,9 +201,9 @@ class _AddNewItemState extends State<AddNewItem> {
                   List<ReportItemModel> itemsUpdated =
                       widget.report.reportItems;
                   itemsUpdated[currentIndex] = updatedItem;
-                  await context.read<ReportBloc>().updateReportDetail(
-                        widget.report.copyWith(reportItems: itemsUpdated),
-                      );
+                  await reportProvider.updateReportDetail(
+                    widget.report.copyWith(reportItems: itemsUpdated),
+                  );
 
                   if (!context.mounted) return;
                   _loading = false;
@@ -231,9 +230,9 @@ class _AddNewItemState extends State<AddNewItem> {
                   List<ReportItemModel> itemsUpdated =
                       widget.report.reportItems;
                   itemsUpdated[currentIndex] = updatedItem;
-                  await context.read<ReportBloc>().updateReportDetail(
-                        widget.report.copyWith(reportItems: itemsUpdated),
-                      );
+                  await reportProvider.updateReportDetail(
+                    widget.report.copyWith(reportItems: itemsUpdated),
+                  );
 
                   if (!context.mounted) return;
                   _loading = false;
@@ -263,7 +262,7 @@ class _AddNewItemState extends State<AddNewItem> {
           //       );
           //       List<ReportItemModel> itemsUpdated = widget.report.reportItems;
           //       itemsUpdated[currentIndex] = updatedItem;
-          //       await context.read<ReportBloc>().updateReportDetail(
+          //       await reportProvider.updateReportDetail(
           //         widget.report.copyWith(reportItems: itemsUpdated),
           //       );
           //
@@ -284,7 +283,7 @@ class _AddNewItemState extends State<AddNewItem> {
           //         createdAt: DateTime.now(),
           //         updatedAt: DateTime.now());
           //
-          //     await context.read<ReportBloc>().updateReportDetail(
+          //     await reportProvider.updateReportDetail(
           //       widget.report.copyWith(
           //         reportItems: [...widget.report.reportItems, _newItem],
           //       ),

@@ -1,13 +1,13 @@
-import 'package:el_race/ui/presentation/todo_list/bloc/todo_bloc.dart';
+import 'package:el_race/ui/presentation/todo_list/providers/todo_firebase_provider.dart';
 import 'package:el_race/ui/presentation/todo_list/widgets/add_todo_bottom_sheet.dart';
 import 'package:el_race/ui/presentation/todo_list/widgets/todo_item_widget.dart';
 import 'package:el_race/ui/widgets/header_widget.dart';
 import 'package:el_race/utils/color_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class TodoSearchScreen extends StatefulWidget {
   const TodoSearchScreen({super.key});
@@ -33,7 +33,7 @@ class _TodoSearchScreenState extends State<TodoSearchScreen> {
     _searchController.dispose();
     _focusNode.dispose();
     // Clear search when leaving
-    context.read<TodoBloc>().clearSearch();
+    context.read<TodoFirebaseProvider>().clearSearch();
     super.dispose();
   }
 
@@ -50,9 +50,8 @@ class _TodoSearchScreenState extends State<TodoSearchScreen> {
           const SizedBox(height: 16),
           // Search results
           Expanded(
-            child: BlocBuilder<TodoBloc, TodoState>(
-              builder: (context, state) {
-                final provider = context.read<TodoBloc>();
+            child: Consumer<TodoFirebaseProvider>(
+              builder: (context, provider, child) {
                 if (provider.searchQuery.isEmpty) {
                   return _buildEmptySearchState();
                 }
@@ -111,7 +110,7 @@ class _TodoSearchScreenState extends State<TodoSearchScreen> {
                 controller: _searchController,
                 focusNode: _focusNode,
                 onChanged: (value) {
-                  context.read<TodoBloc>().search(value);
+                  context.read<TodoFirebaseProvider>().search(value);
                 },
                 decoration: InputDecoration(
                   hintText: translate('todo.search_hint'),
@@ -133,7 +132,7 @@ class _TodoSearchScreenState extends State<TodoSearchScreen> {
                           ),
                           onPressed: () {
                             _searchController.clear();
-                            context.read<TodoBloc>().clearSearch();
+                            context.read<TodoFirebaseProvider>().clearSearch();
                           },
                         )
                       : null,

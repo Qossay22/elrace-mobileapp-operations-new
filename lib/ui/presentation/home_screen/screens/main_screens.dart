@@ -355,13 +355,14 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
             return;
           }
           if (index == 3) {
-            // Open chat — clear bottom nav badge (WhatsApp behavior)
-            setState(() => _totalUnread = 0);
+            // Open chat list. Do NOT zero the badge here — opening the list
+            // does not mark chats read; unread stream will update after
+            // individual chats call markChatRead.
             await openGlassSubScreen(
               context,
               routeName: '/chat_list',
               shell: GlassSubScreenShell.chat,
-              child: const ChatListScreen(),
+              child: const ChatShellScreen(),
             );
             return;
           }
@@ -374,13 +375,12 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
           }
 
           if (index == 3) {
-            // Open chat directly from secondary screens as well.
-            setState(() => _totalUnread = 0);
+            // Open chat list. Keep badge driven by unread stream only.
             await openGlassSubScreen(
               context,
               routeName: '/chat_list',
               shell: GlassSubScreenShell.chat,
-              child: const ChatListScreen(),
+              child: const ChatShellScreen(),
             );
             return;
           }

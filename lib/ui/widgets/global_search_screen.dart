@@ -1,15 +1,14 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:el_race/data/models/global_search_item.dart';
+import 'package:el_race/providers/global_search_provider.dart';
 import 'package:el_race/utils/global_search_navigation_helper.dart';
 import 'package:el_race/data/services/global_search_history_service.dart';
 import 'package:el_race/ui/chat/widgets/chat_unified_header_backdrop.dart';
 import 'package:el_race/ui/navigation/home_navigation.dart';
-import 'package:el_race/ui/widgets/global_search/bloc/global_search_bloc.dart';
-import 'package:el_race/ui/widgets/global_search/bloc/global_search_event.dart';
-import 'package:el_race/ui/widgets/global_search/bloc/global_search_state.dart';
 import 'package:el_race/ui/widgets/global_search_category_screen.dart';
 import 'package:el_race/ui/widgets/global_search_header.dart';
 import 'package:el_race/ui/widgets/global_search_item_builder.dart';
@@ -40,7 +39,8 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      context.read<GlobalSearchBloc>().add(const GlobalSearchCleared());
+      final provider = context.read<GlobalSearchProvider>();
+      provider.clearResults();
     });
   }
 
@@ -58,36 +58,36 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
         if (didPop) return;
         HomeNavigation.handleSystemBack(context);
       },
-      child: Scaffold(
-        backgroundColor: GlobalSearchTheme.screenBase,
-        body: Stack(
-          fit: StackFit.expand,
-          children: [
-            Positioned.fill(
-              child: ChatUnifiedHeaderBackdrop.layer(),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: Consumer<GlobalSearchProvider>(
+        builder: (context, provider, _) {
+          return Scaffold(
+            backgroundColor: GlobalSearchTheme.screenBase,
+            body: Stack(
+              fit: StackFit.expand,
               children: [
-                GlobalSearchHeader(
-                  searchController: _searchController,
-                  onSearchChanged: (value) {
-                    context.read<GlobalSearchBloc>().add(
-                          GlobalSearchQueryChanged(keyword: value),
-                        );
-                  },
-                  onSearchClear: () {
-                    _searchController.clear();
-                    context
-                        .read<GlobalSearchBloc>()
-                        .add(const GlobalSearchCleared());
-                  },
+                Positioned.fill(
+                  child: ChatUnifiedHeaderBackdrop.layer(),
                 ),
-                Expanded(child: _buildSearchResults()),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    GlobalSearchHeader(
+                      searchController: _searchController,
+                      onSearchChanged: (value) {
+                        provider.search(keyword: value);
+                      },
+                      onSearchClear: () {
+                        _searchController.clear();
+                        provider.clearResults();
+                      },
+                    ),
+                    Expanded(child: _buildSearchResults()),
+                  ],
+                ),
               ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -95,9 +95,8 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
   Future<void> _applySuggestion(String query) async {
     _searchController.text = query;
     _searchController.selection = TextSelection.collapsed(offset: query.length);
-    context.read<GlobalSearchBloc>().add(
-          GlobalSearchImmediateRequested(keyword: query),
-        );
+    final provider = context.read<GlobalSearchProvider>();
+    await provider.searchImmediate(keyword: query);
   }
 
   Widget _glassSuggestionChip(
@@ -212,48 +211,46 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
 
   /// Build search results based on state
   Widget _buildSearchResults() {
-    return BlocBuilder<GlobalSearchBloc, GlobalSearchState>(
-      builder: (context, state) {
-        if (state.status == GlobalSearchStatus.idle) {
+    return Consumer<GlobalSearchProvider>(
+      builder: (context, provider, _) {
+        if (provider.state == GlobalSearchState.idle) {
           return _buildSuggestionsPanel();
         }
 
         // Loading state - Show skeleton loaders
-        if (state.isLoading) {
+        if (provider.isLoading) {
           return _buildSkeletonLoader();
         }
 
         // Error state
-        if (state.hasError) {
+        if (provider.hasError) {
           return _buildErrorState(
-            message: state.errorMessage ?? 'An error occurred',
-            onRetry: () => context
-                .read<GlobalSearchBloc>()
-                .add(const GlobalSearchRetryRequested()),
+            message: provider.errorMessage ?? 'An error occurred',
+            onRetry: () => provider.retry(),
           );
         }
 
         // Empty state
-        if (state.isEmpty) {
+        if (provider.isEmpty) {
           return _buildEmptyState(
             icon: Icons.search_off,
             title: translate('search.no_results'),
             message: translate(
               'search.no_results_for',
-              args: {'keyword': state.currentKeyword},
+              args: {'keyword': provider.currentKeyword},
             ),
           );
         }
 
         // Grouped results by category
-        return _buildGroupedResults(state);
+        return _buildGroupedResults(provider);
       },
     );
   }
 
-  Widget _buildGroupedResults(GlobalSearchState state) {
-    final sections = state.sections;
-    final keyword = state.currentKeyword;
+  Widget _buildGroupedResults(GlobalSearchProvider provider) {
+    final sections = provider.sections;
+    final keyword = provider.currentKeyword;
 
     return ListView.builder(
       padding: EdgeInsets.fromLTRB(0, 4.th, 0, 24.th),
@@ -261,6 +258,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
       itemBuilder: (context, index) {
         final section = sections[index];
         return _buildHorizontalSection(
+          provider: provider,
           section: section,
           keyword: keyword,
         );
@@ -281,6 +279,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
   }
 
   Widget _buildHorizontalSection({
+    required GlobalSearchProvider provider,
     required GlobalSearchSection section,
     required String keyword,
   }) {
@@ -434,6 +433,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
     );
   }
 
+
   /// Build highlighted text with keyword emphasis
   Widget _buildHighlightedText(
     String text,
@@ -565,8 +565,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: GlobalSearchTheme.screenBase,
-                padding:
-                    EdgeInsets.symmetric(horizontal: 24.tw, vertical: 12.th),
+                padding: EdgeInsets.symmetric(horizontal: 24.tw, vertical: 12.th),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.tr),
                 ),

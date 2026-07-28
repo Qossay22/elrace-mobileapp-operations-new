@@ -2,6 +2,7 @@ import 'package:el_race/core/utils/responsive_breakpoints.dart';
 import 'package:el_race/ui/presentation/hr_management/data/employee_profile_models.dart';
 import 'package:el_race/ui/presentation/hr_management/data/employees_profile_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
@@ -177,7 +178,9 @@ class _MoreInfoMenuSheet extends StatelessWidget {
                         ? null
                         : () => _openSection(context, item.section!),
                     leading: Icon(
-                      item.locked ? Icons.lock_outline_rounded : item.icon,
+                      item.locked
+                          ? Icons.lock_outline_rounded
+                          : item.icon,
                       color: item.locked
                           ? _MoreInfoPalette.muted.withValues(alpha: 0.7)
                           : _MoreInfoPalette.navy,
@@ -203,8 +206,7 @@ class _MoreInfoMenuSheet extends StatelessWidget {
                           )
                         : Icon(
                             Icons.chevron_right_rounded,
-                            color:
-                                _MoreInfoPalette.navy.withValues(alpha: 0.55),
+                            color: _MoreInfoPalette.navy.withValues(alpha: 0.55),
                           ),
                   );
                 },
@@ -611,8 +613,7 @@ class _MiniEmployeeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final meta = [
       if ((employee.empId).isNotEmpty) 'File ID ${employee.empId}',
-      if ((employee.jobTitle ?? '').trim().isNotEmpty)
-        employee.jobTitle!.trim(),
+      if ((employee.jobTitle ?? '').trim().isNotEmpty) employee.jobTitle!.trim(),
       if ((employee.department ?? '').trim().isNotEmpty)
         employee.department!.trim(),
       if ((employee.section ?? '').trim().isNotEmpty) employee.section!.trim(),
@@ -735,8 +736,9 @@ class _HistoryHeader extends StatelessWidget {
             Expanded(
               child: Text(
                 columns[i],
-                textAlign:
-                    i == columns.length - 1 ? TextAlign.right : TextAlign.left,
+                textAlign: i == columns.length - 1
+                    ? TextAlign.right
+                    : TextAlign.left,
                 style: GoogleFonts.poppins(
                   fontSize: 11.tsp,
                   fontWeight: FontWeight.w700,

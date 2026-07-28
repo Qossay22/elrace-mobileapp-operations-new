@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import 'package:el_race/ui/widgets/header_widget.dart';
 import 'package:el_race/utils/color_utils.dart';
-import '../bloc/qr_survey_bloc.dart';
-import '../bloc/qr_survey_event.dart';
-import '../bloc/qr_survey_state.dart';
+import '../providers/qr_survey_data_provider.dart';
 import 'list_documents_screen.dart';
 import 'list_media_screen.dart';
 import 'list_questions_screen.dart';
@@ -23,22 +21,23 @@ class _QrSurveyContentWrapperState extends State<QrSurveyContentWrapper> {
   void deactivate() {
     // Clear QR data when leaving this screen/tab
     print('🧹 QrSurveyContentWrapper - deactivate - Clearing QR data');
-    context.read<QrSurveyBloc>().add(const QrSurveyContentCleared());
+    final provider = Provider.of<QrSurveyDataProvider>(context, listen: false);
+    provider.clearData();
     super.deactivate();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<QrSurveyBloc, QrSurveyState>(
-      builder: (context, state) {
+    return Consumer<QrSurveyDataProvider>(
+      builder: (context, provider, child) {
         print('🔍 QrSurveyContentWrapper - Building');
-        print('🔍 Content Type: ${state.contentType}');
-        print('🔍 Content Data: ${state.contentData}');
-        print('🔍 Data Array: ${state.data}');
-        print('🔍 Is From QR Code: ${state.isFromQrCode}');
+        print('🔍 Content Type: ${provider.contentType}');
+        print('🔍 Content Data: ${provider.contentData}');
+        print('🔍 Data Array: ${provider.data}');
+        print('🔍 Is From QR Code: ${provider.isFromQrCode}');
 
         // Check if content is from QR code
-        if (!state.isFromQrCode) {
+        if (!provider.isFromQrCode) {
           // Not accessed via QR code - show access denied
           return Scaffold(
             appBar: const HeaderWidget(),
@@ -78,13 +77,13 @@ class _QrSurveyContentWrapperState extends State<QrSurveyContentWrapper> {
         }
 
         // Get content from provider
-        final contentType = state.contentType;
-        final List<dynamic>? dataArray = state.data;
+        final contentType = provider.contentType;
+        final List<dynamic>? dataArray = provider.data;
 
         // Show QR Survey content based on type
         Widget qrSurveyContent;
         if (contentType == 'survey') {
-          final surveyData = state.contentData;
+          final surveyData = provider.contentData;
           qrSurveyContent = ListQuestionsScreen(
             questions: surveyData?['questions'] ?? [],
             surveyId: surveyData?['id'] ?? 0,

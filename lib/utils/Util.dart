@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:el_race/core/logging/app_logger.dart';
 import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/ui/presentation/lpo/screens/lpo_pdf_viewer_screen.dart';
 import 'package:el_race/ui/presentation/call_screen/bloc/contact_bloc.dart';
@@ -22,7 +21,7 @@ class Util {
     try {
       // Ensure DI is initialized before accessing blocs
       if (!sl.isRegistered<HomeBloc>()) {
-        AppLogger.warning('HomeBloc not registered; initializing DI');
+        print('⚠️ HomeBloc not registered, initializing DI...');
         initDI();
       }
 
@@ -33,9 +32,8 @@ class Util {
           .add(const FetchRequestsCount());
 
       BlocProvider.of<ContactBloc>(cxt, listen: false).add(GetEmployeeLisET());
-    } catch (e, stackTrace) {
-      AppLogger.warning('Util.fetchHomeScreenData failed',
-          error: e, data: {'retrying': true});
+    } catch (e) {
+      print('❌ Error in fetchHomeScreenData: $e');
       // Try to re-initialize DI and retry once
       try {
         initDI();
@@ -43,15 +41,9 @@ class Util {
             .add(const FetchLastMonthAttendanceSummary());
         BlocProvider.of<RequestsBloc>(cxt, listen: false)
             .add(const FetchRequestsCount());
-        BlocProvider.of<ContactBloc>(cxt, listen: false)
-            .add(GetEmployeeLisET());
-      } catch (retryError, retryStackTrace) {
-        AppLogger.error(
-          'Util.fetchHomeScreenData retry failed',
-          error: retryError,
-          stackTrace: retryStackTrace,
-          data: {'initial_error': e.toString(), 'initial_stack': stackTrace},
-        );
+        BlocProvider.of<ContactBloc>(cxt, listen: false).add(GetEmployeeLisET());
+      } catch (retryError) {
+        print('❌ Retry also failed: $retryError');
         // Silent fail - the home screen will try to load data itself
       }
     }
@@ -79,7 +71,7 @@ class Util {
   }
 
   static Future<void> openUrl(String url) async {
-    AppLogger.debug('Opening external URL', data: {'url': url});
+    print(url);
     if (await canLaunchUrl(Uri.parse(url))) {
       await launchUrl(Uri.parse(url));
     } else {
@@ -138,9 +130,13 @@ class Util {
     }
   }
 
-  /// Fetches the PDF report URL for a given PO ID and opens it
-  /// Returns true if successful, false otherwise
-  static Future<bool> openLpoPdfReport(BuildContext context, int poId) async {
+  /// Fetches the PDF report URL for a given PO ID and opens it.
+  /// Pass [lpoName] (e.g. PO/2026/001) so share uses `{lpoName}.pdf`.
+  static Future<bool> openLpoPdfReport(
+    BuildContext context,
+    int poId, {
+    String? lpoName,
+  }) async {
     try {
       // Show loading indicator
       ScaffoldMessenger.of(context).showSnackBar(
@@ -214,7 +210,9 @@ class Util {
           MaterialPageRoute(
             builder: (_) => LpoPdfViewerScreen(
               pdfUrl: pdfUrl,
-              title: 'LPO Report #$poId',
+              title: (lpoName != null && lpoName.trim().isNotEmpty)
+                  ? lpoName.trim()
+                  : 'LPO Report #$poId',
             ),
           ),
         );

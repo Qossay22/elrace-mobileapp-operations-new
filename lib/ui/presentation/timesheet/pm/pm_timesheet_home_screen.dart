@@ -4,7 +4,7 @@ import 'package:el_race/core/timesheet/models/timesheet_team_member.dart';
 import 'package:el_race/core/timesheet/providers/timesheet_data_providers.dart';
 import 'package:el_race/core/timesheet/routing/timesheet_route_names.dart';
 import 'package:el_race/core/widgets/timesheet/timesheet_widgets.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_timesheet_widget_cubit.dart';
+import 'package:el_race/ui/presentation/home_screen/providers/home_timesheet_widget_provider.dart';
 import 'package:el_race/ui/presentation/signin/data/model.dart';
 import 'package:el_race/ui/presentation/timesheet/timesheet_async_state.dart';
 import 'package:el_race/ui/presentation/timesheet/timesheet_route_args.dart';
@@ -12,7 +12,6 @@ import 'package:el_race/ui/presentation/timesheet/widgets/tm_dashboard_header.da
 import 'package:el_race/ui/presentation/timesheet/widgets/tm_dashboard_projects_section.dart';
 import 'package:el_race/ui/presentation/timesheet/widgets/tm_team_members_sheet.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -23,7 +22,7 @@ class PmTimesheetHomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(timesheetLoginProfileProvider);
-    final widgetData = context.watch<HomeTimesheetWidgetCubit>().state;
+    final widgetData = ref.watch(homeTimesheetWidgetProvider);
     final bucketsAsync = ref.watch(timesheetProjectBucketsProvider);
     final foremenAsync = ref.watch(timesheetPmForemenProvider);
 
@@ -51,87 +50,87 @@ class PmTimesheetHomeScreen extends ConsumerWidget {
           // Derived directly from buckets — avoids a second skeleton flash.
           final projects = buckets.inProgress;
           return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                TmDashboardHeader(
-                  key: ValueKey(
-                    '${profile.fileId}|${profile.displayName}|${profile.imageUrl}',
-                  ),
-                  profile: profile,
-                  counterLabel: 'Foremen',
-                  counterValue: foremanCount,
-                  onCounterTap: () => _showForemen(context, ref),
-                ),
-                const SizedBox(height: TimesheetModuleLayout.sectionGap),
-                Text(
-                  'Review timesheets submitted by your foremen. '
-                  'PMs do not submit attendance.',
-                  style: TimesheetModuleTypography.caption(),
-                ),
-                const SizedBox(height: TimesheetModuleLayout.sectionGap),
-                _WeeklySummaryCard(data: widgetData),
-                const SizedBox(height: TimesheetModuleLayout.sectionGap),
-                IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(
-                        child: TmStatTile(
-                          value: '${widgetData.recordsCount}',
-                          label: 'Records this week',
-                          icon: PhosphorIcons.clipboardText(),
-                          badgeTone: TmStatBadgeTone.inProgress,
-                          onTap: projects.isNotEmpty
-                              ? () => _openFirstProjectReport(
-                                    context,
-                                    projects.first,
-                                  )
-                              : null,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TmDashboardHeader(
+                      key: ValueKey(
+                        '${profile.fileId}|${profile.displayName}|${profile.imageUrl}',
+                      ),
+                      profile: profile,
+                      counterLabel: 'Foremen',
+                      counterValue: foremanCount,
+                      onCounterTap: () => _showForemen(context, ref),
+                    ),
+                    const SizedBox(height: TimesheetModuleLayout.sectionGap),
+                    Text(
+                      'Review timesheets submitted by your foremen. '
+                      'PMs do not submit attendance.',
+                      style: TimesheetModuleTypography.caption(),
+                    ),
+                    const SizedBox(height: TimesheetModuleLayout.sectionGap),
+                    _WeeklySummaryCard(data: widgetData),
+                    const SizedBox(height: TimesheetModuleLayout.sectionGap),
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                            child: TmStatTile(
+                              value: '${widgetData.recordsCount}',
+                              label: 'Records this week',
+                              icon: PhosphorIcons.clipboardText(),
+                              badgeTone: TmStatBadgeTone.inProgress,
+                              onTap: projects.isNotEmpty
+                                  ? () => _openFirstProjectReport(
+                                        context,
+                                        projects.first,
+                                      )
+                                  : null,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: TimesheetModuleLayout.cardSpacing,
+                          ),
+                          Expanded(
+                            child: TmStatTile(
+                              value: '${buckets.inProgress.length}',
+                              label: 'Active projects',
+                              icon: PhosphorIcons.briefcase(),
+                              badgeTone: TmStatBadgeTone.neutral,
+                              onTap: () => Navigator.of(context).pushNamed(
+                                TimesheetRouteNames.projectsList,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: TimesheetModuleLayout.sectionGap),
+                    if (projects.isEmpty)
+                      const TimesheetEmptyState(
+                        message: 'No in-progress projects',
+                      )
+                    else ...[
+                      TmSectionHeader(
+                        title: 'Project submissions',
+                        actionLabel: 'See all',
+                        onActionTap: () => Navigator.of(context).pushNamed(
+                          TimesheetRouteNames.projectsList,
                         ),
                       ),
-                      const SizedBox(
-                        width: TimesheetModuleLayout.cardSpacing,
-                      ),
-                      Expanded(
-                        child: TmStatTile(
-                          value: '${buckets.inProgress.length}',
-                          label: 'Active projects',
-                          icon: PhosphorIcons.briefcase(),
-                          badgeTone: TmStatBadgeTone.neutral,
-                          onTap: () => Navigator.of(context).pushNamed(
-                            TimesheetRouteNames.projectsList,
-                          ),
+                      const SizedBox(height: TimesheetModuleLayout.cardSpacing),
+                      TmDashboardProjectsSection(
+                        projects: projects,
+                        onProjectTap: (project) => _openProjectReport(
+                          context,
+                          project,
                         ),
                       ),
                     ],
-                  ),
+                  ],
                 ),
-                const SizedBox(height: TimesheetModuleLayout.sectionGap),
-                if (projects.isEmpty)
-                  const TimesheetEmptyState(
-                    message: 'No in-progress projects',
-                  )
-                else ...[
-                  TmSectionHeader(
-                    title: 'Project submissions',
-                    actionLabel: 'See all',
-                    onActionTap: () => Navigator.of(context).pushNamed(
-                      TimesheetRouteNames.projectsList,
-                    ),
-                  ),
-                  const SizedBox(height: TimesheetModuleLayout.cardSpacing),
-                  TmDashboardProjectsSection(
-                    projects: projects,
-                    onProjectTap: (project) => _openProjectReport(
-                      context,
-                      project,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          );
+              );
         },
       ),
     );
@@ -182,9 +181,9 @@ class _WeeklySummaryCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: TimesheetModuleColors.surface,
-        borderRadius: BorderRadius.circular(TimesheetModuleLayout.cardRadiusMd),
-        border: Border.all(
-            color: TimesheetModuleColors.mutedText.withValues(alpha: 0.2)),
+        borderRadius:
+            BorderRadius.circular(TimesheetModuleLayout.cardRadiusMd),
+        border: Border.all(color: TimesheetModuleColors.mutedText.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

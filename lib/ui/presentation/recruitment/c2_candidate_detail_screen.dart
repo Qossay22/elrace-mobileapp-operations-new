@@ -1,6 +1,6 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
-import 'package:el_race/core/recruitment/bloc/recruitment_candidate_detail_cubit.dart';
 import 'package:el_race/core/recruitment/models/recruitment_entities.dart';
+import 'package:el_race/core/recruitment/providers/requisition_providers.dart';
 import 'package:el_race/core/theme/hr_badge_kind.dart';
 import 'package:el_race/core/theme/hr_module_colors.dart';
 import 'package:el_race/core/theme/hr_module_layout.dart';
@@ -15,21 +15,22 @@ import 'package:el_race/ui/presentation/recruitment/a1_assessment_detail_screen.
 import 'package:el_race/ui/presentation/recruitment/a2_assessment_form_screen.dart';
 import 'package:el_race/ui/presentation/recruitment/o1_offer_detail_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// C2 — Candidate detail (SRD §4.2).
-class C2CandidateDetailScreen extends StatefulWidget {
+class C2CandidateDetailScreen extends ConsumerStatefulWidget {
   const C2CandidateDetailScreen({super.key, required this.candidateId});
 
   final String candidateId;
 
   @override
-  State<C2CandidateDetailScreen> createState() =>
+  ConsumerState<C2CandidateDetailScreen> createState() =>
       _C2CandidateDetailScreenState();
 }
 
-class _C2CandidateDetailScreenState extends State<C2CandidateDetailScreen>
+class _C2CandidateDetailScreenState extends ConsumerState<C2CandidateDetailScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
@@ -37,8 +38,6 @@ class _C2CandidateDetailScreenState extends State<C2CandidateDetailScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    final cubit = context.read<RecruitmentCandidateDetailCubit>();
-    Future.microtask(() => cubit.load(widget.candidateId));
   }
 
   @override
@@ -55,59 +54,39 @@ class _C2CandidateDetailScreenState extends State<C2CandidateDetailScreen>
 
   Future<void> _refresh() async {
     // Roles refresh on re-login only (product decision 2026-07-20).
-    await context
-        .read<RecruitmentCandidateDetailCubit>()
-        .load(widget.candidateId, force: true);
+    ref.invalidate(recruitmentCandidateProvider(widget.candidateId));
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<RecruitmentCandidateDetailCubit,
-        RecruitmentCandidateDetailState>(
-      builder: (context, state) {
-        if (state.isLoading) {
-          return const RecruitmentGradientScaffold(
-            body: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                HrModuleGlassHeader(
-                  title: 'Candidate',
-                  accentTint: HrModuleHeaderTints.recruitment,
-                ),
-                Expanded(child: Center(child: CircularProgressIndicator())),
-              ],
+    final async = ref.watch(recruitmentCandidateProvider(widget.candidateId));
+
+    return async.when(
+      loading: () => RecruitmentGradientScaffold(
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const HrModuleGlassHeader(
+              title: 'Candidate',
+              accentTint: HrModuleHeaderTints.recruitment,
             ),
-          );
-        }
-        if (state.error != null) {
-          return RecruitmentGradientScaffold(
-            body: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const HrModuleGlassHeader(
-                  title: 'Candidate',
-                  accentTint: HrModuleHeaderTints.recruitment,
-                ),
-                Expanded(child: Center(child: Text(state.error!))),
-              ],
+            const Expanded(child: Center(child: CircularProgressIndicator())),
+          ],
+        ),
+      ),
+      error: (e, _) => RecruitmentGradientScaffold(
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const HrModuleGlassHeader(
+              title: 'Candidate',
+              accentTint: HrModuleHeaderTints.recruitment,
             ),
-          );
-        }
-        final c = state.candidate;
-        if (c == null) {
-          return const RecruitmentGradientScaffold(
-            body: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                HrModuleGlassHeader(
-                  title: 'Candidate',
-                  accentTint: HrModuleHeaderTints.recruitment,
-                ),
-                Expanded(child: Center(child: Text('Candidate not found.'))),
-              ],
-            ),
-          );
-        }
+            Expanded(child: Center(child: Text('$e'))),
+          ],
+        ),
+      ),
+      data: (RecruitmentCandidate c) {
         final initials = HrEmployeeInfoCard.initialsFromName(c.fullName);
         return RecruitmentGradientScaffold(
           body: Column(
@@ -215,7 +194,7 @@ class _C2CandidateDetailScreenState extends State<C2CandidateDetailScreen>
           tileColor: HrModuleColors.surface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(HrModuleLayout.cardRadius.tr),
-            side: const BorderSide(color: HrModuleColors.border),
+            side: BorderSide(color: HrModuleColors.border),
           ),
           title: const Text('Open offer letter'),
           trailing: const Icon(Icons.chevron_right),
@@ -248,9 +227,9 @@ class _C2CandidateDetailScreenState extends State<C2CandidateDetailScreen>
             child: Text(
               initials,
               style: HrModuleTypography.cardTitle().copyWith(
-                fontSize: 16.tsp,
-                color: HrModuleColors.primary,
-              ),
+                    fontSize: 16.tsp,
+                    color: HrModuleColors.primary,
+                  ),
             ),
           ),
           SizedBox(width: 12.tw),
@@ -261,9 +240,9 @@ class _C2CandidateDetailScreenState extends State<C2CandidateDetailScreen>
                 Text(
                   c.jobTitle,
                   style: HrModuleTypography.body().copyWith(
-                    fontSize: 14.tsp,
-                    fontWeight: FontWeight.w600,
-                  ),
+                        fontSize: 14.tsp,
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
                 Text(c.requisitionRef, style: HrModuleTypography.caption()),
                 SizedBox(height: 6.th),
@@ -279,8 +258,8 @@ class _C2CandidateDetailScreenState extends State<C2CandidateDetailScreen>
                     ),
                     if (c.phone != null)
                       TextButton.icon(
-                        onPressed: () => _launch(
-                            Uri.parse('tel:${c.phone!.replaceAll(' ', '')}')),
+                        onPressed: () =>
+                            _launch(Uri.parse('tel:${c.phone!.replaceAll(' ', '')}')),
                         icon: const Icon(Icons.phone_outlined, size: 18),
                         label: const Text('Call'),
                       ),
@@ -343,11 +322,7 @@ class _C2CandidateDetailScreenState extends State<C2CandidateDetailScreen>
                 builder: (_) => A2AssessmentFormScreen(candidateId: c.id),
               ),
             );
-            if (mounted) {
-              await context
-                  .read<RecruitmentCandidateDetailCubit>()
-                  .load(c.id, force: true);
-            }
+            if (mounted) ref.invalidate(recruitmentCandidateProvider(c.id));
           },
           icon: const Icon(Icons.add),
           label: const Text('Add assessment'),

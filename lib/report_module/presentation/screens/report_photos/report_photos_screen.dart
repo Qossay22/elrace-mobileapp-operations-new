@@ -6,8 +6,8 @@ import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:el_race/report_module/data/models/report_model.dart';
+import 'package:el_race/report_module/data/provider/reports_provider.dart';
 import 'package:el_race/report_module/data/services/pdf_service.dart';
-import 'package:el_race/report_module/presentation/bloc/report_bloc.dart';
 import 'package:el_race/report_module/presentation/screens/report_detail/image_editing_screen.dart';
 import 'package:el_race/report_module/presentation/screens/report_photos/multi_capture_camera_screen.dart';
 import 'package:el_race/ui/widgets/header_widget.dart';
@@ -17,7 +17,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -87,8 +87,8 @@ class _ReportPhotosScreenState extends State<ReportPhotosScreen> {
     });
 
     try {
-      final reportBloc = context.read<ReportBloc>();
-      final created = await reportBloc.createReport(
+      final provider = Provider.of<ReportProvider>(context, listen: false);
+      final created = await provider.createReport(
         title: _report.name,
         folderID: widget.folderId,
         companyName: CompanyRepository.company?.companyName,
@@ -135,8 +135,8 @@ class _ReportPhotosScreenState extends State<ReportPhotosScreen> {
   Future<void> _loadPhotos() async {
     setState(() => _isLoading = true);
     try {
-      final reportBloc = context.read<ReportBloc>();
-      final detail = await reportBloc.fetchReportDetailFromApi(_report.id);
+      final provider = Provider.of<ReportProvider>(context, listen: false);
+      final detail = await provider.fetchReportDetailFromApi(_report.id);
       if (detail != null && detail.reportItems.isNotEmpty) {
         _photoItems = detail.reportItems.map((item) {
           final p = _PhotoItem();
@@ -162,13 +162,13 @@ class _ReportPhotosScreenState extends State<ReportPhotosScreen> {
   // Saves order/index changes silently (no loading spinner) — used after reorder
   Future<void> _saveOrderSilently() async {
     if (!mounted) return;
-    final reportBloc = context.read<ReportBloc>();
+    final provider = Provider.of<ReportProvider>(context, listen: false);
     for (int i = 0; i < _photoItems.length; i++) {
       final item = _photoItems[i];
       if (item.imagePath == null || item.imagePath!.isEmpty) continue;
       if (item.itemId == null) continue;
       try {
-        await reportBloc.updateReportItem(
+        await provider.updateReportItem(
           reportId: _report.id,
           itemId: item.itemId!,
           location: item.location ?? '',
@@ -185,7 +185,7 @@ class _ReportPhotosScreenState extends State<ReportPhotosScreen> {
   Future<void> _saveItemsAndReload() async {
     if (!mounted) return;
     setState(() => _isLoading = true);
-    final reportBloc = context.read<ReportBloc>();
+    final provider = Provider.of<ReportProvider>(context, listen: false);
 
     final itemsToDelete = _photoItems
         .where((item) =>
@@ -200,7 +200,7 @@ class _ReportPhotosScreenState extends State<ReportPhotosScreen> {
 
     for (final item in itemsToDelete) {
       try {
-        final deleted = await reportBloc.deleteReportItem(
+        final deleted = await provider.deleteReportItem(
           reportId: _report.id,
           itemId: item.itemId!,
         );
@@ -263,7 +263,7 @@ class _ReportPhotosScreenState extends State<ReportPhotosScreen> {
             debugPrint('📤 Item[$i] uploading local file ${item.imagePath}');
           }
 
-          final result = await reportBloc.updateReportItem(
+          final result = await provider.updateReportItem(
             reportId: _report.id,
             itemId: item.itemId!,
             location: item.location ?? '',
@@ -402,10 +402,9 @@ class _ReportPhotosScreenState extends State<ReportPhotosScreen> {
       );
       if (paths == null || paths.isEmpty) return;
       if (!await _ensureReportCreated()) return;
-      if (!mounted) return;
 
       setState(() => _isLoading = true);
-      final reportBloc = context.read<ReportBloc>();
+      final provider = Provider.of<ReportProvider>(context, listen: false);
 
       // Save all images to storage in parallel, then upload all in parallel
       final savedPaths = await Future.wait(
@@ -420,7 +419,7 @@ class _ReportPhotosScreenState extends State<ReportPhotosScreen> {
             .asMap()
             .entries
             .where((e) => e.value.isNotEmpty)
-            .map((e) => reportBloc
+            .map((e) => provider
                 .addReportItem(
                   reportId: _report.id,
                   imageFile: File(e.value),
@@ -439,11 +438,10 @@ class _ReportPhotosScreenState extends State<ReportPhotosScreen> {
       );
       if (images.isEmpty) return;
       if (!await _ensureReportCreated()) return;
-      if (!mounted) return;
 
       setState(() => _isLoading = true);
       try {
-        final reportBloc = context.read<ReportBloc>();
+        final provider = Provider.of<ReportProvider>(context, listen: false);
         final savedPaths = await Future.wait(
           images.map((image) => saveImageToAppStorage(
                 File(image.path),
@@ -456,7 +454,7 @@ class _ReportPhotosScreenState extends State<ReportPhotosScreen> {
               .asMap()
               .entries
               .where((e) => e.value.isNotEmpty)
-              .map((e) => reportBloc
+              .map((e) => provider
                   .addReportItem(
                     reportId: _report.id,
                     imageFile: File(e.value),
@@ -1463,10 +1461,11 @@ class _PdfGenerationPageState extends State<PdfGenerationPage> {
   Future<void> _loadPdfHistory() async {
     if (mounted) setState(() => _isLoadingPdfs = true);
     try {
-      _pdfs = await context.read<ReportBloc>().fetchReports(
-            reportId: widget.reportId,
-            folderId: widget.folderId,
-          );
+      _pdfs = await reportProvider.fetchReports(
+        empId: ReportProvider.empID,
+        reportId: widget.reportId,
+        folderId: widget.folderId,
+      );
     } catch (_) {}
     if (mounted) setState(() => _isLoadingPdfs = false);
   }
@@ -1496,10 +1495,11 @@ class _PdfGenerationPageState extends State<PdfGenerationPage> {
     });
 
     try {
-      final reportBloc = context.read<ReportBloc>();
+      final provider = Provider.of<ReportProvider>(context, listen: false);
 
       // Re-fetch the latest list to get an accurate count before uploading.
-      final freshPdfs = await reportBloc.fetchReports(
+      final freshPdfs = await reportProvider.fetchReports(
+        empId: ReportProvider.empID,
         reportId: widget.reportId,
         folderId: widget.folderId,
       );
@@ -1551,7 +1551,7 @@ class _PdfGenerationPageState extends State<PdfGenerationPage> {
         });
       }
 
-      final detail = await reportBloc.fetchReportDetailFromApi(widget.reportId);
+      final detail = await provider.fetchReportDetailFromApi(widget.reportId);
       if (detail == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -1583,7 +1583,8 @@ class _PdfGenerationPageState extends State<PdfGenerationPage> {
         });
       }
 
-      final uploaded = await reportBloc.uploadReportPdf(
+      final uploaded = await reportProvider.uploadReportPdf(
+        empId: ReportProvider.empID,
         reportId: widget.reportId,
         folderId: widget.folderId,
         fileName: fileName,
@@ -1637,7 +1638,6 @@ class _PdfGenerationPageState extends State<PdfGenerationPage> {
   }
 
   Future<void> _renamePdf(ReportPdfModel pdf) async {
-    final reportBloc = context.read<ReportBloc>();
     final controller =
         TextEditingController(text: pdf.fileName.replaceAll('.pdf', ''));
     final newName = await showDialog<String>(
@@ -1672,7 +1672,7 @@ class _PdfGenerationPageState extends State<PdfGenerationPage> {
     if (idx < 0) return;
     final current = _pdfs[idx]; // may have id populated after enrichment
     // Update on server first
-    final success = await reportBloc.renameReportPdf(
+    final success = await reportProvider.renameReportPdf(
       fileId: current.id.isNotEmpty ? current.id : current.fileId,
       newFileName: '$newName.pdf',
     );
@@ -2087,7 +2087,6 @@ class _PdfGenerationPageState extends State<PdfGenerationPage> {
                   borderRadius: BorderRadius.circular(12.r)),
               elevation: 4,
               onSelected: (value) async {
-                final reportBloc = context.read<ReportBloc>();
                 if (value == 'share') {
                   try {
                     final response = await http.get(Uri.parse(pdf.reportLink));
@@ -2117,7 +2116,7 @@ class _PdfGenerationPageState extends State<PdfGenerationPage> {
                     (p) => p.fileId == pdf.fileId,
                     orElse: () => pdf,
                   );
-                  final success = await reportBloc.deleteReportPdf(
+                  final success = await reportProvider.deleteReportPdf(
                     fileId: fresh.id.isNotEmpty ? fresh.id : fresh.fileId,
                   );
                   if (success && mounted) {

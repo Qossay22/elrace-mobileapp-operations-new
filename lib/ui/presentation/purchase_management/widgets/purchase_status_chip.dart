@@ -1,5 +1,6 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// Small coloured pill used to display purchase state labels.

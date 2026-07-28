@@ -8,6 +8,7 @@ import 'package:el_race/ui/presentation/circular_announcement/data/circular_anno
 import 'package:el_race/ui/presentation/circular_announcement/widgets/circular_announcement_file_viewer.dart';
 import 'package:el_race/utils/safe_insets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:intl/intl.dart';
 
@@ -100,8 +101,7 @@ class _HrCircularAnnouncementsScreenState
         ),
       );
       if (item.id != -1 && item.hasFile) {
-        Future.delayed(
-            const Duration(milliseconds: 400), () => _openFile(item));
+        Future.delayed(const Duration(milliseconds: 400), () => _openFile(item));
       }
     } else {
       _tabController.animateTo(0);
@@ -115,8 +115,7 @@ class _HrCircularAnnouncementsScreenState
         ),
       );
       if (item.id != -1 && item.hasFile) {
-        Future.delayed(
-            const Duration(milliseconds: 400), () => _openFile(item));
+        Future.delayed(const Duration(milliseconds: 400), () => _openFile(item));
       }
     }
   }
@@ -203,9 +202,7 @@ class _HrCircularAnnouncementsScreenState
             fontWeight: FontWeight.w600,
           ),
           tabs: [
-            Tab(
-                text:
-                    'Circulars${circularCount > 0 ? ' ($circularCount)' : ''}'),
+            Tab(text: 'Circulars${circularCount > 0 ? ' ($circularCount)' : ''}'),
             Tab(
               text:
                   'Announcements${announcementCount > 0 ? ' ($announcementCount)' : ''}',
@@ -240,8 +237,7 @@ class _HrCircularAnnouncementsScreenState
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline,
-                size: 48.tsp, color: HrModuleColors.danger),
+            Icon(Icons.error_outline, size: 48.tsp, color: HrModuleColors.danger),
             SizedBox(height: 12.th),
             Text(
               translate('common.error_occurred'),
@@ -315,8 +311,7 @@ class _HrCircularAnnouncementsScreenState
         child: Ink(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14.tr),
-            border: Border.all(
-                color: HrModuleColors.border.withValues(alpha: 0.55)),
+            border: Border.all(color: HrModuleColors.border.withValues(alpha: 0.55)),
             boxShadow: HrModuleColors.cardShadow,
           ),
           child: Padding(

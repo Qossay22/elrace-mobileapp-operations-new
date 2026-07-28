@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:el_race/core/logging/app_logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -52,19 +51,17 @@ class FirebaseTokenApiService {
   }) async {
     try {
       // Resolve token: explicit param → SharedPref
-      final token =
-          backendToken ?? SharedPref.getLoginData().result?.token ?? '';
+      final token = backendToken ??
+          SharedPref.getLoginData().result?.token ??
+          '';
 
       if (token.isEmpty) {
-        AppLogger.warning('FirebaseTokenApi: no backend token available');
+        print('⚠️ FirebaseTokenApi: No backend token available');
         return null;
       }
 
-      const url = '${UrlUtil.baseUrl}${UrlUtil.firebaseRefreshToken}';
-      AppLogger.debug('FirebaseTokenApi: refresh token request', data: {
-        'url': url,
-        'authorization': 'Bearer $token',
-      });
+      final url = '${UrlUtil.baseUrl}${UrlUtil.firebaseRefreshToken}';
+      print('🔄 FirebaseTokenApi: POST $url');
 
       final dio = await _getDio();
       final response = await dio.post(
@@ -77,11 +74,9 @@ class FirebaseTokenApiService {
       );
 
       if (response.data is Map<String, dynamic>) {
-        final parsed = FirebaseRefreshTokenResponse.fromJson(response.data);
-        AppLogger.debug('FirebaseTokenApi: refresh token parsed', data: {
-          'success': parsed.isSuccess,
-          'has_firebase_custom_token': parsed.firebaseCustomToken != null,
-        });
+        final parsed =
+            FirebaseRefreshTokenResponse.fromJson(response.data);
+        print('✅ FirebaseTokenApi: $parsed');
         return parsed;
       }
 
@@ -90,26 +85,20 @@ class FirebaseTokenApiService {
         final decoded = jsonDecode(response.data as String);
         if (decoded is Map<String, dynamic>) {
           final parsed = FirebaseRefreshTokenResponse.fromJson(decoded);
-          AppLogger.debug('FirebaseTokenApi: refresh token parsed', data: {
-            'success': parsed.isSuccess,
-            'has_firebase_custom_token': parsed.firebaseCustomToken != null,
-          });
+          print('✅ FirebaseTokenApi: $parsed');
           return parsed;
         }
       }
 
-      AppLogger.warning('FirebaseTokenApi: unexpected response type', data: {
-        'data_type': response.data.runtimeType.toString(),
-      });
+      print('⚠️ FirebaseTokenApi: Unexpected response type: '
+          '${response.data.runtimeType}');
       return null;
     } on DioException catch (e) {
-      AppLogger.warning('FirebaseTokenApi: DioException', data: {
-        'status_code': e.response?.statusCode,
-        'message': e.message,
-      });
+      print('⚠️ FirebaseTokenApi: DioException ${e.response?.statusCode} – '
+          '${e.message}');
       return null;
     } catch (e) {
-      AppLogger.warning('FirebaseTokenApi: refresh token error', error: e);
+      print('⚠️ FirebaseTokenApi: Error – $e');
       return null;
     }
   }
@@ -144,15 +133,15 @@ class FirebaseTokenApiService {
 
         // Also inject at result level for consumers that look there
         if (decoded['result'] is Map<String, dynamic>) {
-          (decoded['result'] as Map<String, dynamic>)['firebase_custom_token'] =
-              freshToken;
+          (decoded['result']
+              as Map<String, dynamic>)['firebase_custom_token'] = freshToken;
         }
 
         await prefs.setString('loginResponse', jsonEncode(decoded));
-        AppLogger.debug('FirebaseTokenApi: persisted fresh token');
+        print('✅ FirebaseTokenApi: Persisted fresh token to loginResponse');
       }
     } catch (e) {
-      AppLogger.warning('FirebaseTokenApi: could not persist token', error: e);
+      print('⚠️ FirebaseTokenApi: Could not persist token: $e');
     }
 
     return freshToken;

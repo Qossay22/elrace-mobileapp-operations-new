@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../bloc/qr_survey_bloc.dart';
-import '../bloc/qr_survey_state.dart';
+import 'package:provider/provider.dart';
+import '../providers/qr_survey_data_provider.dart';
 import 'list_questions_screen.dart';
 import 'list_documents_screen.dart';
 import 'list_media_screen.dart';
@@ -12,10 +11,10 @@ class QrCodeWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<QrSurveyBloc, QrSurveyState>(
-      builder: (context, state) {
+    return Consumer<QrSurveyDataProvider>(
+      builder: (context, provider, child) {
         // Check if content is from QR code
-        if (!state.isFromQrCode) {
+        if (!provider.isFromQrCode) {
           // Not accessed via QR code - show error
           return Scaffold(
             appBar: AppBar(
@@ -70,7 +69,7 @@ class QrCodeWrapper extends StatelessWidget {
           );
         }
 
-        if (!state.hasContent) {
+        if (!provider.hasContent) {
           return Scaffold(
             appBar: AppBar(
               title: const Text('Loading...'),
@@ -83,20 +82,20 @@ class QrCodeWrapper extends StatelessWidget {
         }
 
         // Display the appropriate screen based on content type
-        switch (state.contentType) {
+        switch (provider.contentType) {
           case 'survey':
             return ListQuestionsScreen(
-              questions: state.data as List<dynamic>,
-              surveyId: state.surveyId!,
-              title: state.title ?? 'Survey',
+              questions: provider.data as List<dynamic>,
+              surveyId: provider.surveyId!,
+              title: provider.title ?? 'Survey',
             );
           case 'documents':
             return ListDocumentsScreen(
-              documents: state.data as List<dynamic>,
+              documents: provider.data as List<dynamic>,
             );
           case 'media':
             return ListMediaScreen(
-              mediaList: state.data as List<dynamic>,
+              mediaList: provider.data as List<dynamic>,
             );
           default:
             return Scaffold(

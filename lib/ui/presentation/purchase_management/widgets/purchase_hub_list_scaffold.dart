@@ -4,11 +4,11 @@ import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_bac
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_glass_header.dart';
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_list_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 
-typedef PurchaseListItemBuilder = Widget Function(
-    BuildContext context, int index);
+typedef PurchaseListItemBuilder = Widget Function(BuildContext context, int index);
 
 class PurchaseHubListScaffold extends StatelessWidget {
   const PurchaseHubListScaffold({

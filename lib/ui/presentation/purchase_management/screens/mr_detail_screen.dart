@@ -1,89 +1,82 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
 import 'package:el_race/ui/presentation/purchase_management/data/purchase_models.dart';
 import 'package:el_race/ui/presentation/purchase_management/data/purchase_status.dart';
-import 'package:el_race/ui/presentation/purchase_management/bloc/mr_detail_cubit.dart';
+import 'package:el_race/ui/presentation/purchase_management/providers/purchase_providers.dart';
 import 'package:el_race/ui/presentation/purchase_management/theme/purchase_theme.dart';
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_background.dart';
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_draft_invoice_row.dart';
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_glass_header.dart';
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_status_chip.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Lightweight MR detail — status stepper, key fields, attachments only.
-class MrDetailScreen extends StatelessWidget {
+class MrDetailScreen extends ConsumerWidget {
   const MrDetailScreen({super.key, required this.mrId});
 
   final int mrId;
 
   @override
-  Widget build(BuildContext context) {
-    context.read<MrDetailCubit>().load(mrId);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final detailAsync = ref.watch(mrDetailProvider(mrId));
     return PurchaseBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: BlocBuilder<MrDetailCubit, MrDetailState>(
-          builder: (context, state) {
-            if (state.isLoading) {
-              return Column(
-                children: [
-                  PurchaseManagementGlassHeader(
-                    title: translate('home.purchase.mr_detail_title'),
-                    showBack: true,
-                    onBack: () => Navigator.pop(context),
-                  ),
-                  const Expanded(
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: PurchaseTheme.accentBlue,
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            }
-            if (state.error != null) {
-              return Column(
-                children: [
-                  PurchaseManagementGlassHeader(
-                    title: translate('home.purchase.mr_detail_title'),
-                    showBack: true,
-                    onBack: () => Navigator.pop(context),
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        state.error!,
-                        style: GoogleFonts.poppins(
-                          color: Colors.red,
-                          fontSize: 13.tsp,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            }
-            final detail = state.detail;
-            if (detail == null) {
-              return Column(
-                children: [
-                  PurchaseManagementGlassHeader(
-                    title: translate('home.purchase.mr_detail_title'),
-                    showBack: true,
-                    onBack: () => Navigator.pop(context),
-                  ),
-                  const Expanded(
-                    child: Center(child: Text('Not found')),
-                  ),
-                ],
-              );
-            }
-            return _MrSummaryContent(detail: detail);
-          },
+        body: detailAsync.when(
+          loading: () => Column(
+          children: [
+            PurchaseManagementGlassHeader(
+              title: translate('home.purchase.mr_detail_title'),
+              showBack: true,
+              onBack: () => Navigator.pop(context),
+            ),
+            const Expanded(
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: PurchaseTheme.accentBlue,
+                ),
+              ),
+            ),
+          ],
+        ),
+        error: (e, _) => Column(
+          children: [
+            PurchaseManagementGlassHeader(
+              title: translate('home.purchase.mr_detail_title'),
+              showBack: true,
+              onBack: () => Navigator.pop(context),
+            ),
+            Expanded(
+              child: Center(
+                child: Text(
+                  e.toString(),
+                  style: GoogleFonts.poppins(color: Colors.red, fontSize: 13.tsp),
+                ),
+              ),
+            ),
+          ],
+        ),
+        data: (detail) {
+          if (detail == null) {
+            return Column(
+              children: [
+                PurchaseManagementGlassHeader(
+                  title: translate('home.purchase.mr_detail_title'),
+                  showBack: true,
+                  onBack: () => Navigator.pop(context),
+                ),
+                const Expanded(
+                  child: Center(child: Text('Not found')),
+                ),
+              ],
+            );
+          }
+          return _MrSummaryContent(detail: detail);
+        },
         ),
       ),
     );
@@ -133,9 +126,7 @@ class _MrSummaryContent extends StatelessWidget {
                   ),
                   _Row(label: 'Priority', value: detail.priority.toUpperCase()),
                   _Row(label: 'Proposed Vendor', value: detail.proposedVendor),
-                  _Row(
-                      label: 'Requester Manager',
-                      value: detail.requesterManager),
+                  _Row(label: 'Requester Manager', value: detail.requesterManager),
                 ],
               ),
               if (detail.approvalTrail.isNotEmpty) ...[
@@ -396,12 +387,9 @@ class _AttachmentRow extends StatelessWidget {
       decoration: PurchaseTheme.glassPanel(radius: 10.tr),
       child: Row(
         children: [
-          Icon(Icons.attach_file,
-              size: 20.tsp, color: PurchaseTheme.accentBlue),
+          Icon(Icons.attach_file, size: 20.tsp, color: PurchaseTheme.accentBlue),
           SizedBox(width: 10.tw),
-          Expanded(
-              child: Text(file.name,
-                  style: GoogleFonts.poppins(fontSize: 12.tsp))),
+          Expanded(child: Text(file.name, style: GoogleFonts.poppins(fontSize: 12.tsp))),
           IconButton(
             icon: const Icon(Icons.open_in_new_rounded),
             onPressed: () async {

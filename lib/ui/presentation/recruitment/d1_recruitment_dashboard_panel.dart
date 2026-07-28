@@ -1,7 +1,7 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
 import 'package:el_race/core/hr_management/hr_effective_view.dart';
-import 'package:el_race/core/recruitment/bloc/recruitment_dashboard_cubit.dart';
-import 'package:el_race/core/recruitment/bloc/recruitment_requisitions_cubit.dart';
+import 'package:el_race/core/hr_management/providers/hr_management_providers.dart';
+import 'package:el_race/core/recruitment/providers/requisition_providers.dart';
 import 'package:el_race/core/theme/hr_module_colors.dart';
 import 'package:el_race/core/theme/hr_module_typography.dart';
 import 'package:el_race/core/utils/pdf_watermark.dart';
@@ -9,20 +9,21 @@ import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/core/widgets/hr_management/hr_kpi_counter_card.dart';
 import 'package:el_race/core/widgets/recruitment/recruitment_funnel_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:printing/printing.dart';
 
 /// D1 — Recruitment dashboard content (SRD §6); embedded in R1 or full-screen.
-class D1RecruitmentDashboardPanel extends StatefulWidget {
+class D1RecruitmentDashboardPanel extends ConsumerStatefulWidget {
   const D1RecruitmentDashboardPanel({super.key});
 
   @override
-  State<D1RecruitmentDashboardPanel> createState() =>
+  ConsumerState<D1RecruitmentDashboardPanel> createState() =>
       _D1RecruitmentDashboardPanelState();
 }
 
 class _D1RecruitmentDashboardPanelState
-    extends State<D1RecruitmentDashboardPanel> {
+    extends ConsumerState<D1RecruitmentDashboardPanel> {
   int _period = 2; // quarter default
   static const _periodLabels = [
     'This week',
@@ -41,12 +42,6 @@ class _D1RecruitmentDashboardPanelState
   void initState() {
     super.initState();
     _pageController = PageController();
-    final dashboardCubit = context.read<RecruitmentDashboardCubit>();
-    final requisitionsCubit = context.read<RecruitmentRequisitionsCubit>();
-    Future.microtask(() {
-      dashboardCubit.load();
-      requisitionsCubit.load();
-    });
   }
 
   @override
@@ -183,11 +178,11 @@ class _D1RecruitmentDashboardPanelState
 
   @override
   Widget build(BuildContext context) {
-    final view = hrEffectiveViewFromLoginPref();
-    final dashState = context.watch<RecruitmentDashboardCubit>().state;
-    final reqs = context.watch<RecruitmentRequisitionsCubit>().state.items;
+    final view = ref.watch(hrEffectiveViewProvider);
+    final dashAsync = ref.watch(recruitmentDashboardProvider);
+    final reqs = ref.watch(requisitionsListProvider).asData?.value ?? [];
 
-    final dash = dashState.data;
+    final dash = dashAsync.asData?.value;
     final kpis = dash?['kpis'] as Map<String, dynamic>?;
     final openReqs = (kpis?['open'] as num?)?.toInt() ??
         reqs
@@ -203,19 +198,14 @@ class _D1RecruitmentDashboardPanelState
         ? funnelRaw.map((e) => (e as Map)['stage']?.toString() ?? '').toList()
         : ['APPLIED', 'SCREENING', 'INTERVIEW', 'OFFER', 'HIRED'];
     final funnelCounts = funnelRaw.isNotEmpty
-        ? funnelRaw
-            .map((e) => ((e as Map)['count'] as num?)?.toInt() ?? 0)
-            .toList()
+        ? funnelRaw.map((e) => ((e as Map)['count'] as num?)?.toInt() ?? 0).toList()
         : [pipeline, 0, 0, offers, 0];
 
     final deptRaw = dash?['by_department'] as List? ?? [];
-    final depts = deptRaw
-        .whereType<Map>()
-        .map((e) => Map<String, dynamic>.from(e))
-        .toList();
+    final depts = deptRaw.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
 
-    final showManagerViz =
-        view == HrEffectiveView.manager || view == HrEffectiveView.hrManager;
+    final showManagerViz = view == HrEffectiveView.manager ||
+        view == HrEffectiveView.hrManager;
 
     final hiredPeriod = funnelCounts.isNotEmpty
         ? funnelCounts.last

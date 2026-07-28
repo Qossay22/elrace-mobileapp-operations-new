@@ -1,6 +1,7 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
 import 'package:el_race/ui/presentation/purchase_management/theme/purchase_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// Pill trend badge (+4.5% ↑ from last month style).
@@ -48,9 +49,7 @@ class PurchaseTrendBadge extends StatelessWidget {
           if (!compact) ...[
             SizedBox(width: 4.tw),
             Icon(
-              positive
-                  ? Icons.arrow_upward_rounded
-                  : Icons.arrow_downward_rounded,
+              positive ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
               size: 10.tsp,
               color: color,
             ),

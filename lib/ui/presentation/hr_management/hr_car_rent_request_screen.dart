@@ -2,29 +2,31 @@ import 'package:el_race/core/utils/responsive_breakpoints.dart';
 import 'dart:convert';
 
 import 'package:el_race/core/hr_management/network/hr_api_client.dart';
-import 'package:el_race/core/hr_management/network/hr_api_client_factory.dart';
+import 'package:el_race/core/hr_management/providers/hr_management_providers.dart';
 import 'package:el_race/core/theme/hr_module_colors.dart';
 import 'package:el_race/core/theme/hr_module_layout.dart';
 import 'package:el_race/core/theme/hr_module_typography.dart';
 import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
 /// Car Rent Request — SRD §5.3 / TASKS F3.
-class HrCarRentRequestScreen extends StatefulWidget {
+class HrCarRentRequestScreen extends ConsumerStatefulWidget {
   const HrCarRentRequestScreen({super.key});
 
   static const draftKey = 'hr_draft_car_rent_v1';
 
   @override
-  State<HrCarRentRequestScreen> createState() => _HrCarRentRequestScreenState();
+  ConsumerState<HrCarRentRequestScreen> createState() =>
+      _HrCarRentRequestScreenState();
 }
 
-class _HrCarRentRequestScreenState extends State<HrCarRentRequestScreen> {
+class _HrCarRentRequestScreenState extends ConsumerState<HrCarRentRequestScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _api = createHrApiClient();
   String? _purpose;
   DateTime? _fromDt;
   DateTime? _toDt;
@@ -59,8 +61,7 @@ class _HrCarRentRequestScreenState extends State<HrCarRentRequestScreen> {
   }
 
   void _loadDraft() {
-    final raw =
-        SharedPref().getPreferenceString(HrCarRentRequestScreen.draftKey);
+    final raw = SharedPref().getPreferenceString(HrCarRentRequestScreen.draftKey);
     if (raw.isEmpty) return;
     try {
       final m = jsonDecode(raw) as Map<String, dynamic>;
@@ -92,17 +93,15 @@ class _HrCarRentRequestScreenState extends State<HrCarRentRequestScreen> {
       'justification': _justification.text,
       'attachment': _attachmentName,
     };
-    await SharedPref().setPreferencesString(
-        HrCarRentRequestScreen.draftKey, jsonEncode(payload));
+    await SharedPref()
+        .setPreferencesString(HrCarRentRequestScreen.draftKey, jsonEncode(payload));
     if (mounted) Fluttertoast.showToast(msg: 'Draft saved');
   }
 
   Future<void> _pickDateTime({required bool isFrom}) async {
     final now = DateTime.now();
     final todayStart = DateTime(now.year, now.month, now.day);
-    final initial = isFrom
-        ? (_fromDt ?? now)
-        : (_toDt ?? now.add(const Duration(hours: 2)));
+    final initial = isFrom ? (_fromDt ?? now) : (_toDt ?? now.add(const Duration(hours: 2)));
     final d = await showDatePicker(
       context: context,
       firstDate: isFrom ? todayStart : todayStart,
@@ -148,8 +147,7 @@ class _HrCarRentRequestScreenState extends State<HrCarRentRequestScreen> {
       return;
     }
     final dist = int.tryParse(_distance.text.trim());
-    if (_distance.text.trim().isNotEmpty &&
-        (dist == null || dist < 0 || dist > 5000)) {
+    if (_distance.text.trim().isNotEmpty && (dist == null || dist < 0 || dist > 5000)) {
       Fluttertoast.showToast(msg: 'Distance 0–5000 km');
       return;
     }
@@ -171,7 +169,6 @@ class _HrCarRentRequestScreenState extends State<HrCarRentRequestScreen> {
     if (env.success) {
       final refNo = env.data?['reference']?.toString() ?? '';
       await SharedPref().removePreference(HrCarRentRequestScreen.draftKey);
-      if (!mounted) return;
       Fluttertoast.showToast(msg: 'Request submitted — Ref: $refNo');
       Navigator.of(context).pop();
     } else {
@@ -193,6 +190,7 @@ class _HrCarRentRequestScreenState extends State<HrCarRentRequestScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final api = ref.watch(hrApiClientProvider);
     return Scaffold(
       backgroundColor: HrModuleColors.surface,
       appBar: AppBar(
@@ -213,10 +211,9 @@ class _HrCarRentRequestScreenState extends State<HrCarRentRequestScreen> {
               style: HrModuleTypography.body().copyWith(fontSize: 14.tsp),
             ),
             SizedBox(height: 16.th),
-            Text('Purpose *',
-                style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
+            Text('Purpose *', style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
             DropdownButtonFormField<String>(
-              initialValue: _purpose,
+              value: _purpose,
               items: _purposes
                   .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                   .toList(),
@@ -231,9 +228,7 @@ class _HrCarRentRequestScreenState extends State<HrCarRentRequestScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('From *',
-                          style: HrModuleTypography.caption()
-                              .copyWith(fontSize: 12.tsp)),
+                      Text('From *', style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
                       OutlinedButton(
                         onPressed: () => _pickDateTime(isFrom: true),
                         child: Text(_fmt(_fromDt)),
@@ -246,9 +241,7 @@ class _HrCarRentRequestScreenState extends State<HrCarRentRequestScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('To *',
-                          style: HrModuleTypography.caption()
-                              .copyWith(fontSize: 12.tsp)),
+                      Text('To *', style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
                       OutlinedButton(
                         onPressed: () => _pickDateTime(isFrom: false),
                         child: Text(_fmt(_toDt)),
@@ -259,8 +252,7 @@ class _HrCarRentRequestScreenState extends State<HrCarRentRequestScreen> {
               ],
             ),
             SizedBox(height: HrModuleLayout.formFieldSpacingV.th),
-            Text('Pickup Location *',
-                style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
+            Text('Pickup Location *', style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
             TextFormField(
               controller: _pickup,
               maxLength: 150,
@@ -268,8 +260,7 @@ class _HrCarRentRequestScreenState extends State<HrCarRentRequestScreen> {
               validator: (v) =>
                   (v == null || v.trim().isEmpty) ? 'Required' : null,
             ),
-            Text('Drop-off Location *',
-                style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
+            Text('Drop-off Location *', style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
             TextFormField(
               controller: _dropoff,
               maxLength: 150,
@@ -278,10 +269,9 @@ class _HrCarRentRequestScreenState extends State<HrCarRentRequestScreen> {
                   (v == null || v.trim().isEmpty) ? 'Required' : null,
             ),
             SizedBox(height: HrModuleLayout.formFieldSpacingV.th),
-            Text('Vehicle Type',
-                style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
+            Text('Vehicle Type', style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
             DropdownButtonFormField<String>(
-              initialValue: _vehicle,
+              value: _vehicle,
               items: _vehicles
                   .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                   .toList(),
@@ -289,16 +279,14 @@ class _HrCarRentRequestScreenState extends State<HrCarRentRequestScreen> {
               decoration: _decoration('Any'),
             ),
             SizedBox(height: HrModuleLayout.formFieldSpacingV.th),
-            Text('Estimated Distance (km)',
-                style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
+            Text('Estimated Distance (km)', style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
             TextFormField(
               controller: _distance,
               keyboardType: TextInputType.number,
               decoration: _decoration('0–5000'),
             ),
             SizedBox(height: HrModuleLayout.formFieldSpacingV.th),
-            Text('Justification *',
-                style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
+            Text('Justification *', style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
             TextFormField(
               controller: _justification,
               minLines: 3,
@@ -324,25 +312,20 @@ class _HrCarRentRequestScreenState extends State<HrCarRentRequestScreen> {
                   child: OutlinedButton(
                     onPressed: _saveDraft,
                     style: OutlinedButton.styleFrom(
-                      minimumSize:
-                          Size.fromHeight(HrModuleLayout.buttonHeight.th),
+                      minimumSize: Size.fromHeight(HrModuleLayout.buttonHeight.th),
                     ),
-                    child: Text('Save Draft',
-                        style: TextStyle(
-                            color: HrModuleColors.primary, fontSize: 14.tsp)),
+                    child: Text('Save Draft', style: TextStyle(color: HrModuleColors.primary, fontSize: 14.tsp)),
                   ),
                 ),
                 SizedBox(width: 12.tw),
                 Expanded(
                   child: FilledButton(
-                    onPressed: () => _submit(_api),
+                    onPressed: () => _submit(api),
                     style: FilledButton.styleFrom(
                       backgroundColor: HrModuleColors.primary,
-                      minimumSize:
-                          Size.fromHeight(HrModuleLayout.buttonHeight.th),
+                      minimumSize: Size.fromHeight(HrModuleLayout.buttonHeight.th),
                     ),
-                    child: Text('Submit Request',
-                        style: TextStyle(fontSize: 14.tsp)),
+                    child: Text('Submit Request', style: TextStyle(fontSize: 14.tsp)),
                   ),
                 ),
               ],

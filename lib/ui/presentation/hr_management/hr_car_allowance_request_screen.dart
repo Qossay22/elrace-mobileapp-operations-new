@@ -2,7 +2,7 @@ import 'package:el_race/core/utils/responsive_breakpoints.dart';
 import 'dart:convert';
 
 import 'package:el_race/core/hr_management/network/hr_api_client.dart';
-import 'package:el_race/core/hr_management/network/hr_api_client_factory.dart';
+import 'package:el_race/core/hr_management/providers/hr_management_providers.dart';
 import 'package:el_race/core/theme/hr_module_colors.dart';
 import 'package:el_race/core/theme/hr_module_layout.dart';
 import 'package:el_race/core/theme/hr_module_typography.dart';
@@ -10,24 +10,25 @@ import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
 /// Car Allowance Request — SRD §5.4 / TASKS F4.
-class HrCarAllowanceRequestScreen extends StatefulWidget {
+class HrCarAllowanceRequestScreen extends ConsumerStatefulWidget {
   const HrCarAllowanceRequestScreen({super.key});
 
   static const draftKey = 'hr_draft_car_allowance_v1';
 
   @override
-  State<HrCarAllowanceRequestScreen> createState() =>
+  ConsumerState<HrCarAllowanceRequestScreen> createState() =>
       _HrCarAllowanceRequestScreenState();
 }
 
 class _HrCarAllowanceRequestScreenState
-    extends State<HrCarAllowanceRequestScreen> {
+    extends ConsumerState<HrCarAllowanceRequestScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _api = createHrApiClient();
   String? _allowanceType;
   final _amount = TextEditingController();
   DateTime? _effectiveFrom;
@@ -117,8 +118,7 @@ class _HrCarAllowanceRequestScreenState
     }
     final now = DateTime.now();
     if (_effectiveFrom!.isBefore(now.subtract(const Duration(days: 90)))) {
-      Fluttertoast.showToast(
-          msg: 'Effective date cannot be more than 90 days past');
+      Fluttertoast.showToast(msg: 'Effective date cannot be more than 90 days past');
       return;
     }
     if (_allowanceType == 'Monthly Fixed' &&
@@ -142,7 +142,6 @@ class _HrCarAllowanceRequestScreenState
     if (env.success) {
       final refNo = env.data?['reference']?.toString() ?? '';
       await SharedPref().removePreference(HrCarAllowanceRequestScreen.draftKey);
-      if (!mounted) return;
       Fluttertoast.showToast(msg: 'Request submitted — Ref: $refNo');
       Navigator.of(context).pop();
     } else {
@@ -159,6 +158,7 @@ class _HrCarAllowanceRequestScreenState
 
   @override
   Widget build(BuildContext context) {
+    final api = ref.watch(hrApiClientProvider);
     final dateLabel = _effectiveFrom != null
         ? DateFormat('dd MMM yyyy').format(_effectiveFrom!)
         : 'Pick date';
@@ -183,10 +183,9 @@ class _HrCarAllowanceRequestScreenState
               style: HrModuleTypography.body().copyWith(fontSize: 14.tsp),
             ),
             SizedBox(height: 16.th),
-            Text('Allowance Type *',
-                style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
+            Text('Allowance Type *', style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
             DropdownButtonFormField<String>(
-              initialValue: _allowanceType,
+              value: _allowanceType,
               items: _types
                   .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                   .toList(),
@@ -195,12 +194,10 @@ class _HrCarAllowanceRequestScreenState
               decoration: _decoration('Select type'),
             ),
             SizedBox(height: HrModuleLayout.formFieldSpacingV.th),
-            Text('Requested Amount (AED) *',
-                style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
+            Text('Requested Amount (AED) *', style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
             TextFormField(
               controller: _amount,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
               ],
@@ -214,15 +211,13 @@ class _HrCarAllowanceRequestScreenState
               },
             ),
             SizedBox(height: HrModuleLayout.formFieldSpacingV.th),
-            Text('Effective From *',
-                style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
+            Text('Effective From *', style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
             OutlinedButton(
               onPressed: _pickDate,
               child: Text(dateLabel),
             ),
             SizedBox(height: HrModuleLayout.formFieldSpacingV.th),
-            Text('Justification *',
-                style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
+            Text('Justification *', style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
             TextFormField(
               controller: _justification,
               minLines: 4,
@@ -236,16 +231,14 @@ class _HrCarAllowanceRequestScreenState
               },
             ),
             SizedBox(height: HrModuleLayout.formFieldSpacingV.th),
-            Text('Vehicle Registration (Mulkiya)',
-                style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
+            Text('Vehicle Registration (Mulkiya)', style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
             OutlinedButton.icon(
               onPressed: _pickMulkiya,
               icon: const Icon(Icons.description_outlined),
               label: Text(_mulkiyaName ?? 'Attach (optional)'),
             ),
             SizedBox(height: 8.th),
-            Text('Driving License',
-                style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
+            Text('Driving License', style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp)),
             OutlinedButton.icon(
               onPressed: _pickLicense,
               icon: const Icon(Icons.badge_outlined),
@@ -258,25 +251,20 @@ class _HrCarAllowanceRequestScreenState
                   child: OutlinedButton(
                     onPressed: _saveDraft,
                     style: OutlinedButton.styleFrom(
-                      minimumSize:
-                          Size.fromHeight(HrModuleLayout.buttonHeight.th),
+                      minimumSize: Size.fromHeight(HrModuleLayout.buttonHeight.th),
                     ),
-                    child: Text('Save Draft',
-                        style: TextStyle(
-                            color: HrModuleColors.primary, fontSize: 14.tsp)),
+                    child: Text('Save Draft', style: TextStyle(color: HrModuleColors.primary, fontSize: 14.tsp)),
                   ),
                 ),
                 SizedBox(width: 12.tw),
                 Expanded(
                   child: FilledButton(
-                    onPressed: () => _submit(_api),
+                    onPressed: () => _submit(api),
                     style: FilledButton.styleFrom(
                       backgroundColor: HrModuleColors.primary,
-                      minimumSize:
-                          Size.fromHeight(HrModuleLayout.buttonHeight.th),
+                      minimumSize: Size.fromHeight(HrModuleLayout.buttonHeight.th),
                     ),
-                    child: Text('Submit Request',
-                        style: TextStyle(fontSize: 14.tsp)),
+                    child: Text('Submit Request', style: TextStyle(fontSize: 14.tsp)),
                   ),
                 ),
               ],

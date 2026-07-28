@@ -1,13 +1,14 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
 import 'package:el_race/data/models/global_search_item.dart';
+import 'package:el_race/providers/global_search_provider.dart';
 import 'package:el_race/ui/chat/widgets/chat_unified_header_backdrop.dart';
-import 'package:el_race/ui/widgets/global_search/bloc/global_search_bloc.dart';
 import 'package:el_race/ui/widgets/global_search_item_builder.dart';
 import 'package:el_race/ui/widgets/global_search_theme.dart';
 import 'package:el_race/utils/global_search_navigation_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 
 /// Full vertical list for one global-search category (opened from "See more").
@@ -28,8 +29,7 @@ class GlobalSearchCategoryScreen extends StatefulWidget {
       _GlobalSearchCategoryScreenState();
 }
 
-class _GlobalSearchCategoryScreenState
-    extends State<GlobalSearchCategoryScreen> {
+class _GlobalSearchCategoryScreenState extends State<GlobalSearchCategoryScreen> {
   late final GlobalSearchItemBuilder _itemBuilder;
   List<GlobalSearchItem> _items = [];
   bool _loading = true;
@@ -51,7 +51,7 @@ class _GlobalSearchCategoryScreenState
       _error = null;
     });
     try {
-      final items = await context.read<GlobalSearchBloc>().fetchCategoryList(
+      final items = await context.read<GlobalSearchProvider>().fetchCategoryList(
             category: widget.category,
             keyword: widget.keyword,
           );

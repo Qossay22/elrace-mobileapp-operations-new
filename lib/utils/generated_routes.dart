@@ -4,8 +4,14 @@ import 'package:el_race/ui/presentation/signin/data/model.dart';
 import 'package:el_race/ui/presentation/signin/sign_in_screen.dart';
 import 'package:el_race/ui/presentation/splash_screen/splash_screen.dart';
 import 'package:el_race/utils/di.dart';
-import 'package:el_race/core/timesheet/bloc/timesheet_entry_mode_cubit.dart';
+import 'package:el_race/core/timesheet/providers/timesheet_entry_mode_provider.dart';
 import 'package:el_race/ui/presentation/timesheet/timesheet_entry_mode_scope.dart';
+import 'package:el_race/core/clients_vendors/clients_vendors_route_names.dart';
+import 'package:el_race/ui/presentation/clients_vendors/clients_screen.dart';
+import 'package:el_race/ui/presentation/clients_vendors/vendors_screen.dart';
+import 'package:el_race/ui/presentation/clients_vendors/screens/accounts_receivable_screen.dart';
+import 'package:el_race/ui/presentation/clients_vendors/screens/outstanding_invoices_screen.dart';
+import 'package:el_race/ui/presentation/clients_vendors/screens/vendor_bills_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:el_race/ui/presentation/home_screen/screens/home_screen.dart';
@@ -32,6 +38,7 @@ import '../ui/presentation/hr_management/hr_requests_module_screen.dart';
 import '../ui/presentation/hr_management/hr_asset_under_planning_screen.dart';
 import '../ui/presentation/hr_management/hr_circular_announcements_screen.dart';
 import '../ui/presentation/hr_management/employees_profile_screen.dart';
+import '../ui/presentation/hr_management/company_documents_screen.dart';
 import '../core/hr_management/routing/hr_route_names.dart';
 import '../core/timesheet/routing/timesheet_route_names.dart';
 import '../core/widgets/hr_management/hr_module_widgets_sandbox.dart';
@@ -44,6 +51,7 @@ import '../ui/presentation/timesheet/foreman/fm3_task_detail.dart';
 import '../ui/presentation/timesheet/foreman/fm_day_hub_screen.dart';
 import '../ui/presentation/timesheet/foreman/fm_project_dates_screen.dart';
 import '../ui/presentation/timesheet/foreman/fm_project_picker_screen.dart';
+import '../ui/presentation/timesheet/foreman/fm_projects_list.dart';
 import '../ui/presentation/timesheet/foreman/fm_sync_queue_screen.dart';
 import '../ui/presentation/timesheet/foreman/fm_tasks_hub_screen.dart';
 import '../ui/presentation/timesheet/pm/pm1_dashboard.dart';
@@ -58,6 +66,7 @@ import '../ui/presentation/timesheet/project_chat_entry.dart';
 import '../ui/presentation/timesheet/site_photos_gallery.dart';
 import '../ui/presentation/timesheet/foreman/fm_timesheet_print_report_screen.dart';
 import '../ui/presentation/timesheet/foreman/fm_timesheet_records_screen.dart';
+import '../ui/presentation/timesheet/site_report_form.dart';
 import '../ui/presentation/timesheet/site_management_module_entry_screen.dart';
 import '../ui/presentation/timesheet/timesheet_module_home_screen.dart';
 import '../ui/presentation/timesheet/timesheet_project_detail_router.dart';
@@ -136,18 +145,19 @@ class OnGeneratedRoutes {
       case HrRouteNames.employeesProfile:
         return CupertinoPageRoute(
             builder: (_) => const EmployeesProfileScreen());
+      case HrRouteNames.companyDocuments:
+        return CupertinoPageRoute(
+            builder: (_) => const CompanyDocumentsScreen());
       case HrRouteNames.requests:
         return CupertinoPageRoute(
             builder: (_) => const HrRequestsModuleScreen());
       case HrRouteNames.simRequest:
         return CupertinoPageRoute(
-          builder: (_) =>
-              const HrAssetUnderPlanningScreen(title: 'SIM Card Request'),
+          builder: (_) => const HrAssetUnderPlanningScreen(title: 'SIM Card Request'),
         );
       case HrRouteNames.carRentRequest:
         return CupertinoPageRoute(
-          builder: (_) =>
-              const HrAssetUnderPlanningScreen(title: 'Car Rent Request'),
+          builder: (_) => const HrAssetUnderPlanningScreen(title: 'Car Rent Request'),
         );
       case HrRouteNames.carAllowanceRequest:
         return CupertinoPageRoute(
@@ -157,6 +167,30 @@ class OnGeneratedRoutes {
       case HrRouteNames.widgetSandbox:
         return CupertinoPageRoute(
             builder: (_) => const HrModuleWidgetsSandbox());
+      case ClientsVendorsRouteNames.clients:
+        return CupertinoPageRoute(builder: (_) => const ClientsScreen());
+      case ClientsVendorsRouteNames.vendors:
+        return CupertinoPageRoute(builder: (_) => const VendorsScreen());
+      case ClientsVendorsRouteNames.accountsReceivable:
+        return CupertinoPageRoute(
+          builder: (_) => const AccountsReceivableScreen(),
+        );
+      case ClientsVendorsRouteNames.outstandingInvoices:
+        final oiArgs = settings.arguments;
+        return CupertinoPageRoute(
+          builder: (_) => OutstandingInvoicesScreen(
+            args: oiArgs is OutstandingInvoicesArgs ? oiArgs : null,
+          ),
+        );
+      case ClientsVendorsRouteNames.vendorBills:
+        final vbArgs = settings.arguments;
+        return CupertinoPageRoute(
+          builder: (_) => VendorBillsScreen(
+            args: vbArgs is VendorBillsArgs
+                ? vbArgs
+                : const VendorBillsArgs(scope: 'purchases'),
+          ),
+        );
       case TimesheetRouteNames.home:
         return CupertinoPageRoute(
           builder: (_) => const TimesheetEntryModeScope(
@@ -199,7 +233,8 @@ class OnGeneratedRoutes {
         );
       case TimesheetRouteNames.projectDates:
         final args = settings.arguments;
-        final projectId = args is TimesheetProjectArgs ? args.projectId : '0';
+        final projectId =
+            args is TimesheetProjectArgs ? args.projectId : '0';
         final projectName =
             args is TimesheetProjectArgs ? args.projectName : null;
         final clientImageUrl =

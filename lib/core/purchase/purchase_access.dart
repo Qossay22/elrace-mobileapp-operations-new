@@ -51,7 +51,8 @@ class PurchaseAccess {
 
   bool get canCreateInvoice => isDocController;
 
-  bool get canReceiveInvoice => isPurchaseRep && !isPurchaseManager;
+  bool get canReceiveInvoice =>
+      isPurchaseRep && !isPurchaseManager;
 
   bool canSeeTab(PurchaseTab tab) => allowedTabs.contains(tab);
 

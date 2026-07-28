@@ -5,9 +5,9 @@ import 'package:el_race/report_module/core/constants/text_styles.dart';
 import 'package:el_race/report_module/core/utils/directory_operation.dart';
 import 'package:el_race/report_module/data/models/report_item_model.dart';
 import 'package:el_race/report_module/data/models/report_model.dart';
+import 'package:el_race/report_module/data/provider/reports_provider.dart';
 import 'package:el_race/report_module/data/repositories/company_repository.dart';
 import 'package:el_race/report_module/data/services/pdf_service.dart';
-import 'package:el_race/report_module/presentation/bloc/report_bloc.dart';
 import 'package:el_race/report_module/presentation/bottom_sheets/create_task_from_report_sheet.dart';
 import 'package:el_race/report_module/presentation/bottom_sheets/show_option_sheet.dart';
 import 'package:el_race/report_module/presentation/dialogs/add_image_options_dialog.dart';
@@ -19,14 +19,14 @@ import 'package:el_race/report_module/presentation/widgets/bottom_appbar.dart';
 import 'package:el_race/report_module/presentation/widgets/linked_tasks_list.dart';
 import 'package:el_race/report_module/presentation/widgets/report_item.dart';
 import 'package:el_race/report_module/presentation/widgets/square_button.dart';
-import 'package:el_race/ui/presentation/tasks/bloc/tasks_bloc.dart';
 import 'package:el_race/ui/presentation/tasks/data/task_model.dart';
+import 'package:el_race/ui/presentation/tasks/logic/tasks_provider.dart';
 import 'package:el_race/utils/color_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../data/models/report_detail_model.dart';
@@ -67,7 +67,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
   Future<void> _loadLinkedTasks() async {
     if (reportDetail == null) return;
 
-    final tasksProvider = context.read<TasksBloc>();
+    final tasksProvider = Provider.of<TasksProvider>(context, listen: false);
 
     try {
       if (tasksProvider.status == TasksStatus.initial ||
@@ -109,13 +109,12 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
       reportItems: [],
     );
 
-    reportDetail =
-        await context.read<ReportBloc>().getReportDetail(widget.report) ??
-            ReportDetailModel(
-              report: widget.report,
-              coverPage: null,
-              reportItems: [],
-            );
+    reportDetail = await reportProvider.getReportDetail(widget.report) ??
+        ReportDetailModel(
+          report: widget.report,
+          coverPage: null,
+          reportItems: [],
+        );
     _loading = false;
     setState(() {});
   }
@@ -227,8 +226,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                                 options: ["Confirm Delete", "Cancel"]);
                             if (status == 0) {
                               setState(() {});
-                              bool status = await context
-                                  .read<ReportBloc>()
+                              bool status = await reportProvider
                                   .deleteCoverPage(reportDetail!);
                               if (status) {
                                 reportDetail =
@@ -264,8 +262,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                             reportDetail!.reportItems
                                 .insert(newIndex, movedItem);
                           });
-                          await context
-                              .read<ReportBloc>()
+                          await reportProvider
                               .updateReportDetail(reportDetail!);
                           _loadUpdatedRecord();
                         }),
@@ -416,11 +413,11 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
             createdAt: DateTime.now(),
             updatedAt: DateTime.now());
 
-        await context.read<ReportBloc>().updateReportDetail(
-              reportDetail!.copyWith(
-                reportItems: [...reportDetail!.reportItems, newItem],
-              ),
-            );
+        await reportProvider.updateReportDetail(
+          reportDetail!.copyWith(
+            reportItems: [...reportDetail!.reportItems, newItem],
+          ),
+        );
         reportDetail = reportDetail!.copyWith(
           reportItems: [...reportDetail!.reportItems, newItem],
         );
@@ -455,11 +452,11 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
             createdAt: DateTime.now(),
             updatedAt: DateTime.now());
 
-        await context.read<ReportBloc>().updateReportDetail(
-              reportDetail!.copyWith(
-                reportItems: [...reportDetail!.reportItems, newItem],
-              ),
-            );
+        await reportProvider.updateReportDetail(
+          reportDetail!.copyWith(
+            reportItems: [...reportDetail!.reportItems, newItem],
+          ),
+        );
 
         reportDetail = reportDetail!.copyWith(
           reportItems: [...reportDetail!.reportItems, newItem],
@@ -513,7 +510,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
       List<ReportItemModel> items = reportDetail!.reportItems;
       items.removeWhere((e) => e.id == item.id);
       reportDetail = reportDetail!.copyWith(reportItems: items);
-      await context.read<ReportBloc>().updateReportDetail(reportDetail!);
+      await reportProvider.updateReportDetail(reportDetail!);
       setState(() {});
 
       await _loadUpdatedRecord();
@@ -524,7 +521,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
   Future<void> _onSubmitTask(TaskModel task) async {
     if (task.id == null) return;
 
-    final tasksProvider = context.read<TasksBloc>();
+    final tasksProvider = Provider.of<TasksProvider>(context, listen: false);
 
     setState(() {
       _submittingTaskIds.add(task.id!);
@@ -593,21 +590,22 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
       final fileName =
           '${reportDetail!.report.name}-${DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}';
 
-      final success = await context.read<ReportBloc>().uploadReportPdf(
-            reportId: reportDetail!.report.id,
-            folderId: reportDetail!.report.folderId,
-            fileName: fileName,
-            pdfBytes: pdfBytes,
-            onProgress: (uploadProgress) {
-              if (!mounted) return;
-              final progress = (70 + (uploadProgress * 30)).clamp(70.0, 100.0);
-              setState(() {
-                _loadingProgress = progress;
-                loadingText =
-                    'Uploading updated report... ${_loadingProgress.round()}%';
-              });
-            },
-          );
+      final success = await reportProvider.uploadReportPdf(
+        empId: ReportProvider.empID,
+        reportId: reportDetail!.report.id,
+        folderId: reportDetail!.report.folderId,
+        fileName: fileName,
+        pdfBytes: pdfBytes,
+        onProgress: (uploadProgress) {
+          if (!mounted) return;
+          final progress = (70 + (uploadProgress * 30)).clamp(70.0, 100.0);
+          setState(() {
+            _loadingProgress = progress;
+            loadingText =
+                'Uploading updated report... ${_loadingProgress.round()}%';
+          });
+        },
+      );
 
       if (mounted && success != null) {
         setState(() {

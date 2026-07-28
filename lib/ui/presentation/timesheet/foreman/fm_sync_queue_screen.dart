@@ -5,16 +5,17 @@ import 'package:el_race/core/timesheet/services/timesheet_offline_queue_service.
 import 'package:el_race/core/widgets/timesheet/timesheet_widgets.dart';
 import 'package:el_race/ui/presentation/timesheet/timesheet_async_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-class FmSyncQueueScreen extends StatefulWidget {
+class FmSyncQueueScreen extends ConsumerStatefulWidget {
   const FmSyncQueueScreen({super.key});
 
   @override
-  State<FmSyncQueueScreen> createState() => _FmSyncQueueScreenState();
+  ConsumerState<FmSyncQueueScreen> createState() => _FmSyncQueueScreenState();
 }
 
-class _FmSyncQueueScreenState extends State<FmSyncQueueScreen> {
+class _FmSyncQueueScreenState extends ConsumerState<FmSyncQueueScreen> {
   final _captureQueue = TimesheetCaptureQueueService();
   final _offlineQueue = TimesheetOfflineQueueService();
   final _flowService = TimesheetCaptureFlowService();
@@ -36,8 +37,7 @@ class _FmSyncQueueScreenState extends State<FmSyncQueueScreen> {
               itemCount: 4,
             );
           }
-          final captureDrafts =
-              snapshot.data![0] as List<AttendanceCaptureDraft>;
+          final captureDrafts = snapshot.data![0] as List<AttendanceCaptureDraft>;
           final offlineItems =
               snapshot.data![1] as List<TimesheetOfflineQueueItem>;
 
@@ -86,10 +86,9 @@ class _FmSyncQueueScreenState extends State<FmSyncQueueScreen> {
                         TmTaskRow(
                           title: item.type.name,
                           subtitle: item.projectId,
-                          icon:
-                              item.type == TimesheetOfflineQueueType.siteReport
-                                  ? PhosphorIcons.fileText()
-                                  : PhosphorIcons.images(),
+                          icon: item.type == TimesheetOfflineQueueType.siteReport
+                              ? PhosphorIcons.fileText()
+                              : PhosphorIcons.images(),
                         ),
                         const SizedBox(
                           height: TimesheetModuleLayout.cardSpacing,

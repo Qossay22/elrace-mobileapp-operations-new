@@ -4,10 +4,10 @@ import 'package:el_race/core/theme/timesheet_module_theme.dart';
 import 'package:el_race/core/widgets/timesheet/timesheet_widgets.dart';
 import 'package:el_race/report_module/data/models/folder_model.dart';
 import 'package:el_race/report_module/data/models/report_model.dart';
+import 'package:el_race/report_module/data/provider/reports_provider.dart';
 import 'package:el_race/report_module/data/repositories/company_repository.dart';
 import 'package:el_race/report_module/data/report_pdf_templates.dart';
 import 'package:el_race/report_module/data/services/pdf_service.dart';
-import 'package:el_race/report_module/presentation/bloc/report_bloc.dart';
 import 'package:el_race/report_module/presentation/screens/report_photos/multi_capture_camera_screen.dart';
 import 'package:el_race/ui/presentation/timesheet/site_reports/models/tm_site_photo_draft.dart';
 import 'package:el_race/ui/presentation/timesheet/site_reports/models/tm_site_report_composer_result.dart';
@@ -20,7 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
 /// New or edit report: capture/upload → describe → format → generate → return PDF URL.
 ///
@@ -41,7 +41,6 @@ class TmSiteReportComposerScreen extends StatefulWidget {
 
   final FolderModel? folder;
   final String projectName;
-
   /// Default photo location label (flat mode); falls back to [projectName].
   final String locationHint;
   final bool useDefaultFolder;
@@ -60,8 +59,7 @@ class TmSiteReportComposerScreen extends StatefulWidget {
       _TmSiteReportComposerScreenState();
 }
 
-class _TmSiteReportComposerScreenState
-    extends State<TmSiteReportComposerScreen> {
+class _TmSiteReportComposerScreenState extends State<TmSiteReportComposerScreen> {
   final _titleController = TextEditingController();
   final _pdfNameController = TextEditingController();
   final _picker = ImagePicker();
@@ -70,6 +68,9 @@ class _TmSiteReportComposerScreenState
   bool _showEditor = false;
   int _editorStartIndex = 0;
   bool _loadingExisting = false;
+
+  ReportProvider get _provider =>
+      Provider.of<ReportProvider>(context, listen: false);
 
   List<TmSitePhotoDraft> get _activeDrafts =>
       _drafts.where((d) => !d.pendingDelete).toList();
@@ -91,9 +92,8 @@ class _TmSiteReportComposerScreenState
 
   Future<void> _loadExistingItems() async {
     setState(() => _loadingExisting = true);
-    final reportBloc = context.read<ReportBloc>();
     final detail =
-        await reportBloc.fetchReportDetailFromApi(widget.existingReport!.id);
+        await _provider.fetchReportDetailFromApi(widget.existingReport!.id);
     if (mounted && detail != null) {
       setState(() {
         for (final item in detail.reportItems) {
@@ -167,11 +167,10 @@ class _TmSiteReportComposerScreenState
       return false;
     }
     final ReportModel? created;
-    final reportBloc = context.read<ReportBloc>();
     if (widget.useDefaultFolder || widget.folder == null) {
-      created = await reportBloc.createSiteReport(title: title);
+      created = await _provider.createSiteReport(title: title);
     } else {
-      created = await reportBloc.createReport(
+      created = await _provider.createReport(
         title: title,
         folderID: widget.folder!.id,
         companyName: CompanyRepository.company?.companyName,
@@ -243,13 +242,12 @@ class _TmSiteReportComposerScreenState
       visual: TmReportGenerationVisual.preparing,
     );
 
-    final reportBloc = context.read<ReportBloc>();
     if (!await _ensureReport()) return null;
     final report = _report!;
 
     final title = _titleController.text.trim();
     if (title.isNotEmpty && title != report.name) {
-      await reportBloc.updateReport(name: title, reportId: report.id);
+      await _provider.updateReport(name: title, reportId: report.id);
     }
 
     notify(
@@ -260,7 +258,7 @@ class _TmSiteReportComposerScreenState
 
     for (final draft in _drafts) {
       if (draft.pendingDelete && draft.serverItemId != null) {
-        await reportBloc.deleteReportItem(
+        await _provider.deleteReportItem(
           reportId: report.id,
           itemId: draft.serverItemId!,
         );
@@ -269,23 +267,26 @@ class _TmSiteReportComposerScreenState
       if (draft.pendingDelete) continue;
 
       final fallbackLocation = widget._effectiveLocation;
-      if (draft.isServer) {
-        await reportBloc.updateReportItem(
+      final location = draft.locationController.text.trim().isNotEmpty
+          ? draft.locationController.text.trim()
+          : fallbackLocation;
+      final description = draft.descriptionController.text.trim();
+      final uploadFile = await draft.effectiveFileForUpload();
+
+      if (draft.serverItemId != null) {
+        await _provider.updateReportItem(
           reportId: report.id,
           itemId: draft.serverItemId!,
-          description: draft.descriptionController.text.trim(),
-          location: draft.locationController.text.trim().isNotEmpty
-              ? draft.locationController.text.trim()
-              : fallbackLocation,
+          description: description,
+          location: location,
+          imageFile: uploadFile,
         );
-      } else if (draft.localFile != null) {
-        await reportBloc.addReportItem(
+      } else if (uploadFile != null) {
+        await _provider.addReportItem(
           reportId: report.id,
-          imageFile: draft.localFile!,
-          location: draft.locationController.text.trim().isNotEmpty
-              ? draft.locationController.text.trim()
-              : fallbackLocation,
-          description: draft.descriptionController.text.trim(),
+          imageFile: uploadFile,
+          location: location,
+          description: description,
         );
       }
     }
@@ -296,7 +297,7 @@ class _TmSiteReportComposerScreenState
       visual: TmReportGenerationVisual.preparing,
     );
 
-    final detail = await reportBloc.fetchReportDetailFromApi(report.id);
+    final detail = await _provider.fetchReportDetailFromApi(report.id);
     if (detail == null || detail.reportItems.length < 3) return null;
 
     notify(
@@ -327,7 +328,8 @@ class _TmSiteReportComposerScreenState
     final folderId = _folderIdForUpload;
     if (folderId.isEmpty) return null;
 
-    final uploaded = await reportBloc.uploadReportPdf(
+    final uploaded = await _provider.uploadReportPdf(
+      empId: ReportProvider.empID,
       pdfBytes: pdfBytes,
       reportId: report.id,
       folderId: folderId,
@@ -343,7 +345,7 @@ class _TmSiteReportComposerScreenState
 
     if (uploaded == null || uploaded.reportLink.trim().isEmpty) return null;
 
-    await reportBloc.persistReportType(report.id, templateId);
+    await _provider.persistReportType(report.id, templateId);
 
     notify(
       progress: 1,
@@ -426,24 +428,37 @@ class _TmSiteReportComposerScreenState
                         decoration: _fieldDecoration('Name on generated PDF'),
                       ),
                       const SizedBox(height: TimesheetModuleLayout.cardSpacing),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TmSecondaryButton(
-                              label: 'Multi capture',
-                              icon: PhosphorIcons.camera(),
-                              onPressed: _pickCamera,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: TmSecondaryButton(
-                              label: 'Upload',
-                              icon: PhosphorIcons.upload(),
-                              onPressed: _pickGallery,
-                            ),
-                          ),
-                        ],
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final stackButtons = constraints.maxWidth < 340;
+                          final capture = TmSecondaryButton(
+                            label: stackButtons ? 'Capture' : 'Multi capture',
+                            icon: PhosphorIcons.camera(),
+                            onPressed: _pickCamera,
+                          );
+                          final upload = TmSecondaryButton(
+                            label: 'Upload',
+                            icon: PhosphorIcons.upload(),
+                            onPressed: _pickGallery,
+                          );
+                          if (stackButtons) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                capture,
+                                const SizedBox(height: 10),
+                                upload,
+                              ],
+                            );
+                          }
+                          return Row(
+                            children: [
+                              Expanded(child: capture),
+                              const SizedBox(width: 10),
+                              Expanded(child: upload),
+                            ],
+                          );
+                        },
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -467,7 +482,8 @@ class _TmSiteReportComposerScreenState
                   TmSitePhotoDescriptionCarousel(
                     drafts: active,
                     projectName: widget.projectName,
-                    initialIndex: _editorStartIndex.clamp(0, active.length - 1),
+                    initialIndex:
+                        _editorStartIndex.clamp(0, active.length - 1),
                     onRemove: _removeDraft,
                   ),
                 ] else ...[
@@ -492,7 +508,9 @@ class _TmSiteReportComposerScreenState
                 TimesheetModuleLayout.screenPaddingH,
               ),
               child: TmPrimaryButton(
-                label: widget.isEditMode ? 'Regenerate PDF' : 'Generate report',
+                label: widget.isEditMode
+                    ? 'Regenerate PDF'
+                    : 'Generate report',
                 icon: PhosphorIcons.filePdf(),
                 onPressed: hasPhotos ? _startGenerate : null,
               ),

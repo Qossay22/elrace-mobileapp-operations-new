@@ -4,6 +4,7 @@ import 'package:el_race/core/theme/hr_module_layout.dart';
 import 'package:el_race/core/theme/hr_module_typography.dart';
 import 'package:el_race/core/widgets/hr_management/hr_requests_gradient_scaffold.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Placeholder for asset request forms (car rent, SIM, car allowance) until APIs are ready.
 class HrAssetUnderPlanningScreen extends StatelessWidget {
@@ -29,8 +30,7 @@ class HrAssetUnderPlanningScreen extends StatelessWidget {
       ),
       body: Center(
         child: Padding(
-          padding: EdgeInsets.symmetric(
-              horizontal: HrModuleLayout.screenPaddingH.tw),
+          padding: EdgeInsets.symmetric(horizontal: HrModuleLayout.screenPaddingH.tw),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -65,3 +65,4 @@ class HrAssetUnderPlanningScreen extends StatelessWidget {
     );
   }
 }
+

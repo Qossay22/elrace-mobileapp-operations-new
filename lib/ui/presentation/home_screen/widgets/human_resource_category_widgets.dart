@@ -3,20 +3,21 @@ import 'package:el_race/core/timesheet/routing/timesheet_route_names.dart';
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
 import 'package:el_race/ui/presentation/hr_management/hr_management_entry_screen.dart';
 import 'package:el_race/ui/presentation/home_screen/bloc/home_bloc.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_hr_widgets_cubit.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_timesheet_widget_cubit.dart';
+import 'package:el_race/ui/presentation/home_screen/providers/home_attendance_widget_provider.dart';
+import 'package:el_race/ui/presentation/home_screen/providers/home_hrms_widget_provider.dart';
+import 'package:el_race/ui/presentation/home_screen/providers/home_timesheet_widget_provider.dart';
 import 'package:el_race/ui/presentation/home_screen/widgets/category_widget_gradient_border.dart';
-import 'package:el_race/ui/presentation/signin/data/model.dart';
 import 'package:el_race/utils/Util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 /// v7 Human Resource category widgets (Attendance, HRMS, Timesheet).
-class HrCategoryAttendanceCard extends StatelessWidget {
+class HrCategoryAttendanceCard extends ConsumerWidget {
   const HrCategoryAttendanceCard({
     super.key,
     this.compact = false,
@@ -30,124 +31,121 @@ class HrCategoryAttendanceCard extends StatelessWidget {
   final bool tabletCompact;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final monthLabel = BlocProvider.of<HomeBloc>(context).monthName.isNotEmpty
         ? BlocProvider.of<HomeBloc>(context).monthName
         : DateFormat('MMMM').format(DateTime.now());
 
-    return BlocBuilder<HomeAttendanceWidgetCubit, HomeAttendanceWidgetData>(
-      builder: (context, stats) {
-        final present = stats.presentDays;
-        final workingDays = stats.workingDays;
-        final pct = stats.attendancePercent;
-        final workingLabel = workingDays > 0 ? '$workingDays' : '—';
+    final stats = ref.watch(homeAttendanceWidgetProvider);
+    final present = stats.presentDays;
+    final workingDays = stats.workingDays;
+    final pct = stats.attendancePercent;
+    final workingLabel = workingDays > 0 ? '$workingDays' : '—';
 
-        return _HrHalfCardShell(
-          height: tabletCompact ? double.infinity : 140.uh,
-          onTap: () =>
-              Navigator.of(context).pushNamed(HrRouteNames.attendanceReports),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFC5DFF8),
-              Color(0xFFDCE9F7),
-              Color(0xFFE8F2FC),
-              Color(0xFFF7FAFE),
-            ],
-          ),
-          iconBadge: const _HrIconBadge(
-            icon: Icons.fingerprint_rounded,
-            gradient: [Color(0xFF5B9FE8), Color(0xFF3E7BFA)],
-          ),
-          pattern: Stack(
-            fit: StackFit.expand,
-            clipBehavior: Clip.hardEdge,
-            children: [
-              IgnorePointer(
-                child: SvgPicture.asset(
-                  'assets/svg/attendance-effect.svg',
-                  fit: BoxFit.cover,
-                  alignment: Alignment.centerRight,
-                  colorFilter: ColorFilter.mode(
-                    const Color(0xFF3E7BFA).withValues(alpha: 0.28),
-                    BlendMode.srcIn,
-                  ),
-                ),
+    return _HrHalfCardShell(
+      height: tabletCompact ? double.infinity : 140.uh,
+      onTap: () =>
+          Navigator.of(context).pushNamed(HrRouteNames.attendanceReports),
+      gradient: const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color(0xFFC5DFF8),
+          Color(0xFFDCE9F7),
+          Color(0xFFE8F2FC),
+          Color(0xFFF7FAFE),
+        ],
+      ),
+      iconBadge: _HrIconBadge(
+        icon: Icons.fingerprint_rounded,
+        gradient: const [Color(0xFF5B9FE8), Color(0xFF3E7BFA)],
+      ),
+      pattern: Stack(
+        fit: StackFit.expand,
+        clipBehavior: Clip.hardEdge,
+        children: [
+          IgnorePointer(
+            child: SvgPicture.asset(
+              'assets/svg/attendance-effect.svg',
+              fit: BoxFit.cover,
+              alignment: Alignment.centerRight,
+              colorFilter: ColorFilter.mode(
+                const Color(0xFF3E7BFA).withValues(alpha: 0.28),
+                BlendMode.srcIn,
               ),
-              Positioned(
-                right: 2.w,
-                bottom: 4.uh,
-                child: IgnorePointer(
-                  child: Image.asset(
-                    'assets/newapp/finger-print_svgrepo.com.png',
-                    width: (compact || tabletCompact) ? 70.w : 84.w,
-                    fit: BoxFit.contain,
-                    color: const Color(0xFF2F6FD4).withValues(alpha: 0.38),
-                    colorBlendMode: BlendMode.srcIn,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-          child: Column(
-            mainAxisSize: tabletCompact ? MainAxisSize.min : MainAxisSize.max,
+          Positioned(
+            right: 2.w,
+            bottom: 4.uh,
+            child: IgnorePointer(
+              child: Image.asset(
+                'assets/newapp/finger-print_svgrepo.com.png',
+                width: (compact || tabletCompact) ? 70.w : 84.w,
+                fit: BoxFit.contain,
+                color: const Color(0xFF2F6FD4).withValues(alpha: 0.38),
+                colorBlendMode: BlendMode.srcIn,
+              ),
+            ),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: tabletCompact ? MainAxisSize.min : MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'ATTENDANCE',
-                    style: GoogleFonts.poppins(
-                      fontSize: 8.usp,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF3E7BFA),
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  SizedBox(height: 2.uh),
-                  Text(
-                    monthLabel,
-                    style: GoogleFonts.poppins(
-                      fontSize: (compact || tabletCompact) ? 11.usp : 12.usp,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF1A2A4F),
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: (compact || tabletCompact) ? 6.uh : 8.uh),
-                  _HrAttendanceStatRow(
-                    present: present,
-                    workingLabel: workingLabel,
-                    compact: compact || tabletCompact,
-                  ),
-                  SizedBox(height: 4.uh),
-                  Text(
-                    '$pct% present',
-                    style: GoogleFonts.poppins(
-                      fontSize: 9.5.usp,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFF1F9D63),
-                    ),
-                  ),
-                ],
+              Text(
+                'ATTENDANCE',
+                style: GoogleFonts.poppins(
+                  fontSize: 8.usp,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF3E7BFA),
+                  letterSpacing: 0.5,
+                ),
               ),
-              if (!tabletCompact) const Spacer(),
-              if (!compact) ...[
-                if (tabletCompact) SizedBox(height: 6.uh),
-                _HrWeekDotsRow(weekDayStates: stats.weekDayStates),
-              ],
+              SizedBox(height: 2.uh),
+              Text(
+                monthLabel,
+                style: GoogleFonts.poppins(
+                  fontSize: (compact || tabletCompact) ? 11.usp : 12.usp,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF1A2A4F),
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: (compact || tabletCompact) ? 6.uh : 8.uh),
+              _HrAttendanceStatRow(
+                present: present,
+                workingLabel: workingLabel,
+                compact: compact || tabletCompact,
+              ),
+              SizedBox(height: 4.uh),
+              Text(
+                '$pct% present',
+                style: GoogleFonts.poppins(
+                  fontSize: 9.5.usp,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF1F9D63),
+                ),
+              ),
             ],
           ),
-        );
-      },
+          if (!tabletCompact) const Spacer(),
+          if (!compact) ...[
+            if (tabletCompact) SizedBox(height: 6.uh),
+            _HrWeekDotsRow(weekDayStates: stats.weekDayStates),
+          ],
+        ],
+      ),
     );
   }
 }
 
-class HrCategoryHrmsCard extends StatelessWidget {
+class HrCategoryHrmsCard extends ConsumerWidget {
   const HrCategoryHrmsCard({
     super.key,
     this.compact = false,
@@ -160,128 +158,126 @@ class HrCategoryHrmsCard extends StatelessWidget {
   final bool tabletCompact;
 
   @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<HomeHrmsWidgetCubit, HomeHrmsWidgetData>(
-      builder: (context, stats) {
-        final countLabel =
-            stats.headlineCount > 0 ? '${stats.headlineCount}' : '—';
+  Widget build(BuildContext context, WidgetRef ref) {
+    final stats = ref.watch(homeHrmsWidgetProvider);
 
-        final pills = <String>[
-          if (stats.departmentName != null && stats.departmentName!.isNotEmpty)
-            stats.departmentName!,
-          if (stats.sectionName != null && stats.sectionName!.isNotEmpty)
-            stats.sectionName!,
-        ];
+    final countLabel =
+        stats.headlineCount > 0 ? '${stats.headlineCount}' : '—';
 
-        return _HrHalfCardShell(
-          height: tabletCompact ? double.infinity : 140.uh,
-          onTap: () => Util.pushPage(const HrManagementEntryScreen(), context),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFFFE8E5),
-              Color(0xFFFFCFC9),
-              Color(0xFFF5B7B1),
-              Color(0xFFE8A8A2),
-            ],
-          ),
-          iconBadge: const _HrIconBadge(
-            icon: Icons.groups_rounded,
-            gradient: [Color(0xFFE63946), Color(0xFFC62828)],
-          ),
-          pattern: Positioned(
-            right: 0.w,
-            bottom: 4.uh,
-            child: IgnorePointer(
-              child: Opacity(
-                opacity: 0.38,
-                child: CustomPaint(
-                  size: Size(
-                    (compact || tabletCompact) ? 92.w : 108.w,
-                    (compact || tabletCompact) ? 72.uh : 86.uh,
-                  ),
-                  painter: _PeopleNetworkPatternPainter(),
-                ),
+    final pills = <String>[
+      if (stats.departmentName != null && stats.departmentName!.isNotEmpty)
+        stats.departmentName!,
+      if (stats.sectionName != null && stats.sectionName!.isNotEmpty)
+        stats.sectionName!,
+    ];
+
+    return _HrHalfCardShell(
+      height: tabletCompact ? double.infinity : 140.uh,
+      onTap: () => Util.pushPage(const HrManagementEntryScreen(), context),
+      gradient: const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color(0xFFFFE8E5),
+          Color(0xFFFFCFC9),
+          Color(0xFFF5B7B1),
+          Color(0xFFE8A8A2),
+        ],
+      ),
+      iconBadge: _HrIconBadge(
+        icon: Icons.groups_rounded,
+        gradient: const [Color(0xFFE63946), Color(0xFFC62828)],
+      ),
+      pattern: Positioned(
+        right: 0.w,
+        bottom: 4.uh,
+        child: IgnorePointer(
+          child: Opacity(
+            opacity: 0.38,
+            child: CustomPaint(
+              size: Size(
+                (compact || tabletCompact) ? 92.w : 108.w,
+                (compact || tabletCompact) ? 72.uh : 86.uh,
               ),
+              painter: _PeopleNetworkPatternPainter(),
             ),
           ),
-          child: Column(
-            mainAxisSize: tabletCompact ? MainAxisSize.min : MainAxisSize.max,
+        ),
+      ),
+      child: Column(
+        mainAxisSize: tabletCompact ? MainAxisSize.min : MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    stats.headlineLabel,
-                    style: GoogleFonts.poppins(
-                      fontSize: 8.usp,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFFE63946),
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  SizedBox(height: 2.uh),
-                  Text(
-                    'HRMS',
-                    style: GoogleFonts.poppins(
-                      fontSize: (compact || tabletCompact) ? 11.usp : 12.usp,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF7A1E28),
-                    ),
-                  ),
-                  SizedBox(height: (compact || tabletCompact) ? 6.uh : 8.uh),
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      countLabel,
-                      style: GoogleFonts.poppins(
-                        fontSize: (compact || tabletCompact) ? 26.usp : 28.usp,
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFF7A1E28),
-                        height: 1,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 4.uh),
-                  Text(
-                    stats.trendLabel,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.poppins(
-                      fontSize: 9.usp,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFFE63946),
-                      height: 1.25,
-                    ),
-                  ),
-                ],
-              ),
-              if (!tabletCompact) const Spacer(),
-              if (!compact && pills.isNotEmpty) ...[
-                if (tabletCompact) SizedBox(height: 6.uh),
-                Row(
-                  children: [
-                    for (var i = 0; i < pills.length; i++) ...[
-                      if (i > 0) SizedBox(width: 6.w),
-                      Flexible(
-                        child: _HrSoftPill(label: pills[i]),
-                      ),
-                    ],
-                  ],
+              Text(
+                stats.headlineLabel,
+                style: GoogleFonts.poppins(
+                  fontSize: 8.usp,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFFE63946),
+                  letterSpacing: 0.5,
                 ),
-              ],
+              ),
+              SizedBox(height: 2.uh),
+              Text(
+                'HRMS',
+                style: GoogleFonts.poppins(
+                  fontSize: (compact || tabletCompact) ? 11.usp : 12.usp,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF7A1E28),
+                ),
+              ),
+              SizedBox(height: (compact || tabletCompact) ? 6.uh : 8.uh),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  countLabel,
+                  style: GoogleFonts.poppins(
+                    fontSize: (compact || tabletCompact) ? 26.usp : 28.usp,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF7A1E28),
+                    height: 1,
+                  ),
+                ),
+              ),
+              SizedBox(height: 4.uh),
+              Text(
+                stats.trendLabel,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.poppins(
+                  fontSize: 9.usp,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFFE63946),
+                  height: 1.25,
+                ),
+              ),
             ],
           ),
-        );
-      },
+          if (!tabletCompact) const Spacer(),
+          if (!compact && pills.isNotEmpty) ...[
+            if (tabletCompact) SizedBox(height: 6.uh),
+            Row(
+              children: [
+                for (var i = 0; i < pills.length; i++) ...[
+                  if (i > 0) SizedBox(width: 6.w),
+                  Flexible(
+                    child: _HrSoftPill(label: pills[i]),
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
 
-class HrCategoryTimesheetCard extends StatelessWidget {
+class HrCategoryTimesheetCard extends ConsumerWidget {
   const HrCategoryTimesheetCard({
     super.key,
     this.tabletCompact = false,
@@ -291,133 +287,132 @@ class HrCategoryTimesheetCard extends StatelessWidget {
   final bool tabletCompact;
 
   @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<HomeTimesheetWidgetCubit, TimesheetWidgetRecord>(
-      builder: (context, data) => Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () =>
-              Navigator.of(context).pushNamed(TimesheetRouteNames.home),
-          borderRadius: BorderRadius.circular(22.ur),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final data = ref.watch(homeTimesheetWidgetProvider);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => Navigator.of(context).pushNamed(TimesheetRouteNames.home),
+        borderRadius: BorderRadius.circular(22.ur),
+        child: Container(
+          decoration: CategoryWidgetGradientBorder.outer(borderRadius: 22.ur),
+          padding: CategoryWidgetGradientBorder.padding,
           child: Container(
-            decoration: CategoryWidgetGradientBorder.outer(borderRadius: 22.ur),
-            padding: CategoryWidgetGradientBorder.padding,
-            child: Container(
-              decoration: CategoryWidgetGradientBorder.inner(
-                borderRadius: 22.ur,
-                fillGradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFFFAF6EC),
-                    Color(0xFFF5F0E0),
-                    Color(0xFFE8E0CC),
-                    Color(0xFFDBD2B5),
-                  ],
+            decoration: CategoryWidgetGradientBorder.inner(
+              borderRadius: 22.ur,
+              fillGradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFFFAF6EC),
+                  Color(0xFFF5F0E0),
+                  Color(0xFFE8E0CC),
+                  Color(0xFFDBD2B5),
+                ],
+              ),
+            ),
+            child: Stack(
+            children: [
+              Positioned(
+                right: -8.w,
+                bottom: -10.uh,
+                child: Opacity(
+                  opacity: 0.2,
+                  child: Icon(
+                    Icons.construction_rounded,
+                    size: 96.usp,
+                    color: const Color(0xFFD4A82A),
+                  ),
                 ),
               ),
-              child: Stack(
-                children: [
-                  Positioned(
-                    right: -8.w,
-                    bottom: -10.uh,
-                    child: Opacity(
-                      opacity: 0.2,
-                      child: Icon(
-                        Icons.construction_rounded,
-                        size: 96.usp,
-                        color: const Color(0xFFD4A82A),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(14.w, 12.uh, 14.w, 12.uh),
-                    child: _tabletScaleDownContent(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
+              Padding(
+                padding: EdgeInsets.fromLTRB(14.w, 12.uh, 14.w, 12.uh),
+                child: _tabletScaleDownContent(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'TIMESHEET',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 8.usp,
-                                        fontWeight: FontWeight.w700,
-                                        color: const Color(0xFF8A8F9C),
-                                        letterSpacing: 0.55,
-                                      ),
-                                    ),
-                                    SizedBox(height: 2.uh),
-                                    Text(
-                                      data.titleLine,
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 13.usp,
-                                        fontWeight: FontWeight.w700,
-                                        color: const Color(0xFF1A2A4F),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const _HrIconBadge(
-                                icon: Icons.schedule_rounded,
-                                gradient: [
-                                  Color(0xFFE8C547),
-                                  Color(0xFFD4A82A),
-                                ],
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 12.uh),
-                          IntrinsicHeight(
-                            child: Row(
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _HrStatColumn(
-                                  label: 'Total Hours',
-                                  value: _formatHours(data.totalHours),
-                                  valueColor: const Color(0xFF1A2A4F),
+                                Text(
+                                  'TIMESHEET',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 8.usp,
+                                    fontWeight: FontWeight.w700,
+                                    color: const Color(0xFF8A8F9C),
+                                    letterSpacing: 0.55,
+                                  ),
                                 ),
-                                _HrStatDivider(),
-                                _HrStatColumn(
-                                  label: 'Overtime',
-                                  value: _formatHours(data.overtimeHours),
-                                  valueColor: const Color(0xFFD4A82A),
-                                ),
-                                _HrStatDivider(),
-                                _HrStatColumn(
-                                  label: data.isProjectScope
-                                      ? 'Avg / Worker'
-                                      : 'Avg / Day',
-                                  value: _formatHours(data.avgPerWorker),
-                                  valueColor: const Color(0xFF1A2A4F),
+                                SizedBox(height: 2.uh),
+                                Text(
+                                  data.titleLine,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 13.usp,
+                                    fontWeight: FontWeight.w700,
+                                    color: const Color(0xFF1A2A4F),
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                          SizedBox(height: 10.uh),
-                          Text(
-                            data.deltaTrendLabel,
-                            style: GoogleFonts.poppins(
-                              fontSize: 10.usp,
-                              fontWeight: FontWeight.w600,
-                              color: data.deltaVsLastWeek >= 0
-                                  ? const Color(0xFF1F9D63)
-                                  : const Color(0xFFE05A4F),
-                            ),
+                          _HrIconBadge(
+                            icon: Icons.schedule_rounded,
+                            gradient: const [
+                              Color(0xFFE8C547),
+                              Color(0xFFD4A82A),
+                            ],
                           ),
                         ],
                       ),
-                    ),
+                      SizedBox(height: 12.uh),
+                      IntrinsicHeight(
+                        child: Row(
+                          children: [
+                            _HrStatColumn(
+                              label: 'Total Hours',
+                              value: _formatHours(data.totalHours),
+                              valueColor: const Color(0xFF1A2A4F),
+                            ),
+                            _HrStatDivider(),
+                            _HrStatColumn(
+                              label: 'Overtime',
+                              value: _formatHours(data.overtimeHours),
+                              valueColor: const Color(0xFFD4A82A),
+                            ),
+                            _HrStatDivider(),
+                            _HrStatColumn(
+                              label: data.isProjectScope
+                                  ? 'Avg / Worker'
+                                  : 'Avg / Day',
+                              value: _formatHours(data.avgPerWorker),
+                              valueColor: const Color(0xFF1A2A4F),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 10.uh),
+                      Text(
+                        data.deltaTrendLabel,
+                        style: GoogleFonts.poppins(
+                          fontSize: 10.usp,
+                          fontWeight: FontWeight.w600,
+                          color: data.deltaVsLastWeek >= 0
+                              ? const Color(0xFF1F9D63)
+                              : const Color(0xFFE05A4F),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
+          ),
           ),
         ),
       ),
@@ -508,8 +503,8 @@ class _HrHalfCardShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final innerRadius = (22.ur - CategoryWidgetGradientBorder.width)
-        .clamp(0.0, double.infinity);
+    final innerRadius =
+        (22.ur - CategoryWidgetGradientBorder.width).clamp(0.0, double.infinity);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -707,8 +702,7 @@ class _HrWeekDotsRow extends StatelessWidget {
               label: labels[index],
               state: weekDayStates != null && weekDayStates!.length > index
                   ? weekDayStates![index]
-                  : _fallbackStateForDay(
-                      start.add(Duration(days: index)), today),
+                  : _fallbackStateForDay(start.add(Duration(days: index)), today),
             ),
           ),
         ],
@@ -716,8 +710,7 @@ class _HrWeekDotsRow extends StatelessWidget {
     );
   }
 
-  HomeAttendanceWeekDayState _fallbackStateForDay(
-      DateTime day, DateTime today) {
+  HomeAttendanceWeekDayState _fallbackStateForDay(DateTime day, DateTime today) {
     final dayOnly = DateTime(day.year, day.month, day.day);
     final todayOnly = DateTime(today.year, today.month, today.day);
     if (dayOnly.isAfter(todayOnly)) return HomeAttendanceWeekDayState.future;

@@ -1,4 +1,4 @@
-import 'package:el_race/core/performance/bloc/performance_evaluation_detail_cubit.dart';
+import 'package:el_race/core/performance/providers/performance_providers.dart';
 import 'package:el_race/core/theme/hr_module_colors.dart';
 import 'package:el_race/core/theme/hr_module_layout.dart';
 import 'package:el_race/core/theme/hr_module_typography.dart';
@@ -7,11 +7,11 @@ import 'package:el_race/ui/presentation/performance/widgets/evaluation_employee_
 import 'package:el_race/ui/presentation/performance/widgets/evaluation_pipeline_stepper.dart';
 import 'package:el_race/ui/presentation/performance/widgets/personal_competencies_section.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Full evaluation form view for manager / HR.
-class ManagerEvaluationDetailScreen extends StatelessWidget {
+class ManagerEvaluationDetailScreen extends ConsumerWidget {
   const ManagerEvaluationDetailScreen({
     super.key,
     required this.evaluationId,
@@ -20,8 +20,8 @@ class ManagerEvaluationDetailScreen extends StatelessWidget {
   final String evaluationId;
 
   @override
-  Widget build(BuildContext context) {
-    context.read<PerformanceEvaluationDetailCubit>().load(evaluationId);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final async = ref.watch(performanceEvaluationDetailProvider(evaluationId));
 
     return PerformanceGradientScaffold(
       appBar: AppBar(
@@ -34,25 +34,8 @@ class ManagerEvaluationDetailScreen extends StatelessWidget {
           style: HrModuleTypography.pageTitle().copyWith(fontSize: 18.sp),
         ),
       ),
-      body: BlocBuilder<PerformanceEvaluationDetailCubit,
-          PerformanceEvaluationDetailState>(
-        builder: (context, state) {
-          if (state.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (state.error != null) {
-            return Center(
-              child: Padding(
-                padding: EdgeInsets.all(24.w),
-                child: Text(
-                  'Could not load evaluation.\n${state.error}',
-                  textAlign: TextAlign.center,
-                  style: HrModuleTypography.body(),
-                ),
-              ),
-            );
-          }
-          final detail = state.detail;
+      body: async.when(
+        data: (detail) {
           if (detail == null) {
             return Center(
               child: Text(
@@ -89,10 +72,10 @@ class ManagerEvaluationDetailScreen extends StatelessWidget {
                     Text(
                       '${detail.finalScorePercent}%',
                       style: HrModuleTypography.sectionHeading().copyWith(
-                        fontSize: 28.sp,
-                        color: HrModuleColors.success,
-                        fontWeight: FontWeight.w800,
-                      ),
+                            fontSize: 28.sp,
+                            color: HrModuleColors.success,
+                            fontWeight: FontWeight.w800,
+                          ),
                     ),
                 ],
               ),
@@ -102,10 +85,10 @@ class ManagerEvaluationDetailScreen extends StatelessWidget {
               Text(
                 detail.pepReference,
                 style: HrModuleTypography.sectionHeading().copyWith(
-                  fontSize: 14.sp,
-                  color: HrModuleColors.danger,
-                  fontWeight: FontWeight.w700,
-                ),
+                      fontSize: 14.sp,
+                      color: HrModuleColors.danger,
+                      fontWeight: FontWeight.w700,
+                    ),
               ),
               SizedBox(height: 14.h),
               EvaluationEmployeeSummaryCard(
@@ -118,6 +101,17 @@ class ManagerEvaluationDetailScreen extends StatelessWidget {
             ],
           );
         },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(
+          child: Padding(
+            padding: EdgeInsets.all(24.w),
+            child: Text(
+              'Could not load evaluation.\n$e',
+              textAlign: TextAlign.center,
+              style: HrModuleTypography.body(),
+            ),
+          ),
+        ),
       ),
     );
   }

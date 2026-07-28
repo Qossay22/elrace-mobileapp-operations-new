@@ -1,4 +1,3 @@
-import 'package:el_race/core/logging/app_logger.dart';
 import 'package:hive/hive.dart';
 import 'task_model.dart';
 
@@ -10,7 +9,7 @@ class LocalTasksHiveService {
     try {
       _box = await Hive.openBox<dynamic>(_boxName);
     } catch (e) {
-      AppLogger.warning('LocalTasksHiveService: failed to open box', error: e);
+      print('Error opening local tasks box: $e');
     }
   }
 
@@ -27,8 +26,7 @@ class LocalTasksHiveService {
       final jsonList = tasks.map((task) => task.toJson()).toList();
       await box.put('local_tasks', jsonList);
     } catch (e) {
-      AppLogger.warning('LocalTasksHiveService: failed to save tasks',
-          error: e);
+      print('Error saving local tasks: $e');
     }
   }
 
@@ -48,8 +46,7 @@ class LocalTasksHiveService {
 
       return [];
     } catch (e) {
-      AppLogger.warning('LocalTasksHiveService: failed to load tasks',
-          error: e);
+      print('Error loading local tasks: $e');
       return [];
     }
   }
@@ -59,8 +56,7 @@ class LocalTasksHiveService {
       final box = await _getBox();
       await box.delete('local_tasks');
     } catch (e) {
-      AppLogger.warning('LocalTasksHiveService: failed to clear tasks',
-          error: e);
+      print('Error clearing local tasks: $e');
     }
   }
 }

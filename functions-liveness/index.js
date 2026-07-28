@@ -17,9 +17,6 @@ setGlobalOptions({ region: "asia-south1" });
 const awsAccessKeyId = defineSecret("AWS_ACCESS_KEY_ID");
 const awsSecretAccessKey = defineSecret("AWS_SECRET_ACCESS_KEY");
 const awsRegionParam = defineString("AWS_REGION", { default: "ap-south-1" });
-const allowLivenessMockParam = defineString("ALLOW_LIVENESS_MOCK", {
-  default: "false",
-});
 
 const callOptions = {
   secrets: [awsAccessKeyId, awsSecretAccessKey],
@@ -36,11 +33,7 @@ function resolveAwsCredentials() {
         region: awsRegionParam.value(),
       };
     }
-  } catch (error) {
-    console.warn("[AntiSpoof] Firebase secret resolution failed", {
-      message: error?.message,
-    });
-  }
+  } catch (_) {}
 
   const envKey = process.env.AWS_ACCESS_KEY_ID;
   const envSecret = process.env.AWS_SECRET_ACCESS_KEY;
@@ -52,13 +45,6 @@ function resolveAwsCredentials() {
     };
   }
   return null;
-}
-
-function allowMockLiveness() {
-  return (
-    allowLivenessMockParam.value() === "true" ||
-    process.env.ALLOW_LIVENESS_MOCK === "true"
-  );
 }
 
 function getRekognitionClient() {
@@ -86,12 +72,6 @@ exports.createFaceLivenessSession = onCall(callOptions, async () => {
   const rekognitionRegion = creds?.region || awsRegionParam.value();
   const client = getRekognitionClient();
   if (!client) {
-    if (!allowMockLiveness()) {
-      throw new HttpsError(
-        "failed-precondition",
-        "AWS credentials not configured on server",
-      );
-    }
     const sessionId = `mock_liveness_${Date.now()}`;
     console.log("[AntiSpoof] createFaceLivenessSession mock", { sessionId });
     return {
@@ -125,12 +105,6 @@ exports.getFaceLivenessSessionResults = onCall(callOptions, async (request) => {
   );
 
   if (sessionId.startsWith("mock_liveness_")) {
-    if (!allowMockLiveness()) {
-      throw new HttpsError(
-        "failed-precondition",
-        "Mock liveness sessions are disabled",
-      );
-    }
     return {
       session_id: sessionId,
       status: "SUCCEEDED",

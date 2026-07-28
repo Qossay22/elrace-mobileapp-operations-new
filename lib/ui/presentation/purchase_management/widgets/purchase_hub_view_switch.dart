@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:el_race/ui/presentation/purchase_management/theme/purchase_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 enum PurchaseHubViewMode { hub, analytics, ai }
@@ -156,8 +157,9 @@ class _ModeIcon extends StatelessWidget {
             style: GoogleFonts.poppins(
               fontSize: 9.tsp,
               fontWeight: FontWeight.w600,
-              color:
-                  isActive ? PurchaseTheme.accentDeep : PurchaseTheme.textMuted,
+              color: isActive
+                  ? PurchaseTheme.accentDeep
+                  : PurchaseTheme.textMuted,
             ),
           ),
         ],
@@ -242,8 +244,9 @@ class _AiModeIcon extends StatelessWidget {
             style: GoogleFonts.poppins(
               fontSize: 9.tsp,
               fontWeight: FontWeight.w600,
-              color:
-                  isActive ? const Color(0xFF6D28D9) : PurchaseTheme.textMuted,
+              color: isActive
+                  ? const Color(0xFF6D28D9)
+                  : PurchaseTheme.textMuted,
             ),
           ),
         ],

@@ -1,8 +1,7 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
-import 'package:el_race/core/hr_management/bloc/hr_effective_view_cubit.dart';
-import 'package:el_race/core/hr_management/bloc/hr_request_list_cubit.dart';
 import 'package:el_race/core/hr_management/hr_effective_view.dart';
 import 'package:el_race/core/hr_management/models/hr_request_summary.dart';
+import 'package:el_race/core/hr_management/providers/hr_management_providers.dart';
 import 'package:el_race/core/theme/hr_module_colors.dart';
 import 'package:el_race/core/theme/hr_module_layout.dart';
 import 'package:el_race/core/theme/hr_module_typography.dart';
@@ -12,13 +11,14 @@ import 'package:el_race/core/widgets/hr_management/hr_search_bar.dart';
 import 'package:el_race/ui/presentation/hr_management/hr_new_request_picker_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 enum _HrSort { newest, oldest, byStatus, byType }
 
 /// E1 list body — used on employee landing and manager "My own" tab (SRD §3.1 / §4.1).
-class HrPersonalRequestListContent extends StatefulWidget {
+class HrPersonalRequestListContent extends ConsumerStatefulWidget {
   const HrPersonalRequestListContent({
     super.key,
     required this.onOpenDetail,
@@ -31,12 +31,12 @@ class HrPersonalRequestListContent extends StatefulWidget {
   final String searchHint;
 
   @override
-  State<HrPersonalRequestListContent> createState() =>
+  ConsumerState<HrPersonalRequestListContent> createState() =>
       _HrPersonalRequestListContentState();
 }
 
 class _HrPersonalRequestListContentState
-    extends State<HrPersonalRequestListContent> {
+    extends ConsumerState<HrPersonalRequestListContent> {
   String? _filterId; // null = show all
   String _searchQuery = '';
   _HrSort _sort = _HrSort.newest;
@@ -116,110 +116,101 @@ class _HrPersonalRequestListContentState
 
   @override
   Widget build(BuildContext context) {
-    final cubit = context.read<HrRequestListCubit>();
-    cubit.load();
-    final effective = context.watch<HrEffectiveViewCubit>().state.view;
+    final asyncList = ref.watch(hrRequestListProvider);
+    final effective = ref.watch(hrEffectiveViewProvider);
 
-    return BlocBuilder<HrRequestListCubit, HrRequestListState>(
-      builder: (context, state) {
-        if (state.isLoading && state.items.isEmpty) {
-          return Padding(
-            padding: EdgeInsets.all(HrModuleLayout.screenPaddingH.tw),
-            child: Skeletonizer(
-              enabled: true,
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 8.th),
-                    IntrinsicHeight(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: List.generate(
-                          4,
-                          (i) => Expanded(
-                            child: Padding(
-                              padding: EdgeInsets.only(right: i < 3 ? 8.tw : 0),
-                              child: HrKpiCounterCard(
-                                value: '…',
-                                label: [
-                                  'Pending',
-                                  'Approved',
-                                  'Rejected',
-                                  'Draft',
-                                ][i],
-                              ),
-                            ),
+    return asyncList.when(
+      loading: () => Padding(
+        padding: EdgeInsets.all(HrModuleLayout.screenPaddingH.tw),
+        child: Skeletonizer(
+          enabled: true,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 8.th),
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: List.generate(
+                      4,
+                      (i) => Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.only(right: i < 3 ? 8.tw : 0),
+                          child: HrKpiCounterCard(
+                            value: '…',
+                            label: [
+                              'Pending',
+                              'Approved',
+                              'Rejected',
+                              'Draft',
+                            ][i],
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(height: 16.th),
-                    Container(
-                      height: 48.th,
-                      decoration: BoxDecoration(
-                        color: HrModuleColors.surface,
-                        borderRadius:
-                            BorderRadius.circular(HrModuleLayout.cardRadius.tr),
-                      ),
-                    ),
-                    SizedBox(height: 16.th),
-                    ...List.generate(
-                      2,
-                      (_) => Padding(
-                        padding: EdgeInsets.only(bottom: 12.th),
-                        child: HrRequestCard(
-                          requestTypeTitle: 'Loading request type',
-                          referenceNumber: 'HR/…/2026/0000',
-                          uiStatus: 'PENDING',
-                          secondaryLine: 'Placeholder line',
-                          onTap: () {},
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+                SizedBox(height: 16.th),
+                Container(
+                  height: 48.th,
+                  decoration: BoxDecoration(
+                    color: HrModuleColors.surface,
+                    borderRadius:
+                        BorderRadius.circular(HrModuleLayout.cardRadius.tr),
+                  ),
+                ),
+                SizedBox(height: 16.th),
+                ...List.generate(
+                  2,
+                  (_) => Padding(
+                    padding: EdgeInsets.only(bottom: 12.th),
+                    child: HrRequestCard(
+                      requestTypeTitle: 'Loading request type',
+                      referenceNumber: 'HR/…/2026/0000',
+                      uiStatus: 'PENDING',
+                      secondaryLine: 'Placeholder line',
+                      onTap: () {},
+                    ),
+                  ),
+                ),
+              ],
             ),
-          );
-        }
-        if (state.error != null && state.items.isEmpty) {
-          return Center(
-            child: Padding(
-              padding: EdgeInsets.all(24.tw),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Something went wrong',
-                    style: HrModuleTypography.sectionHeading()
-                        .copyWith(fontSize: 16.tsp),
-                  ),
-                  SizedBox(height: 8.th),
-                  Text(
-                    state.error!,
-                    textAlign: TextAlign.center,
-                    style:
-                        HrModuleTypography.caption().copyWith(fontSize: 12.tsp),
-                  ),
-                  SizedBox(height: 16.th),
-                  FilledButton(
-                    onPressed: () =>
-                        context.read<HrRequestListCubit>().refresh(),
-                    child: const Text('Retry'),
-                  ),
-                ],
+          ),
+        ),
+      ),
+      error: (err, _) => Center(
+        child: Padding(
+          padding: EdgeInsets.all(24.tw),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Something went wrong',
+                style: HrModuleTypography.sectionHeading().copyWith(fontSize: 16.tsp),
               ),
-            ),
-          );
-        }
-        final all = state.items;
+              SizedBox(height: 8.th),
+              Text(
+                err.toString(),
+                textAlign: TextAlign.center,
+                style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp),
+              ),
+              SizedBox(height: 16.th),
+              FilledButton(
+                onPressed: () => ref.read(hrRequestListProvider.notifier).refresh(),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      ),
+      data: (all) {
         final counts = _counts(all);
         final display = _applyFilterSearchSort(all);
         final emptyFilter = display.isEmpty;
 
         return RefreshIndicator(
-          onRefresh: () => context.read<HrRequestListCubit>().refresh(),
+          onRefresh: () => ref.read(hrRequestListProvider.notifier).refresh(),
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: EdgeInsets.fromLTRB(
@@ -234,8 +225,7 @@ class _HrPersonalRequestListContentState
                   padding: EdgeInsets.only(bottom: 8.th),
                   child: Text(
                     'Dev role: ${effective.label} (mock data same for all)',
-                    style:
-                        HrModuleTypography.caption().copyWith(fontSize: 11.tsp),
+                    style: HrModuleTypography.caption().copyWith(fontSize: 11.tsp),
                   ),
                 ),
               IntrinsicHeight(
@@ -295,29 +285,25 @@ class _HrPersonalRequestListContentState
                   Text(
                     'Recent requests',
                     style: HrModuleTypography.sectionHeading().copyWith(
-                      fontSize: 16.tsp,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.3,
-                      color: HrModuleColors.text,
-                    ),
+                          fontSize: 16.tsp,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.3,
+                          color: HrModuleColors.text,
+                        ),
                   ),
                   const Spacer(),
                   DropdownButtonHideUnderline(
                     child: DropdownButton<_HrSort>(
                       value: _sort,
-                      style: HrModuleTypography.caption()
-                          .copyWith(fontSize: 12.tsp),
+                      style: HrModuleTypography.caption().copyWith(fontSize: 12.tsp),
                       items: const [
-                        DropdownMenuItem(
-                            value: _HrSort.newest, child: Text('Newest')),
-                        DropdownMenuItem(
-                            value: _HrSort.oldest, child: Text('Oldest')),
+                        DropdownMenuItem(value: _HrSort.newest, child: Text('Newest')),
+                        DropdownMenuItem(value: _HrSort.oldest, child: Text('Oldest')),
                         DropdownMenuItem(
                           value: _HrSort.byStatus,
                           child: Text('By status'),
                         ),
-                        DropdownMenuItem(
-                            value: _HrSort.byType, child: Text('By type')),
+                        DropdownMenuItem(value: _HrSort.byType, child: Text('By type')),
                       ],
                       onChanged: (v) {
                         if (v != null) setState(() => _sort = v);
@@ -339,8 +325,7 @@ class _HrPersonalRequestListContentState
                         all.isEmpty
                             ? 'No requests yet'
                             : 'No requests match this filter',
-                        style: HrModuleTypography.body()
-                            .copyWith(fontSize: 15.tsp),
+                        style: HrModuleTypography.body().copyWith(fontSize: 15.tsp),
                       ),
                       SizedBox(height: 16.th),
                       FilledButton(
@@ -370,8 +355,7 @@ class _HrPersonalRequestListContentState
                       e.relativeSubmittedLabel,
                   ].join(' · ');
                   return Padding(
-                    padding:
-                        EdgeInsets.only(bottom: HrModuleLayout.cardSpacingV.th),
+                    padding: EdgeInsets.only(bottom: HrModuleLayout.cardSpacingV.th),
                     child: HrRequestCard(
                       requestTypeTitle: e.type,
                       referenceNumber: e.referenceNumber,

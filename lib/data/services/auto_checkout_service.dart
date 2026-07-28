@@ -5,6 +5,7 @@ import 'package:el_race/ui/presentation/landing_screen/bloc/checkin_out_bloc/che
 import 'package:el_race/ui/presentation/home_screen/widgets/timer_controller.dart';
 import 'package:el_race/utils/di.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:workmanager/workmanager.dart';
 
 /// خدمة تنفيذ الـ Auto Check-out التلقائي في الساعة 5:10 مساءً
@@ -122,7 +123,7 @@ class AutoCheckoutService {
 
       // إيقاف المؤقت
       try {
-        await TimerController.instance.stopTimer();
+        Get.find<TimerController>().stopTimer();
       } catch (e) {
         debugPrint('⚠️ Timer not found (app might be closed): $e');
       }

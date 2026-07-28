@@ -2,13 +2,12 @@ import 'package:el_race/report_module/core/constants/colors.dart';
 import 'package:el_race/report_module/core/constants/text_styles.dart';
 import 'package:el_race/report_module/data/models/cover_page_model.dart';
 import 'package:el_race/report_module/data/models/report_detail_model.dart';
+import 'package:el_race/report_module/data/provider/reports_provider.dart';
 import 'package:el_race/report_module/data/repositories/company_repository.dart';
-import 'package:el_race/report_module/presentation/bloc/report_bloc.dart';
 import 'package:el_race/report_module/presentation/widgets/bottom_appbar.dart';
 import 'package:el_race/report_module/presentation/widgets/custom_textfield.dart';
 import 'package:el_race/report_module/presentation/widgets/square_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AddCoverScreen extends StatefulWidget {
   final ReportDetailModel reportDetail;
@@ -98,7 +97,6 @@ class _AddCoverScreenState extends State<AddCoverScreen> {
             MaterialButton(
               onPressed: () async {
                 if (!form.currentState!.validate()) return;
-                final reportBloc = context.read<ReportBloc>();
                 ReportDetailModel? updatedReportCover;
                 if (widget.reportDetail.coverPage != null) {
                   updatedReportCover = widget.reportDetail.copyWith(
@@ -106,23 +104,21 @@ class _AddCoverScreenState extends State<AddCoverScreen> {
                     title: titleController.text,
                     description: descriptionController.text,
                   ));
-                  await reportBloc.updateReportDetail(updatedReportCover);
-                  if (!context.mounted) return;
+                  await reportProvider.updateReportDetail(updatedReportCover);
                   Navigator.pop(context, updatedReportCover);
                   return;
                 } else {
                   ReportDetailModel updatedReportCover =
                       widget.reportDetail.copyWith(
                           coverPage: CoverPageModel(
-                    empId: reportBloc.employeeId,
+                    empId: ReportProvider.empID,
                     title: titleController.text,
                     description: descriptionController.text,
                     createdAt: DateTime.now(),
                     updatedAt: DateTime.now(),
                   ));
 
-                  await reportBloc.updateReportDetail(updatedReportCover);
-                  if (!context.mounted) return;
+                  await reportProvider.updateReportDetail(updatedReportCover);
                   Navigator.pop(context, updatedReportCover);
                   return;
                 }

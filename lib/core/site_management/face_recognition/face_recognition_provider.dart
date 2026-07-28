@@ -3,6 +3,8 @@ import 'package:el_race/core/site_management/face_recognition/face_enrollment_se
 import 'package:el_race/core/site_management/face_recognition/face_recognition_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+export 'face_enrollment_status_provider.dart';
+export 'face_match_provider.dart';
 export 'face_recognition_availability.dart';
 
 final faceRecognitionServiceProvider = Provider<FaceRecognitionService>(
@@ -19,7 +21,6 @@ final faceDbSyncProvider = FutureProvider<FaceSyncResult>((ref) async {
 });
 
 /// Optional background refresh (e.g. timesheet module resume). Does not block UI.
-final faceDbBackgroundSyncProvider =
-    FutureProvider<FaceSyncResult>((ref) async {
+final faceDbBackgroundSyncProvider = FutureProvider<FaceSyncResult>((ref) async {
   return ref.read(faceRecognitionServiceProvider).syncFaceDb();
 });

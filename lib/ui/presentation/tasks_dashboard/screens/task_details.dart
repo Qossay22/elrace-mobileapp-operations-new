@@ -20,8 +20,8 @@ import 'package:just_audio/just_audio.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:el_race/report_module/presentation/bloc/report_bloc.dart';
+import 'package:provider/provider.dart';
+import 'package:el_race/report_module/data/provider/reports_provider.dart';
 import 'package:el_race/report_module/data/models/report_model.dart';
 import 'package:el_race/report_module/presentation/screens/report_detail/report_detail.dart'
     as report_detail;
@@ -1773,7 +1773,8 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
 
   Future<ReportModel?> _fetchReportById(String reportId) async {
     try {
-      final reportsProvider = context.read<ReportBloc>();
+      final reportsProvider =
+          Provider.of<ReportProvider>(context, listen: false);
       // Search in cached reports first
       for (var report in reportsProvider.reports) {
         if (report.id == reportId) {

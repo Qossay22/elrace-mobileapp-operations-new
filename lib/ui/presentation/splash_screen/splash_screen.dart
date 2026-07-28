@@ -6,14 +6,14 @@ import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/firebase_service.dart';
 import 'package:el_race/ui/presentation/signin/sign_in_screen.dart';
 import 'package:el_race/ui/widgets/update_dialog.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:el_race/ui/presentation/home_screen/screens/home_screen.dart';
 import 'package:el_race/utils/Util.dart';
 import 'package:el_race/core/services/app_config_service.dart';
 import 'package:el_race/core/security/device_security_service.dart';
-import 'package:el_race/ui/presentation/qr_survey/bloc/qr_survey_bloc.dart';
-import 'package:el_race/ui/presentation/qr_survey/bloc/qr_survey_event.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
+import 'package:el_race/ui/presentation/qr_survey/providers/qr_survey_data_provider.dart';
 import 'package:video_player/video_player.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -61,8 +61,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // Instrumentation only: log when appInitCompleter resolves, independent
     // of the Future.wait gate in _waitForInitAndNavigate (Completers support
     // multiple listeners, so this does not change existing behavior).
-    appInitCompleter.future
-        .then((_) => _logGateTiming('appInitCompleter-resolved'));
+    appInitCompleter.future.then((_) => _logGateTiming('appInitCompleter-resolved'));
 
     // Phase 2: start the update check now, in parallel with init/video/
     // security, since it has no dependency on any of them. Previously this
@@ -94,7 +93,9 @@ class _SplashScreenState extends State<SplashScreen> {
     // the splash background paints immediately without any blocking work.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _performSecurityCheck();
-      context.read<QrSurveyBloc>().add(const QrSurveyContentCleared());
+      final provider =
+          Provider.of<QrSurveyDataProvider>(context, listen: false);
+      provider.clearData();
       print('🧹 SplashScreen - Cleared QR data on app start');
     });
   }
@@ -106,7 +107,7 @@ class _SplashScreenState extends State<SplashScreen> {
       print('🔒 Starting security check...');
       final result = await DeviceSecurityService.instance
           .performSecurityCheck()
-          .timeout(const Duration(seconds: 6));
+          .timeout(Duration(seconds: kDebugMode ? 2 : 6));
 
       if (mounted) {
         setState(() {
@@ -153,11 +154,10 @@ class _SplashScreenState extends State<SplashScreen> {
     _waitForInitAndNavigate();
   }
 
-  /// Wait for init, video, and security in parallel (previously chained:
-  /// init+video together, then security only after, then the update check
-  /// only after that — a worst case of ~35-37s serialized). Each gate is
-  /// independently bounded, so the wait is now max(12s, 5s, 6s) instead of
-  /// their sum.
+  /// Wait for init + security in parallel. Splash video is decorative only —
+  /// do NOT gate navigation on it (video is ~5s and completion often misses,
+  /// which caused the "Video completion timeout" + stuck-feeling splash after
+  /// Jul 20 "Let splash video finish before navigation").
   Future<void> _waitForInitAndNavigate() async {
     debugPrint('🚀 SplashScreen: waiting for bounded startup checks');
     _logGateTiming('waitForInitAndNavigate-start');
@@ -168,21 +168,18 @@ class _SplashScreenState extends State<SplashScreen> {
           print('⚠️ Heavy init timeout in splash – continuing anyway');
         },
       ),
-      // Wait for the splash video to finish. Keep a generous fallback only so
-      // a decoder/player failure cannot trap the user on splash forever.
-      _videoCompletedCompleter.future.timeout(
-        const Duration(seconds: 30),
-        onTimeout: () {
-          print('⚠️ Video completion timeout in splash – continuing anyway');
-        },
-      ),
       _securityCheckCompleter.future.timeout(
-        const Duration(seconds: 6),
+        Duration(seconds: kDebugMode ? 2 : 6),
         onTimeout: () {
           print('⚠️ Security check timeout in splash – continuing anyway');
         },
       ),
     ]);
+    // Allow a brief beat so the first video frame can paint, then leave.
+    // Never wait for the full clip.
+    await Future<void>.delayed(
+      Duration(milliseconds: kDebugMode ? 300 : 800),
+    );
     _logGateTiming('waitForInitAndNavigate-gate-resolved');
 
     if (!mounted) return;

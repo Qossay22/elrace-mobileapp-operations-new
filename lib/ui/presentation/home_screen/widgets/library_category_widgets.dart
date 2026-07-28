@@ -1,18 +1,17 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
-import 'package:el_race/ui/presentation/home_screen/bloc/home_library_widgets_cubit.dart';
+import 'package:el_race/ui/presentation/home_screen/providers/home_library_widgets_provider.dart';
 import 'package:el_race/ui/presentation/home_screen/widgets/category_widget_gradient_border.dart';
 import 'package:el_race/ui/presentation/home_screen/widgets/parayer_widgets/parayer_widget.dart';
 import 'package:el_race/ui/presentation/media/screens/media_list_screen.dart';
 import 'package:el_race/ui/presentation/my_documents/screens/my_documents_screen.dart';
-import 'package:el_race/ui/presentation/signin/data/model.dart';
 import 'package:el_race/utils/Util.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// v7 Library category — Documents, Media, Prayer Times (stacked full-width).
-class LibraryCategoryMyDocumentsCard extends StatelessWidget {
+class LibraryCategoryMyDocumentsCard extends ConsumerWidget {
   const LibraryCategoryMyDocumentsCard({
     super.key,
     this.tabletCompact = false,
@@ -21,81 +20,78 @@ class LibraryCategoryMyDocumentsCard extends StatelessWidget {
   final bool tabletCompact;
 
   @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<HomeMyDocumentsWidgetCubit, MyDocumentsWidgetRecord>(
-      builder: (context, data) {
-        final trendColor = _documentsTrendColor(data.trendColor);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final data = ref.watch(homeMyDocumentsWidgetProvider);
+    final trendColor = _documentsTrendColor(data.trendColor);
 
-        return _LibraryFullCardShell(
-          height: tabletCompact ? double.infinity : 140.uh,
-          onTap: () => Util.pushPage(const MyDocumentsScreen(), context),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFF0F3F8),
-              Color(0xFFE5E9F0),
-              Color(0xFFD8DEE8),
-              Color(0xFFCFD5DE),
-            ],
+    return _LibraryFullCardShell(
+      height: tabletCompact ? double.infinity : 140.uh,
+      onTap: () => Util.pushPage(const MyDocumentsScreen(), context),
+      gradient: const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color(0xFFF0F3F8),
+          Color(0xFFE5E9F0),
+          Color(0xFFD8DEE8),
+          Color(0xFFCFD5DE),
+        ],
+      ),
+      iconBadge: const _DocumentsIconBadge(),
+      pattern: CustomPaint(
+        painter: _StackedPapersPainter(),
+        size: Size(168.w, 168.uh),
+      ),
+      contentPadding: EdgeInsets.fromLTRB(14.w, 12.uh, 14.w, 10.uh),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'PERSONAL',
+            style: GoogleFonts.poppins(
+              fontSize: 10.usp,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFFB8860B),
+              letterSpacing: 0.55,
+            ),
           ),
-          iconBadge: const _DocumentsIconBadge(),
-          pattern: CustomPaint(
-            painter: _StackedPapersPainter(),
-            size: Size(168.w, 168.uh),
+          SizedBox(height: 3.uh),
+          Text(
+            'My Documents',
+            style: GoogleFonts.poppins(
+              fontSize: 17.usp,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF1A2A4F),
+            ),
           ),
-          contentPadding: EdgeInsets.fromLTRB(14.w, 12.uh, 14.w, 10.uh),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'PERSONAL',
-                style: GoogleFonts.poppins(
-                  fontSize: 10.usp,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFFB8860B),
-                  letterSpacing: 0.55,
-                ),
-              ),
-              SizedBox(height: 3.uh),
-              Text(
-                'My Documents',
-                style: GoogleFonts.poppins(
-                  fontSize: 17.usp,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1A2A4F),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '${data.totalCount}',
-                style: GoogleFonts.poppins(
-                  fontSize: 34.usp,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1A2A4F),
-                  height: 1,
-                ),
-              ),
-              if (data.trendMessage.isNotEmpty)
-                Text(
-                  data.trendMessage,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.poppins(
-                    fontSize: 11.usp,
-                    fontWeight: FontWeight.w600,
-                    color: trendColor,
-                  ),
-                ),
-            ],
+          SizedBox(height: 8),
+          Text(
+            '${data.totalCount}',
+            style: GoogleFonts.poppins(
+              fontSize: 34.usp,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF1A2A4F),
+              height: 1,
+            ),
           ),
-        );
-      },
+          if (data.trendMessage.isNotEmpty)
+            Text(
+              data.trendMessage,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.poppins(
+                fontSize: 11.usp,
+                fontWeight: FontWeight.w600,
+                color: trendColor,
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
 
-class LibraryCategoryMediaCard extends StatelessWidget {
+class LibraryCategoryMediaCard extends ConsumerWidget {
   const LibraryCategoryMediaCard({
     super.key,
     this.tabletCompact = false,
@@ -104,73 +100,70 @@ class LibraryCategoryMediaCard extends StatelessWidget {
   final bool tabletCompact;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final data = ref.watch(homeMediaWidgetProvider);
     const accentGreen = Color(0xFF86EFAC);
 
-    return BlocBuilder<HomeMediaWidgetCubit, MediaWidgetRecord>(
-      builder: (context, data) {
-        return _LibraryFullCardShell(
-          height: tabletCompact ? double.infinity : 150.uh,
-          onTap: () => Util.pushPage(const MediaListScreen(), context),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF1A1F2E),
-              Color(0xFF1A1F2E),
-              Color(0xFF141820),
-              Color(0xFF0F0F15),
-            ],
+    return _LibraryFullCardShell(
+      height: tabletCompact ? double.infinity : 150.uh,
+      onTap: () => Util.pushPage(const MediaListScreen(), context),
+      gradient: const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color(0xFF1A1F2E),
+          Color(0xFF1A1F2E),
+          Color(0xFF141820),
+          Color(0xFF0F0F15),
+        ],
+      ),
+      background: const _MediaCardBackground(),
+      contentPadding: EdgeInsets.fromLTRB(16.w, 14.uh, 16.w, 14.uh),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'GALLERY',
+            style: GoogleFonts.poppins(
+              fontSize: 10.usp,
+              fontWeight: FontWeight.w600,
+              color: accentGreen,
+              letterSpacing: 0.55,
+            ),
           ),
-          background: const _MediaCardBackground(),
-          contentPadding: EdgeInsets.fromLTRB(16.w, 14.uh, 16.w, 14.uh),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'GALLERY',
-                style: GoogleFonts.poppins(
-                  fontSize: 10.usp,
-                  fontWeight: FontWeight.w600,
-                  color: accentGreen,
-                  letterSpacing: 0.55,
-                ),
-              ),
-              SizedBox(height: 3.uh),
-              Text(
-                'Media',
-                style: GoogleFonts.poppins(
-                  fontSize: 18.usp,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '${data.totalCount}',
-                style: GoogleFonts.poppins(
-                  fontSize: 36.usp,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                  height: 1,
-                ),
-              ),
-              if (data.trendMessage.isNotEmpty)
-                Text(
-                  data.trendMessage,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.poppins(
-                    fontSize: 12.usp,
-                    fontWeight: FontWeight.w600,
-                    color: accentGreen,
-                  ),
-                ),
-            ],
+          SizedBox(height: 3.uh),
+          Text(
+            'Media',
+            style: GoogleFonts.poppins(
+              fontSize: 18.usp,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
           ),
-        );
-      },
+          const SizedBox(height: 8),
+          Text(
+            '${data.totalCount}',
+            style: GoogleFonts.poppins(
+              fontSize: 36.usp,
+              fontWeight: FontWeight.w800,
+              color: Colors.white,
+              height: 1,
+            ),
+          ),
+          if (data.trendMessage.isNotEmpty)
+            Text(
+              data.trendMessage,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.poppins(
+                fontSize: 12.usp,
+                fontWeight: FontWeight.w600,
+                color: accentGreen,
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -280,8 +273,8 @@ class _LibraryFullCardShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final innerRadius = (22.ur - CategoryWidgetGradientBorder.width)
-        .clamp(0.0, double.infinity);
+    final innerRadius =
+        (22.ur - CategoryWidgetGradientBorder.width).clamp(0.0, double.infinity);
     final rightPad = iconBadge != null ? 46.w : 16.w;
 
     return Material(
@@ -364,8 +357,7 @@ class _DocumentsIconBadge extends StatelessWidget {
           ),
         ],
       ),
-      child:
-          Icon(Icons.description_outlined, color: Colors.white, size: 20.usp),
+      child: Icon(Icons.description_outlined, color: Colors.white, size: 20.usp),
     );
   }
 }
@@ -379,8 +371,7 @@ class _StackedPapersPainter extends CustomPainter {
       ..strokeWidth = 1.2;
     for (var i = 0; i < 3; i++) {
       final rect = RRect.fromRectAndRadius(
-        Rect.fromLTWH(
-            8 + i * 6.0, 10 + i * 5.0, size.width * 0.55, size.height * 0.5),
+        Rect.fromLTWH(8 + i * 6.0, 10 + i * 5.0, size.width * 0.55, size.height * 0.5),
         const Radius.circular(4),
       );
       canvas.drawRRect(rect, paint);

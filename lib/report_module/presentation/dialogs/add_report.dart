@@ -1,10 +1,12 @@
+import 'package:el_race/report_module/data/provider/reports_provider.dart';
 import 'package:el_race/report_module/data/repositories/company_repository.dart';
-import 'package:el_race/report_module/presentation/bloc/report_bloc.dart';
 import 'package:el_race/report_module/presentation/screens/report_photos/report_photos_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+
+import '../../../core/app_globals.dart' show navKey;
 
 Future<bool> showAddNewReport(BuildContext context,
     {required int type, String? folderID}) async {
@@ -84,29 +86,29 @@ Future<bool> showAddNewReport(BuildContext context,
   );
 
   if (cancel || nameController.text.trim().isEmpty) return false;
-  if (!context.mounted) return false;
 
-  final reportBloc = context.read<ReportBloc>();
+  ReportProvider provider =
+      Provider.of<ReportProvider>(navKey.currentContext!, listen: false);
   final reportName = nameController.text.trim();
   if (type == 2) {
-    final previousFolderIds = reportBloc.folders.map((f) => f.id).toSet();
-    await reportBloc.createFolder(
+    final previousFolderIds = provider.folders.map((f) => f.id).toSet();
+    await provider.createFolder(
       title: reportName,
       description: CompanyRepository.company?.companyName ?? '',
     );
-    final createdFolderIndex = reportBloc.folders.indexWhere(
+    final createdFolderIndex = provider.folders.indexWhere(
       (folder) => !previousFolderIds.contains(folder.id),
     );
     if (createdFolderIndex == -1) return false;
 
     if (context.mounted) {
-      final createdFolder = reportBloc.folders[createdFolderIndex];
-      final createdReportIndex = reportBloc.reports.indexWhere(
+      final createdFolder = provider.folders[createdFolderIndex];
+      final createdReportIndex = provider.reports.indexWhere(
         (report) => report.folderId == createdFolder.id,
       );
       final createdReport = createdReportIndex != -1
-          ? reportBloc.reports[createdReportIndex]
-          : await reportBloc.getOrCreateSingleReportForFolder(createdFolder);
+          ? provider.reports[createdReportIndex]
+          : await provider.getOrCreateSingleReportForFolder(createdFolder);
       if (createdReport != null && context.mounted) {
         await Navigator.push(
           context,
@@ -122,7 +124,7 @@ Future<bool> showAddNewReport(BuildContext context,
     }
     return true;
   } else {
-    await reportBloc.createReport(title: reportName, folderID: folderID!);
+    await provider.createReport(title: reportName, folderID: folderID!);
     return true;
   }
 }

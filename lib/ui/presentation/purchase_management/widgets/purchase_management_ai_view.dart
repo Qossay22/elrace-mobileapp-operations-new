@@ -11,7 +11,8 @@ class PurchaseManagementAiView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElraceAiAssistantBody(
       title: 'Purchase AI',
-      subtitle: 'Ask about spend trends, pending RFQs, draft invoices, and '
+      subtitle:
+          'Ask about spend trends, pending RFQs, draft invoices, and '
           'material request bottlenecks.',
       suggestions: const [
         'Summarize open LPOs this month',

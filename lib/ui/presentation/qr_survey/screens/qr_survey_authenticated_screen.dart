@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../bloc/qr_survey_bloc.dart';
-import '../bloc/qr_survey_state.dart';
+import 'package:provider/provider.dart';
+import '../providers/qr_survey_data_provider.dart';
 import 'list_documents_screen.dart';
 import 'list_media_screen.dart';
 import 'list_questions_screen.dart';
@@ -31,10 +30,10 @@ class _QrSurveyAuthenticatedScreenState
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: BlocBuilder<QrSurveyBloc, QrSurveyState>(
-        builder: (context, state) {
+      body: Consumer<QrSurveyDataProvider>(
+        builder: (context, provider, child) {
           // Check if content is from QR code
-          if (!state.isFromQrCode) {
+          if (!provider.isFromQrCode) {
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
@@ -68,8 +67,8 @@ class _QrSurveyAuthenticatedScreenState
           }
 
           // Get content from provider
-          final contentType = state.contentType;
-          final dynamic data = state.contentData;
+          final contentType = provider.contentType;
+          final dynamic data = provider.contentData;
 
           // Show QR Survey content based on type
           Widget qrSurveyContent;

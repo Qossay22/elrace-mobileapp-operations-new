@@ -10,6 +10,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:el_race/utils/color_utils.dart';
 import 'package:el_race/ui/presentation/tasks_dashboard/services/task_options_api_service.dart';
 import 'package:el_race/ui/presentation/tasks_dashboard/services/teams_api_service.dart';
+import 'package:el_race/ui/presentation/tasks_dashboard/models/team_model.dart';
 import 'package:el_race/ui/presentation/todo_list/services/team_members_api_service.dart';
 import 'package:el_race/ui/presentation/todo_list/data/todo_model.dart';
 import 'package:el_race/ui/presentation/todo_list/data/task_member_model.dart';
@@ -19,8 +20,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'dart:convert';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:el_race/report_module/presentation/bloc/report_bloc.dart';
+import 'dart:typed_data';
+import 'package:provider/provider.dart';
+import 'package:el_race/report_module/data/provider/reports_provider.dart';
 import 'package:el_race/report_module/data/models/folder_model.dart';
 import 'package:el_race/report_module/data/models/report_model.dart';
 import 'package:el_race/core/utils/shared_pref.dart';
@@ -115,7 +117,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   Future<void> _loadFolders() async {
     try {
-      final reportsProvider = context.read<ReportBloc>();
+      final reportsProvider =
+          Provider.of<ReportProvider>(context, listen: false);
 
       // Initialize provider if not already initialized
       final loginData = SharedPref.getLoginDataOrNull();
@@ -151,7 +154,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     });
 
     try {
-      final reportsProvider = context.read<ReportBloc>();
+      final reportsProvider =
+          Provider.of<ReportProvider>(context, listen: false);
       await reportsProvider.fetchAllReports(folderID: folderId);
 
       if (mounted) {
@@ -198,24 +202,25 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       // Convert to TaskMember list for progress tracking
       List<TaskMember>? assignedMembers;
       if (_selectedMembers.isNotEmpty) {
-        assignedMembers = _selectedMembers.map((m) {
-          // Prefer explicit employee_id; fallback to id
-          final empId = (m.employeeId != null && m.employeeId! > 0)
-              ? m.employeeId.toString()
-              : m.id.toString();
-          // odooUserId = res.users ID; used to build "odoo_{id}" firebase_uid format
-          final oUserId = (m.odooUserId != null && m.odooUserId! > 0)
-              ? m.odooUserId.toString()
-              : null;
-          print(
-              '📋 [TaskAssign] Assigning to: ${m.name} | employeeId=$empId | odooUserId=$oUserId');
-          return TaskMember(
-            name: m.name,
-            odooId: empId,
-            userId: oUserId,
-            isCompleted: false,
-          );
-        }).toList();
+        assignedMembers = _selectedMembers
+            .map((m) {
+              // Prefer explicit employee_id; fallback to id
+              final empId = (m.employeeId != null && m.employeeId! > 0)
+                  ? m.employeeId.toString()
+                  : m.id.toString();
+              // odooUserId = res.users ID; used to build "odoo_{id}" firebase_uid format
+              final oUserId = (m.odooUserId != null && m.odooUserId! > 0)
+                  ? m.odooUserId.toString()
+                  : null;
+              print('📋 [TaskAssign] Assigning to: ${m.name} | employeeId=$empId | odooUserId=$oUserId');
+              return TaskMember(
+                name: m.name,
+                odooId: empId,
+                userId: oUserId,
+                isCompleted: false,
+              );
+            })
+            .toList();
       }
 
       // Get follower names (for backward compatibility)
@@ -289,7 +294,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         if (assignedMembers != null) {
           for (final member in assignedMembers) {
             // Skip self-assignment notification
-            if (member.name.toLowerCase() == currentUserName.toLowerCase()) {
+            if (member.name.toLowerCase() ==
+                currentUserName.toLowerCase()) {
               continue;
             }
             await notifService.showNewTaskNotification(
@@ -1487,10 +1493,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   }
 
   String _memberDisplayName(String rawName) {
-    final cleaned =
-        rawName.replaceFirst(RegExp(r'^\s*\d+\s*[-:|#]*\s*'), '').trim();
-    final parts =
-        cleaned.split(RegExp(r'\s+')).where((e) => e.isNotEmpty).toList();
+    final cleaned = rawName
+        .replaceFirst(RegExp(r'^\s*\d+\s*[-:|#]*\s*'), '')
+        .trim();
+    final parts = cleaned.split(RegExp(r'\s+')).where((e) => e.isNotEmpty).toList();
     if (parts.isEmpty) return rawName.trim();
     if (parts.length == 1) return parts.first;
     return '${parts[0]} ${parts[1]}';
@@ -2139,23 +2145,25 @@ class _MemberPickerSheetState extends State<_MemberPickerSheet> {
       if (q.isEmpty) {
         _filteredMembers = widget.members;
       } else {
-        _filteredMembers = widget.members.where((m) {
-          final displayName = _memberDisplayName(m.name).toLowerCase();
-          final fullName = m.name.toLowerCase();
-          final department = (m.department ?? '').toLowerCase();
-          return displayName.contains(q) ||
-              fullName.contains(q) ||
-              department.contains(q);
-        }).toList();
+        _filteredMembers = widget.members
+            .where((m) {
+              final displayName = _memberDisplayName(m.name).toLowerCase();
+              final fullName = m.name.toLowerCase();
+              final department = (m.department ?? '').toLowerCase();
+              return displayName.contains(q) ||
+                  fullName.contains(q) ||
+                  department.contains(q);
+            })
+            .toList();
       }
     });
   }
 
   String _memberDisplayName(String rawName) {
-    final cleaned =
-        rawName.replaceFirst(RegExp(r'^\s*\d+\s*[-:|#]*\s*'), '').trim();
-    final parts =
-        cleaned.split(RegExp(r'\s+')).where((e) => e.isNotEmpty).toList();
+    final cleaned = rawName
+        .replaceFirst(RegExp(r'^\s*\d+\s*[-:|#]*\s*'), '')
+        .trim();
+    final parts = cleaned.split(RegExp(r'\s+')).where((e) => e.isNotEmpty).toList();
     if (parts.isEmpty) return rawName.trim();
     if (parts.length == 1) return parts.first;
     return '${parts[0]} ${parts[1]}';

@@ -6,6 +6,7 @@ import 'package:el_race/ui/presentation/purchase_management/theme/purchase_theme
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_background.dart';
 import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_glass_header.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class InvoiceReceivingCreateScreen extends StatefulWidget {
@@ -137,16 +138,16 @@ class _InvoiceReceivingCreateScreenState
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: Column(
-          children: [
-            PurchaseManagementGlassHeader(
-              title: 'Create Invoice Receiving',
-              showBack: true,
-              onBack: () => Navigator.pop(context),
-            ),
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.all(16.tw),
-                children: [
+        children: [
+          PurchaseManagementGlassHeader(
+            title: 'Create Invoice Receiving',
+            showBack: true,
+            onBack: () => Navigator.pop(context),
+          ),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.all(16.tw),
+              children: [
                   _field(
                     label: 'Invoice No',
                     child: TextField(
@@ -160,7 +161,7 @@ class _InvoiceReceivingCreateScreenState
                     child: _loadingLpos
                         ? const LinearProgressIndicator()
                         : DropdownButtonFormField<LpoOption>(
-                            initialValue: _selectedLpo,
+                            value: _selectedLpo,
                             decoration: _inputDeco('Select LPO'),
                             items: _lpoOptions
                                 .map(
@@ -268,9 +269,9 @@ class _InvoiceReceivingCreateScreenState
                   ),
                 ],
               ),
-            ),
-          ],
-        ),
+          ),
+        ],
+      ),
       ),
     );
   }

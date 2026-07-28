@@ -1,7 +1,7 @@
 import 'package:el_race/core/theme/timesheet_module_theme.dart';
-import 'package:el_race/core/timesheet/bloc/timesheet_entry_mode_cubit.dart';
 import 'package:el_race/core/timesheet/models/timesheet_team_member.dart';
 import 'package:el_race/core/timesheet/providers/timesheet_data_providers.dart';
+import 'package:el_race/core/timesheet/providers/timesheet_entry_mode_provider.dart';
 import 'package:el_race/core/timesheet/routing/timesheet_route_names.dart';
 import 'package:el_race/core/widgets/timesheet/timesheet_widgets.dart';
 import 'package:el_race/ui/presentation/timesheet/project_record_card.dart';
@@ -10,7 +10,6 @@ import 'package:el_race/ui/presentation/timesheet/timesheet_route_args.dart';
 import 'package:el_race/ui/presentation/timesheet/site_reports/tm_site_reports_list_screen.dart';
 import 'package:el_race/ui/presentation/timesheet/widgets/tm_team_members_sheet.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -25,7 +24,7 @@ class Pm2ProjectDetail extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final projectAsync = ref.watch(timesheetProjectProvider(projectId));
-    final entryMode = context.watch<TimesheetEntryModeCubit>().state;
+    final entryMode = ref.watch(timesheetEntryModeProvider);
     final siteMode = entryMode == TimesheetEntryMode.siteManagement;
 
     return TmScaffold(
@@ -106,7 +105,8 @@ class Pm2ProjectDetail extends ConsumerWidget {
                                   final height = constraints.maxHeight;
                                   return ProjectRecordCard(
                                     project: project,
-                                    viewportHeight: height > 0 ? height : null,
+                                    viewportHeight:
+                                        height > 0 ? height : null,
                                   );
                                 },
                               ),
@@ -241,8 +241,9 @@ class _PmTeamsTab extends ConsumerWidget {
                   ),
                 ),
               ),
-              onTap:
-                  foremen.isEmpty ? null : () => _showForemen(context, foremen),
+              onTap: foremen.isEmpty
+                  ? null
+                  : () => _showForemen(context, foremen),
             ),
           ],
         );

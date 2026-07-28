@@ -240,7 +240,8 @@ class EmployeeContractSalary {
   final double totalSalary;
 
   factory EmployeeContractSalary.fromJson(Map<String, dynamic>? json) {
-    double n(dynamic v) => v is num ? v.toDouble() : double.tryParse('$v') ?? 0;
+    double n(dynamic v) =>
+        v is num ? v.toDouble() : double.tryParse('$v') ?? 0;
     if (json == null) {
       return const EmployeeContractSalary(
         basicSalary: 0,
@@ -270,8 +271,9 @@ class EmployeeContractAmountRow {
     final amount = json['amount'];
     return EmployeeContractAmountRow(
       date: json['date']?.toString(),
-      amount:
-          amount is num ? amount.toDouble() : double.tryParse('$amount') ?? 0,
+      amount: amount is num
+          ? amount.toDouble()
+          : double.tryParse('$amount') ?? 0,
     );
   }
 }
