@@ -57,6 +57,7 @@ class TmSecondaryButton extends StatelessWidget {
     required this.onPressed,
     this.icon,
     this.warm = false,
+    this.fitLabel = false,
   });
 
   final String label;
@@ -65,6 +66,7 @@ class TmSecondaryButton extends StatelessWidget {
 
   /// Warm theme: orange outline/text (foreman Timesheet screens).
   final bool warm;
+  final bool fitLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -77,8 +79,7 @@ class TmSecondaryButton extends StatelessWidget {
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
           foregroundColor: color,
-          backgroundColor:
-              warm ? TimesheetModuleColors.glassSurface : null,
+          backgroundColor: warm ? TimesheetModuleColors.glassSurface : null,
           side: BorderSide(color: color),
           shape: RoundedRectangleBorder(
             borderRadius:
@@ -89,6 +90,7 @@ class TmSecondaryButton extends StatelessWidget {
           label: label,
           icon: icon,
           color: color,
+          fitLabel: fitLabel,
         ),
       ),
     );
@@ -100,11 +102,13 @@ class _TmButtonContent extends StatelessWidget {
     required this.label,
     this.icon,
     this.color = TimesheetModuleColors.surface,
+    this.fitLabel = false,
   });
 
   final String label;
   final IconData? icon;
   final Color color;
+  final bool fitLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -118,14 +122,25 @@ class _TmButtonContent extends StatelessWidget {
           const SizedBox(width: 6),
         ],
         Flexible(
-          child: Text(
-            label,
-            maxLines: 1,
-            softWrap: false,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: TimesheetModuleTypography.button(color: color),
-          ),
+          child: fitLabel
+              ? FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    softWrap: false,
+                    textAlign: TextAlign.center,
+                    style: TimesheetModuleTypography.button(color: color),
+                  ),
+                )
+              : Text(
+                  label,
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: TimesheetModuleTypography.button(color: color),
+                ),
         ),
       ],
     );
