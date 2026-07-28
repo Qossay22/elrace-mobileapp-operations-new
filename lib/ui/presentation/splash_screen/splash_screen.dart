@@ -8,6 +8,7 @@ import 'package:el_race/ui/presentation/signin/sign_in_screen.dart';
 import 'package:el_race/ui/widgets/update_dialog.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:el_race/ui/presentation/home_screen/screens/home_screen.dart';
 import 'package:el_race/utils/Util.dart';
 import 'package:el_race/core/services/app_config_service.dart';
@@ -55,13 +56,15 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     debugPrint('🚀 SplashScreen.initState(): first screen mounted');
     _logGateTiming('initState');
 
     // Instrumentation only: log when appInitCompleter resolves, independent
     // of the Future.wait gate in _waitForInitAndNavigate (Completers support
     // multiple listeners, so this does not change existing behavior).
-    appInitCompleter.future.then((_) => _logGateTiming('appInitCompleter-resolved'));
+    appInitCompleter.future
+        .then((_) => _logGateTiming('appInitCompleter-resolved'));
 
     // Phase 2: start the update check now, in parallel with init/video/
     // security, since it has no dependency on any of them. Previously this
@@ -253,6 +256,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void _doNavigate() {
     if (!mounted) return;
+    _restoreAppSystemUi();
     // Proxy for "first frame of HomeScreen/SignInScreen": this is the last
     // point splash_screen.dart controls before handing off navigation, since
     // instrumenting the destination screens is out of scope for this file.
@@ -321,6 +325,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 350),
         child: _isVideoReady
@@ -345,9 +350,14 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void dispose() {
+    _restoreAppSystemUi();
     _videoController.removeListener(_onVideoProgress);
     _videoController.dispose();
     super.dispose();
+  }
+
+  void _restoreAppSystemUi() {
+    unawaited(SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge));
   }
 }
 
