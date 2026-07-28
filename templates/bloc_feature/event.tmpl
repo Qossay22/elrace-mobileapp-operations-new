@@ -1,0 +1,12 @@
+import 'package:equatable/equatable.dart';
+
+sealed class {{FeatureName}}Event extends Equatable {
+  const {{FeatureName}}Event();
+
+  @override
+  List<Object?> get props => [];
+}
+
+final class {{FeatureName}}Started extends {{FeatureName}}Event {
+  const {{FeatureName}}Started();
+}

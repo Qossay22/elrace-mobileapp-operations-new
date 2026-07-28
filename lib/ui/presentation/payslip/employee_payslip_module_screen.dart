@@ -1,0 +1,237 @@
+import 'package:el_race/core/utils/responsive_breakpoints.dart';
+import 'package:el_race/core/payslip/bloc/employee_payslip_cubit.dart';
+import 'package:el_race/core/payslip/bloc/payslip_employee_filter_cubit.dart';
+import 'package:el_race/core/payslip/models/payslip_models.dart';
+import 'package:el_race/core/payslip/providers/payslip_providers.dart';
+import 'package:el_race/core/theme/hr_module_colors.dart';
+import 'package:el_race/core/theme/hr_module_layout.dart';
+import 'package:el_race/core/theme/hr_module_typography.dart';
+import 'package:el_race/core/widgets/hr_management/hr_module_glass_header.dart';
+import 'package:el_race/core/widgets/payslip/payslip_gradient_scaffold.dart';
+import 'package:el_race/ui/presentation/payslip/widgets/payslip_detail_sheet.dart';
+import 'package:el_race/ui/presentation/payslip/widgets/payslip_record_card.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+
+/// P1 — employee payslips: month filter, selected period, last five (card list).
+class EmployeePayslipModuleScreen extends StatelessWidget {
+  const EmployeePayslipModuleScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final filterMonth = context.watch<PayslipEmployeeFilterCubit>().state;
+    final now = DateTime.now();
+    final currentMonthStart = DateTime(now.year, now.month, 1);
+    final monthChoices = payslipMonthFilterOptions();
+
+    context.read<EmployeePayslipCubit>().load(filterMonth);
+
+    return PayslipGradientScaffold(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const HrModuleGlassHeader(
+            title: 'Payslips',
+            accentTint: HrModuleHeaderTints.payslip,
+          ),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.fromLTRB(
+                HrModuleLayout.screenPaddingH.tw,
+                16.th,
+                HrModuleLayout.screenPaddingH.tw,
+                32.th,
+              ),
+              children: [
+                Text(
+                  'Filters',
+                  style: HrModuleTypography.sectionHeading()
+                      .copyWith(fontSize: 15.tsp),
+                ),
+                SizedBox(height: 8.th),
+                Text(
+                  'Month',
+                  style: HrModuleTypography.caption().copyWith(
+                    fontSize: 12.tsp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(height: 6.th),
+                InputDecorator(
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: HrModuleColors.surface,
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 12.tw, vertical: 4.th),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide:
+                          const BorderSide(color: HrModuleColors.border),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide:
+                          const BorderSide(color: HrModuleColors.border),
+                    ),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<DateTime>(
+                      isExpanded: true,
+                      value: _coerceFilterValue(monthChoices, filterMonth),
+                      items: monthChoices
+                          .map(
+                            (d) => DropdownMenuItem(
+                              value: d,
+                              child: Text(DateFormat('MMMM yyyy').format(d)),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (d) {
+                        if (d != null) {
+                          context
+                              .read<PayslipEmployeeFilterCubit>()
+                              .setMonth(d);
+                        }
+                      },
+                    ),
+                  ),
+                ),
+                SizedBox(height: 8.th),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton.icon(
+                    onPressed: () {
+                      context
+                          .read<PayslipEmployeeFilterCubit>()
+                          .setMonth(currentMonthStart);
+                    },
+                    icon: const Icon(Icons.today_outlined, size: 20),
+                    label: const Text('Jump to current month'),
+                  ),
+                ),
+                SizedBox(height: 20.th),
+                Text(
+                  'Payslip for selected month',
+                  style: HrModuleTypography.sectionHeading()
+                      .copyWith(fontSize: 15.tsp),
+                ),
+                SizedBox(height: 10.th),
+                BlocBuilder<EmployeePayslipCubit, EmployeePayslipState>(
+                  builder: (context, state) {
+                    if (state.isLoading && state.monthPayslips.isEmpty) {
+                      return const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+                    if (state.error != null && state.monthPayslips.isEmpty) {
+                      return Text('Error: ${state.error}');
+                    }
+                    final list = state.monthPayslips;
+                    final PayslipSummary? selected =
+                        list.isNotEmpty ? list.first : null;
+                    if (selected == null) {
+                      return Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(20.tw),
+                        decoration: BoxDecoration(
+                          color: HrModuleColors.surface,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: HrModuleColors.border),
+                        ),
+                        child: Text(
+                          'No payslip for ${DateFormat('MMMM yyyy').format(filterMonth)}.',
+                          style: HrModuleTypography.body()
+                              .copyWith(fontSize: 14.tsp),
+                        ),
+                      );
+                    }
+                    return PayslipRecordCard(
+                      summary: selected,
+                      onTap: () => showPayslipDetailSheet(
+                        context,
+                        payslipId: selected.id,
+                        title: selected.reference.isNotEmpty
+                            ? selected.reference
+                            : selected.periodTitle,
+                      ),
+                    );
+                  },
+                ),
+                SizedBox(height: 28.th),
+                Text(
+                  'Recent payslips',
+                  style: HrModuleTypography.sectionHeading()
+                      .copyWith(fontSize: 15.tsp),
+                ),
+                SizedBox(height: 6.th),
+                Text(
+                  'Last five pay periods',
+                  style:
+                      HrModuleTypography.caption().copyWith(fontSize: 12.tsp),
+                ),
+                SizedBox(height: 12.th),
+                BlocBuilder<EmployeePayslipCubit, EmployeePayslipState>(
+                  builder: (context, state) {
+                    if (state.isLoading && state.recentPayslips.isEmpty) {
+                      return const Padding(
+                        padding: EdgeInsets.all(24),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+                    if (state.error != null && state.recentPayslips.isEmpty) {
+                      return Text(
+                        'Could not load list: ${state.error}',
+                        style: HrModuleTypography.body(),
+                      );
+                    }
+                    final list = state.recentPayslips;
+                    final selectedId = state.monthPayslips.isNotEmpty
+                        ? state.monthPayslips.first.id
+                        : null;
+                    final deduped = selectedId == null
+                        ? list
+                        : list.where((s) => s.id != selectedId).toList();
+                    if (deduped.isEmpty) {
+                      return Text(
+                        'No history yet.',
+                        style: HrModuleTypography.body(),
+                      );
+                    }
+                    return Column(
+                      children: [
+                        for (final s in deduped) ...[
+                          PayslipRecordCard(
+                            summary: s,
+                            compact: true,
+                            onTap: () => showPayslipDetailSheet(
+                              context,
+                              payslipId: s.id,
+                              title: s.reference.isNotEmpty
+                                  ? s.reference
+                                  : s.periodTitle,
+                            ),
+                          ),
+                          SizedBox(height: 10.th),
+                        ],
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Keeps dropdown valid if month list and filter get out of sync.
+  DateTime _coerceFilterValue(List<DateTime> choices, DateTime filter) {
+    for (final d in choices) {
+      if (d.year == filter.year && d.month == filter.month) return d;
+    }
+    return choices.isEmpty ? filter : choices.first;
+  }
+}

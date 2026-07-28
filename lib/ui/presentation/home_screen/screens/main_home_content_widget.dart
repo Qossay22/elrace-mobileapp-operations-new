@@ -1,0 +1,289 @@
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:el_race/core/services/attendance_status_sync_service.dart';
+import 'package:el_race/core/utils/responsive_breakpoints.dart';
+import 'package:el_race/ui/presentation/home_screen/bloc/home_hr_widgets_cubit.dart';
+import 'package:el_race/ui/presentation/home_screen/bloc/home_library_widgets_cubit.dart';
+import 'package:el_race/ui/presentation/home_screen/bloc/home_lpo_widget_cubit.dart';
+import 'package:el_race/ui/presentation/home_screen/bloc/home_notes_widget_cubit.dart';
+import 'package:el_race/ui/presentation/home_screen/bloc/home_petty_cash_widget_cubit.dart';
+import 'package:el_race/ui/presentation/home_screen/bloc/home_projects_widgets_cubit.dart';
+import 'package:el_race/ui/presentation/home_screen/bloc/home_slider/home_slider_bloc.dart';
+import 'package:el_race/ui/presentation/home_screen/bloc/home_slider/home_slider_event.dart';
+import 'package:el_race/ui/presentation/home_screen/bloc/home_timesheet_widget_cubit.dart';
+import 'package:el_race/ui/presentation/home_screen/widgets/home_city_helper.dart';
+import 'package:el_race/ui/presentation/home_screen/widgets/home_floating_comms_bar.dart';
+import 'package:el_race/ui/presentation/home_screen/widgets/home_glass_app_bar.dart';
+import 'package:el_race/ui/presentation/home_screen/widgets/home_glass_theme.dart';
+import 'package:el_race/ui/presentation/home_screen/widgets/home_greeting_section.dart';
+import 'package:el_race/ui/presentation/home_screen/widgets/home_news_card.dart';
+import 'package:el_race/ui/presentation/home_screen/widgets/home_tablet_layout.dart';
+import 'package:el_race/ui/presentation/home_screen/widgets/home_widgets_panel.dart';
+import 'package:el_race/ui/presentation/home_screen/widgets/mid_section_scroll_lock.dart';
+import 'package:el_race/ui/presentation/home_screen/widgets/my_actions_section.dart';
+import 'package:el_race/ui/presentation/home_screen/providers/home_widget_api_client.dart';
+import 'package:el_race/ui/presentation/home_screen/providers/home_widget_refresh_service.dart';
+import 'package:el_race/utils/Util.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+class MainHomeContentWidget extends StatefulWidget {
+  const MainHomeContentWidget({super.key});
+
+  @override
+  State<MainHomeContentWidget> createState() => _MainHomeContentWidgetState();
+}
+
+class _MainHomeContentWidgetState extends State<MainHomeContentWidget> {
+  final ValueNotifier<double> _expandProgress = ValueNotifier(0);
+  double _panelAnchorTop = 0;
+  final ValueNotifier<bool> _midStripScrollLock = ValueNotifier(false);
+  final GlobalKey _headerZoneKey = GlobalKey();
+
+  @override
+  void dispose() {
+    _expandProgress.dispose();
+    _midStripScrollLock.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<HomeSliderBloc>().add(const HomeSliderRequested());
+      // Warm visible widgets once at entry so card providers mostly read cache.
+      HomeWidgetApiClient.refreshIfStale(
+        onlyCodes: HomeWidgetRefreshService.visibleCategoryCodes(),
+      );
+      // Not forced: cached city is fine on open; pull-to-refresh forces.
+      HomeCityHelper.fetchCity().then((_) {
+        if (mounted) setState(() {});
+      });
+      // Roles/widget visibility are resolved from the login payload only and
+      // refresh on re-login — no session-refresh call here (product decision
+      // 2026-07-20; the endpoint was also measured at 15-20s per call).
+      _measureHeaderAndInit();
+    });
+  }
+
+  void _measureHeaderAndInit() {
+    final box = _headerZoneKey.currentContext?.findRenderObject() as RenderBox?;
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final measured =
+        box != null && box.hasSize ? box.size.height : screenHeight * 0.52;
+    if ((measured - _panelAnchorTop).abs() < 1 && _panelAnchorTop > 0) return;
+    setState(() => _panelAnchorTop = measured);
+  }
+
+  Future<void> _onRefresh() async {
+    final homeContext = context;
+    final futures = <Future<void>>[
+      HomeWidgetRefreshService.refresh(),
+      DefaultCacheManager().emptyCache(),
+      AttendanceStatusSyncService.refreshFromServer(
+        reason: 'pull_to_refresh',
+      ),
+      HomeCityHelper.fetchCity(force: true),
+    ];
+    if (mounted) {
+      futures.add(Util.fetchHomeScreenData(homeContext));
+      futures.add(homeContext.read<HomeAttendanceWidgetCubit>().refresh());
+      futures.add(homeContext.read<HomeHrmsWidgetCubit>().refresh());
+      futures.add(homeContext.read<HomeMyDocumentsWidgetCubit>().refresh());
+      futures.add(homeContext.read<HomeMediaWidgetCubit>().refresh());
+      futures.add(homeContext.read<HomeLpoWidgetCubit>().refresh());
+      futures.add(homeContext.read<HomeNotesWidgetCubit>().refresh());
+      futures.add(homeContext.read<HomePettyCashWidgetCubit>().refresh());
+      futures.add(homeContext.read<HomeMyProjectsWidgetCubit>().refresh());
+      futures.add(homeContext.read<HomeSiteManagementWidgetCubit>().refresh());
+      futures.add(homeContext.read<HomeMyReportsWidgetCubit>().refresh());
+      futures.add(homeContext.read<HomeTimesheetWidgetCubit>().refresh());
+      final sliderBloc = homeContext.read<HomeSliderBloc>()
+        ..add(const HomeSliderRefreshRequested());
+      futures.add(
+        sliderBloc.stream.firstWhere((state) => !state.isLoading).then((_) {}),
+      );
+    }
+    // Never let the pull-to-refresh spinner hang forever: cap each task and
+    // swallow its errors so a single slow/failed request can't block the
+    // RefreshIndicator from settling.
+    await Future.wait(
+      futures.map(
+        (f) => f.timeout(const Duration(seconds: 15)).catchError((Object _) {}),
+      ),
+    );
+    if (mounted) {
+      setState(() {});
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _measureHeaderAndInit();
+      });
+    }
+  }
+
+  void _onProgressChanged(double progress) {
+    if ((progress - _expandProgress.value).abs() < 0.001) return;
+    _expandProgress.value = progress;
+    if (progress <= 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _measureHeaderAndInit();
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (ResponsiveBreakpoints.useTabletLayout(context)) {
+      return HomeTabletLayout(onRefresh: _onRefresh);
+    }
+
+    final screenHeight = MediaQuery.sizeOf(context).height;
+
+    return MidSectionScrollLock(
+      lock: _midStripScrollLock,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          const Positioned.fill(
+            child: HomeSilverBackground(
+              child: SizedBox.expand(),
+            ),
+          ),
+          RefreshIndicator(
+            color: HomeGlassTheme.maroon,
+            backgroundColor: Colors.transparent,
+            onRefresh: _onRefresh,
+            child: ColoredBox(
+              color: Colors.transparent,
+              child: ValueListenableBuilder<bool>(
+                valueListenable: _midStripScrollLock,
+                builder: (context, midStripLocked, child) {
+                  return ValueListenableBuilder<double>(
+                    valueListenable: _expandProgress,
+                    builder: (context, t, child) {
+                      return SingleChildScrollView(
+                        physics: midStripLocked || t > 0.02
+                            ? const NeverScrollableScrollPhysics()
+                            : const AlwaysScrollableScrollPhysics(
+                                parent: BouncingScrollPhysics(),
+                              ),
+                        padding: EdgeInsets.zero,
+                        child: child,
+                      );
+                    },
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ValueListenableBuilder<double>(
+                          valueListenable: _expandProgress,
+                          builder: (context, t, _) {
+                            final homeOpacity = (1 - t).clamp(0.0, 1.0);
+                            final homeSlideUp = -28.th * t;
+                            final externalBarOpacity =
+                                (1 - (t / 0.78)).clamp(0.0, 1.0);
+                            final hideExternalAppBar = t >= 0.78;
+                            return _SilverHeaderZone(
+                              headerKey: _headerZoneKey,
+                              expandProgress: t,
+                              homeOpacity: homeOpacity,
+                              homeSlideUp: homeSlideUp,
+                              hideExternalAppBar: hideExternalAppBar,
+                              externalBarOpacity: externalBarOpacity,
+                            );
+                          },
+                        ),
+                        SizedBox(
+                          height: _panelAnchorTop > 0
+                              ? HomeDraggableWidgetsPanel.collapsedHeightFor(
+                                  context,
+                                  screenHeight,
+                                  _panelAnchorTop,
+                                )
+                              : HomeDraggableWidgetsPanel.peekContentHeight(
+                                  context,
+                                ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+          if (_panelAnchorTop > 0)
+            HomeDraggableWidgetsPanel(
+              screenHeight: screenHeight,
+              panelAnchorTop: _panelAnchorTop,
+              onProgressChanged: _onProgressChanged,
+            ),
+          ValueListenableBuilder<double>(
+            valueListenable: _expandProgress,
+            builder: (context, t, _) {
+              return HomeFloatingCommsBar(expandProgress: t);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SilverHeaderZone extends StatelessWidget {
+  const _SilverHeaderZone({
+    required this.headerKey,
+    required this.expandProgress,
+    required this.homeOpacity,
+    required this.homeSlideUp,
+    required this.hideExternalAppBar,
+    required this.externalBarOpacity,
+  });
+
+  final GlobalKey headerKey;
+  final double expandProgress;
+  final double homeOpacity;
+  final double homeSlideUp;
+  final bool hideExternalAppBar;
+  final double externalBarOpacity;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      key: headerKey,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (!hideExternalAppBar)
+          Opacity(
+            opacity: externalBarOpacity,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(height: MediaQuery.paddingOf(context).top + 6.th),
+                HomeGlassAppBar(expandProgress: expandProgress),
+              ],
+            ),
+          )
+        else
+          SizedBox(height: MediaQuery.paddingOf(context).top),
+        Opacity(
+          opacity: homeOpacity,
+          child: Transform.translate(
+            offset: Offset(0, homeSlideUp),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const HomeGreetingSection(),
+                const HomeNewsBlock(),
+                const MyActionsSection(
+                  dense: true,
+                  showTitle: false,
+                ),
+                SizedBox(height: 7.th),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

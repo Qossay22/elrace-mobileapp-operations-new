@@ -1,0 +1,662 @@
+import 'package:el_race/core/utils/responsive_breakpoints.dart';
+import 'dart:math';
+
+import 'package:el_race/core/hr_management/bloc/hr_effective_view_cubit.dart';
+import 'package:el_race/core/hr_management/bloc/hr_team_requests_cubit.dart';
+import 'package:el_race/core/hr_management/models/hr_request_type_option.dart';
+import 'package:el_race/core/hr_management/hr_effective_view.dart';
+import 'package:el_race/core/hr_management/models/hr_request_summary.dart';
+import 'package:el_race/core/hr_management/network/hr_api_client_factory.dart';
+import 'package:el_race/core/theme/hr_module_colors.dart';
+import 'package:el_race/core/theme/hr_module_layout.dart';
+import 'package:el_race/core/theme/hr_module_typography.dart';
+import 'package:el_race/core/widgets/hr_management/hr_kpi_counter_card.dart';
+import 'package:el_race/core/widgets/hr_management/hr_request_card.dart';
+import 'package:el_race/core/widgets/hr_management/hr_pill_tab_controls.dart';
+import 'package:el_race/core/widgets/hr_management/hr_module_glass_header.dart';
+import 'package:el_race/core/widgets/hr_management/hr_requests_gradient_scaffold.dart';
+import 'package:el_race/core/widgets/hr_management/hr_search_filter_header.dart';
+import 'package:el_race/core/widgets/hr_management/hr_themed_pickers.dart';
+import 'package:el_race/ui/presentation/hr_management/hr_new_request_picker_screen.dart';
+import 'package:el_race/ui/presentation/hr_management/hr_personal_request_list_content.dart';
+import 'package:el_race/core/hr_management/hr_request_navigation.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+enum _TeamSort { newest, oldest, byStatus, byType }
+
+/// M1 — Manager / HR manager landing (SRD §4.1).
+class HrManagerLandingScreen extends StatefulWidget {
+  const HrManagerLandingScreen({super.key});
+
+  @override
+  State<HrManagerLandingScreen> createState() => _HrManagerLandingScreenState();
+}
+
+class _HrManagerLandingScreenState extends State<HrManagerLandingScreen>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+  final _client = createHrApiClient();
+
+  String _teamFilterId = 'all';
+  String _teamSearchQuery = '';
+  _TeamSort _teamSort = _TeamSort.newest;
+  String? _teamDeptFilter;
+  String? _teamTypeFilter;
+  bool _teamFiltersExpanded = false;
+  List<HrRequestSummary> _queueRaw = [];
+  List<HrRequestSummary> _queueItems = [];
+  bool _queueLoading = false;
+  bool _queueLoadingMore = false;
+  bool _queueHasMore = true;
+  String? _queueError;
+  List<HrRequestTypeOption> _requestTypes = const [];
+
+  static const _pageSize = 20;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (mounted) setState(() {});
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<HrTeamRequestsCubit>().load();
+      _loadRequestTypes();
+      _loadQueue();
+    });
+  }
+
+  Future<void> _loadRequestTypes() async {
+    try {
+      final env = await _client.fetchRequestTypes();
+      if (!mounted || !env.success || env.data == null) return;
+      final types = env.data!
+          .map(HrRequestTypeOption.fromJson)
+          .where((t) => t.label.isNotEmpty)
+          .toList()
+        ..sort(
+            (a, b) => a.label.toLowerCase().compareTo(b.label.toLowerCase()));
+      setState(() => _requestTypes = types);
+    } catch (_) {}
+  }
+
+  Future<void> _loadQueue({bool append = false}) async {
+    if (!mounted) return;
+    if (append) {
+      if (_queueLoadingMore || !_queueHasMore) return;
+      setState(() => _queueLoadingMore = true);
+    } else {
+      setState(() {
+        _queueLoading = true;
+        _queueError = null;
+        _queueHasMore = true;
+      });
+    }
+    try {
+      final offset = append ? _queueRaw.length : 0;
+      final env = await _client.fetchTeamRequests(
+        keyword: _teamSearchQuery,
+        department: _teamDeptFilter,
+        type: _teamTypeFilter,
+        status: _teamFilterId,
+        offset: offset,
+        limit: _pageSize,
+      );
+      if (!mounted) return;
+      if (env.success && env.data != null) {
+        final page = env.data!.map(HrRequestSummary.fromJson).toList();
+        setState(() {
+          if (append) {
+            _queueRaw = [..._queueRaw, ...page];
+          } else {
+            _queueRaw = page;
+          }
+          _queueItems = _sortQueueList(_queueRaw);
+          _queueHasMore = page.length >= _pageSize;
+          _queueLoading = false;
+          _queueLoadingMore = false;
+        });
+      } else {
+        setState(() {
+          if (!append) {
+            _queueRaw = [];
+            _queueItems = [];
+            _queueError = env.error ?? 'Could not load queue';
+          }
+          _queueLoading = false;
+          _queueLoadingMore = false;
+          if (!append) _queueHasMore = false;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        if (!append) {
+          _queueRaw = [];
+          _queueItems = [];
+          _queueError = 'Could not load requests. Pull down to refresh.';
+          _queueHasMore = false;
+        }
+        _queueLoading = false;
+        _queueLoadingMore = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  int _statusRank(String s) {
+    switch (s.toUpperCase()) {
+      case 'PENDING':
+        return 0;
+      case 'APPROVED':
+        return 1;
+      case 'REJECTED':
+        return 2;
+      case 'DRAFT':
+        return 3;
+      default:
+        return 4;
+    }
+  }
+
+  List<HrRequestSummary> _sortQueueList(List<HrRequestSummary> raw) {
+    final list = List<HrRequestSummary>.from(raw);
+    if (_teamFilterId == 'all' && _teamSort == _TeamSort.newest) {
+      list.shuffle(Random());
+      return list;
+    }
+    switch (_teamSort) {
+      case _TeamSort.newest:
+        list.sort((a, b) => b.sequence.compareTo(a.sequence));
+        break;
+      case _TeamSort.oldest:
+        list.sort((a, b) => a.sequence.compareTo(b.sequence));
+        break;
+      case _TeamSort.byStatus:
+        list.sort((a, b) {
+          final c = _statusRank(a.uiStatus).compareTo(_statusRank(b.uiStatus));
+          if (c != 0) return c;
+          return b.sequence.compareTo(a.sequence);
+        });
+        break;
+      case _TeamSort.byType:
+        list.sort((a, b) {
+          final c = a.type.toLowerCase().compareTo(b.type.toLowerCase());
+          if (c != 0) return c;
+          return b.sequence.compareTo(a.sequence);
+        });
+        break;
+    }
+    return list;
+  }
+
+  String _teamSortLabel(_TeamSort sort) {
+    return switch (sort) {
+      _TeamSort.newest => 'Newest',
+      _TeamSort.oldest => 'Oldest',
+      _TeamSort.byStatus => 'By status',
+      _TeamSort.byType => 'By type',
+    };
+  }
+
+  Widget _teamKpiRow({
+    required String pending,
+    required String approved,
+    required String total,
+  }) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.tw, 12.th, 16.tw, 10.th),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: HrKpiCounterCard(
+                value: total,
+                label: 'Total',
+                valueColor: HrModuleColors.primary,
+                selected: _teamFilterId == 'all',
+                onTap: () {
+                  setState(() => _teamFilterId = 'all');
+                  _loadQueue();
+                },
+              ),
+            ),
+            SizedBox(width: 8.tw),
+            Expanded(
+              child: HrKpiCounterCard(
+                value: pending,
+                label: 'Pending',
+                valueColor: const Color(0xFFE89B4C),
+                selected: _teamFilterId == 'PENDING',
+                onTap: () {
+                  setState(() {
+                    _teamFilterId =
+                        _teamFilterId == 'PENDING' ? 'all' : 'PENDING';
+                  });
+                  _loadQueue();
+                },
+              ),
+            ),
+            SizedBox(width: 8.tw),
+            Expanded(
+              child: HrKpiCounterCard(
+                value: approved,
+                label: 'Approved',
+                valueColor: const Color(0xFF3D9B6E),
+                selected: _teamFilterId == 'APPROVED',
+                onTap: () {
+                  setState(() {
+                    _teamFilterId =
+                        _teamFilterId == 'APPROVED' ? 'all' : 'APPROVED';
+                  });
+                  _loadQueue();
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Set<String> _departments(List<HrRequestSummary> team) {
+    final s = team
+        .map((e) => e.department)
+        .whereType<String>()
+        .where((d) => d.isNotEmpty)
+        .toSet();
+    for (final e in _queueRaw) {
+      final d = e.department;
+      if (d != null && d.isNotEmpty) s.add(d);
+    }
+    return s;
+  }
+
+  Set<String> _types(List<HrRequestSummary> team) {
+    if (_requestTypes.isNotEmpty) {
+      return _requestTypes.map((t) => t.label).toSet();
+    }
+    // Fallback until /api/hr/request_types responds.
+    return {
+      ...team.map((e) => e.type).where((t) => t.isNotEmpty),
+      ..._queueRaw.map((e) => e.type).where((t) => t.isNotEmpty),
+    };
+  }
+
+  Widget _departmentPicker(List<String> depts) {
+    return HrThemedPickerField<String?>(
+      label: 'Department',
+      value: _teamDeptFilter,
+      hint: 'All departments',
+      displayText: (v) => v ?? 'All departments',
+      options: [
+        const HrPickerOption<String?>(
+          value: null,
+          label: 'All departments',
+          icon: Icons.apartment_outlined,
+          iconColor: HrModuleColors.primary,
+        ),
+        ...depts.map(
+          (d) => HrPickerOption<String?>(
+            value: d,
+            label: d,
+            icon: Icons.business_outlined,
+            iconColor: HrModuleColors.secondary,
+          ),
+        ),
+      ],
+      onChanged: (v) {
+        setState(() => _teamDeptFilter = v);
+        _loadQueue();
+      },
+    );
+  }
+
+  Widget _typeFilterPicker(List<String> types) {
+    return HrThemedPickerField<String?>(
+      label: 'Request type',
+      value: _teamTypeFilter != null && types.contains(_teamTypeFilter)
+          ? _teamTypeFilter
+          : null,
+      hint: 'All types',
+      displayText: (v) => v ?? 'All types',
+      options: [
+        const HrPickerOption<String?>(
+          value: null,
+          label: 'All types',
+          icon: Icons.category_outlined,
+          iconColor: HrModuleColors.primary,
+        ),
+        ...types.map(
+          (t) => HrPickerOption<String?>(
+            value: t,
+            label: t,
+            icon: Icons.description_outlined,
+            iconColor: HrModuleColors.secondary,
+          ),
+        ),
+      ],
+      onChanged: (v) {
+        setState(() => _teamTypeFilter = v);
+        _loadQueue();
+      },
+    );
+  }
+
+  Widget _sortPicker() {
+    return HrThemedPickerField<_TeamSort>(
+      label: 'Sort',
+      value: _teamSort,
+      hint: 'Newest',
+      displayText: (v) => _teamSortLabel(v ?? _TeamSort.newest),
+      options: const [
+        HrPickerOption(
+          value: _TeamSort.newest,
+          label: 'Newest',
+          icon: Icons.schedule,
+          iconColor: HrModuleColors.primary,
+        ),
+        HrPickerOption(
+          value: _TeamSort.oldest,
+          label: 'Oldest',
+          icon: Icons.history,
+          iconColor: HrModuleColors.secondary,
+        ),
+        HrPickerOption(
+          value: _TeamSort.byStatus,
+          label: 'By status',
+          icon: Icons.flag_outlined,
+          iconColor: HrModuleColors.warning,
+        ),
+        HrPickerOption(
+          value: _TeamSort.byType,
+          label: 'By type',
+          icon: Icons.label_outline,
+          iconColor: HrModuleColors.success,
+        ),
+      ],
+      onChanged: (v) {
+        if (v == null) return;
+        setState(() {
+          _teamSort = v;
+          _queueItems = _sortQueueList(_queueRaw);
+        });
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final effective = context.watch<HrEffectiveViewCubit>().state.view;
+    final teamState = context.watch<HrTeamRequestsCubit>().state;
+
+    return HrRequestsGradientScaffold(
+      floatingActionButton: _tabController.index == 1
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.push<void>(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (_) => const HrNewRequestPickerScreen(),
+                  ),
+                );
+              },
+              backgroundColor: HrModuleColors.primary,
+              foregroundColor: Colors.white,
+              icon: const Icon(Icons.add, color: Colors.white),
+              label: Text(
+                'New request',
+                style: HrModuleTypography.button().copyWith(
+                  fontSize: 14.tsp,
+                  color: Colors.white,
+                ),
+              ),
+            )
+          : null,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const HrModuleGlassHeader(
+            title: 'HR Requests',
+            accentTint: HrModuleHeaderTints.requests,
+          ),
+          Expanded(
+            child: SafeArea(
+              top: false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(height: 6.th),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        if (teamState.isLoading && teamState.items.isEmpty)
+                          _teamKpiRow(
+                            pending: '...',
+                            approved: '...',
+                            total: '...',
+                          )
+                        else if (teamState.error != null &&
+                            teamState.items.isEmpty)
+                          const SizedBox.shrink()
+                        else
+                          _teamKpiRow(
+                            pending: '${teamState.kpis['pending'] ?? 0}',
+                            approved: '${teamState.kpis['approved'] ?? 0}',
+                            total: '${teamState.kpis['total'] ?? 0}',
+                          ),
+                        HrPillTabBar(
+                          controller: _tabController,
+                          tabs: const ['All requests', 'My requests'],
+                        ),
+                        Expanded(
+                          child: TabBarView(
+                            controller: _tabController,
+                            children: [
+                              if (teamState.isLoading &&
+                                  teamState.items.isEmpty)
+                                const Center(
+                                  child: CircularProgressIndicator(),
+                                )
+                              else if (teamState.error != null &&
+                                  teamState.items.isEmpty)
+                                Center(child: Text(teamState.error!))
+                              else
+                                _buildTeamTab(
+                                  context,
+                                  teamState.items,
+                                  effective,
+                                ),
+                              HrPersonalRequestListContent(
+                                searchHint:
+                                    'Search my requests — reference or type',
+                                onOpenDetail: (e) {
+                                  openHrRequestDetail(
+                                    context,
+                                    e,
+                                    managerContext: false,
+                                  );
+                                },
+                                bottomInset: 100,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTeamTab(
+    BuildContext context,
+    List<HrRequestSummary> team,
+    HrEffectiveView effective,
+  ) {
+    final typeKeys = team.map((e) => e.type).toSet();
+    if (_teamTypeFilter != null && !typeKeys.contains(_teamTypeFilter)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() => _teamTypeFilter = null);
+        }
+      });
+    }
+
+    final display = _queueItems;
+    final depts = _departments(team).toList()..sort();
+    final types = _types(team).toList()..sort();
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        await context.read<HrTeamRequestsCubit>().refresh();
+        await _loadQueue();
+      },
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.fromLTRB(16.tw, 8.th, 16.tw, 24.th),
+        children: [
+          if (kDebugMode)
+            Text(
+              'Dev role: ${effective.label}',
+              style: HrModuleTypography.caption().copyWith(fontSize: 11.tsp),
+            ),
+          HrSearchFilterHeader(
+            hintText: 'Search team — reference, type, or employee',
+            onDebouncedChanged: (q) {
+              setState(() => _teamSearchQuery = q);
+              _loadQueue();
+            },
+            filtersExpanded: _teamFiltersExpanded,
+            onFilterToggle: () =>
+                setState(() => _teamFiltersExpanded = !_teamFiltersExpanded),
+            filterPanel: Padding(
+              padding: EdgeInsets.only(top: 10.th),
+              child: Column(
+                children: [
+                  if (effective == HrEffectiveView.hrManager) ...[
+                    _departmentPicker(depts),
+                    SizedBox(height: 10.th),
+                  ],
+                  _typeFilterPicker(types),
+                  SizedBox(height: 10.th),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(height: 12.th),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  'Queue',
+                  style: HrModuleTypography.sectionHeading().copyWith(
+                    fontSize: 16.tsp,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.3,
+                    color: HrModuleColors.text,
+                  ),
+                ),
+              ),
+              SizedBox(width: 130.tw, child: _sortPicker()),
+            ],
+          ),
+          SizedBox(height: 8.th),
+          if (_queueLoading)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 24.th),
+              child: const Center(child: CircularProgressIndicator()),
+            )
+          else if (_queueError != null)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 16.th),
+              child: Text(
+                _queueError!,
+                style: HrModuleTypography.caption().copyWith(
+                  fontSize: 12.tsp,
+                  color: HrModuleColors.danger,
+                ),
+              ),
+            )
+          else if (display.isEmpty)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 32.th),
+              child: Center(
+                child: Text(
+                  'No team requests match',
+                  style: HrModuleTypography.body().copyWith(fontSize: 14.tsp),
+                ),
+              ),
+            )
+          else
+            ...display.map((e) {
+              final line = [
+                if (e.secondaryLine != null && e.secondaryLine!.isNotEmpty)
+                  e.secondaryLine,
+                if (e.relativeSubmittedLabel != null &&
+                    e.relativeSubmittedLabel!.isNotEmpty)
+                  e.relativeSubmittedLabel,
+              ].join(' · ');
+              return Padding(
+                padding:
+                    EdgeInsets.only(bottom: HrModuleLayout.cardSpacingV.th),
+                child: HrRequestCard(
+                  showEmployeeHeader: true,
+                  employeeName: e.employeeName,
+                  employeeRoleLine: e.employeeRoleLine,
+                  employeeId: e.employeeNumber,
+                  requestTypeTitle: e.type,
+                  referenceNumber: e.referenceNumber,
+                  uiStatus: e.uiStatus,
+                  secondaryLine: line.isEmpty ? null : line,
+                  onTap: () {
+                    openHrRequestDetail(
+                      context,
+                      e,
+                      managerContext: true,
+                    );
+                  },
+                ),
+              );
+            }),
+          if (_queueHasMore)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: _queueLoadingMore
+                  ? SizedBox(
+                      width: 24.tw,
+                      height: 24.tw,
+                      child: const CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.expand_more,
+                      color: HrModuleColors.primary),
+              title: Text(
+                _queueLoadingMore ? 'Loading…' : 'See more',
+                style: HrModuleTypography.body().copyWith(
+                  fontSize: 14.tsp,
+                  fontWeight: FontWeight.w600,
+                  color: HrModuleColors.primary,
+                ),
+              ),
+              onTap: _queueLoadingMore ? null : () => _loadQueue(append: true),
+            ),
+        ],
+      ),
+    );
+  }
+}

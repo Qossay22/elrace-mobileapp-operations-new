@@ -1,0 +1,329 @@
+import 'package:el_race/core/utils/responsive_breakpoints.dart';
+import 'package:el_race/ui/presentation/purchase_management/theme/purchase_theme.dart';
+import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_background.dart';
+import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_glass_header.dart';
+import 'package:el_race/ui/presentation/purchase_management/widgets/purchase_list_widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_translate/flutter_translate.dart';
+
+typedef PurchaseListItemBuilder = Widget Function(
+    BuildContext context, int index);
+
+class PurchaseHubListScaffold extends StatelessWidget {
+  const PurchaseHubListScaffold({
+    super.key,
+    required this.title,
+    required this.searchController,
+    required this.itemCount,
+    required this.itemBuilder,
+    this.segmentLabels,
+    this.selectedSegment = 0,
+    this.onSegmentChanged,
+    this.filterValues,
+    this.filterLabels,
+    this.selectedFilter = '',
+    this.onFilterChanged,
+    this.isLoading = false,
+    this.isLoadingMore = false,
+    this.error,
+    this.onRefresh,
+    this.scrollController,
+    this.searchHint = 'Search…',
+    this.lockFilters = false,
+    this.onSmartFilterTap,
+    this.smartFilterCount = 0,
+  });
+
+  final String title;
+  final TextEditingController searchController;
+  final int itemCount;
+  final PurchaseListItemBuilder itemBuilder;
+  final List<String>? segmentLabels;
+  final int selectedSegment;
+  final ValueChanged<int>? onSegmentChanged;
+  final List<String>? filterValues;
+  final List<String>? filterLabels;
+  final String selectedFilter;
+  final ValueChanged<String>? onFilterChanged;
+  final bool isLoading;
+  final bool isLoadingMore;
+  final String? error;
+  final Future<void> Function()? onRefresh;
+  final ScrollController? scrollController;
+  final String searchHint;
+  final bool lockFilters;
+  final VoidCallback? onSmartFilterTap;
+  final int smartFilterCount;
+
+  @override
+  Widget build(BuildContext context) {
+    return PurchaseBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Column(
+          children: [
+            PurchaseManagementGlassHeader(
+              title: title,
+              showBack: true,
+              onBack: () => Navigator.pop(context),
+            ),
+            Expanded(
+              child: Column(
+                children: [
+                  if (segmentLabels != null && segmentLabels!.isNotEmpty)
+                    _SegmentControl(
+                      labels: segmentLabels!,
+                      selected: selectedSegment,
+                      onChanged: onSegmentChanged,
+                    ),
+                  if (onSmartFilterTap != null)
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(14.tw, 10.th, 14.tw, 4.th),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: PurchaseSearchBar(
+                              controller: searchController,
+                              hint: searchHint,
+                              embedded: true,
+                            ),
+                          ),
+                          SizedBox(width: 8.tw),
+                          _SmartFilterButton(
+                            count: smartFilterCount,
+                            onTap: onSmartFilterTap!,
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    PurchaseSearchBar(
+                      controller: searchController,
+                      hint: searchHint,
+                    ),
+                  if (!lockFilters &&
+                      filterValues != null &&
+                      filterLabels != null &&
+                      onFilterChanged != null)
+                    PurchaseFilterChips(
+                      filters: filterValues!,
+                      labels: filterLabels!,
+                      selected: selectedFilter,
+                      onSelect: onFilterChanged!,
+                    ),
+                  Expanded(child: _buildBody()),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    if (isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: PurchaseTheme.accentBlue),
+      );
+    }
+    if (error != null) {
+      return Center(
+        child: Text(
+          error!,
+          style: GoogleFonts.poppins(color: Colors.red, fontSize: 13.tsp),
+        ),
+      );
+    }
+    if (itemCount == 0) {
+      return Center(
+        child: Text(
+          translate('home.purchase.no_records'),
+          style: GoogleFonts.poppins(
+            color: PurchaseTheme.textMuted,
+            fontSize: 14.tsp,
+          ),
+        ),
+      );
+    }
+
+    final list = ListView.builder(
+      controller: scrollController,
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: BouncingScrollPhysics(),
+      ),
+      itemCount: itemCount + (isLoadingMore ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index == itemCount) {
+          return const Padding(
+            padding: EdgeInsets.all(16),
+            child: Center(
+              child: CircularProgressIndicator(color: PurchaseTheme.accentBlue),
+            ),
+          );
+        }
+        return itemBuilder(context, index);
+      },
+    );
+
+    if (onRefresh == null) return list;
+    return RefreshIndicator(
+      color: PurchaseTheme.accentBlue,
+      onRefresh: onRefresh!,
+      child: list,
+    );
+  }
+}
+
+class _SmartFilterButton extends StatelessWidget {
+  const _SmartFilterButton({
+    required this.count,
+    required this.onTap,
+  });
+
+  final int count;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        GestureDetector(
+          onTap: onTap,
+          child: Container(
+            width: 40.tw,
+            height: 40.tw,
+            decoration: BoxDecoration(
+              color: count > 0
+                  ? PurchaseTheme.accentBlue
+                  : Colors.white.withValues(alpha: 0.85),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: PurchaseTheme.accentBlue.withValues(alpha: 0.12),
+                  blurRadius: 6,
+                ),
+              ],
+            ),
+            child: Icon(
+              Icons.tune_rounded,
+              size: 18.tsp,
+              color: count > 0 ? Colors.white : PurchaseTheme.accentDeep,
+            ),
+          ),
+        ),
+        if (count > 0)
+          Positioned(
+            right: -2,
+            top: -2,
+            child: Container(
+              padding: EdgeInsets.all(4.tw),
+              decoration: const BoxDecoration(
+                color: Color(0xFFDC2626),
+                shape: BoxShape.circle,
+              ),
+              child: Text(
+                '$count',
+                style: GoogleFonts.poppins(
+                  fontSize: 8.tsp,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _SegmentControl extends StatelessWidget {
+  const _SegmentControl({
+    required this.labels,
+    required this.selected,
+    this.onChanged,
+  });
+
+  final List<String> labels;
+  final int selected;
+  final ValueChanged<int>? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(14.tw, 10.th, 14.tw, 4.th),
+      child: Container(
+        padding: EdgeInsets.all(4.tw),
+        decoration: PurchaseTheme.glassPanel(radius: 14.tr),
+        child: Row(
+          children: [
+            for (var i = 0; i < labels.length; i++)
+              Expanded(
+                child: GestureDetector(
+                  onTap: onChanged == null ? null : () => onChanged!(i),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    padding: EdgeInsets.symmetric(vertical: 8.th),
+                    decoration: BoxDecoration(
+                      color: selected == i
+                          ? PurchaseTheme.accentBlue.withValues(alpha: 0.88)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(10.tr),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      labels[i],
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
+                        fontSize: 10.5.tsp,
+                        fontWeight:
+                            selected == i ? FontWeight.w600 : FontWeight.w400,
+                        color: selected == i
+                            ? Colors.white
+                            : PurchaseTheme.textSecondary,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Glass list row wrapper used across hub drill-down screens.
+class PurchaseGlassListCard extends StatelessWidget {
+  const PurchaseGlassListCard({
+    super.key,
+    required this.child,
+    this.onTap,
+    this.urgent = false,
+  });
+
+  final Widget child;
+  final VoidCallback? onTap;
+  final bool urgent;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 14.tw, vertical: 6.th),
+        decoration: urgent
+            ? PurchaseTheme.glassCard(radius: 14.tr).copyWith(
+                border: Border.all(
+                  color: PurchaseTheme.urgentOrange.withValues(alpha: 0.45),
+                ),
+              )
+            : PurchaseTheme.glassCard(radius: 14.tr),
+        padding: EdgeInsets.all(14.tw),
+        child: child,
+      ),
+    );
+  }
+}

@@ -1,0 +1,195 @@
+import 'package:el_race/core/utils/responsive_breakpoints.dart';
+import 'package:el_race/core/recruitment/bloc/recruitment_assessment_detail_cubit.dart';
+import 'package:el_race/core/theme/hr_module_colors.dart';
+import 'package:el_race/core/theme/hr_module_layout.dart';
+import 'package:el_race/core/theme/hr_module_typography.dart';
+import 'package:el_race/core/widgets/hr_management/hr_detail_row.dart';
+import 'package:el_race/core/widgets/recruitment/recruitment_gradient_scaffold.dart';
+import 'package:el_race/core/widgets/recruitment/recruitment_star_rating.dart';
+import 'package:el_race/ui/presentation/recruitment/a2_assessment_form_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+
+/// A1 — Assessment detail (SRD §4.3).
+class A1AssessmentDetailScreen extends StatelessWidget {
+  const A1AssessmentDetailScreen({super.key, required this.assessmentId});
+
+  final String assessmentId;
+
+  Color _recColor(String r) {
+    switch (r) {
+      case 'Strong Hire':
+        return HrModuleColors.success;
+      case 'Hire':
+        return const Color(0xFF2E7D5B);
+      case 'No Hire':
+        return HrModuleColors.warning;
+      case 'Strong No Hire':
+        return HrModuleColors.danger;
+      default:
+        return HrModuleColors.mutedText;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    context.read<RecruitmentAssessmentDetailCubit>().load(assessmentId);
+
+    return BlocBuilder<RecruitmentAssessmentDetailCubit,
+        RecruitmentAssessmentDetailState>(
+      builder: (context, state) {
+        if (state.isLoading) {
+          return RecruitmentGradientScaffold(
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              title: const Text('Assessment'),
+            ),
+            body: const Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (state.error != null) {
+          return RecruitmentGradientScaffold(
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              title: const Text('Assessment'),
+            ),
+            body: Center(child: Text(state.error!)),
+          );
+        }
+        final a = state.detail;
+        if (a == null) {
+          return RecruitmentGradientScaffold(
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              title: const Text('Assessment'),
+            ),
+            body: const Center(child: Text('Assessment not found.')),
+          );
+        }
+        final avg =
+            (a.technical + a.problemSolving + a.communication + a.culturalFit) /
+                4.0;
+        final canEdit = a.isDraft && a.interviewerEmpId == a.currentUserEmpId;
+
+        return RecruitmentGradientScaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            foregroundColor: HrModuleColors.text,
+            title: Text(
+              a.roundName,
+              style: HrModuleTypography.sectionHeading()
+                  .copyWith(fontSize: 18.tsp),
+            ),
+            actions: [
+              if (canEdit)
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).push<void>(
+                      MaterialPageRoute<void>(
+                        builder: (_) => A2AssessmentFormScreen(
+                          candidateId: a.candidateId,
+                          existingAssessmentId: a.id,
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text('Edit'),
+                ),
+            ],
+          ),
+          body: ListView(
+            padding: EdgeInsets.all(HrModuleLayout.screenPaddingH.tw),
+            children: [
+              Text(
+                a.candidateName,
+                style:
+                    HrModuleTypography.cardTitle().copyWith(fontSize: 17.tsp),
+              ),
+              Text(
+                '${a.interviewer} · ${DateFormat('dd MMM yyyy').format(a.interviewDate)}',
+                style: HrModuleTypography.caption(),
+              ),
+              SizedBox(height: 8.th),
+              Text(
+                'Overall (avg): ${avg.toStringAsFixed(1)} / 5',
+                style: HrModuleTypography.body(),
+              ),
+              RecruitmentStarDisplay(value: avg),
+              SizedBox(height: 20.th),
+              Text(
+                'Criteria',
+                style: HrModuleTypography.sectionHeading()
+                    .copyWith(fontSize: 14.tsp),
+              ),
+              HrDetailRow(
+                label: 'Technical knowledge',
+                value: '${a.technical} / 5',
+              ),
+              HrDetailRow(
+                label: 'Problem solving',
+                value: '${a.problemSolving} / 5',
+              ),
+              HrDetailRow(
+                label: 'Communication',
+                value: '${a.communication} / 5',
+              ),
+              HrDetailRow(
+                label: 'Cultural fit',
+                value: '${a.culturalFit} / 5',
+              ),
+              SizedBox(height: 12.th),
+              Text(
+                'Strengths',
+                style: HrModuleTypography.sectionHeading()
+                    .copyWith(fontSize: 14.tsp),
+              ),
+              Text(a.strengths, style: HrModuleTypography.body()),
+              SizedBox(height: 12.th),
+              Text(
+                'Concerns',
+                style: HrModuleTypography.sectionHeading()
+                    .copyWith(fontSize: 14.tsp),
+              ),
+              Text(a.concerns, style: HrModuleTypography.body()),
+              SizedBox(height: 12.th),
+              Text(
+                'Recommendation',
+                style: HrModuleTypography.sectionHeading()
+                    .copyWith(fontSize: 14.tsp),
+              ),
+              Container(
+                padding:
+                    EdgeInsets.symmetric(horizontal: 12.tw, vertical: 6.th),
+                decoration: BoxDecoration(
+                  color: _recColor(a.recommendation).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  a.recommendation,
+                  style: TextStyle(
+                    color: _recColor(a.recommendation),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13.tsp,
+                  ),
+                ),
+              ),
+              SizedBox(height: 12.th),
+              Text(
+                'Comments',
+                style: HrModuleTypography.sectionHeading()
+                    .copyWith(fontSize: 14.tsp),
+              ),
+              Text(a.comments, style: HrModuleTypography.body()),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}

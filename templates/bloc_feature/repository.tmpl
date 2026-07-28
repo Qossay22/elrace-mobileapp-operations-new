@@ -1,0 +1,16 @@
+abstract interface class {{FeatureName}}Repository {
+  Future<List<{{FeatureName}}Entity>> fetchItems();
+}
+
+final class {{FeatureName}}RepositoryImpl implements {{FeatureName}}Repository {
+  const {{FeatureName}}RepositoryImpl({
+    required this.remoteDataSource,
+  });
+
+  final {{FeatureName}}RemoteDataSource remoteDataSource;
+
+  @override
+  Future<List<{{FeatureName}}Entity>> fetchItems() {
+    return remoteDataSource.fetchItems();
+  }
+}

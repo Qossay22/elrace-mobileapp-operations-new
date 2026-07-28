@@ -1,0 +1,44 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+class {{FeatureName}}Screen extends StatelessWidget {
+  const {{FeatureName}}Screen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => {{FeatureName}}Bloc(
+        repository: sl<{{FeatureName}}Repository>(),
+      )..add(const {{FeatureName}}Started()),
+      child: const {{FeatureName}}View(),
+    );
+  }
+}
+
+class {{FeatureName}}View extends StatelessWidget {
+  const {{FeatureName}}View({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<{{FeatureName}}Bloc, {{FeatureName}}State>(
+      builder: (context, state) {
+        return switch (state.status) {
+          {{FeatureName}}Status.initial ||
+          {{FeatureName}}Status.loading => const Center(
+              child: CircularProgressIndicator(),
+            ),
+          {{FeatureName}}Status.failure => Center(
+              child: Text(state.errorMessage ?? 'Something went wrong'),
+            ),
+          {{FeatureName}}Status.success => ListView.builder(
+              itemCount: state.items.length,
+              itemBuilder: (context, index) {
+                final item = state.items[index];
+                return ListTile(title: Text(item.toString()));
+              },
+            ),
+        };
+      },
+    );
+  }
+}

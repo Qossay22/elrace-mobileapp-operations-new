@@ -1,0 +1,34 @@
+import 'package:bloc/bloc.dart';
+
+import '{{feature_name}}_event.dart';
+import '{{feature_name}}_state.dart';
+
+class {{FeatureName}}Bloc extends Bloc<{{FeatureName}}Event, {{FeatureName}}State> {
+  {{FeatureName}}Bloc({
+    required this.repository,
+  }) : super(const {{FeatureName}}State()) {
+    on<{{FeatureName}}Started>(_onStarted);
+  }
+
+  final {{FeatureName}}Repository repository;
+
+  Future<void> _onStarted(
+    {{FeatureName}}Started event,
+    Emitter<{{FeatureName}}State> emit,
+  ) async {
+    emit(state.copyWith(status: {{FeatureName}}Status.loading));
+
+    try {
+      final items = await repository.fetchItems();
+      emit(state.copyWith(
+        status: {{FeatureName}}Status.success,
+        items: items,
+      ));
+    } catch (error) {
+      emit(state.copyWith(
+        status: {{FeatureName}}Status.failure,
+        errorMessage: error.toString(),
+      ));
+    }
+  }
+}
