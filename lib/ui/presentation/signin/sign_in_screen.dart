@@ -119,62 +119,40 @@ class _SignInScreenState extends State<SignInScreen> {
           try {
             context.read<HomeBloc>().add(const ChangeCurrentIndex(index: 1));
           } catch (e) {
-            print('⚠️ Failed to reset HomeBloc index on login: $e');
+            log('Failed to reset HomeBloc index on login: $e');
           }
 
           Util.fetchHomeScreenData(context);
-
-          // Debug: Log the FULL login response before saving
-          print('DEBUG: ===== FULL LOGIN RESPONSE =====');
-          final responseJson = state.loginResponse.toJson();
-          print('DEBUG: Full JSON:');
-          print(const JsonEncoder.withIndent('  ').convert(responseJson));
-          print('DEBUG: ===================================');
-          print('DEBUG: Specific fields:');
-          print('DEBUG: name = ${state.loginResponse.result?.data?.name}');
-          print(
-              'DEBUG: emp_name = ${state.loginResponse.result?.data?.emp_name}');
-          print(
-              'DEBUG: username = ${state.loginResponse.result?.data?.username}');
-          print(
-              'DEBUG: partnerDisplayName = ${state.loginResponse.result?.data?.partnerDisplayName}');
-          print('DEBUG: job_id = ${state.loginResponse.result?.data?.job_id}');
-          print('DEBUG: emp_id = ${state.loginResponse.result?.data?.emp_id}');
-          print(
-              'DEBUG: emp_profile_id = ${state.loginResponse.result?.data?.emp_profile_id}');
-          print('DEBUG: uid = ${state.loginResponse.result?.data?.uid}');
-          print('DEBUG: ===================================');
-
-          // Additional debug for Face Registration
-          print('\n📱 ===== FACE REGISTRATION USER ID SELECTION =====');
           final userId = state.loginResponse.result?.data?.emp_id ??
               state.loginResponse.result?.data?.emp_profile_id ??
               state.loginResponse.result?.data?.uid?.toString() ??
               state.loginResponse.result?.data?.username;
-          print('SELECTED USER ID FOR FACE REGISTRATION: $userId');
-          print('==================================================\n');
+          log('Face registration user id available: ${userId != null}');
 
-            await SharedPref().setPreferencesString(
+          await SharedPref().setPreferencesString(
               'loginResponse', jsonEncode(state.loginResponse.toJson()));
-            await SharedPref().setPreferencesBoolean('isRegistered', true);
+          await SharedPref().setPreferencesBoolean('isRegistered', true);
 
           try {
             final c = ProviderScope.containerOf(context, listen: false);
             resetTimesheetSession(c);
             c.invalidate(attendanceSessionProvider);
           } catch (_) {}
-          // Save credentials securely for silent re-login (chat token refresh)
-          ChatCredentialStorage.instance.save(
-            email: usernameController.text,
-            password: passwordController.text,
-            deviceId: '776655',
-          );
+          if (isChecked) {
+            await ChatCredentialStorage.instance.save(
+              email: usernameController.text.trim(),
+              password: passwordController.text,
+              deviceId: state.deviceId,
+            );
+          } else {
+            await ChatCredentialStorage.instance.clear();
+          }
 
           // Initialize chat module immediately after login
           ChatModuleHelper.instance
               .initializeFromLoginResponse(state.loginResponse.toJson())
-              .then((_) => print('✅ Chat initialized after login'))
-              .catchError((e) => print('⚠️ Chat init after login failed: $e'));
+              .then((_) => log('Chat initialized after login'))
+              .catchError((e) => log('Chat init after login failed: $e'));
 
           // Sync today attendance status from server after login.
           // This reflects any check-in/out that happened before app open.
@@ -294,7 +272,6 @@ class _SignInScreenState extends State<SignInScreen> {
                             signInBloc.add(SignInET(
                               email: usernameController.text,
                               password: passwordController.text,
-                              deviceId: '776655',
                             ));
                           }),
                         ),

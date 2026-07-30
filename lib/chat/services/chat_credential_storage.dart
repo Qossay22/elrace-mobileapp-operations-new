@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /// Securely stores login credentials for silent re-login.
@@ -21,6 +22,10 @@ class ChatCredentialStorage {
   static const _keyPassword = 'chat_cred_password';
   static const _keyDeviceId = 'chat_cred_device_id';
 
+  void _log(String message) {
+    if (kDebugMode) debugPrint(message);
+  }
+
   /// Save credentials after a successful login.
   Future<void> save({
     required String email,
@@ -33,9 +38,9 @@ class ChatCredentialStorage {
         _storage.write(key: _keyPassword, value: password),
         _storage.write(key: _keyDeviceId, value: deviceId),
       ]);
-      print('✅ ChatCredentialStorage: Credentials saved securely');
+      _log('ChatCredentialStorage: credentials saved');
     } catch (e) {
-      print('⚠️ ChatCredentialStorage: Error saving credentials: $e');
+      _log('ChatCredentialStorage: error saving credentials: $e');
     }
   }
 
@@ -62,7 +67,7 @@ class ChatCredentialStorage {
         deviceId: deviceId ?? '',
       );
     } catch (e) {
-      print('⚠️ ChatCredentialStorage: Error loading credentials: $e');
+      _log('ChatCredentialStorage: error loading credentials: $e');
       return null;
     }
   }
@@ -85,9 +90,9 @@ class ChatCredentialStorage {
         _storage.delete(key: _keyPassword),
         _storage.delete(key: _keyDeviceId),
       ]);
-      print('✅ ChatCredentialStorage: Credentials cleared');
+      _log('ChatCredentialStorage: credentials cleared');
     } catch (e) {
-      print('⚠️ ChatCredentialStorage: Error clearing credentials: $e');
+      _log('ChatCredentialStorage: error clearing credentials: $e');
     }
   }
 }

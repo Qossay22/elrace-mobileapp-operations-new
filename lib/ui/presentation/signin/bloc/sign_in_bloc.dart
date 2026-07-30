@@ -49,7 +49,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
 
     // Unique, persistent device ID per user
     final deviceName = await _getOrCreateDeviceId(event.email);
-    log('device_id: $deviceName');
+    log('device_id generated for login session');
 
     try {
       Response response =
@@ -77,7 +77,10 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
             await FirebaseService.ensureFCMToken();
             await FirebaseService.syncFcmTokenToOdoo(force: true);
           }());
-          emit(InitialSignedInST(loginResponse: loginResponseModel));
+          emit(InitialSignedInST(
+            loginResponse: loginResponseModel,
+            deviceId: deviceName,
+          ));
           emit(const LoadingST(isLoading: false));
         } else {
           final message = loginResponseModel.result?.message ??
@@ -97,17 +100,29 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
 
   FutureOr<void> checkSignInMethod(
       CheckSignedIn event, Emitter<SignInState> emit) async {
-    final isSignedIn = await userRepo.getIsLoggedIn();
+    try {
+      final isSignedIn = await userRepo.getIsLoggedIn();
+      log('isSignedIn $isSignedIn');
 
-    log('isSignedIn $isSignedIn');
-    // if (isSignedIn!) {
-    final loginResponse = await userRepo.getLoginResponse();
-    emit(InitialSignedInST(loginResponse: loginResponse!));
-    // } else {
-    //   emit(NotSignedInST());
-    // }
-    try {} catch (e) {
+      if (isSignedIn != true) {
+        emit(NotSignedInST());
+        return;
+      }
+
+      final loginResponse = await userRepo.getLoginResponse();
+      if (loginResponse == null) {
+        emit(NotSignedInST());
+        return;
+      }
+
+      final deviceInfo = await userRepo.getDeviceInfo() ?? '';
+      emit(InitialSignedInST(
+        loginResponse: loginResponse,
+        deviceId: deviceInfo,
+      ));
+    } catch (e) {
       log('checkSignInMethod $e');
+      emit(NotSignedInST());
     }
   }
 }

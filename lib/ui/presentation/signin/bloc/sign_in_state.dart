@@ -8,9 +8,15 @@ sealed class SignInState extends Equatable {
 
 final class InitialSignedInST extends SignInState {
   final LoginResponseModel loginResponse;
-  const InitialSignedInST({required this.loginResponse});
+  final String deviceId;
+
+  const InitialSignedInST({
+    required this.loginResponse,
+    this.deviceId = '',
+  });
+
   @override
-  List<Object> get props => [loginResponse];
+  List<Object> get props => [loginResponse, deviceId];
 }
 
 final class NotSignedInST extends SignInState {}

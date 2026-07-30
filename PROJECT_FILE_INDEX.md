@@ -2,9 +2,9 @@
 
 Quick reference for the project files: path, size, category, and a short responsibility note.
 
-- Generated at: 2026-07-30 09:42:02 +04:00
+- Generated at: 2026-07-30 10:22:05 +04:00
 - Root: C:\Users\Qossay\Desktop\project\Elrace-mobileapp-operations-qossay_update
-- Indexed files: 2278
+- Indexed files: 2280
 - Indexed total size: 135.77 MB
 - Skipped generated/heavy folders: .git, .dart_tool, .idea, .vscode, build, dist, coverage, node_modules, Pods, .gradle, DerivedData
 
@@ -12,20 +12,20 @@ Quick reference for the project files: path, size, category, and a short respons
 
 ## Quick Map
 
-- **Android native project**: 33 files, 640.49 KB
+- **Android native project**: 33 files, 640.48 KB
 - **App assets**: 527 files, 120.02 MB
 - **Architecture/documentation notes**: 4 files, 78.06 KB
-- **Automated tests**: 9 files, 34.40 KB
+- **Automated tests**: 9 files, 33.63 KB
 - **Code generation templates**: 35 files, 31.22 KB
 - **Configuration examples**: 2 files, 1.10 KB
 - **Developer/automation scripts**: 5 files, 14.81 KB
 - **Face liveness backend functions**: 3 files, 134.70 KB
 - **Firebase Cloud Functions**: 3 files, 144.72 KB
-- **Flutter app code**: 1274 files, 10.33 MB
-- **iOS native project**: 67 files, 2.23 MB
+- **Flutter app code**: 1274 files, 10.32 MB
+- **iOS native project**: 69 files, 2.23 MB
 - **Local package/plugin**: 240 files, 523.33 KB
 - **Project documentation**: 54 files, 1.08 MB
-- **Project root/configuration**: 22 files, 563.64 KB
+- **Project root/configuration**: 22 files, 564.03 KB
 
 ## Files
 
@@ -66,7 +66,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | android/gradlew | 4.85 KB | Android native project | Project file; use its path and extension to locate its role. |
 | android/gradlew.bat | 2.35 KB | Android native project | Project file; use its path and extension to locate its role. |
 | android/key.properties.example | 473 B | Android native project | Project file; use its path and extension to locate its role. |
-| android/local.properties | 177 B | Android native project | Project file; use its path and extension to locate its role. |
+| android/local.properties | 168 B | Android native project | Project file; use its path and extension to locate its role. |
 | android/settings.gradle | 797 B | Android native project | Gradle build configuration for Android. |
 | ASSET_USAGE_REPORT.md | 3.18 KB | Project root/configuration | Markdown documentation file. |
 | AssetManifest.json | 119 B | Project root/configuration | JSON data or configuration file. |
@@ -676,6 +676,8 @@ Quick reference for the project files: path, size, category, and a short respons
 | ios/Flutter/Debug.xcconfig | 243 B | iOS native project | Project file; use its path and extension to locate its role. |
 | ios/Flutter/ephemeral/flutter_lldb_helper.py | 1.25 KB | iOS native project | Python automation script or API example. |
 | ios/Flutter/ephemeral/flutter_lldbinit | 108 B | iOS native project | Project file; use its path and extension to locate its role. |
+| ios/Flutter/ephemeral/Packages/.packages/FlutterFramework/Package.swift | 510 B | iOS native project | Native iOS Swift code. |
+| ios/Flutter/ephemeral/Packages/.packages/FlutterFramework/Sources/FlutterFramework/FlutterFramework.swift | 39 B | iOS native project | Native iOS Swift code. |
 | ios/Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage/Package.swift | 597 B | iOS native project | Native iOS Swift code. |
 | ios/Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage/Sources/FlutterGeneratedPluginSwiftPackage/FlutterGeneratedPluginSwiftPackage.swift | 39 B | iOS native project | Native iOS Swift code. |
 | ios/Flutter/flutter_export_environment.sh | 572 B | iOS native project | Project file; use its path and extension to locate its role. |
@@ -754,7 +756,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/chat/repositories/chat_repository.dart | 78.85 KB | Flutter app code | Repository layer for reading/writing data. |
 | lib/chat/repositories/repositories.dart | 97 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/chat/repositories/user_repository.dart | 27.51 KB | Flutter app code | Repository layer for reading/writing data. |
-| lib/chat/services/chat_credential_storage.dart | 3.01 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/chat/services/chat_credential_storage.dart | 3.08 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/chat/services/chat_lifecycle_observer.dart | 3.91 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/chat/services/chat_notification_service.dart | 8.64 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/chat/services/chat_session_storage.dart | 4.67 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -1805,12 +1807,12 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/recruitment/recruitment_referral_screen.dart | 4.24 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/recruitment/recruitment_under_planning_screen.dart | 2.21 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/search/screens/widget_search_screen.dart | 405 B | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/signin/bloc/sign_in_bloc.dart | 4.18 KB | Flutter app code | BLoC logic for state and event handling. |
-| lib/ui/presentation/signin/bloc/sign_in_event.dart | 458 B | Flutter app code | BLoC event definitions. |
-| lib/ui/presentation/signin/bloc/sign_in_state.dart | 808 B | Flutter app code | BLoC/Cubit state definitions. |
+| lib/ui/presentation/signin/bloc/sign_in_bloc.dart | 4.51 KB | Flutter app code | BLoC logic for state and event handling. |
+| lib/ui/presentation/signin/bloc/sign_in_event.dart | 426 B | Flutter app code | BLoC event definitions. |
+| lib/ui/presentation/signin/bloc/sign_in_state.dart | 884 B | Flutter app code | BLoC/Cubit state definitions. |
 | lib/ui/presentation/signin/data/model.dart | 63.80 KB | Flutter app code | Data model and JSON/DTO mapping. |
-| lib/ui/presentation/signin/data/repository.dart | 6.01 KB | Flutter app code | Repository layer for reading/writing data. |
-| lib/ui/presentation/signin/sign_in_screen.dart | 17.32 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/signin/data/repository.dart | 3.81 KB | Flutter app code | Repository layer for reading/writing data. |
+| lib/ui/presentation/signin/sign_in_screen.dart | 15.92 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/splash_screen/splash_screen.dart | 14.11 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/splash_screen/widgets/app_update_popup.dart | 15.25 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/task_sheet/add_task_sheet.dart | 61.02 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -2253,8 +2255,8 @@ Quick reference for the project files: path, size, category, and a short respons
 | packages/face_liveness_detector/README.md | 6.76 KB | Local package/plugin | Markdown documentation file. |
 | packages/face_liveness_detector/test/rekognition_face_liveness_test.dart | 16 B | Local package/plugin | Dart file in the Flutter app; purpose follows its folder and name. |
 | proguard-rules.pro | 3.62 KB | Project root/configuration | Project file; use its path and extension to locate its role. |
-| PROJECT_FILE_INDEX.md | 309.82 KB | Project root/configuration | Markdown documentation file. |
-| PROJECT_FULL_AUDIT_REPORT.md | 8.42 KB | Project root/configuration | Markdown documentation file. |
+| PROJECT_FILE_INDEX.md | 311.50 KB | Project root/configuration | Markdown documentation file. |
+| PROJECT_FULL_AUDIT_REPORT.md | 7.13 KB | Project root/configuration | Markdown documentation file. |
 | PROJECT_FULL_AUDIT_REPORT_ELRACE_MOBILEAPP_OPERATIONS.md | 8.39 KB | Project root/configuration | Markdown documentation file. |
 | pubspec.lock | 85.21 KB | Project root/configuration | Pinned Dart/Flutter dependency versions. |
 | pubspec.yaml | 6.01 KB | Project root/configuration | Flutter project manifest for packages, assets, and fonts. |
@@ -2308,4 +2310,4 @@ Quick reference for the project files: path, size, category, and a short respons
 | test/projects_dashboard_aggregator_test.dart | 1.85 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/projects_group_manager_test.dart | 4.52 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/tasks_api_service_test.dart | 2.34 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
-| test/widget_test.dart | 1.06 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
+| test/widget_test.dart | 311 B | Automated tests | Automated Flutter/Dart test for app behavior. |

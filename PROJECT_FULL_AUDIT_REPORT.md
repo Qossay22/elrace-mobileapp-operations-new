@@ -1,6 +1,6 @@
 # Project Full Audit Report
 
-Generated at: 2026-07-30 09:55 +04:00
+Generated at: 2026-07-30 10:25 +04:00
 Project: `elrace-mobileapp-operations-new`
 Source sync target reviewed: `97jaw/Elrace-mobileapp-operations/main` at `1d9e265`
 
@@ -8,9 +8,9 @@ Source sync target reviewed: `97jaw/Elrace-mobileapp-operations/main` at `1d9e26
 
 The project was synced with the latest `source/main` updates from `Elrace-mobileapp-operations` while preserving the local project organization files that are intentionally maintained in this repository.
 
-Current overall project rating: **8.1 / 10**
+Current overall project rating: **8.3 / 10**
 
-The application dependencies resolve, the Flutter test suite passes, and a debug APK builds successfully. The main remaining issue is analyzer reliability in this workspace: both `dart analyze --format=machine` and `flutter analyze` timed out after extended runs, so analyzer status is not treated as passed in this audit.
+The application dependencies resolve, the Flutter test suite passes, and a debug APK builds successfully. This pass also improves login security and BLoC ownership by removing sensitive login logging, eliminating the hardcoded login device id from the UI event, and making credential persistence respect the user's Remember Password choice. The main remaining issue is analyzer reliability in this workspace: analyzer commands still time out after extended runs, so analyzer status is not treated as passed in this audit.
 
 ## Verification Status
 
@@ -25,20 +25,33 @@ The application dependencies resolve, the Flutter test suite passes, and a debug
 | `flutter build apk --debug` | Pass | Built `build/app/outputs/flutter-apk/app-debug.apk`. |
 | `dart analyze --format=machine` | Timeout | Timed out after ~3 minutes, then again after ~7 minutes. |
 | `flutter analyze` | Timeout | Timed out after ~7 minutes. |
+| Targeted `dart analyze` | Timeout | Also timed out on the changed login/chat files. |
 
 ## Project Inventory
 
-`PROJECT_FILE_INDEX.md` was regenerated on 2026-07-30.
+`PROJECT_FILE_INDEX.md` was regenerated on 2026-07-30 after the security/code-quality pass.
 
 Key counts:
 
-- Indexed files: **2278**
+- Indexed files: **2280**
 - Indexed total size: **135.77 MB**
 - Flutter/Dart files from `rg --files`: **1292**
 - Test files: **9**
 - Asset files: **527**
 - App assets total in file index: **120.02 MB**
-- Flutter app code total in file index: **1274 files, 10.33 MB**
+- Flutter app code total in file index: **1274 files, 10.32 MB**
+
+## Security And Code Quality Improvements
+
+Implemented in this pass:
+
+- Removed full login request/response logging from `UserRepo`, including password, token, FCM token prefix, and full user payload output.
+- Replaced sensitive login prints with debug-only, metadata-level log messages.
+- Removed the hardcoded `776655` device id from the sign-in UI event; the `SignInBloc` now owns generated/persisted device id flow.
+- Extended `InitialSignedInST` to carry the BLoC-generated device id to the UI where needed.
+- Made `CheckSignedIn` emit `NotSignedInST` when stored login data is missing instead of force-unwrapping a nullable login response.
+- Changed chat credential persistence to respect `Remember Password`: credentials are saved only when the user opts in, otherwise old stored chat credentials are cleared.
+- Replaced `ChatCredentialStorage` prints with debug-only logging.
 
 ## Synced Application Updates
 
@@ -87,28 +100,33 @@ Risks:
 
 ### Security
 
-Rating: **7.3 / 10**
+Rating: **7.8 / 10**
 
 Strengths:
 
 - Notification and assignment delivery paths are more explicit.
 - Firestore rules and Firebase functions were updated with the latest source changes.
 - Sensitive mobile Firebase config risk remains mostly dependent on Firestore/Storage rules and App Check posture.
+- Login request/response secrets are no longer printed to local logs.
+- Chat credential storage now requires explicit user opt-in through Remember Password.
 
 Risks:
 
-- Firebase Functions dependency audit was not rerun in this sync pass.
+- Firebase Functions dependency audit was not rerun in this pass.
 - Firestore and Storage authorization should still be reviewed against real production roles.
+- Some non-login modules still contain verbose debug logging and should be cleaned in focused follow-up passes.
 
 ### Code Quality And Architecture
 
-Rating: **7.8 / 10**
+Rating: **8.0 / 10**
 
 Strengths:
 
 - New feature code follows the existing feature-folder style.
 - My Notes and My Actions additions are separated into screens, data, theme, and widget files.
 - Source updates were merged without importing source-side deletion of local maintenance documents.
+- Sign-in device identity is now BLoC-owned instead of UI-hardcoded.
+- Stored-session checking no longer relies on a nullable force unwrap.
 
 Risks:
 
@@ -136,23 +154,24 @@ Risks:
 |---|---:|
 | Build health | 9.0 / 10 |
 | Tests | 8.5 / 10 |
-| Security | 7.3 / 10 |
-| Code quality | 7.6 / 10 |
+| Security | 7.8 / 10 |
+| Code quality | 8.0 / 10 |
 | Architecture | 8.0 / 10 |
 | UI/UX organization | 8.2 / 10 |
 | Assets/performance | 7.0 / 10 |
 | Documentation | 8.7 / 10 |
 | Release readiness | 8.0 / 10 |
 
-Overall: **8.1 / 10**
+Overall: **8.3 / 10**
 
 ## Immediate Next Steps
 
 1. Investigate why `dart analyze` / `flutter analyze` hang in this workspace.
-2. Run a release build check when signing configuration is available.
-3. Re-run Firebase Functions dependency audit and plan semver-major upgrades separately.
-4. Do one Android device smoke test for login, home, notifications, tasks/tickets, approvals, camera, My Actions, and My Notes.
-5. Continue asset cleanup to reduce the 120.02 MB app asset footprint.
+2. Continue removing sensitive or noisy logs from QR, chat helper, tasks, and project data modules.
+3. Run a release build check when signing configuration is available.
+4. Re-run Firebase Functions dependency audit and plan semver-major upgrades separately.
+5. Do one Android device smoke test for login, home, notifications, tasks/tickets, approvals, camera, My Actions, and My Notes.
+6. Continue asset cleanup to reduce the 120.02 MB app asset footprint.
 
 ## Git State At Audit Time
 
