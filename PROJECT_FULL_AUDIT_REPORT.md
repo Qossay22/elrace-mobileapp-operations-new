@@ -1,6 +1,6 @@
 # Project Full Audit Report
 
-Generated at: 2026-07-30 10:45 +04:00
+Generated at: 2026-07-30 12:08 +04:00
 Project: `elrace-mobileapp-operations-new`
 Source sync target reviewed: `97jaw/Elrace-mobileapp-operations/main` at `1d9e265`
 
@@ -10,7 +10,7 @@ The project was synced with the latest `source/main` updates from `Elrace-mobile
 
 Current overall project rating: **8.5 / 10**
 
-The application dependencies resolve, the Flutter test suite passes, and a debug APK builds successfully. This pass improves login/chat/QR security by removing sensitive logging, and improves asset/performance posture by deleting two large unused assets. The main remaining issue is analyzer reliability in this workspace: analyzer commands still time out after extended runs, so analyzer status is not treated as passed in this audit.
+The application dependencies resolve, the Flutter test suite passes, and a debug APK builds successfully. This pass improves login/chat/QR security by removing sensitive logging, improves asset/performance posture by deleting two large unused assets, and removes the first-launch Android Alarms & reminders settings jump by avoiding automatic exact-alarm permission requests. The main remaining issue is analyzer reliability in this workspace: analyzer commands still time out after extended runs, so analyzer status is not treated as passed in this audit.
 
 ## Verification Status
 
@@ -21,20 +21,21 @@ The application dependencies resolve, the Flutter test suite passes, and a debug
 | Conflict marker scan | Pass | `rg "^(<<<<<<<|=======|>>>>>>>)"` found no merge conflict markers. |
 | `git diff --check` | Pass | No whitespace or conflict-marker errors. |
 | `flutter pub get` | Pass | Dependencies resolve successfully; 181 packages report newer incompatible versions. |
-| `flutter test` | Pass | `42/42` tests passed after security and asset cleanup. |
-| `flutter build apk --debug` | Pass | Built `build/app/outputs/flutter-apk/app-debug.apk` after asset cleanup. |
+| Exact-alarm request scan | Pass | No `requestExactAlarmsPermission`, `Permission.scheduleExactAlarm.request`, or `ACTION_REQUEST_SCHEDULE_EXACT_ALARM` calls remain. |
+| `flutter test` | Pass | `42/42` tests passed after exact-alarm startup fix. |
+| `flutter build apk --debug` | Pass | Built `build/app/outputs/flutter-apk/app-debug.apk` after exact-alarm startup fix. |
 | `dart analyze --format=machine` | Timeout | Timed out after ~3 minutes, then again after ~7 minutes. |
 | `flutter analyze` | Timeout | Timed out after ~7 minutes. |
 | Targeted `dart analyze` | Timeout | Also timed out on the changed login/chat files. |
 
 ## Project Inventory
 
-`PROJECT_FILE_INDEX.md` was regenerated on 2026-07-30 after the security/code-quality pass.
+`PROJECT_FILE_INDEX.md` was regenerated on 2026-07-30 after the exact-alarm startup fix.
 
 Key counts:
 
-- Indexed files: **2280**
-- Indexed total size: **104.51 MB**
+- Indexed files: **2279**
+- Indexed total size: **104.96 MB**
 - Flutter/Dart files from `rg --files`: **1292**
 - Test files: **9**
 - Asset files: **525**
@@ -54,6 +55,8 @@ Implemented in this pass:
 - Replaced `ChatCredentialStorage` prints with debug-only logging.
 - Removed verbose chat restore logs that exposed Firebase UID, Odoo/user identifiers, role/chat identifiers, and token presence metadata.
 - Removed verbose QR login logs that exposed raw QR content, encoded login code, user identifiers, URLs, headers, and full response data.
+- Removed automatic Android exact-alarm permission requests that opened the system Alarms & reminders settings screen on first launch.
+- Prayer notifications now use `AndroidScheduleMode.inexactAllowWhileIdle`, matching the manifest decision to remove exact-alarm permissions.
 
 ## Asset And Performance Improvements
 
@@ -122,6 +125,7 @@ Strengths:
 - Login request/response secrets are no longer printed to local logs.
 - Chat credential storage now requires explicit user opt-in through Remember Password.
 - Chat restore and QR login flows no longer print sensitive identifiers, QR payloads, tokens, headers, or response bodies.
+- First launch no longer pushes users into Android exact-alarm settings without an in-app action.
 
 Risks:
 

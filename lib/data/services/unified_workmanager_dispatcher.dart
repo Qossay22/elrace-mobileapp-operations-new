@@ -126,7 +126,7 @@ Future<bool> _handlePrayerTask(
 }
 
 // _playAdhanInBackground removed: the scheduled local notification
-// (zonedSchedule with exactAllowWhileIdle + athan sound channel)
+// (zonedSchedule with inexactAllowWhileIdle + athan sound channel)
 // is now the sole background adhan mechanism, preventing the
 // duplicate-notification / two-sounds-at-once issue.
 

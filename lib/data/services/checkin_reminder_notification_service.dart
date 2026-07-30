@@ -70,11 +70,6 @@ class CheckInReminderNotificationService {
         // طلب صلاحية الإشعارات الدقيقة (Exact Alarms)
         // على Android 12 (API 31) وما فوق
         try {
-          if (await Permission.scheduleExactAlarm.isDenied) {
-            // print('⚠️ Requesting exact alarm permission...');
-            await Permission.scheduleExactAlarm.request();
-          }
-
           final alarmStatus = await Permission.scheduleExactAlarm.status;
           _exactAlarmGranted = alarmStatus.isGranted;
           // print('⏰ Exact alarm permission: $_exactAlarmGranted');
@@ -136,7 +131,8 @@ class CheckInReminderNotificationService {
   /// إنشاء قنوات الإشعارات لـ Android
   Future<void> _createNotificationChannels() async {
     // قناة تذكيرات Check In
-    const AndroidNotificationChannel checkInChannel = AndroidNotificationChannel(
+    const AndroidNotificationChannel checkInChannel =
+        AndroidNotificationChannel(
       'check_in_reminder_channel',
       'Check In Reminders',
       description: 'Check-in reminders',
@@ -147,7 +143,8 @@ class CheckInReminderNotificationService {
     );
 
     // قناة تذكيرات Check Out
-    const AndroidNotificationChannel checkOutChannel = AndroidNotificationChannel(
+    const AndroidNotificationChannel checkOutChannel =
+        AndroidNotificationChannel(
       'check_out_reminder_channel',
       'Check Out Reminders',
       description: 'Check-out reminders',
@@ -477,9 +474,8 @@ class CheckInReminderNotificationService {
                 ? 'check_in_reminder_channel'
                 : 'check_out_reminder_channel',
             isCheckIn ? 'Check In Reminders' : 'Check Out Reminders',
-            channelDescription: isCheckIn
-                ? 'Check-in reminders'
-                : 'Check-out reminders',
+            channelDescription:
+                isCheckIn ? 'Check-in reminders' : 'Check-out reminders',
             importance: Importance.max,
             priority: Priority.max,
             category: AndroidNotificationCategory.alarm,
@@ -511,8 +507,7 @@ class CheckInReminderNotificationService {
     final checkOutDisplayTime =
         SharedPref().getPreferenceString('checkOutDisplayTime');
 
-    final hasCheckInEvidence =
-        isCheckedIn ||
+    final hasCheckInEvidence = isCheckedIn ||
         checkInRecordId > 0 ||
         checkInTime > 0 ||
         _isMeaningfulDisplayTime(checkInDisplayTime);

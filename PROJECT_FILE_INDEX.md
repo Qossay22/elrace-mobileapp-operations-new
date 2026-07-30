@@ -2,17 +2,17 @@
 
 Quick reference for the project files: path, size, category, and a short responsibility note.
 
-- Generated at: 2026-07-30 10:42:41 +04:00
+- Generated at: 2026-07-30 12:05:35 +04:00
 - Root: C:\Users\Qossay\Desktop\project\Elrace-mobileapp-operations-qossay_update
-- Indexed files: 2278
-- Indexed total size: 104.51 MB
+- Indexed files: 2279
+- Indexed total size: 104.96 MB
 - Skipped generated/heavy folders: .git, .dart_tool, .idea, .vscode, build, dist, coverage, node_modules, Pods, .gradle, DerivedData
 
 > Note: descriptions are inferred from file path, name, and extension. Regenerate after major updates with: powershell -ExecutionPolicy Bypass -File .\scripts\generate_project_file_index.ps1
 
 ## Quick Map
 
-- **Android native project**: 33 files, 640.48 KB
+- **Android native project**: 34 files, 1.08 MB
 - **App assets**: 525 files, 88.76 MB
 - **Architecture/documentation notes**: 4 files, 78.06 KB
 - **Automated tests**: 9 files, 33.63 KB
@@ -25,7 +25,7 @@ Quick reference for the project files: path, size, category, and a short respons
 - **iOS native project**: 69 files, 2.23 MB
 - **Local package/plugin**: 240 files, 523.33 KB
 - **Project documentation**: 54 files, 1.08 MB
-- **Project root/configuration**: 22 files, 565.99 KB
+- **Project root/configuration**: 22 files, 566.80 KB
 
 ## Files
 
@@ -65,6 +65,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | android/gradle/wrapper/gradle-wrapper.properties | 200 B | Android native project | Project file; use its path and extension to locate its role. |
 | android/gradlew | 4.85 KB | Android native project | Project file; use its path and extension to locate its role. |
 | android/gradlew.bat | 2.35 KB | Android native project | Project file; use its path and extension to locate its role. |
+| android/hs_err_pid25728.log | 465.50 KB | Android native project | Project file; use its path and extension to locate its role. |
 | android/key.properties.example | 473 B | Android native project | Project file; use its path and extension to locate its role. |
 | android/local.properties | 168 B | Android native project | Project file; use its path and extension to locate its role. |
 | android/settings.gradle | 797 B | Android native project | Gradle build configuration for Android. |
@@ -1007,7 +1008,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/data/services/attendance_sync_service.dart | 4.40 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/data/services/auto_checkout_service.dart | 5.44 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/data/services/battery_optimization_service.dart | 1.23 KB | Flutter app code | Service helper for business logic or integration. |
-| lib/data/services/checkin_reminder_notification_service.dart | 21.44 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/data/services/checkin_reminder_notification_service.dart | 21.23 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/data/services/counter_reset_service.dart | 8.55 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/data/services/global_search_api_service.dart | 9.25 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/data/services/global_search_history_service.dart | 1.59 KB | Flutter app code | Service helper for business logic or integration. |
@@ -1015,7 +1016,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/data/services/pdf_service.dart | 21.75 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/data/services/prayer_audio_service.dart | 12.35 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/data/services/prayer_background_service.dart | 5.39 KB | Flutter app code | Service helper for business logic or integration. |
-| lib/data/services/prayer_notification_service.dart | 7.70 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/data/services/prayer_notification_service.dart | 7.65 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/data/services/task_notification_service.dart | 16.12 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/data/services/unified_workmanager_dispatcher.dart | 7.56 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/deep_links/uaepass_link_handler.dart | 2.78 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -2253,8 +2254,8 @@ Quick reference for the project files: path, size, category, and a short respons
 | packages/face_liveness_detector/README.md | 6.76 KB | Local package/plugin | Markdown documentation file. |
 | packages/face_liveness_detector/test/rekognition_face_liveness_test.dart | 16 B | Local package/plugin | Dart file in the Flutter app; purpose follows its folder and name. |
 | proguard-rules.pro | 3.62 KB | Project root/configuration | Project file; use its path and extension to locate its role. |
-| PROJECT_FILE_INDEX.md | 311.79 KB | Project root/configuration | Markdown documentation file. |
-| PROJECT_FULL_AUDIT_REPORT.md | 8.80 KB | Project root/configuration | Markdown documentation file. |
+| PROJECT_FILE_INDEX.md | 311.59 KB | Project root/configuration | Markdown documentation file. |
+| PROJECT_FULL_AUDIT_REPORT.md | 9.81 KB | Project root/configuration | Markdown documentation file. |
 | PROJECT_FULL_AUDIT_REPORT_ELRACE_MOBILEAPP_OPERATIONS.md | 8.39 KB | Project root/configuration | Markdown documentation file. |
 | pubspec.lock | 85.21 KB | Project root/configuration | Pinned Dart/Flutter dependency versions. |
 | pubspec.yaml | 6.01 KB | Project root/configuration | Flutter project manifest for packages, assets, and fonts. |

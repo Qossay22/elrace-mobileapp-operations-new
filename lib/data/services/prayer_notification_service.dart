@@ -61,7 +61,6 @@ class PrayerNotificationService {
       );
 
       await androidImpl.requestNotificationsPermission();
-      await androidImpl.requestExactAlarmsPermission();
     }
 
     _initialized = true;
@@ -119,7 +118,8 @@ class PrayerNotificationService {
     final isMuted = await HiveService.isPrayerSoundMuted();
     if (isMuted) return;
 
-    // استخدم وقت محلي مباشر مع exactAllowWhileIdle لضمان العمل حتى في وضع Doze
+    // Use inexact scheduling so Android does not open the Alarms & reminders
+    // settings screen on first launch.
     final tzTime = tz.TZDateTime.from(scheduledTime, tz.local);
     final id = _buildId(prayerName, scheduledTime);
 
@@ -154,7 +154,7 @@ class PrayerNotificationService {
           interruptionLevel: InterruptionLevel.timeSensitive,
         ),
       ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       payload: 'prayer:$prayerName:${scheduledTime.millisecondsSinceEpoch}',
     );
   }
