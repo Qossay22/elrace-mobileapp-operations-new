@@ -2,10 +2,10 @@
 
 Quick reference for the project files: path, size, category, and a short responsibility note.
 
-- Generated at: 2026-07-30 10:22:05 +04:00
+- Generated at: 2026-07-30 10:42:41 +04:00
 - Root: C:\Users\Qossay\Desktop\project\Elrace-mobileapp-operations-qossay_update
-- Indexed files: 2280
-- Indexed total size: 135.77 MB
+- Indexed files: 2278
+- Indexed total size: 104.51 MB
 - Skipped generated/heavy folders: .git, .dart_tool, .idea, .vscode, build, dist, coverage, node_modules, Pods, .gradle, DerivedData
 
 > Note: descriptions are inferred from file path, name, and extension. Regenerate after major updates with: powershell -ExecutionPolicy Bypass -File .\scripts\generate_project_file_index.ps1
@@ -13,7 +13,7 @@ Quick reference for the project files: path, size, category, and a short respons
 ## Quick Map
 
 - **Android native project**: 33 files, 640.48 KB
-- **App assets**: 527 files, 120.02 MB
+- **App assets**: 525 files, 88.76 MB
 - **Architecture/documentation notes**: 4 files, 78.06 KB
 - **Automated tests**: 9 files, 33.63 KB
 - **Code generation templates**: 35 files, 31.22 KB
@@ -25,7 +25,7 @@ Quick reference for the project files: path, size, category, and a short respons
 - **iOS native project**: 69 files, 2.23 MB
 - **Local package/plugin**: 240 files, 523.33 KB
 - **Project documentation**: 54 files, 1.08 MB
-- **Project root/configuration**: 22 files, 564.03 KB
+- **Project root/configuration**: 22 files, 565.99 KB
 
 ## Files
 
@@ -135,14 +135,12 @@ Quick reference for the project files: path, size, category, and a short respons
 | assets/json/hold.json | 28.26 KB | App assets | JSON data or configuration file. |
 | assets/json/inside.json | 44.94 KB | App assets | JSON data or configuration file. |
 | assets/json/left.json | 37.08 KB | App assets | JSON data or configuration file. |
-| assets/json/logo.json | 18.26 MB | App assets | JSON data or configuration file. |
 | assets/json/right.json | 39.25 KB | App assets | JSON data or configuration file. |
 | assets/json/smile.json | 30.92 KB | App assets | JSON data or configuration file. |
 | assets/logo/logo.png | 21.08 KB | App assets | Image or icon asset used by the app UI. |
 | assets/logo/logo2.png | 17.21 KB | App assets | Image or icon asset used by the app UI. |
 | assets/logo/rcc2.jpg | 343.27 KB | App assets | Image or icon asset used by the app UI. |
 | assets/logo/rcc2.png | 193.35 KB | App assets | Image or icon asset used by the app UI. |
-| assets/mobilefacenet.tflite | 13.01 MB | App assets | TensorFlow Lite machine-learning model for on-device use. |
 | assets/mobilefacenet_512.tflite | 13.01 MB | App assets | TensorFlow Lite machine-learning model for on-device use. |
 | assets/mp3/athan.mp3 | 393.75 KB | App assets | Audio or video media asset used by the app. |
 | assets/mp3/azan.mp3 | 49.99 KB | App assets | Audio or video media asset used by the app. |
@@ -743,7 +741,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/auth/uaepass_auth_cubit.dart | 3.90 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/auth/uaepass_auth_state.dart | 769 B | Flutter app code | BLoC/Cubit state definitions. |
 | lib/chat/chat.dart | 1.62 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/chat/chat_module_helper.dart | 14.13 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/chat/chat_module_helper.dart | 12.55 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/chat/examples/integration_guide.dart | 15.41 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/chat/models/chat.dart | 6.23 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/chat/models/chat_member.dart | 2.22 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -1779,7 +1777,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/qr_code/bloc/qr_code_bloc.dart | 1.47 KB | Flutter app code | BLoC logic for state and event handling. |
 | lib/ui/presentation/qr_code/bloc/qr_code_event.dart | 281 B | Flutter app code | BLoC event definitions. |
 | lib/ui/presentation/qr_code/bloc/qr_code_state.dart | 582 B | Flutter app code | BLoC/Cubit state definitions. |
-| lib/ui/presentation/qr_code/data/qr_login_service.dart | 5.20 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/ui/presentation/qr_code/data/qr_login_service.dart | 3.24 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/ui/presentation/qr_code/data/repository.dart | 7.09 KB | Flutter app code | Repository layer for reading/writing data. |
 | lib/ui/presentation/qr_code/qr_code_screen.dart | 7.49 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/qr_code/qr_scanner_screen.dart | 24.19 KB | Flutter app code | Flutter screen or page UI. |
@@ -2255,8 +2253,8 @@ Quick reference for the project files: path, size, category, and a short respons
 | packages/face_liveness_detector/README.md | 6.76 KB | Local package/plugin | Markdown documentation file. |
 | packages/face_liveness_detector/test/rekognition_face_liveness_test.dart | 16 B | Local package/plugin | Dart file in the Flutter app; purpose follows its folder and name. |
 | proguard-rules.pro | 3.62 KB | Project root/configuration | Project file; use its path and extension to locate its role. |
-| PROJECT_FILE_INDEX.md | 311.50 KB | Project root/configuration | Markdown documentation file. |
-| PROJECT_FULL_AUDIT_REPORT.md | 7.13 KB | Project root/configuration | Markdown documentation file. |
+| PROJECT_FILE_INDEX.md | 311.79 KB | Project root/configuration | Markdown documentation file. |
+| PROJECT_FULL_AUDIT_REPORT.md | 8.80 KB | Project root/configuration | Markdown documentation file. |
 | PROJECT_FULL_AUDIT_REPORT_ELRACE_MOBILEAPP_OPERATIONS.md | 8.39 KB | Project root/configuration | Markdown documentation file. |
 | pubspec.lock | 85.21 KB | Project root/configuration | Pinned Dart/Flutter dependency versions. |
 | pubspec.yaml | 6.01 KB | Project root/configuration | Flutter project manifest for packages, assets, and fonts. |

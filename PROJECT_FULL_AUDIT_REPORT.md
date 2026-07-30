@@ -1,6 +1,6 @@
 # Project Full Audit Report
 
-Generated at: 2026-07-30 10:25 +04:00
+Generated at: 2026-07-30 10:45 +04:00
 Project: `elrace-mobileapp-operations-new`
 Source sync target reviewed: `97jaw/Elrace-mobileapp-operations/main` at `1d9e265`
 
@@ -8,9 +8,9 @@ Source sync target reviewed: `97jaw/Elrace-mobileapp-operations/main` at `1d9e26
 
 The project was synced with the latest `source/main` updates from `Elrace-mobileapp-operations` while preserving the local project organization files that are intentionally maintained in this repository.
 
-Current overall project rating: **8.3 / 10**
+Current overall project rating: **8.5 / 10**
 
-The application dependencies resolve, the Flutter test suite passes, and a debug APK builds successfully. This pass also improves login security and BLoC ownership by removing sensitive login logging, eliminating the hardcoded login device id from the UI event, and making credential persistence respect the user's Remember Password choice. The main remaining issue is analyzer reliability in this workspace: analyzer commands still time out after extended runs, so analyzer status is not treated as passed in this audit.
+The application dependencies resolve, the Flutter test suite passes, and a debug APK builds successfully. This pass improves login/chat/QR security by removing sensitive logging, and improves asset/performance posture by deleting two large unused assets. The main remaining issue is analyzer reliability in this workspace: analyzer commands still time out after extended runs, so analyzer status is not treated as passed in this audit.
 
 ## Verification Status
 
@@ -21,8 +21,8 @@ The application dependencies resolve, the Flutter test suite passes, and a debug
 | Conflict marker scan | Pass | `rg "^(<<<<<<<|=======|>>>>>>>)"` found no merge conflict markers. |
 | `git diff --check` | Pass | No whitespace or conflict-marker errors. |
 | `flutter pub get` | Pass | Dependencies resolve successfully; 181 packages report newer incompatible versions. |
-| `flutter test` | Pass | `42/42` tests passed after updating source-sync test expectations. |
-| `flutter build apk --debug` | Pass | Built `build/app/outputs/flutter-apk/app-debug.apk`. |
+| `flutter test` | Pass | `42/42` tests passed after security and asset cleanup. |
+| `flutter build apk --debug` | Pass | Built `build/app/outputs/flutter-apk/app-debug.apk` after asset cleanup. |
 | `dart analyze --format=machine` | Timeout | Timed out after ~3 minutes, then again after ~7 minutes. |
 | `flutter analyze` | Timeout | Timed out after ~7 minutes. |
 | Targeted `dart analyze` | Timeout | Also timed out on the changed login/chat files. |
@@ -34,11 +34,11 @@ The application dependencies resolve, the Flutter test suite passes, and a debug
 Key counts:
 
 - Indexed files: **2280**
-- Indexed total size: **135.77 MB**
+- Indexed total size: **104.51 MB**
 - Flutter/Dart files from `rg --files`: **1292**
 - Test files: **9**
-- Asset files: **527**
-- App assets total in file index: **120.02 MB**
+- Asset files: **525**
+- App assets total in file index: **88.76 MB**
 - Flutter app code total in file index: **1274 files, 10.32 MB**
 
 ## Security And Code Quality Improvements
@@ -52,6 +52,18 @@ Implemented in this pass:
 - Made `CheckSignedIn` emit `NotSignedInST` when stored login data is missing instead of force-unwrapping a nullable login response.
 - Changed chat credential persistence to respect `Remember Password`: credentials are saved only when the user opts in, otherwise old stored chat credentials are cleared.
 - Replaced `ChatCredentialStorage` prints with debug-only logging.
+- Removed verbose chat restore logs that exposed Firebase UID, Odoo/user identifiers, role/chat identifiers, and token presence metadata.
+- Removed verbose QR login logs that exposed raw QR content, encoded login code, user identifiers, URLs, headers, and full response data.
+
+## Asset And Performance Improvements
+
+Implemented in this pass:
+
+- Deleted unused duplicate `assets/mobilefacenet.tflite`; it had the same SHA-256 hash as `assets/mobilefacenet_512.tflite`, which is the model referenced by `FaceRecognitionConfig`.
+- Deleted unused `assets/json/logo.json`, an 18.26 MB Lottie/JSON asset with no code references.
+- Reduced indexed project size from **135.77 MB** to **104.51 MB**.
+- Reduced app assets from **120.02 MB / 527 files** to **88.76 MB / 525 files**.
+- Confirmed the app still builds after the removals.
 
 ## Synced Application Updates
 
@@ -100,7 +112,7 @@ Risks:
 
 ### Security
 
-Rating: **7.8 / 10**
+Rating: **8.2 / 10**
 
 Strengths:
 
@@ -109,12 +121,13 @@ Strengths:
 - Sensitive mobile Firebase config risk remains mostly dependent on Firestore/Storage rules and App Check posture.
 - Login request/response secrets are no longer printed to local logs.
 - Chat credential storage now requires explicit user opt-in through Remember Password.
+- Chat restore and QR login flows no longer print sensitive identifiers, QR payloads, tokens, headers, or response bodies.
 
 Risks:
 
 - Firebase Functions dependency audit was not rerun in this pass.
 - Firestore and Storage authorization should still be reviewed against real production roles.
-- Some non-login modules still contain verbose debug logging and should be cleaned in focused follow-up passes.
+- Some non-auth modules still contain verbose debug logging and should be cleaned in focused follow-up passes.
 
 ### Code Quality And Architecture
 
@@ -136,16 +149,17 @@ Risks:
 
 ### Assets And Performance
 
-Rating: **7.0 / 10**
+Rating: **8.1 / 10**
 
 Strengths:
 
-- Asset count is stable at 527 indexed assets.
+- Asset count is reduced to 525 indexed assets.
 - No merge conflict markers or whitespace errors remain.
+- Large unused assets were removed, reducing indexed assets by **31.26 MB**.
 
 Risks:
 
-- App assets remain large at **120.02 MB**.
+- App assets remain substantial at **88.76 MB** because ML models, GIFs, media, and high-resolution UI images are still included.
 - No release build or device smoke test was run during this sync.
 
 ## Scorecard
@@ -154,24 +168,24 @@ Risks:
 |---|---:|
 | Build health | 9.0 / 10 |
 | Tests | 8.5 / 10 |
-| Security | 7.8 / 10 |
+| Security | 8.2 / 10 |
 | Code quality | 8.0 / 10 |
 | Architecture | 8.0 / 10 |
 | UI/UX organization | 8.2 / 10 |
-| Assets/performance | 7.0 / 10 |
+| Assets/performance | 8.1 / 10 |
 | Documentation | 8.7 / 10 |
 | Release readiness | 8.0 / 10 |
 
-Overall: **8.3 / 10**
+Overall: **8.5 / 10**
 
 ## Immediate Next Steps
 
 1. Investigate why `dart analyze` / `flutter analyze` hang in this workspace.
-2. Continue removing sensitive or noisy logs from QR, chat helper, tasks, and project data modules.
+2. Continue removing sensitive or noisy logs from tasks, project data, QR survey, and media modules.
 3. Run a release build check when signing configuration is available.
 4. Re-run Firebase Functions dependency audit and plan semver-major upgrades separately.
 5. Do one Android device smoke test for login, home, notifications, tasks/tickets, approvals, camera, My Actions, and My Notes.
-6. Continue asset cleanup to reduce the 120.02 MB app asset footprint.
+6. Continue asset cleanup to reduce the 88.76 MB app asset footprint.
 
 ## Git State At Audit Time
 
