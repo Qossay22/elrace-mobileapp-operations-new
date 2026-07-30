@@ -1,6 +1,6 @@
 # Project Full Audit Report
 
-Generated at: 2026-07-30 12:08 +04:00
+Generated at: 2026-07-30 12:22 +04:00
 Project: `elrace-mobileapp-operations-new`
 Source sync target reviewed: `97jaw/Elrace-mobileapp-operations/main` at `1d9e265`
 
@@ -10,7 +10,7 @@ The project was synced with the latest `source/main` updates from `Elrace-mobile
 
 Current overall project rating: **8.5 / 10**
 
-The application dependencies resolve, the Flutter test suite passes, and a debug APK builds successfully. This pass improves login/chat/QR security by removing sensitive logging, improves asset/performance posture by deleting two large unused assets, and removes the first-launch Android Alarms & reminders settings jump by avoiding automatic exact-alarm permission requests. The main remaining issue is analyzer reliability in this workspace: analyzer commands still time out after extended runs, so analyzer status is not treated as passed in this audit.
+The application dependencies resolve, the Flutter test suite passes, and a debug APK builds successfully. This pass improves login/chat/QR security by removing sensitive logging, improves asset/performance posture by deleting two large unused assets, removes the first-launch Android Alarms & reminders settings jump by avoiding automatic exact-alarm permission requests, and restores full splash-video playback before navigation. The main remaining issue is analyzer reliability in this workspace: analyzer commands still time out after extended runs, so analyzer status is not treated as passed in this audit.
 
 ## Verification Status
 
@@ -22,8 +22,8 @@ The application dependencies resolve, the Flutter test suite passes, and a debug
 | `git diff --check` | Pass | No whitespace or conflict-marker errors. |
 | `flutter pub get` | Pass | Dependencies resolve successfully; 181 packages report newer incompatible versions. |
 | Exact-alarm request scan | Pass | No `requestExactAlarmsPermission`, `Permission.scheduleExactAlarm.request`, or `ACTION_REQUEST_SCHEDULE_EXACT_ALARM` calls remain. |
-| `flutter test` | Pass | `42/42` tests passed after exact-alarm startup fix. |
-| `flutter build apk --debug` | Pass | Built `build/app/outputs/flutter-apk/app-debug.apk` after exact-alarm startup fix. |
+| `flutter test` | Pass | `42/42` tests passed after splash-video gate fix. |
+| `flutter build apk --debug` | Pass | Built `build/app/outputs/flutter-apk/app-debug.apk` after splash-video gate fix. |
 | `dart analyze --format=machine` | Timeout | Timed out after ~3 minutes, then again after ~7 minutes. |
 | `flutter analyze` | Timeout | Timed out after ~7 minutes. |
 | Targeted `dart analyze` | Timeout | Also timed out on the changed login/chat files. |
@@ -57,6 +57,14 @@ Implemented in this pass:
 - Removed verbose QR login logs that exposed raw QR content, encoded login code, user identifiers, URLs, headers, and full response data.
 - Removed automatic Android exact-alarm permission requests that opened the system Alarms & reminders settings screen on first launch.
 - Prayer notifications now use `AndroidScheduleMode.inexactAllowWhileIdle`, matching the manifest decision to remove exact-alarm permissions.
+
+## Startup And Splash Improvements
+
+Implemented in this pass:
+
+- Restored `SplashScreen` navigation gating on the actual `assets/mp4/splash.mp4` playback completion.
+- Kept startup/security/update checks bounded so the app can still continue if initialization or device checks time out.
+- Added a guarded video initialization/completion timeout so a decoder failure cannot trap the user on splash.
 
 ## Asset And Performance Improvements
 

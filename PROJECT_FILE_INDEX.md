@@ -2,7 +2,7 @@
 
 Quick reference for the project files: path, size, category, and a short responsibility note.
 
-- Generated at: 2026-07-30 12:05:35 +04:00
+- Generated at: 2026-07-30 12:15:08 +04:00
 - Root: C:\Users\Qossay\Desktop\project\Elrace-mobileapp-operations-qossay_update
 - Indexed files: 2279
 - Indexed total size: 104.96 MB
@@ -25,7 +25,7 @@ Quick reference for the project files: path, size, category, and a short respons
 - **iOS native project**: 69 files, 2.23 MB
 - **Local package/plugin**: 240 files, 523.33 KB
 - **Project documentation**: 54 files, 1.08 MB
-- **Project root/configuration**: 22 files, 566.80 KB
+- **Project root/configuration**: 22 files, 567.58 KB
 
 ## Files
 
@@ -1812,7 +1812,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/signin/data/model.dart | 63.80 KB | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/ui/presentation/signin/data/repository.dart | 3.81 KB | Flutter app code | Repository layer for reading/writing data. |
 | lib/ui/presentation/signin/sign_in_screen.dart | 15.92 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/splash_screen/splash_screen.dart | 14.11 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/splash_screen/splash_screen.dart | 14.14 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/splash_screen/widgets/app_update_popup.dart | 15.25 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/task_sheet/add_task_sheet.dart | 61.02 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/task_sheet/EmployeeShiftRequestPage.dart | 46.71 KB | Flutter app code | Flutter screen or page UI. |
@@ -2254,8 +2254,8 @@ Quick reference for the project files: path, size, category, and a short respons
 | packages/face_liveness_detector/README.md | 6.76 KB | Local package/plugin | Markdown documentation file. |
 | packages/face_liveness_detector/test/rekognition_face_liveness_test.dart | 16 B | Local package/plugin | Dart file in the Flutter app; purpose follows its folder and name. |
 | proguard-rules.pro | 3.62 KB | Project root/configuration | Project file; use its path and extension to locate its role. |
-| PROJECT_FILE_INDEX.md | 311.59 KB | Project root/configuration | Markdown documentation file. |
-| PROJECT_FULL_AUDIT_REPORT.md | 9.81 KB | Project root/configuration | Markdown documentation file. |
+| PROJECT_FILE_INDEX.md | 311.72 KB | Project root/configuration | Markdown documentation file. |
+| PROJECT_FULL_AUDIT_REPORT.md | 10.46 KB | Project root/configuration | Markdown documentation file. |
 | PROJECT_FULL_AUDIT_REPORT_ELRACE_MOBILEAPP_OPERATIONS.md | 8.39 KB | Project root/configuration | Markdown documentation file. |
 | pubspec.lock | 85.21 KB | Project root/configuration | Pinned Dart/Flutter dependency versions. |
 | pubspec.yaml | 6.01 KB | Project root/configuration | Flutter project manifest for packages, assets, and fonts. |

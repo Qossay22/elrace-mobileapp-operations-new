@@ -31,6 +31,7 @@ class _SplashScreenState extends State<SplashScreen> {
   bool _isDeviceSecure = true;
   bool _didScheduleNavigation = false;
   late VideoPlayerController _videoController;
+  late final Future<void> _videoInitializeFuture;
   bool _isVideoReady = false;
   final Completer<void> _videoCompletedCompleter = Completer<void>();
   // Phase 2: replaces the _waitForSecurityCheck() polling loop so the
@@ -61,7 +62,8 @@ class _SplashScreenState extends State<SplashScreen> {
     // Instrumentation only: log when appInitCompleter resolves, independent
     // of the Future.wait gate in _waitForInitAndNavigate (Completers support
     // multiple listeners, so this does not change existing behavior).
-    appInitCompleter.future.then((_) => _logGateTiming('appInitCompleter-resolved'));
+    appInitCompleter.future
+        .then((_) => _logGateTiming('appInitCompleter-resolved'));
 
     // Phase 2: start the update check now, in parallel with init/video/
     // security, since it has no dependency on any of them. Previously this
@@ -75,19 +77,19 @@ class _SplashScreenState extends State<SplashScreen> {
     _logGateTiming('update-check-start');
     _updateCheckFuture.catchError((_) => const UpdateCheckResult.noUpdate());
 
-    // Initialize video player (uses hardware decoder, not main thread)
-    _videoController = VideoPlayerController.asset('assets/mp4/splash.mp4')
-      ..initialize().then((_) {
-        _logGateTiming('video-ready');
-        if (mounted) {
-          setState(() => _isVideoReady = true);
-          _videoController.addListener(_onVideoProgress);
-          _videoController.play();
-        }
-      }).catchError((e) {
-        print('⚠️ Video init error: $e');
-        _completeVideoIfNeeded();
-      });
+    // Initialize video player (uses hardware decoder, not main thread).
+    _videoController = VideoPlayerController.asset('assets/mp4/splash.mp4');
+    _videoInitializeFuture = _videoController.initialize().then((_) {
+      _logGateTiming('video-ready');
+      if (mounted) {
+        setState(() => _isVideoReady = true);
+        _videoController.addListener(_onVideoProgress);
+        _videoController.play();
+      }
+    }).catchError((e) {
+      print('Video init error: $e');
+      _completeVideoIfNeeded();
+    });
 
     // Defer security check & QR clear to after the first frame so
     // the splash background paints immediately without any blocking work.
@@ -154,45 +156,57 @@ class _SplashScreenState extends State<SplashScreen> {
     _waitForInitAndNavigate();
   }
 
-  /// Wait for init + security in parallel. Splash video is decorative only —
-  /// do NOT gate navigation on it (video is ~5s and completion often misses,
-  /// which caused the "Video completion timeout" + stuck-feeling splash after
-  /// Jul 20 "Let splash video finish before navigation").
+  /// Wait for startup gates and let the splash video finish before navigating.
   Future<void> _waitForInitAndNavigate() async {
-    debugPrint('🚀 SplashScreen: waiting for bounded startup checks');
+    debugPrint('SplashScreen: waiting for bounded startup checks');
     _logGateTiming('waitForInitAndNavigate-start');
     await Future.wait<void>([
       appInitCompleter.future.timeout(
         const Duration(seconds: 12),
         onTimeout: () {
-          print('⚠️ Heavy init timeout in splash – continuing anyway');
+          print('Heavy init timeout in splash - continuing anyway');
         },
       ),
       _securityCheckCompleter.future.timeout(
         Duration(seconds: kDebugMode ? 2 : 6),
         onTimeout: () {
-          print('⚠️ Security check timeout in splash – continuing anyway');
+          print('Security check timeout in splash - continuing anyway');
         },
       ),
+      _waitForVideoCompletion(),
     ]);
-    // Allow a brief beat so the first video frame can paint, then leave.
-    // Never wait for the full clip.
-    await Future<void>.delayed(
-      Duration(milliseconds: kDebugMode ? 300 : 800),
-    );
     _logGateTiming('waitForInitAndNavigate-gate-resolved');
 
     if (!mounted) return;
 
-    // Check security — unchanged policy: only blocks if the check actually
-    // completed and found the device insecure. A timed-out/incomplete check
-    // (_isSecurityCheckComplete still false) fails open, same as before.
     if (!_isDeviceSecure && _isSecurityCheckComplete) {
-      print('🚫 Navigation blocked - device not secure');
+      print('Navigation blocked - device not secure');
       return;
     }
 
     _navigateToNextScreen();
+  }
+
+  Future<void> _waitForVideoCompletion() async {
+    await _videoInitializeFuture.timeout(
+      const Duration(seconds: 8),
+      onTimeout: () {
+        _logGateTiming('video-init-timeout');
+        _completeVideoIfNeeded();
+      },
+    );
+
+    final duration = _videoController.value.duration;
+    final timeout = duration == Duration.zero
+        ? const Duration(seconds: 8)
+        : duration + const Duration(seconds: 2);
+
+    await _videoCompletedCompleter.future.timeout(
+      timeout,
+      onTimeout: () {
+        _logGateTiming('video-complete-timeout');
+      },
+    );
   }
 
   void _onVideoProgress() {
