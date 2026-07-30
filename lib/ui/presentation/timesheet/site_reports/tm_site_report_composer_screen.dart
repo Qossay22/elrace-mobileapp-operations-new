@@ -41,7 +41,6 @@ class TmSiteReportComposerScreen extends StatefulWidget {
 
   final FolderModel? folder;
   final String projectName;
-
   /// Default photo location label (flat mode); falls back to [projectName].
   final String locationHint;
   final bool useDefaultFolder;
@@ -60,8 +59,7 @@ class TmSiteReportComposerScreen extends StatefulWidget {
       _TmSiteReportComposerScreenState();
 }
 
-class _TmSiteReportComposerScreenState
-    extends State<TmSiteReportComposerScreen> {
+class _TmSiteReportComposerScreenState extends State<TmSiteReportComposerScreen> {
   final _titleController = TextEditingController();
   final _pdfNameController = TextEditingController();
   final _picker = ImagePicker();
@@ -430,21 +428,37 @@ class _TmSiteReportComposerScreenState
                         decoration: _fieldDecoration('Name on generated PDF'),
                       ),
                       const SizedBox(height: TimesheetModuleLayout.cardSpacing),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          TmSecondaryButton(
-                            label: 'Capture',
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final stackButtons = constraints.maxWidth < 340;
+                          final capture = TmSecondaryButton(
+                            label: stackButtons ? 'Capture' : 'Multi capture',
                             icon: PhosphorIcons.camera(),
                             onPressed: _pickCamera,
-                          ),
-                          const SizedBox(height: 10),
-                          TmSecondaryButton(
+                          );
+                          final upload = TmSecondaryButton(
                             label: 'Upload',
                             icon: PhosphorIcons.upload(),
                             onPressed: _pickGallery,
-                          ),
-                        ],
+                          );
+                          if (stackButtons) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                capture,
+                                const SizedBox(height: 10),
+                                upload,
+                              ],
+                            );
+                          }
+                          return Row(
+                            children: [
+                              Expanded(child: capture),
+                              const SizedBox(width: 10),
+                              Expanded(child: upload),
+                            ],
+                          );
+                        },
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -468,7 +482,8 @@ class _TmSiteReportComposerScreenState
                   TmSitePhotoDescriptionCarousel(
                     drafts: active,
                     projectName: widget.projectName,
-                    initialIndex: _editorStartIndex.clamp(0, active.length - 1),
+                    initialIndex:
+                        _editorStartIndex.clamp(0, active.length - 1),
                     onRemove: _removeDraft,
                   ),
                 ] else ...[
@@ -493,7 +508,9 @@ class _TmSiteReportComposerScreenState
                 TimesheetModuleLayout.screenPaddingH,
               ),
               child: TmPrimaryButton(
-                label: widget.isEditMode ? 'Regenerate PDF' : 'Generate report',
+                label: widget.isEditMode
+                    ? 'Regenerate PDF'
+                    : 'Generate report',
                 icon: PhosphorIcons.filePdf(),
                 onPressed: hasPhotos ? _startGenerate : null,
               ),

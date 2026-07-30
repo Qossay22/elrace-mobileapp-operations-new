@@ -1,154 +1,120 @@
 # Project Full Audit Report
 
-Generated at: 2026-07-28 13:40 +04:00  
-Project: `elrace-mobileapp-operations-new`  
-Source sync target reviewed: `97jaw/Elrace-mobileapp-operations/main`
+Generated at: 2026-07-30 09:55 +04:00
+Project: `elrace-mobileapp-operations-new`
+Source sync target reviewed: `97jaw/Elrace-mobileapp-operations/main` at `1d9e265`
 
 ## Executive Summary
 
-The project has been synced with the latest useful application updates from `Elrace-mobileapp-operations/main` while preserving the cleaner local organization in this repository. The sync added the new feature work, removed stale Dart files left behind by the state-management migration, kept required build files such as the Gradle wrapper, and avoided importing noisy or broken defaults from the source repository.
+The project was synced with the latest `source/main` updates from `Elrace-mobileapp-operations` while preserving the local project organization files that are intentionally maintained in this repository.
 
-Current overall project rating: **8.2 / 10**
+Current overall project rating: **8.1 / 10**
 
-The app is in a buildable and test-passing state. The remaining risk is mostly quality debt: analyzer warnings, large asset footprint, and Node dependency audit findings in Firebase functions.
+The application dependencies resolve, the Flutter test suite passes, and a debug APK builds successfully. The main remaining issue is analyzer reliability in this workspace: both `dart analyze --format=machine` and `flutter analyze` timed out after extended runs, so analyzer status is not treated as passed in this audit.
 
 ## Verification Status
 
 | Check | Result | Notes |
 |---|---:|---|
-| `flutter pub get` | Pass | Dependencies resolve successfully. |
-| `dart analyze --format=machine` | Pass for errors | `ERROR_COUNT=0`; warnings/lints still exist. |
-| `flutter test` | Pass | `41/41` tests passed after sync cleanup. |
+| `git fetch source main --prune` | Pass | Updated `source/main` from `4571e99` to `1d9e265`. |
+| Merge conflict resolution | Pass | App code/assets resolved to `source/main`; local documentation and maintenance structure preserved. |
+| Conflict marker scan | Pass | `rg "^(<<<<<<<|=======|>>>>>>>)"` found no merge conflict markers. |
+| `git diff --check` | Pass | No whitespace or conflict-marker errors. |
+| `flutter pub get` | Pass | Dependencies resolve successfully; 181 packages report newer incompatible versions. |
+| `flutter test` | Pass | `42/42` tests passed after updating source-sync test expectations. |
 | `flutter build apk --debug` | Pass | Built `build/app/outputs/flutter-apk/app-debug.apk`. |
-| GitHub push | Pass | `main`, `develop`, and `staging` are pushed to `Qossay22/elrace-mobileapp-operations-new`. |
+| `dart analyze --format=machine` | Timeout | Timed out after ~3 minutes, then again after ~7 minutes. |
+| `flutter analyze` | Timeout | Timed out after ~7 minutes. |
 
 ## Project Inventory
 
-The updated `PROJECT_FILE_INDEX.md` was regenerated on 2026-07-28.
+`PROJECT_FILE_INDEX.md` was regenerated on 2026-07-30.
 
 Key counts:
 
-- Indexed files: **2267**
-- Indexed total size: **135.69 MB**
-- Flutter/Dart files from `rg --files`: **1280**
-- Test files: **8**
+- Indexed files: **2278**
+- Indexed total size: **135.77 MB**
+- Flutter/Dart files from `rg --files`: **1292**
+- Test files: **9**
 - Asset files: **527**
 - App assets total in file index: **120.02 MB**
-- Flutter app code total in file index: **1263 files, 10.23 MB**
+- Flutter app code total in file index: **1274 files, 10.33 MB**
 
 ## Synced Application Updates
 
 Important updates now present in this repository:
 
-- Chat module updates: restored Discuss shell, groups/files/archive screens, presence-loop fix, new glass UI components, and shared-content tabs.
-- Clients and vendors module: clients/vendors dashboards, KPI drill-downs, AR/OI screens, vendor bills, repositories, themes, and list UI.
-- My Actions and signatures: signature documents, document viewer, recipient picker, stamp handling, signature repositories, and signature-specific UI.
-- Shared Documents and My Documents: shared documents screen, theme, attachment opener, document list tiles, and refreshed document flows.
-- Purchase module: provider-based state flow, purchase dev-role toggle, invoice detail sheet, faster filters, and refreshed hub/list screens.
-- Home widgets: migration from older Cubit/BLoC widgets toward providers for HRMS, attendance, projects, shared documents, task management, tickets, notes, LPO, petty cash, library, and timesheet widgets.
-- Tasks, Todo, QR Survey, and Global Search: provider-based replacements for older bloc files.
-- Timesheet and face recognition: enrollment status provider, face match provider, liveness flow updates, face capture service changes, and site report photo page additions.
-- Firebase and backend: updated Firestore rules, Firebase functions, liveness functions, and package locks.
-- Assets: new business-card visual assets and updated app UI image assets.
+- Tasks and tickets: assignee FCM routing, deep-link handling, priority updates, and assignment sync support.
+- Approvals: real backend messages are surfaced more clearly, rejected forms are locked, and a rejected banner component was added.
+- Camera: iOS black-preview mitigation for the `btp2` flow and lighter overlay text.
+- My Notes: redesigned first screen with Royal Bronze UI shell, theme, custom background, capture grid, filter chips, list section, page heading, and bottom navigation.
+- My Actions: record preview sheet, waiting form polish, detail navigation updates, and repository/model expansion.
+- Notifications: mute/category UI and notification storage/service improvements.
+- Firebase/backend: updated Cloud Functions and Firestore rules, plus assignment push service integration.
+- Startup/deep links: main app wiring updates for deep-link initialization and task/ticket routes.
+- Todo/tasks: Firebase provider and task provider updates for assignment and priority behavior.
+- Splash, prayer, profile, camera, and site-report flows: source hotfixes carried forward from latest main.
 
 ## Local Organization Preserved
 
-These choices were intentional to keep this repository cleaner than the source repository:
+These choices were intentional to keep this repository organized:
 
-- Kept `PROJECT_FILE_INDEX.md` and regenerated it.
-- Replaced the old full audit report with this updated UTF-8 report.
+- Kept and regenerated `PROJECT_FILE_INDEX.md`.
+- Replaced `PROJECT_FULL_AUDIT_REPORT.md` with this current audit.
 - Kept Android Gradle wrapper files because they are required for reproducible Android builds.
-- Kept project scripts and templates that are useful for maintenance.
-- Removed stale Dart files that were no longer referenced after the provider migration:
-  - `lib/core/site_management/face_recognition/face_match_session_cubit.dart`
-  - `lib/report_module/data/repositories/report_repository.dart`
-  - `lib/ui/presentation/home_screen/bloc/home_projects_widgets_cubit.dart`
-- Did not import the source repository's default `test/widget_test.dart`, because it was still the Flutter counter test and did not match this app.
-- Normalized incorrect executable permissions on assets and Dart files; only real shell scripts keep executable mode.
+- Kept local project scripts, templates, and documentation that are not present in the source repository.
+- Adjusted tests only where source updates made old expectations stale:
+  - `test/my_projects_user_projects_test.dart` now expects `/api/v2/clients/list`.
+  - `test/anti_spoof_test.dart` uses a stronger photo-attack fixture that matches current scoring.
+  - `test/widget_test.dart` no longer runs the default Flutter counter-app test against this production app.
 
 ## Current Risk Review
 
-### Security
+### Build And Tests
 
-Rating: **7.4 / 10**
+Rating: **8.8 / 10**
 
 Strengths:
 
-- Firebase and liveness flows are structured with dedicated function packages.
-- Secure storage is used in parts of the chat/auth flow.
-- Android backup is disabled in the native manifest.
-- Face liveness has local anti-spoof logic plus AWS liveness integration paths.
+- `flutter pub get` passes.
+- `flutter test` passes all 42 tests.
+- Debug APK build succeeds.
 
 Risks:
 
-- `npm audit --omit=dev` still reports vulnerabilities:
-  - `functions`: 18 total, including 2 critical and 3 high.
-  - `functions-liveness`: 12 total, including 1 critical and 1 high.
-- Firestore rules should still be reviewed carefully for least-privilege access, especially chat, tasks, user documents, and shared document paths.
-- Firebase config files are committed. This is normal for mobile Firebase API keys, but it raises the importance of strong Firestore/Storage rules and App Check.
+- Analyzer commands time out in this workspace, so lint/error reporting still needs follow-up.
+- Debug build logs include dependency deprecation and unchecked-operation notes from Android/Flutter packages.
 
-Recommended next action:
+### Security
 
-- Upgrade and test Firebase functions dependencies in a separate commit, because some fixes require semver-major upgrades such as `firebase-admin@14.x`.
+Rating: **7.3 / 10**
 
-### Code Quality
+Strengths:
+
+- Notification and assignment delivery paths are more explicit.
+- Firestore rules and Firebase functions were updated with the latest source changes.
+- Sensitive mobile Firebase config risk remains mostly dependent on Firestore/Storage rules and App Check posture.
+
+Risks:
+
+- Firebase Functions dependency audit was not rerun in this sync pass.
+- Firestore and Storage authorization should still be reviewed against real production roles.
+
+### Code Quality And Architecture
 
 Rating: **7.8 / 10**
 
 Strengths:
 
-- The latest sync compiles and tests pass.
-- The project has moved many areas from older BLoC/Cubit files to provider-based modules.
-- Several large modules now have clearer feature folders: clients/vendors, purchase, signatures, documents, timesheet, and home widgets.
+- New feature code follows the existing feature-folder style.
+- My Notes and My Actions additions are separated into screens, data, theme, and widget files.
+- Source updates were merged without importing source-side deletion of local maintenance documents.
 
 Risks:
 
-- `dart analyze` has zero errors, but still returns warnings/lints. These are not blocking compilation, but they lower maintainability.
-- Common warning categories include unused imports, `avoid_print`, deprecated `withOpacity`, `use_build_context_synchronously`, and style/lint issues.
-- Some legacy folders and naming conventions remain, including folder names with spaces and mixed case.
-
-Recommended next action:
-
-- Run a focused lint cleanup sprint without changing feature behavior.
-
-### Architecture
-
-Rating: **8.0 / 10**
-
-Strengths:
-
-- The synced code reflects a clearer movement toward providers for app state.
-- New modules separate data, screens, widgets, and themes more consistently.
-- Stale migration files were removed after confirming they were unused.
-
-Risks:
-
-- The app still mixes Provider, Riverpod, BLoC, Cubit, service locators, and direct services.
-- Some legacy module paths remain active, especially around older reports/tasks/project areas.
-
-Recommended next action:
-
-- Document the preferred state-management rule per feature: Provider/Riverpod for new UI state, BLoC only where already stable and useful.
-
-### QA And Release Readiness
-
-Rating: **8.1 / 10**
-
-Strengths:
-
-- `flutter test` passes.
-- Debug APK builds successfully.
-- The sync was pushed to `main`, `develop`, and `staging`.
-
-Risks:
-
-- Test coverage is still narrow compared with the size of the app.
-- No release APK/AAB build was run in this audit.
-- No device smoke test was performed after build.
-
-Recommended next action:
-
-- Run one Android device smoke test for login, home, chat, documents, purchase, timesheet capture, and clients/vendors.
+- Analyzer could not complete, so warning/error inventory is unknown for this exact sync.
+- The app still mixes Provider, Riverpod, BLoC, services, and direct repositories across older and newer modules.
+- Some legacy naming remains, including paths with spaces and mixed casing.
 
 ### Assets And Performance
 
@@ -156,54 +122,50 @@ Rating: **7.0 / 10**
 
 Strengths:
 
-- Asset index is current.
-- New business-card assets are present.
-- Generated/heavy folders are ignored correctly.
+- Asset count is stable at 527 indexed assets.
+- No merge conflict markers or whitespace errors remain.
 
 Risks:
 
-- Assets are still large: **120.02 MB** indexed under assets.
-- The project includes ML models, GIFs, Lottie JSON, videos, and many PNG/JPG UI assets.
-
-Recommended next action:
-
-- Audit unused assets and compress large UI images before release.
+- App assets remain large at **120.02 MB**.
+- No release build or device smoke test was run during this sync.
 
 ## Scorecard
 
 | Area | Score |
 |---|---:|
 | Build health | 9.0 / 10 |
-| Tests | 8.0 / 10 |
-| Security | 7.4 / 10 |
-| Code quality | 7.8 / 10 |
+| Tests | 8.5 / 10 |
+| Security | 7.3 / 10 |
+| Code quality | 7.6 / 10 |
 | Architecture | 8.0 / 10 |
-| UI/UX organization | 8.0 / 10 |
+| UI/UX organization | 8.2 / 10 |
 | Assets/performance | 7.0 / 10 |
-| Documentation | 8.5 / 10 |
-| Release readiness | 8.1 / 10 |
+| Documentation | 8.7 / 10 |
+| Release readiness | 8.0 / 10 |
 
-Overall: **8.2 / 10**
+Overall: **8.1 / 10**
 
 ## Immediate Next Steps
 
-1. Fix Firebase functions dependency audit findings in `functions` and `functions-liveness`.
-2. Review Firestore and Storage rules against real user roles.
-3. Run a release build check with signing configuration available.
-4. Do a device smoke test across core workflows.
-5. Start a focused lint cleanup pass, especially unused imports and production `print` calls.
+1. Investigate why `dart analyze` / `flutter analyze` hang in this workspace.
+2. Run a release build check when signing configuration is available.
+3. Re-run Firebase Functions dependency audit and plan semver-major upgrades separately.
+4. Do one Android device smoke test for login, home, notifications, tasks/tickets, approvals, camera, My Actions, and My Notes.
+5. Continue asset cleanup to reduce the 120.02 MB app asset footprint.
 
 ## Git State At Audit Time
 
-Latest local/main commits:
+Source commits synced through:
 
-- `fe88df2` - Remove stale files after source sync
-- `f40d814` - Sync updates from Elrace operations main
-- `b7a0842` - Initial project import
+- `1d9e265` - fix(tasks/tickets): assignee FCM, deep links, priority, assignment sync
+- `3cffbb9` - fix(approvals): surface real messages, lock rejected forms
+- `88eddb8` - fix(camera): avoid iOS btp2 black preview; lighten overlay text
+- `aaca2d8` - Merge branch 'feature/my-notes-redesign' into main
+- `311e3a2` - feat(my-notes): redesign first screen with Royal Bronze UI shell
+- `1e37465` - feat: my-actions preview, notification fixes, and waiting form polish
+- `4571e99` - fix(hotfixes): HRMS, documents, splash startup, and enroll camera
 
-Main synced branches:
+Local safety branch:
 
-- `main`
-- `develop`
-- `staging`
-- `sync/source-main-20260728`
+- `backup/before-source-main-sync-20260730`

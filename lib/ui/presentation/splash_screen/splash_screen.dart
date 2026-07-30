@@ -8,7 +8,6 @@ import 'package:el_race/ui/presentation/signin/sign_in_screen.dart';
 import 'package:el_race/ui/widgets/update_dialog.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:el_race/ui/presentation/home_screen/screens/home_screen.dart';
 import 'package:el_race/utils/Util.dart';
 import 'package:el_race/core/services/app_config_service.dart';
@@ -33,7 +32,6 @@ class _SplashScreenState extends State<SplashScreen> {
   bool _didScheduleNavigation = false;
   late VideoPlayerController _videoController;
   bool _isVideoReady = false;
-  final Completer<void> _videoReadyCompleter = Completer<void>();
   final Completer<void> _videoCompletedCompleter = Completer<void>();
   // Phase 2: replaces the _waitForSecurityCheck() polling loop so the
   // security gate can be awaited alongside init/video instead of after them.
@@ -57,15 +55,13 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     debugPrint('🚀 SplashScreen.initState(): first screen mounted');
     _logGateTiming('initState');
 
     // Instrumentation only: log when appInitCompleter resolves, independent
     // of the Future.wait gate in _waitForInitAndNavigate (Completers support
     // multiple listeners, so this does not change existing behavior).
-    appInitCompleter.future
-        .then((_) => _logGateTiming('appInitCompleter-resolved'));
+    appInitCompleter.future.then((_) => _logGateTiming('appInitCompleter-resolved'));
 
     // Phase 2: start the update check now, in parallel with init/video/
     // security, since it has no dependency on any of them. Previously this
@@ -83,24 +79,13 @@ class _SplashScreenState extends State<SplashScreen> {
     _videoController = VideoPlayerController.asset('assets/mp4/splash.mp4')
       ..initialize().then((_) {
         _logGateTiming('video-ready');
-        if (!_videoReadyCompleter.isCompleted) {
-          _videoReadyCompleter.complete();
-        }
         if (mounted) {
-          _videoController.addListener(_onVideoProgress);
           setState(() => _isVideoReady = true);
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!mounted) return;
-            _videoController.seekTo(Duration.zero);
-            _completeVideoAfterDurationGuard();
-            _videoController.play();
-          });
+          _videoController.addListener(_onVideoProgress);
+          _videoController.play();
         }
       }).catchError((e) {
         print('⚠️ Video init error: $e');
-        if (!_videoReadyCompleter.isCompleted) {
-          _videoReadyCompleter.complete();
-        }
         _completeVideoIfNeeded();
       });
 
@@ -122,7 +107,7 @@ class _SplashScreenState extends State<SplashScreen> {
       print('🔒 Starting security check...');
       final result = await DeviceSecurityService.instance
           .performSecurityCheck()
-          .timeout(const Duration(seconds: kDebugMode ? 2 : 6));
+          .timeout(Duration(seconds: kDebugMode ? 2 : 6));
 
       if (mounted) {
         setState(() {
@@ -169,9 +154,10 @@ class _SplashScreenState extends State<SplashScreen> {
     _waitForInitAndNavigate();
   }
 
-  /// Wait for init + security + the full splash clip in parallel.
-  /// The video gate has its own timeout/guard so a decoder issue cannot trap
-  /// the app on the splash screen.
+  /// Wait for init + security in parallel. Splash video is decorative only —
+  /// do NOT gate navigation on it (video is ~5s and completion often misses,
+  /// which caused the "Video completion timeout" + stuck-feeling splash after
+  /// Jul 20 "Let splash video finish before navigation").
   Future<void> _waitForInitAndNavigate() async {
     debugPrint('🚀 SplashScreen: waiting for bounded startup checks');
     _logGateTiming('waitForInitAndNavigate-start');
@@ -183,13 +169,17 @@ class _SplashScreenState extends State<SplashScreen> {
         },
       ),
       _securityCheckCompleter.future.timeout(
-        const Duration(seconds: kDebugMode ? 2 : 6),
+        Duration(seconds: kDebugMode ? 2 : 6),
         onTimeout: () {
           print('⚠️ Security check timeout in splash – continuing anyway');
         },
       ),
-      _waitForSplashVideoToFinish(),
     ]);
+    // Allow a brief beat so the first video frame can paint, then leave.
+    // Never wait for the full clip.
+    await Future<void>.delayed(
+      Duration(milliseconds: kDebugMode ? 300 : 800),
+    );
     _logGateTiming('waitForInitAndNavigate-gate-resolved');
 
     if (!mounted) return;
@@ -203,30 +193,6 @@ class _SplashScreenState extends State<SplashScreen> {
     }
 
     _navigateToNextScreen();
-  }
-
-  Future<void> _waitForSplashVideoToFinish() async {
-    await _videoReadyCompleter.future.timeout(
-      const Duration(seconds: 12),
-      onTimeout: () {
-        print('Splash video init timeout - continuing anyway');
-        _completeVideoIfNeeded();
-      },
-    );
-
-    if (_videoCompletedCompleter.isCompleted) return;
-
-    final duration = _videoController.value.duration;
-    final playbackTimeout = duration == Duration.zero
-        ? const Duration(seconds: 30)
-        : duration + const Duration(seconds: 2);
-
-    await _videoCompletedCompleter.future.timeout(
-      playbackTimeout,
-      onTimeout: () {
-        print('Splash video playback timeout - continuing anyway');
-      },
-    );
   }
 
   void _onVideoProgress() {
@@ -247,16 +213,6 @@ class _SplashScreenState extends State<SplashScreen> {
       _videoCompletedCompleter.complete();
       _logGateTiming('video-complete');
     }
-  }
-
-  void _completeVideoAfterDurationGuard() {
-    final duration = _videoController.value.duration;
-    if (duration == Duration.zero) return;
-
-    unawaited(Future<void>.delayed(
-      duration + const Duration(milliseconds: 350),
-      _completeVideoIfNeeded,
-    ));
   }
 
   /// Navigate to the appropriate screen after security check.
@@ -297,7 +253,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void _doNavigate() {
     if (!mounted) return;
-    _restoreAppSystemUi();
     // Proxy for "first frame of HomeScreen/SignInScreen": this is the last
     // point splash_screen.dart controls before handing off navigation, since
     // instrumenting the destination screens is out of scope for this file.
@@ -366,7 +321,6 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 350),
         child: _isVideoReady
@@ -375,7 +329,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 child: ColoredBox(
                   color: Colors.black,
                   child: FittedBox(
-                    fit: BoxFit.contain,
+                    fit: BoxFit.cover,
                     child: SizedBox(
                       width: _videoController.value.size.width,
                       height: _videoController.value.size.height,
@@ -391,14 +345,9 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void dispose() {
-    _restoreAppSystemUi();
     _videoController.removeListener(_onVideoProgress);
     _videoController.dispose();
     super.dispose();
-  }
-
-  void _restoreAppSystemUi() {
-    unawaited(SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge));
   }
 }
 

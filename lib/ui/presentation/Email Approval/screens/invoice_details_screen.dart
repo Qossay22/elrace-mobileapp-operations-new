@@ -2,11 +2,13 @@ import 'package:el_race/core/utils/responsive_breakpoints.dart';
 import 'dart:convert';
 
 import 'package:el_race/core/utils/shared_pref.dart';
+import 'package:el_race/ui/presentation/Email%20Approval/bloc/approval_bloc.dart';
 import 'package:el_race/ui/presentation/Email%20Approval/theme/approvals_overview_theme.dart';
 import 'package:el_race/ui/presentation/Email%20Approval/utils/approval_display_helpers.dart';
 import 'package:el_race/ui/presentation/Email%20Approval/widgets/approval_action_buttons.dart';
-import 'package:el_race/ui/presentation/lpo/screens/lpo_pdf_viewer_screen.dart';
+import 'package:el_race/ui/presentation/Email%20Approval/widgets/approval_rejected_banner.dart';
 import 'package:el_race/ui/widgets/contextual_glass_chrome_header.dart';
+import 'package:el_race/utils/Util.dart';
 import 'package:el_race/utils/safe_insets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -36,6 +38,7 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
   static const String _localFakeInvoiceRequestId = 'LOCAL_FAKE_INVOICE_001';
   bool _isLoading = true;
   String _error = '';
+  bool _rejectedLocked = false;
 
   Map<String, dynamic> _formData = const {};
 
@@ -256,11 +259,26 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
     }
   }
 
-  Future<void> _viewAttachment() async {
-    final invoiceId = int.tryParse(widget.requestId);
-    if (invoiceId == null || invoiceId <= 0) {
+  int? _parsePositiveInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value > 0 ? value : null;
+    if (value is num) {
+      final asInt = value.toInt();
+      return asInt > 0 ? asInt : null;
+    }
+    return int.tryParse(value.toString().trim());
+  }
+
+  Future<void> _viewLpoReport({String? lpoName}) async {
+    final poId = _parsePositiveInt(
+          _formData['lpo_id'],
+        ) ??
+        _parsePositiveInt(_formData['purchase_order_id']) ??
+        _parsePositiveInt(_formData['po_id']);
+
+    if (poId == null) {
       Fluttertoast.showToast(
-        msg: 'Invalid invoice id.',
+        msg: 'No LPO linked to this invoice.',
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER,
         backgroundColor: Colors.black,
@@ -269,95 +287,13 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
       return;
     }
 
-    final token = SharedPref.getLoginData().result?.token;
-    final headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $token',
-    };
-
-    final data = {
-      'jsonrpc': '2.0',
-      'params': {
-        'invoice_id': invoiceId,
-      },
-    };
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
+    await Util.openLpoPdfReport(
+      context,
+      poId,
+      lpoName: (lpoName != null && lpoName.trim().isNotEmpty && lpoName != '-')
+          ? lpoName.trim()
+          : null,
     );
-
-    try {
-      final response = await http.post(
-        Uri.parse('https://erp.elrace.com/api/invoice/report_url'),
-        headers: headers,
-        body: jsonEncode(data),
-      );
-
-      if (mounted && Navigator.canPop(context)) {
-        Navigator.of(context).pop();
-      }
-
-      if (response.statusCode != 200) {
-        Fluttertoast.showToast(
-          msg: 'Failed to load PDF: HTTP ${response.statusCode}',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          backgroundColor: Colors.black,
-          textColor: Colors.white,
-        );
-        return;
-      }
-
-      final decoded = jsonDecode(response.body) as Map<String, dynamic>;
-      final result = decoded['result'] as Map?;
-      final pdfUrl = result?['report_url']?.toString() ?? '';
-
-      if (pdfUrl.isEmpty) {
-        final error = decoded['error'] as Map?;
-        final errorData = error?['data'] as Map?;
-        Fluttertoast.showToast(
-          msg: result?['message']?.toString() ??
-              result?['error']?.toString() ??
-              errorData?['message']?.toString() ??
-              error?['message']?.toString() ??
-              'Failed to retrieve PDF URL.',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          backgroundColor: Colors.black,
-          textColor: Colors.white,
-        );
-        return;
-      }
-
-      if (!mounted) return;
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => LpoPdfViewerScreen(
-            pdfUrl: pdfUrl,
-            title: 'Invoice ${_pick([
-                  _formData['request_no'],
-                  _formData['invoice_no_code'],
-                  _formData['invoice_no'],
-                  _formData['name'],
-                ], fallback: widget.requestId)}',
-          ),
-        ),
-      );
-    } catch (e) {
-      if (mounted && Navigator.canPop(context)) {
-        Navigator.of(context).pop();
-      }
-      Fluttertoast.showToast(
-        msg: 'Error: $e',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        backgroundColor: Colors.black,
-        textColor: Colors.white,
-      );
-    }
   }
 
   Widget _sectionTitle({
@@ -607,8 +543,6 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
   Widget _invoiceRequestHeader({
     required String imageUrl,
     required String projectName,
-    required String department,
-    required String projectCode,
     required double completionPercent,
   }) {
     return _glassCard(
@@ -639,69 +573,16 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
           ),
           SizedBox(width: 12.tw),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _displayOrDash(projectName),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.poppins(
-                    fontSize: 15.tsp,
-                    fontWeight: FontWeight.w700,
-                    color: ApprovalsOverviewTheme.textDark,
-                    height: 1.2,
-                  ),
-                ),
-                SizedBox(height: 2.th),
-                Text(
-                  department.trim().isEmpty ? 'N/A' : department,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.poppins(
-                    fontSize: 11.tsp,
-                    fontWeight: FontWeight.w500,
-                    color: ApprovalsOverviewTheme.textMuted,
-                  ),
-                ),
-                SizedBox(height: 8.th),
-                Row(
-                  children: [
-                    Text(
-                      'Project Code',
-                      style: GoogleFonts.poppins(
-                        fontSize: 10.tsp,
-                        fontWeight: FontWeight.w500,
-                        color: ApprovalsOverviewTheme.textSoft,
-                      ),
-                    ),
-                    SizedBox(width: 8.tw),
-                    Flexible(
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8.tw,
-                          vertical: 4.th,
-                        ),
-                        decoration: BoxDecoration(
-                          color: ApprovalsOverviewTheme.screenTintMid
-                              .withValues(alpha: 0.85),
-                          borderRadius: BorderRadius.circular(8.tr),
-                        ),
-                        child: Text(
-                          _displayOrDash(projectCode),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.poppins(
-                            fontSize: 11.tsp,
-                            fontWeight: FontWeight.w700,
-                            color: ApprovalsOverviewTheme.textDark,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+            child: Text(
+              _displayOrDash(projectName),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.poppins(
+                fontSize: 15.tsp,
+                fontWeight: FontWeight.w700,
+                color: ApprovalsOverviewTheme.textDark,
+                height: 1.2,
+              ),
             ),
           ),
           SizedBox(width: 8.tw),
@@ -882,6 +763,10 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
           variant: ApprovalActionButtonsVariant.glass,
           showHrApproveConfirmation: true,
           enableFakeApproveDemo: _isLocalFakeRequest,
+          onRejectedLocked: () {
+            if (!mounted) return;
+            setState(() => _rejectedLocked = true);
+          },
         ),
       ),
     );
@@ -948,13 +833,12 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final projectCode = _pick([
-      _formData['project_code'],
-      _formData['analytic_account_code'],
-      _formData['code'],
-      _formData['request_no'],
-      _formData['invoice_no_code'],
+    final requestNo = _pick([
+      _formData['inv_no'],
       _formData['invoice_no'],
+      _formData['invoice_no_code'],
+      _formData['request_no'],
+      _formData['title'],
       _formData['name'],
       _formData['ref_no'],
     ], fallback: widget.requestId);
@@ -962,20 +846,11 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
     final projectName = _pick([
       _formData['project_name'],
       _formData['project_title'],
-      _formData['project'],
+      _formData['project'] is Map
+          ? (_formData['project'] as Map)['name']
+          : _formData['project'],
       _formData['project_name_id'],
       _formData['name'],
-    ]);
-
-    final department = _pick([
-      _pick([
-        (_formData['department_id'] is Map)
-            ? (_formData['department_id'] as Map)['name']
-            : null
-      ]),
-      _formData['department'],
-      _formData['section'],
-      _formData['dept_name'],
     ]);
 
     final requestDate = _formatDate(_pick([
@@ -987,7 +862,11 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
       _formData['date'],
     ]));
 
+    final projectMap = _formData['project'] is Map
+        ? Map<String, dynamic>.from(_formData['project'] as Map)
+        : null;
     final workOrderNo = _pick([
+      projectMap?['wo_ref_no'],
       _formData['wo_ref_no'],
       _formData['wo_ref_number'],
       _formData['work_order_no'],
@@ -1031,6 +910,7 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
     final retention = _displayOrDash(_pick([_formData['retention']], fallback: '-'));
 
     final contractLpo = _pick([
+      _formData['lpo_name'],
       _formData['contract_lpo'],
       _formData['lpo_no'],
       _formData['lpo'],
@@ -1052,11 +932,16 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
       _formData['category'],
     ]).take(8).toList();
 
-    final canViewReport = int.tryParse(widget.requestId) != null;
-    final openDoc = canViewReport ? _viewAttachment : null;
+    final canViewLpo = _parsePositiveInt(_formData['lpo_id']) != null ||
+        _parsePositiveInt(_formData['purchase_order_id']) != null ||
+        _parsePositiveInt(_formData['po_id']) != null;
+    final openDoc =
+        canViewLpo ? () => _viewLpoReport(lpoName: contractLpo) : null;
+    final isRejected =
+        _rejectedLocked || ApprovalRejectedBanner.isRejected(_formData);
+    final rejectedMessage = ApprovalRejectedBanner.messageFromForm(_formData);
 
-    final userId =
-        SharedPref.getLoginData().result?.data?.uid?.toString() ?? '';
+    final userId = ApprovalBloc.resolveActingUserId();
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: ApprovalsOverviewTheme.overlay,
@@ -1073,8 +958,8 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const ContextualGlassChromeHeader(
-                  title: 'Invoice Details',
+                ContextualGlassChromeHeader(
+                  title: requestNo.isNotEmpty ? requestNo : 'Invoice',
                   showBack: true,
                   onLightSurface: true,
                   transparentGlassBar: false,
@@ -1106,15 +991,20 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
                                     16.tw,
                                     4.th,
                                     16.tw,
-                                    78.th + context.systemBottomInset,
+                                    (isRejected ? 24.th : 78.th) +
+                                        context.systemBottomInset,
                                   ),
                                   child: Column(
                                     children: [
+                                      if (isRejected) ...[
+                                        ApprovalRejectedBanner(
+                                          message: rejectedMessage,
+                                        ),
+                                        SizedBox(height: 10.th),
+                                      ],
                                       _invoiceRequestHeader(
                                         imageUrl: vendorPhotoUrl,
                                         projectName: projectName,
-                                        department: department,
-                                        projectCode: projectCode,
                                         completionPercent: completionPercent,
                                       ),
                                       SizedBox(height: 10.th),
@@ -1137,12 +1027,13 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
                                     ],
                                   ),
                                 ),
-                                Positioned(
-                                  left: 16.tw,
-                                  right: 16.tw,
-                                  bottom: context.systemBottomInset + 8.th,
-                                  child: _floatingApprovalBar(userId),
-                                ),
+                                if (!isRejected)
+                                  Positioned(
+                                    left: 16.tw,
+                                    right: 16.tw,
+                                    bottom: context.systemBottomInset + 8.th,
+                                    child: _floatingApprovalBar(userId),
+                                  ),
                               ],
                             ),
                 ),

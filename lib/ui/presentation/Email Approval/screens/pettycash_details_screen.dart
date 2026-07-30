@@ -2,10 +2,12 @@ import 'package:el_race/core/utils/responsive_breakpoints.dart';
 import 'dart:convert';
 
 import 'package:el_race/core/utils/shared_pref.dart';
+import 'package:el_race/ui/presentation/Email%20Approval/bloc/approval_bloc.dart';
 import 'package:el_race/ui/presentation/Email%20Approval/theme/approvals_overview_theme.dart';
 import 'package:el_race/ui/presentation/Email%20Approval/utils/approval_display_helpers.dart';
 import 'package:el_race/ui/presentation/Email%20Approval/utils/petty_cash_expense_line_groups.dart';
 import 'package:el_race/ui/presentation/Email%20Approval/widgets/approval_action_buttons.dart';
+import 'package:el_race/ui/presentation/Email%20Approval/widgets/approval_rejected_banner.dart';
 import 'package:el_race/ui/presentation/Email%20Approval/widgets/petty_cash_expense_lines_popup.dart';
 import 'package:el_race/ui/presentation/my_documents/screens/attachment_viewer_screen.dart';
 import 'package:el_race/ui/widgets/contextual_glass_chrome_header.dart';
@@ -37,6 +39,7 @@ class PettyCashDetailsScreen extends StatefulWidget {
 class _PettyCashDetailsScreenState extends State<PettyCashDetailsScreen> {
   bool _isLoading = true;
   String _error = '';
+  bool _rejectedLocked = false;
 
   Map<String, dynamic> _formData = const {};
   List<dynamic> _attachmentIds = const [];
@@ -863,86 +866,6 @@ class _PettyCashDetailsScreenState extends State<PettyCashDetailsScreen> {
     );
   }
 
-  Widget _agreementManagerCell({
-    required String name,
-    required String imageUrl,
-  }) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 12.tw, vertical: 12.th),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF3E2DC),
-        borderRadius: BorderRadius.circular(12.tr),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.85)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48.tw,
-            height: 48.tw,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 1.2),
-            ),
-            child: ClipOval(
-              child: imageUrl.isNotEmpty
-                  ? Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _avatarFallback(name),
-                    )
-                  : _avatarFallback(name),
-            ),
-          ),
-          SizedBox(width: 10.tw),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Agreement Manager',
-                  style: GoogleFonts.poppins(
-                    fontSize: 10.tsp,
-                    fontWeight: FontWeight.w500,
-                    color: ApprovalsOverviewTheme.textSoft,
-                  ),
-                ),
-                SizedBox(height: 2.th),
-                Text(
-                  _displayOrNA(name),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.poppins(
-                    fontSize: 13.tsp,
-                    fontWeight: FontWeight.w700,
-                    color: ApprovalsOverviewTheme.textDark,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _avatarFallback(String name) {
-    final initial = name.trim().isNotEmpty ? name.trim()[0].toUpperCase() : '?';
-    return ColoredBox(
-      color: ApprovalsOverviewTheme.petty.withValues(alpha: 0.18),
-      child: Center(
-        child: Text(
-          initial,
-          style: GoogleFonts.poppins(
-            fontSize: 14.tsp,
-            fontWeight: FontWeight.w700,
-            color: ApprovalsOverviewTheme.petty,
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _totalAmountCell({required String amount}) {
     return Container(
       width: double.infinity,
@@ -1190,6 +1113,10 @@ class _PettyCashDetailsScreenState extends State<PettyCashDetailsScreen> {
           showHrApproveConfirmation: true,
           useProvidedComment: true,
           commentProvider: () => apiComment,
+          onRejectedLocked: () {
+            if (!mounted) return;
+            setState(() => _rejectedLocked = true);
+          },
         ),
       ),
     );
@@ -1392,13 +1319,6 @@ class _PettyCashDetailsScreenState extends State<PettyCashDetailsScreen> {
       pettycashLimit,
     ]);
 
-    final agreementManagerName = _pick([
-      _formData['agreement_manager_name'],
-    ]);
-    final agreementManagerImage = _pickImage([
-      _formData['agreement_manager_image_url'],
-    ]);
-
     final date = _pick([
       _formData['date'],
       _formData['request_date'],
@@ -1432,6 +1352,9 @@ class _PettyCashDetailsScreenState extends State<PettyCashDetailsScreen> {
 
     final lines = _formData['lines'] as List? ?? [];
     final hasAttachments = _attachmentIds.isNotEmpty;
+    final isRejected =
+        _rejectedLocked || ApprovalRejectedBanner.isRejected(_formData);
+    final rejectedMessage = ApprovalRejectedBanner.messageFromForm(_formData);
     final apiComment = _normalizeApiComment(_pick([
       _formData['api_comment'],
       _formData['comment'],
@@ -1458,8 +1381,7 @@ class _PettyCashDetailsScreenState extends State<PettyCashDetailsScreen> {
       );
     }
 
-    final userId =
-        SharedPref.getLoginData().result?.data?.uid?.toString() ?? '';
+    final userId = ApprovalBloc.resolveActingUserId();
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: ApprovalsOverviewTheme.overlay,
@@ -1531,17 +1453,24 @@ class _PettyCashDetailsScreenState extends State<PettyCashDetailsScreen> {
                                           16.tw,
                                           0,
                                           16.tw,
-                                          (hasAttachments ? 120.th : 68.th) +
+                                          (isRejected
+                                                  ? (hasAttachments
+                                                      ? 72.th
+                                                      : 24.th)
+                                                  : (hasAttachments
+                                                      ? 120.th
+                                                      : 68.th)) +
                                               context.systemBottomInset,
                                         ),
                                         child: Column(
                                           children: [
                                             SizedBox(height: 4.th),
-                                            _agreementManagerCell(
-                                              name: agreementManagerName,
-                                              imageUrl: agreementManagerImage,
-                                            ),
-                                            SizedBox(height: 6.th),
+                                            if (isRejected) ...[
+                                              ApprovalRejectedBanner(
+                                                message: rejectedMessage,
+                                              ),
+                                              SizedBox(height: 8.th),
+                                            ],
                                             _glassSectionCard(
                                               title: 'Expense Lines',
                                               trailing: InkWell(
@@ -1600,18 +1529,20 @@ class _PettyCashDetailsScreenState extends State<PettyCashDetailsScreen> {
                                   Positioned(
                                     left: 16.tw,
                                     right: 16.tw,
-                                    bottom: context.systemBottomInset + 72.th,
+                                    bottom: context.systemBottomInset +
+                                        (isRejected ? 8.th : 72.th),
                                     child: _viewAttachmentsButton(),
                                   ),
-                                Positioned(
-                                  left: 16.tw,
-                                  right: 16.tw,
-                                  bottom: context.systemBottomInset + 8.th,
-                                  child: _floatingApprovalBar(
-                                    userId,
-                                    apiComment: apiComment,
+                                if (!isRejected)
+                                  Positioned(
+                                    left: 16.tw,
+                                    right: 16.tw,
+                                    bottom: context.systemBottomInset + 8.th,
+                                    child: _floatingApprovalBar(
+                                      userId,
+                                      apiComment: apiComment,
+                                    ),
                                   ),
-                                ),
                               ],
                             ),
                 ),

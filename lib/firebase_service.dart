@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:el_race/chat/models/models.dart';
@@ -6,12 +7,17 @@ import 'package:el_race/core/services/attendance_status_sync_service.dart';
 import 'package:el_race/core/services/notification_storage_service.dart';
 import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/ui/chat/chat_screen.dart';
+import 'package:el_race/ui/presentation/tasks/tasks_screen.dart';
+import 'package:el_race/ui/presentation/tasks_dashboard/screens/task_details.dart'
+    as firebase_task_details;
 import 'package:el_race/utils/string_utils.dart';
+import 'package:el_race/utils/urll_utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:http/http.dart' as http;
 
 // Prevent device identifiers from reaching production logs while preserving
 // the existing token retrieval and storage flow.
@@ -37,6 +43,11 @@ class FirebaseService {
   static String? _pendingChatTapPayload;
   static bool _isHandlingChatTap = false;
   static bool _isHomeReady = false;
+  static String? _lastSyncedOdooToken;
+  static DateTime? _lastOdooSyncAt;
+  static const String _lastSyncedOdooTokenKey = 'fcm_token_synced_odoo';
+  static const Duration _odooSyncMinInterval = Duration(minutes: 5);
+  static Future<void>? _initializeFuture;
 
   /// Call this after splash/home is ready so queued chat-notification taps can
   /// be replayed with a valid app context.
@@ -53,6 +64,28 @@ class FirebaseService {
   static Future<void> initialize({
     bool requestPermissions = true,
     bool fetchToken = true,
+  }) async {
+    // G9: once-guard — listeners must not be attached twice.
+    if (_initializeFuture != null) {
+      await _initializeFuture;
+      if (requestPermissions) {
+        await requestNotificationPermissions();
+      }
+      if (fetchToken) {
+        await _fetchAndStoreFcmToken();
+      }
+      return;
+    }
+    _initializeFuture = _initializeBody(
+      requestPermissions: requestPermissions,
+      fetchToken: fetchToken,
+    );
+    await _initializeFuture;
+  }
+
+  static Future<void> _initializeBody({
+    required bool requestPermissions,
+    required bool fetchToken,
   }) async {
     await _firebaseMessaging.setAutoInitEnabled(true);
 
@@ -113,11 +146,12 @@ class FirebaseService {
       );
     }
 
-    // Ensure iOS presents incoming FCM notifications while app is in foreground.
+    // Do NOT auto-present FCM alerts in foreground — that bypasses mute.
+    // We show via local notifications after shouldMuteNotification (G4).
     await _firebaseMessaging.setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
+      alert: false,
+      badge: false,
+      sound: false,
     );
 
     // Handle foreground messages
@@ -127,12 +161,28 @@ class FirebaseService {
       print('   - Body: ${message.notification?.body}');
       print('   - Data: ${message.data}');
 
-      // On iOS, setForegroundNotificationPresentationOptions already shows
-      // the notification natively — calling _showNotification here would
-      // create a duplicate. Only show local notification on Android.
-      if (defaultTargetPlatform == TargetPlatform.android) {
-        _showNotification(message);
+      String category = 'notification';
+      if (message.data.containsKey('category')) {
+        category = message.data['category'].toString();
+      } else if (message.data.containsKey('type')) {
+        category = message.data['type'].toString();
+      } else if (message.data.containsKey('model')) {
+        category = message.data['model'].toString();
       }
+
+      final muted = await NotificationStorageService.shouldMuteNotification(
+        category: category,
+        data: message.data,
+      );
+      if (muted) {
+        print(
+            '🔇 Foreground notification suppressed by mute settings: category=$category');
+        return;
+      }
+
+      // Android + iOS: local notification path (mute-aware).
+      await _showNotification(message);
+
       // Save notification to storage (await to ensure badge count
       // is persisted before the onCountChanged callback fires).
       await _saveNotificationToStorage(message);
@@ -210,10 +260,11 @@ class FirebaseService {
       await _fetchAndStoreFcmToken();
     }
 
-    // Listen for token refresh
+    // Listen for token refresh — keep Odoo expo_token in sync (G1).
     FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
       SharedPref().setPreferencesString(fcm_token, newToken.toString());
-      if (kDebugMode) print('🔁 FCM Token refreshed: $newToken');
+      if (kDebugMode) print('🔁 FCM Token refreshed');
+      unawaited(syncFcmTokenToOdoo(token: newToken, force: true));
     });
   }
 
@@ -246,9 +297,117 @@ class FirebaseService {
     try {
       await requestNotificationPermissions();
       await _fetchAndStoreFcmToken();
+      // Restored sessions never re-login — sync token so backend can push.
+      await syncFcmTokenToOdoo();
+      // iOS APNS / token can arrive late after the splash deferral; retry once.
+      Future<void>.delayed(const Duration(seconds: 5), () async {
+        try {
+          await _fetchAndStoreFcmToken();
+          await syncFcmTokenToOdoo(force: true);
+        } catch (_) {}
+      });
     } catch (e) {
       print('⚠️ Deferred Firebase setup error: $e');
     }
+  }
+
+  /// Push current FCM token to Odoo `res.users.expo_token` via `/api/save_expo_token`.
+  ///
+  /// No-ops when logged out or token empty. Dedupes identical tokens within
+  /// [_odooSyncMinInterval] unless [force] is true (token refresh / login).
+  static Future<bool> syncFcmTokenToOdoo({
+    String? token,
+    bool force = false,
+  }) async {
+    try {
+      if (!SharedPref.isUserAuthenticated()) return false;
+
+      final authToken =
+          SharedPref.getLoginDataOrNull()?.result?.token?.trim() ?? '';
+      if (authToken.isEmpty) return false;
+
+      var fcm = (token ?? SharedPref().getPreferenceString(fcm_token)).trim();
+      if (fcm.isEmpty) {
+        fcm = (await _firebaseMessaging.getToken() ?? '').trim();
+        if (fcm.isNotEmpty) {
+          SharedPref().setPreferencesString(fcm_token, fcm);
+        }
+      }
+      if (fcm.isEmpty) return false;
+
+      _lastSyncedOdooToken ??=
+          SharedPref().getPreferenceString(_lastSyncedOdooTokenKey);
+      final now = DateTime.now();
+      if (!force &&
+          _lastSyncedOdooToken == fcm &&
+          _lastOdooSyncAt != null &&
+          now.difference(_lastOdooSyncAt!) < _odooSyncMinInterval) {
+        return true;
+      }
+
+      final response = await http
+          .post(
+            Uri.parse('${UrlUtil.baseUrl}${UrlUtil.saveExpoToken}'),
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $authToken',
+            },
+            body: jsonEncode({
+              'jsonrpc': '2.0',
+              'params': {'expo_token': fcm},
+            }),
+          )
+          .timeout(const Duration(seconds: 15));
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        if (kDebugMode) {
+          debugPrint(
+            '⚠️ FCM sync HTTP ${response.statusCode}: ${response.body}',
+          );
+        }
+        return false;
+      }
+
+      if (response.body.trim().isEmpty) {
+        _rememberSyncedToken(fcm);
+        return true;
+      }
+
+      final decoded = jsonDecode(response.body);
+      if (decoded is Map) {
+        final result = decoded['result'] ?? decoded;
+        if (result is Map) {
+          final status = '${result['status'] ?? ''}'.toLowerCase();
+          final success = result['success'] == true ||
+              status == 'success' ||
+              status == 'ok' ||
+              status == 'true';
+          if (success) {
+            _rememberSyncedToken(fcm);
+            if (kDebugMode) {
+              debugPrint('✅ FCM token synced to Odoo (save_expo_token)');
+            }
+            return true;
+          }
+          if (kDebugMode) {
+            debugPrint('⚠️ FCM sync unexpected response: $result');
+          }
+        }
+      }
+      return false;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('⚠️ FCM sync to Odoo failed: $e');
+      }
+      return false;
+    }
+  }
+
+  static void _rememberSyncedToken(String token) {
+    _lastSyncedOdooToken = token;
+    _lastOdooSyncAt = DateTime.now();
+    SharedPref().setPreferencesString(_lastSyncedOdooTokenKey, token);
   }
 
   static Future<void> _fetchAndStoreFcmToken() async {
@@ -259,7 +418,7 @@ class FirebaseService {
 
         final apnsToken = await _firebaseMessaging.getAPNSToken();
         if (apnsToken != null && apnsToken.isNotEmpty) {
-          if (kDebugMode) print('🍎 APNS token: $apnsToken');
+          if (kDebugMode) print('🍎 APNS token available');
         } else {
           print('⚠️ APNS token unavailable during initialize');
         }
@@ -268,7 +427,8 @@ class FirebaseService {
       final token = await _firebaseMessaging.getToken();
       if (token != null) {
         SharedPref().setPreferencesString(fcm_token, token);
-        if (kDebugMode) print('📱 FCM Token obtained: $token');
+        if (kDebugMode) print('📱 FCM Token obtained');
+        unawaited(syncFcmTokenToOdoo(token: token));
       } else {
         print('❌ FCM Token is null - this may indicate APNS token issue');
       }
@@ -284,6 +444,7 @@ class FirebaseService {
       if (existingToken.isNotEmpty) {
         print(
             '📱 Using existing FCM Token: ${existingToken.substring(0, 20)}...');
+        unawaited(syncFcmTokenToOdoo(token: existingToken));
         return existingToken;
       }
 
@@ -328,6 +489,7 @@ class FirebaseService {
       if (token != null) {
         SharedPref().setPreferencesString(fcm_token, token);
         print('📱 FCM Token obtained and stored: ${token.substring(0, 20)}...');
+        unawaited(syncFcmTokenToOdoo(token: token));
       } else {
         print('❌ Failed to get FCM token - Firebase may not be initialized');
       }
@@ -575,7 +737,76 @@ class FirebaseService {
       return;
     }
 
+    if (_isTaskOrTicketNotificationPayload(payloadData, category)) {
+      _handleTaskNotificationTap(payload, payloadData, category);
+      return;
+    }
+
     print('   - View-only notification; no navigation.');
+  }
+
+  static bool _isTaskOrTicketNotificationPayload(
+    Map<String, dynamic> payloadData,
+    String category,
+  ) {
+    return category == 'task' ||
+        category == 'ticket' ||
+        payloadData.containsKey('task_id') ||
+        payloadData.containsKey('taskId') ||
+        payloadData.containsKey('is_firebase_task');
+  }
+
+  static bool _parseBoolFlag(dynamic value) {
+    if (value is bool) return value;
+    final normalized = value?.toString().trim().toLowerCase() ?? '';
+    return normalized == '1' ||
+        normalized == 'true' ||
+        normalized == 'yes' ||
+        normalized == 'y';
+  }
+
+  static void _handleTaskNotificationTap(
+    String? rawPayload,
+    Map<String, dynamic> payloadData,
+    String category,
+  ) {
+    final navigator = navKey.currentState;
+    if (navigator == null || navKey.currentContext == null || !_isHomeReady) {
+      _pendingChatTapPayload = rawPayload;
+      print('   - Task/ticket tap queued until navigation is ready.');
+      return;
+    }
+
+    final taskId =
+        (payloadData['task_id'] ?? payloadData['taskId'] ?? '').toString();
+    final isFirebase = _parseBoolFlag(payloadData['is_firebase_task']);
+    final isTicket = category == 'ticket' || !isFirebase;
+
+    try {
+      if (isFirebase && taskId.isNotEmpty) {
+        navigator.push(
+          MaterialPageRoute(
+            builder: (_) => firebase_task_details.TaskDetailsScreen(
+              taskId: taskId,
+            ),
+            settings: const RouteSettings(name: '/task-details'),
+          ),
+        );
+        print('   - Opened Firebase task details for $taskId');
+        return;
+      }
+
+      // Odoo tickets / non-firebase tasks → Tickets list
+      navigator.push(
+        MaterialPageRoute(
+          builder: (_) => const TasksScreen(),
+          settings: const RouteSettings(name: '/tickets'),
+        ),
+      );
+      print('   - Opened Tickets screen (taskId=$taskId)');
+    } catch (e) {
+      print('   - Failed to navigate for task/ticket tap: $e');
+    }
   }
 
   static void processPendingNotificationTap({String? forcePayload}) {
