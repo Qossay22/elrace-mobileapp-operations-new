@@ -24,7 +24,7 @@ import 'package:intl/intl.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
 import '../../../widgets/custom_slider_button.dart';
-import 'attachment_viewer_screen.dart';
+import '../utils/document_attachment_opener.dart';
 import 'family_insurance_request_screen.dart';
 import 'family_documents_tab.dart';
 // Shared documents tab kept in codebase for later placement (hidden from My Documents UI).
@@ -180,127 +180,9 @@ class _MyDocumentsScreenState extends State<MyDocumentsScreen> {
     return int.tryParse(raw?.toString() ?? '');
   }
 
-  Future<Map<String, dynamic>> _fetchAttachmentDetails(
-      {required int attachmentId}) async {
-    final token = SharedPref.getLoginData().result?.token ?? '';
-    final url = Uri.parse('${UrlUtil.baseUrl}get_attachment_details');
-    final headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $token',
-    };
-    final body = jsonEncode({
-      'jsonrpc': '2.0',
-      'params': {
-        'attachment_id': attachmentId,
-      },
-    });
-
-    // Backend expects GET (with JSON body) for this endpoint.
-    final request = http.Request('GET', url)
-      ..headers.addAll(headers)
-      ..body = body;
-    final streamed = await request.send();
-    final response = await http.Response.fromStream(streamed);
-
-    dynamic decoded;
-    try {
-      decoded = jsonDecode(response.body);
-    } catch (_) {
-      throw Exception(
-        'Failed to parse attachment details (HTTP ${response.statusCode}). '
-        'Body: ${response.body.substring(0, response.body.length < 400 ? response.body.length : 400)}',
-      );
-    }
-
-    if (response.statusCode != 200) {
-      throw Exception(
-        decoded is Map
-            ? (decoded['error']?.toString() ??
-                decoded['result']?['message']?.toString() ??
-                'Failed to load attachment details (HTTP ${response.statusCode})')
-            : 'Failed to load attachment details (HTTP ${response.statusCode})',
-      );
-    }
-
-    if (decoded is! Map) {
-      throw Exception('Invalid attachment details response');
-    }
-
-    final result = decoded['result'];
-    if (result == null || result['status'] != 'success') {
-      throw Exception(
-        result?['message']?.toString() ??
-            decoded['error']?.toString() ??
-            'Failed to load attachment details',
-      );
-    }
-
-    final data = result['data'];
-    if (data is! Map) {
-      throw Exception('Invalid attachment details response');
-    }
-
-    return Map<String, dynamic>.from(data as Map);
-  }
-
   Future<void> _openDocumentAttachment(Map<String, dynamic> document) async {
-    final attachmentId = _firstAttachmentIdAsInt(document);
-    if (attachmentId == null) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('No attachment available for this document')),
-      );
-      return;
-    }
-
     if (!mounted) return;
-    var loaderVisible = true;
-    void dismissLoader() {
-      if (!loaderVisible) return;
-      loaderVisible = false;
-      if (!mounted) return;
-      Navigator.of(context, rootNavigator: true).pop();
-    }
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
-    );
-
-    try {
-      final details = await _fetchAttachmentDetails(attachmentId: attachmentId);
-      final publicUrl = (details['public_url'] ?? '').toString();
-      final name =
-          (details['attachment_name'] ?? document['name'] ?? 'Attachment')
-              .toString();
-      final type = (details['attachment_type'] ?? '').toString().toLowerCase();
-
-      if (publicUrl.isEmpty) {
-        throw Exception('Attachment URL is empty');
-      }
-
-      dismissLoader();
-      if (!mounted) return;
-
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => AttachmentViewerScreen(
-            publicUrl: publicUrl,
-            title: name,
-            attachmentType: type,
-          ),
-        ),
-      );
-    } catch (e) {
-      dismissLoader();
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
-    }
+    await DocumentAttachmentOpener.open(context, document);
   }
 
   void _debugPrintBodyPreview(String body, {int maxChars = 4000}) {
@@ -1429,9 +1311,14 @@ class _MyDocumentsScreenState extends State<MyDocumentsScreen> {
       return;
     }
     if (action == 'update') {
+      final rawId = item['id'];
+      final documentId = rawId is int
+          ? rawId
+          : int.tryParse(rawId?.toString() ?? '');
       await _showDocumentDialogByType(
         type,
         fixedDocumentType: _documentNameForChange(item),
+        documentId: documentId,
       );
     }
   }
@@ -2363,6 +2250,7 @@ class _MyDocumentsScreenState extends State<MyDocumentsScreen> {
   Future<void> _showDocumentDialogByType(
     DocumentDialogType type, {
     String? fixedDocumentType,
+    int? documentId,
   }) async {
     final result = await showDialog(
       context: context,
@@ -2376,6 +2264,7 @@ class _MyDocumentsScreenState extends State<MyDocumentsScreen> {
           child: DocumentDialog(
             type: type,
             fixedDocumentType: fixedDocumentType,
+            documentId: documentId,
           ),
         );
       },
@@ -2796,10 +2685,18 @@ enum DocumentDialogType {
 }
 
 class DocumentDialog extends StatefulWidget {
-  const DocumentDialog({super.key, required this.type, this.fixedDocumentType});
+  const DocumentDialog({
+    super.key,
+    required this.type,
+    this.fixedDocumentType,
+    this.documentId,
+  });
 
   final DocumentDialogType type;
   final String? fixedDocumentType;
+
+  /// Existing `hr.employee.document` id when updating (not Add New).
+  final int? documentId;
 
   @override
   State<DocumentDialog> createState() => _DocumentDialogState();
@@ -2848,6 +2745,7 @@ class _DocumentDialogState extends State<DocumentDialog> {
   bool get _familyOnly => widget.type == DocumentDialogType.family;
   bool get _hasFixedDocumentType =>
       (widget.fixedDocumentType ?? '').trim().isNotEmpty;
+  bool get _isUpdate => (widget.documentId ?? 0) > 0;
   String get _fixedDocumentType => (widget.fixedDocumentType ?? '').trim();
 
   String get _dialogTitle {
@@ -3635,6 +3533,12 @@ class _DocumentDialogState extends State<DocumentDialog> {
       _showErrorDialog('Please attach a file.');
       return;
     }
+    if (_showIdAndExpiry && _isUpdate && _expiryDate == null) {
+      debugPrint('⛔ Update stopped: expiry date missing');
+      _sliderKey.currentState?.resetSlider();
+      _showErrorDialog('Please select a new expiry date.');
+      return;
+    }
 
     setState(() {
       _isUploading = true;
@@ -3710,9 +3614,15 @@ class _DocumentDialogState extends State<DocumentDialog> {
 
       params['document_type_id'] = documentTypeId;
 
+      final existingDocumentId = widget.documentId;
+      if (existingDocumentId != null && existingDocumentId > 0) {
+        params['document_id'] = existingDocumentId;
+      }
+
       final selectedDate = _expiryDate?.toIso8601String().split('T')[0];
       if (selectedDate != null && selectedDate.isNotEmpty) {
-        params['issue_date'] = selectedDate;
+        // Expiry only — previously both issue_date and expiry_date were set to
+        // the same value, which corrupted issue dates and confused status.
         params['expiry_date'] = selectedDate;
       }
 
