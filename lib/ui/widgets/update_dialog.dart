@@ -1,235 +1,145 @@
+import 'package:el_race/core/update/bloc/app_update_bloc.dart';
+import 'package:el_race/core/update/bloc/app_update_event.dart';
+import 'package:el_race/core/update/bloc/app_update_state.dart';
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
-import 'dart:io';
-
-import 'package:el_race/core/services/update_service.dart';
 import 'package:el_race/utils/color_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-/// Shows a force-update or optional-update dialog based on [UpdateCheckResult].
-///
-/// Usage:
-/// ```dart
-/// await UpdateDialog.showIfNeeded(context, result);
-/// ```
 class UpdateDialog extends StatelessWidget {
-  final UpdateCheckResult result;
-  final bool isRtl;
+  const UpdateDialog({super.key});
 
-  const UpdateDialog({
-    super.key,
-    required this.result,
-    this.isRtl = false,
-  });
-
-  // ── static helper ────────────────────────────────────────────────────────
-
-  /// Displays the dialog if an update is required / available.
-  ///
-  /// Returns `true` if a force-update dialog was shown (navigation should stop),
-  /// `false` otherwise.
   static Future<bool> showIfNeeded(
     BuildContext context,
-    UpdateCheckResult result, {
-    bool isRtl = false,
-  }) async {
-    if (!result.forceUpdate && !result.optionalUpdate) return false;
+    AppUpdateState state,
+  ) async {
+    if (!state.forceUpdateRequired) return false;
 
-    final bool? dismissed = await showDialog<bool>(
+    await showDialog<void>(
       context: context,
-      barrierDismissible: !result.forceUpdate,
-      builder: (_) => UpdateDialog(result: result, isRtl: isRtl),
+      barrierDismissible: false,
+      builder: (_) => BlocProvider.value(
+        value: context.read<AppUpdateBloc>(),
+        child: const UpdateDialog(),
+      ),
     );
 
-    // Force update: user cannot dismiss → block navigation
-    return result.forceUpdate;
+    return true;
   }
-
-  // ── build ────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
-    final isForce = result.forceUpdate;
-    final locale = Localizations.localeOf(context);
-    final isArabic = locale.languageCode == 'ar';
+    return BlocBuilder<AppUpdateBloc, AppUpdateState>(
+      builder: (context, state) {
+        final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+        final title = isArabic ? 'تحديث مطلوب' : 'Update Required';
+        final message = isArabic
+            ? 'يتوفر إصدار جديد من التطبيق. يرجى التحديث للمتابعة.'
+            : 'A new app version is available. Please update to continue.';
+        final buttonLabel = isArabic ? 'تحديث' : 'Update';
 
-    final title = isForce
-        ? (isArabic ? 'تحديث إلزامي' : 'Required Update')
-        : (isArabic ? 'تحديث متاح' : 'Update Available');
-
-    final message = _resolveMessage(isArabic);
-
-    final updateBtnLabel = isArabic ? 'تحديث الآن' : 'Update Now';
-    final laterBtnLabel = isArabic ? 'لاحقاً' : 'Later';
-
-    return PopScope(
-      canPop: !isForce,
-      child: Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.tr)),
-        insetPadding: EdgeInsets.symmetric(horizontal: 32.tw),
-        child: Padding(
-          padding: EdgeInsets.all(24.tr),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // ── icon ──
-              Container(
-                width: 64.tr,
-                height: 64.tr,
-                decoration: BoxDecoration(
-                  color: isForce
-                      ? const Color(0xFFFFEEEE)
-                      : const Color(0xFFE8F0FE),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  isForce ? Icons.system_update_alt_rounded : Icons.update_rounded,
-                  size: 36.tr,
-                  color: isForce ? const Color(0xFFBA1719) : appFontColor,
-                ),
-              ),
-
-              SizedBox(height: 16.th),
-
-              // ── title ──
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(
-                  fontSize: 17.tsp,
-                  fontWeight: FontWeight.w700,
-                  color: appFontColor,
-                ),
-              ),
-
-              SizedBox(height: 10.th),
-
-              // ── message ──
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(
-                  fontSize: 13.tsp,
-                  fontWeight: FontWeight.w400,
-                  color: const Color(0xFF555555),
-                  height: 1.5,
-                ),
-              ),
-
-              // ── version badge ──
-              if (result.latestVersion != null) ...[
-                SizedBox(height: 12.th),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12.tw, vertical: 4.th),
-                  decoration: BoxDecoration(
-                    color: appFontColor.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(20.tr),
+        return PopScope(
+          canPop: false,
+          child: Dialog(
+            insetPadding: EdgeInsets.symmetric(horizontal: 32.tw),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16.tr),
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(24.tr),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    width: 58.tr,
+                    height: 58.tr,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: appFontColor.withOpacity(0.08),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.system_update_alt_rounded,
+                      color: appFontColor,
+                      size: 32.tr,
+                    ),
                   ),
-                  child: Text(
-                    'v${result.latestVersion}',
+                  SizedBox(height: 16.th),
+                  Text(
+                    title,
+                    textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
-                      fontSize: 12.tsp,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 18.tsp,
+                      fontWeight: FontWeight.w700,
                       color: appFontColor,
                     ),
                   ),
-                ),
-              ],
-
-              SizedBox(height: 24.th),
-
-              // ── buttons ──
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Update button
-                  ElevatedButton(
-                    onPressed: () => _openStore(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: appFontColor,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(vertical: 13.th),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.tr),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      updateBtnLabel,
-                      style: GoogleFonts.poppins(
-                        fontSize: 14.tsp,
-                        fontWeight: FontWeight.w600,
-                      ),
+                  SizedBox(height: 10.th),
+                  Text(
+                    message,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      fontSize: 13.tsp,
+                      height: 1.45,
+                      color: const Color(0xFF4F5B67),
                     ),
                   ),
-
-                  // Optional: "Later" button
-                  if (!isForce) ...[
-                    SizedBox(height: 10.th),
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 10.th),
-                        foregroundColor: const Color(0xFF888888),
-                      ),
-                      child: Text(
-                        laterBtnLabel,
-                        style: GoogleFonts.poppins(
-                          fontSize: 13.tsp,
-                          fontWeight: FontWeight.w500,
-                        ),
+                  if (state.errorMessage != null) ...[
+                    SizedBox(height: 12.th),
+                    Text(
+                      state.errorMessage!,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
+                        fontSize: 12.tsp,
+                        color: const Color(0xFFBA1719),
                       ),
                     ),
                   ],
+                  SizedBox(height: 22.th),
+                  ElevatedButton(
+                    onPressed: state.isStartingUpdate
+                        ? null
+                        : () {
+                            context
+                                .read<AppUpdateBloc>()
+                                .add(const AppRequiredUpdateStarted());
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: appFontColor,
+                      foregroundColor: Colors.white,
+                      disabledBackgroundColor: appFontColor.withOpacity(0.55),
+                      padding: EdgeInsets.symmetric(vertical: 13.th),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.tr),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: state.isStartingUpdate
+                        ? SizedBox(
+                            width: 18.tr,
+                            height: 18.tr,
+                            child: const CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : Text(
+                            buttonLabel,
+                            style: GoogleFonts.poppins(
+                              fontSize: 14.tsp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                  ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
-  }
-
-  // ── private helpers ──────────────────────────────────────────────────────
-
-  String _resolveMessage(bool isArabic) {
-    // Custom message from backend takes priority
-    if (isArabic && (result.updateMessageAr?.isNotEmpty ?? false)) {
-      return result.updateMessageAr!;
-    }
-    if (!isArabic && (result.updateMessageEn?.isNotEmpty ?? false)) {
-      return result.updateMessageEn!;
-    }
-
-    if (result.forceUpdate) {
-      return isArabic
-          ? 'يتطلب هذا الإصدار تحديث التطبيق للمتابعة. يرجى تحديثه الآن.'
-          : 'This version requires an app update to continue.\nPlease update now.';
-    }
-    return isArabic
-        ? 'يتوفر إصدار جديد من التطبيق. يُنصح بالتحديث للحصول على أفضل تجربة.'
-        : 'A new version is available.\nUpdate for the best experience.';
-  }
-
-  Future<void> _openStore(BuildContext context) async {
-    final rawUrl = result.updateUrl ?? _defaultStoreUrl();
-    final uri = Uri.parse(rawUrl);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
-    // For force update we do NOT pop – user must update and restart the app
-    if (!result.forceUpdate && context.mounted) {
-      Navigator.of(context).pop(true);
-    }
-  }
-
-  String _defaultStoreUrl() {
-    if (Platform.isIOS) {
-      // Replace with your App Store ID
-      return 'https://apps.apple.com/app/id0000000000';
-    }
-    return 'https://play.google.com/store/apps/details?id=ae.elrace.mobile';
   }
 }

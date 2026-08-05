@@ -1,170 +1,101 @@
-import 'dart:convert';
-import 'package:dio/dio.dart';
-import 'package:el_race/utils/urll_utils.dart';
+import 'dart:io';
 
-/// Result of a version check
+import 'package:flutter/foundation.dart';
+import 'package:in_app_update/in_app_update.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+/// Result of the app update availability check.
 class UpdateCheckResult {
-  /// True if the user MUST update (current < minVersion)
-  final bool forceUpdate;
-
-  /// True if an optional update is available (currentVersion < latestVersion)
-  final bool optionalUpdate;
-
-  /// The latest version string from backend  (e.g. "1.2.0")
-  final String? latestVersion;
-
-  /// Minimum required version string (e.g. "1.0.5")
-  final String? minVersion;
-
-  /// Deep-link / store URL to open for update
+  final bool updateAvailable;
+  final bool immediateUpdateAllowed;
+  final int? availableVersionCode;
+  final String? packageName;
   final String? updateUrl;
 
-  /// Optional custom message to show the user (English)
-  final String? updateMessageEn;
-
-  /// Optional custom message to show the user (Arabic)
-  final String? updateMessageAr;
-
   const UpdateCheckResult({
-    required this.forceUpdate,
-    required this.optionalUpdate,
-    this.latestVersion,
-    this.minVersion,
+    required this.updateAvailable,
+    required this.immediateUpdateAllowed,
+    this.availableVersionCode,
+    this.packageName,
     this.updateUrl,
-    this.updateMessageEn,
-    this.updateMessageAr,
   });
 
-  /// No update needed
   const UpdateCheckResult.noUpdate()
-      : forceUpdate = false,
-        optionalUpdate = false,
-        latestVersion = null,
-        minVersion = null,
-        updateUrl = null,
-        updateMessageEn = null,
-        updateMessageAr = null;
+      : updateAvailable = false,
+        immediateUpdateAllowed = false,
+        availableVersionCode = null,
+        packageName = null,
+        updateUrl = null;
+
+  bool get forceUpdate => updateAvailable;
 }
 
-/// Service responsible for checking if a newer / mandatory version is available.
+/// Uses Google Play In-App Updates to detect mandatory Android app updates.
 ///
-/// The backend endpoint `app/config` (POST JSON-RPC) is expected to include
-/// the following optional fields in the `result` payload:
-///
-/// ```json
-/// {
-///   "minVersion":      "1.0.5",
-///   "latestVersion":   "1.2.0",
-///   "updateUrl":       "https://play.google.com/store/apps/details?id=ae.elrace.mobile",
-///   "updateMessageEn": "A new version is available. Please update.",
-///   "updateMessageAr": "يتوفر إصدار جديد. يرجى التحديث."
-/// }
-/// ```
-///
-/// If any field is missing the check is skipped gracefully.
+/// iOS and non-Android platforms fail open because the Play In-App Updates API
+/// is Android-only.
 class UpdateService {
   UpdateService._();
   static final UpdateService instance = UpdateService._();
 
-  /// Check the backend for version requirements.
-  ///
-  /// [currentVersion] should be the semver string from pubspec, e.g. "1.0.10".
-  Future<UpdateCheckResult> checkForUpdate(String currentVersion) async {
+  static const String _androidPackageName = 'ae.elrace.mobile';
+  static const String _iosStoreUrl = 'https://apps.apple.com/app/id0000000000';
+
+  Future<UpdateCheckResult> checkForUpdate([String? _]) async {
+    if (!Platform.isAndroid) {
+      return const UpdateCheckResult.noUpdate();
+    }
+
     try {
-      final dio = Dio(BaseOptions(
-        connectTimeout: const Duration(seconds: 8),
-        receiveTimeout: const Duration(seconds: 8),
-        headers: {'Content-Type': 'application/json'},
-      ));
+      final info = await InAppUpdate.checkForUpdate();
+      final updateAvailable =
+          info.updateAvailability == UpdateAvailability.updateAvailable ||
+              info.updateAvailability ==
+                  UpdateAvailability.developerTriggeredUpdateInProgress;
 
-      const String url = '${UrlUtil.baseUrl}app/config';
-      final resp = await dio.get(
-        url,
-        data: {'jsonrpc': '2.0', 'params': {}},
-      );
-
-      Map<String, dynamic>? payload;
-      final data = resp.data;
-      if (data is Map<String, dynamic>) {
-        payload = data['result'] is Map<String, dynamic>
-            ? data['result'] as Map<String, dynamic>
-            : data;
-      } else if (data is String) {
-        try {
-          final parsed = jsonDecode(data);
-          if (parsed is Map<String, dynamic>) {
-            payload = parsed['result'] is Map<String, dynamic>
-                ? parsed['result'] as Map<String, dynamic>
-                : parsed;
-          }
-        } catch (_) {}
-      }
-
-      if (payload == null) return const UpdateCheckResult.noUpdate();
-
-      final minVersionStr = payload['minVersion'] as String?;
-      final latestVersionStr = payload['latestVersion'] as String?;
-      final updateUrl = payload['updateUrl'] as String?;
-      final updateMessageEn = payload['updateMessageEn'] as String?;
-      final updateMessageAr = payload['updateMessageAr'] as String?;
-
-      // If backend sends nothing, no update needed
-      if (minVersionStr == null && latestVersionStr == null) {
+      if (!updateAvailable) {
         return const UpdateCheckResult.noUpdate();
       }
 
-      final current = _parseVersion(currentVersion);
-
-      bool forceUpdate = false;
-      bool optionalUpdate = false;
-
-      if (minVersionStr != null) {
-        final min = _parseVersion(minVersionStr);
-        if (_compareVersions(current, min) < 0) {
-          forceUpdate = true;
-        }
-      }
-
-      if (!forceUpdate && latestVersionStr != null) {
-        final latest = _parseVersion(latestVersionStr);
-        if (_compareVersions(current, latest) < 0) {
-          optionalUpdate = true;
-        }
-      }
-
+      final packageName =
+          info.packageName.isNotEmpty ? info.packageName : _androidPackageName;
       return UpdateCheckResult(
-        forceUpdate: forceUpdate,
-        optionalUpdate: optionalUpdate,
-        latestVersion: latestVersionStr,
-        minVersion: minVersionStr,
-        updateUrl: updateUrl,
-        updateMessageEn: updateMessageEn,
-        updateMessageAr: updateMessageAr,
+        updateAvailable: true,
+        immediateUpdateAllowed: info.immediateUpdateAllowed ||
+            info.updateAvailability ==
+                UpdateAvailability.developerTriggeredUpdateInProgress,
+        availableVersionCode: info.availableVersionCode,
+        packageName: packageName,
+        updateUrl: _androidStoreUrl(packageName),
       );
-    } catch (e) {
-      // Network or parse error – fail open (don't block the user)
+    } catch (error) {
+      debugPrint('UpdateService: in-app update check failed: $error');
       return const UpdateCheckResult.noUpdate();
     }
   }
 
-  // ── helpers ──────────────────────────────────────────────────────────────
+  Future<void> startRequiredUpdate(UpdateCheckResult result) async {
+    if (Platform.isAndroid && result.immediateUpdateAllowed) {
+      final updateResult = await InAppUpdate.performImmediateUpdate();
+      if (updateResult == AppUpdateResult.success) {
+        return;
+      }
+    }
 
-  /// Parse a version string like "1.2.3" into a list of ints [1, 2, 3].
-  List<int> _parseVersion(String version) {
-    // Strip build metadata / pre-release (e.g. "1.0.10+62" → "1.0.10")
-    final clean = version.split('+').first.split('-').first.trim();
-    return clean.split('.').map((s) => int.tryParse(s) ?? 0).toList();
+    await openStore(result);
   }
 
-  /// Compare two version lists.
-  /// Returns negative if a < b, 0 if equal, positive if a > b.
-  int _compareVersions(List<int> a, List<int> b) {
-    final length = a.length > b.length ? a.length : b.length;
-    for (int i = 0; i < length; i++) {
-      final av = i < a.length ? a[i] : 0;
-      final bv = i < b.length ? b[i] : 0;
-      if (av != bv) return av - bv;
+  Future<void> openStore(UpdateCheckResult result) async {
+    final rawUrl = result.updateUrl ??
+        (Platform.isIOS ? _iosStoreUrl : _androidStoreUrl(_androidPackageName));
+    final uri = Uri.parse(rawUrl);
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
-    return 0;
+  }
+
+  static String _androidStoreUrl(String packageName) {
+    return 'https://play.google.com/store/apps/details?id=$packageName';
   }
 }

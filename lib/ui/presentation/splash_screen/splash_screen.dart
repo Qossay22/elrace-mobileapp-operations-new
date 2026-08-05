@@ -1,14 +1,16 @@
 import 'dart:async';
 
-import 'package:el_race/core/services/update_service.dart';
 import 'package:el_race/core/app_globals.dart' show appInitCompleter;
 import 'package:el_race/core/session/force_logout_guard.dart';
+import 'package:el_race/core/update/bloc/app_update_bloc.dart';
+import 'package:el_race/core/update/bloc/app_update_state.dart';
 import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/firebase_service.dart';
 import 'package:el_race/ui/presentation/signin/sign_in_screen.dart';
 import 'package:el_race/ui/widgets/update_dialog.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:el_race/ui/presentation/home_screen/screens/home_screen.dart';
 import 'package:el_race/utils/Util.dart';
 import 'package:el_race/core/services/app_config_service.dart';
@@ -25,9 +27,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  // Keep in sync with version in pubspec.yaml.
-  static const String _currentAppVersion = '1.0.10';
-
   bool _isSecurityCheckComplete = false;
   bool _isDeviceSecure = true;
   bool _didScheduleNavigation = false;
@@ -42,7 +41,7 @@ class _SplashScreenState extends State<SplashScreen> {
   // Phase 2: kicked off in initState alongside video/security since it has
   // no dependency on either — only awaited (with its existing 10s timeout)
   // right before _doNavigate() in _checkForUpdateThenNavigate().
-  late final Future<UpdateCheckResult> _updateCheckFuture;
+  late final Future<AppUpdateState> _updateCheckFuture;
 
   // Phase 0 instrumentation: measures elapsed time of each splash gate so we
   // have real numbers instead of guesses before attempting the structural
@@ -52,6 +51,19 @@ class _SplashScreenState extends State<SplashScreen> {
   void _logGateTiming(String label) {
     debugPrint(
         '⏱️ [splash] $label at ${_splashStopwatch.elapsedMilliseconds}ms');
+  }
+
+  Future<AppUpdateState> _waitForAppUpdateCheck(AppUpdateBloc bloc) {
+    if (bloc.state.hasChecked && !bloc.state.isChecking) {
+      return Future.value(bloc.state);
+    }
+
+    return bloc.stream.firstWhere((state) {
+      return state.hasChecked && !state.isChecking;
+    }).timeout(
+      const Duration(seconds: 10),
+      onTimeout: () => const AppUpdateState.initial(),
+    );
   }
 
   @override
@@ -72,11 +84,9 @@ class _SplashScreenState extends State<SplashScreen> {
     // serial chain. Attach a no-op error listener immediately so a failure
     // here doesn't surface as an unhandled zone exception before it's
     // actually awaited (and handled) in _checkForUpdateThenNavigate.
-    _updateCheckFuture = UpdateService.instance
-        .checkForUpdate(_currentAppVersion)
-        .timeout(const Duration(seconds: 10));
+    _updateCheckFuture = _waitForAppUpdateCheck(context.read<AppUpdateBloc>());
     _logGateTiming('update-check-start');
-    _updateCheckFuture.catchError((_) => const UpdateCheckResult.noUpdate());
+    _updateCheckFuture.catchError((_) => const AppUpdateState.initial());
 
     // Initialize video player (uses hardware decoder, not main thread).
     _videoController = VideoPlayerController.asset('assets/mp4/splash.mp4');
@@ -252,7 +262,6 @@ class _SplashScreenState extends State<SplashScreen> {
       final blocked = await UpdateDialog.showIfNeeded(
         context,
         updateResult,
-        isRtl: Directionality.of(context) == TextDirection.rtl,
       );
 
       // Force-update: block navigation until user updates the app
@@ -346,8 +355,9 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 350),
+        duration: const Duration(milliseconds: 120),
         child: _isVideoReady
             ? SizedBox.expand(
                 key: const ValueKey('splash-video'),
@@ -381,31 +391,6 @@ class _SplashLoadingPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFFFFFFFF),
-            Color(0xFFF3F4F6),
-            Color(0xFFE5E7EB),
-          ],
-        ),
-      ),
-      child: const Center(
-        child: SizedBox(
-          width: 36,
-          height: 36,
-          child: CircularProgressIndicator(
-            strokeWidth: 3,
-            color: Color(0xFF9CA3AF),
-            backgroundColor: Color(0xFFE5E7EB),
-          ),
-        ),
-      ),
-    );
+    return const ColoredBox(color: Colors.black);
   }
 }

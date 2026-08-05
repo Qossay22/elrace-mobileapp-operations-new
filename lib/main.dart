@@ -10,6 +10,8 @@ import 'package:el_race/core/utils/app_orientations.dart';
 import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/core/security/device_security_service.dart';
 import 'package:el_race/core/services/resume_coordinator.dart';
+import 'package:el_race/core/update/bloc/app_update_bloc.dart';
+import 'package:el_race/core/update/bloc/app_update_event.dart';
 import 'package:el_race/chat/chat.dart';
 import 'package:el_race/data/services/hive_service.dart';
 import 'package:el_race/data/services/prayer_audio_service.dart';
@@ -126,7 +128,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     await NotificationStorageService.saveNotification(
       title: title.isEmpty ? 'Notification' : title,
       body: body,
-      imageUrl: notification?.android?.imageUrl ?? notification?.apple?.imageUrl,
+      imageUrl:
+          notification?.android?.imageUrl ?? notification?.apple?.imageUrl,
       data: message.data,
       category: category,
     );
@@ -378,6 +381,7 @@ class _StartupErrorApp extends StatelessWidget {
   }
 }
 
+// ignore: unused_element
 Future<void> _enableGlobalScreenProtection() async {
   try {
     await Future.wait<void>([
@@ -632,7 +636,6 @@ Future<void> _configureAppOrientations() async {
 /// @Deprecated — use [_configureAppOrientations]. Kept name for call sites.
 Future<void> _lockPortraitOrientation() => _configureAppOrientations();
 
-
 Future<void> _enableAndroidImmersiveMode() async {
   if (!Platform.isAndroid) return;
 
@@ -735,6 +738,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   static const Duration _inactiveTimeout = Duration(minutes: 10);
+  final AppUpdateBloc _appUpdateBloc = AppUpdateBloc();
   DateTime? _backgroundedAt;
   bool _isRestartingFromTimeout = false;
 
@@ -743,6 +747,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     super.initState();
     debugPrint('🚀 MyApp.initState(): first Flutter screen tree started');
     WidgetsBinding.instance.addObserver(this);
+    _appUpdateBloc.add(const AppUpdateCheckRequested());
     _enableAndroidImmersiveMode();
     // NOTE: Do NOT call FirebaseService.processPendingNotificationTap() here.
     // At this point the SplashScreen is still running. Notification taps
@@ -754,6 +759,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _appUpdateBloc.close();
     super.dispose();
   }
 
@@ -779,6 +785,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       // Tiered resume work (prayer foreground handover, badge refresh,
       // attendance sync) — single owner, never blocks the UI.
       ResumeCoordinator.instance.onResumed();
+      _appUpdateBloc.add(const AppUpdateCheckRequested());
 
       _backgroundedAt = null;
       return;
@@ -816,7 +823,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     );
     try {
       if (!SharedPref.isUserAuthenticated()) {
-        debugPrint('⏱️ Silent re-check: session no longer authenticated — restarting from splash');
+        debugPrint(
+            '⏱️ Silent re-check: session no longer authenticated — restarting from splash');
         _restartFromSplash();
         return;
       }
@@ -824,7 +832,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           .performSecurityCheck()
           .timeout(const Duration(seconds: 6));
       if (result.isSecure) {
-        debugPrint('⏱️ Silent security re-check passed — continuing without splash restart');
+        debugPrint(
+            '⏱️ Silent security re-check passed — continuing without splash restart');
         return;
       }
       debugPrint('⏱️ Silent security re-check FAILED — restarting from splash');
@@ -832,7 +841,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     } catch (e) {
       // Fail-open, same policy as SplashScreen's own check: a check error
       // (timeout, plugin failure) must not lock the user out.
-      debugPrint('⏱️ Silent security re-check error ($e) — fail-open, no restart');
+      debugPrint(
+          '⏱️ Silent security re-check error ($e) — fail-open, no restart');
     } finally {
       if (!isRestartingFromSplashTimeout.value) {
         _isRestartingFromTimeout = false;
@@ -908,6 +918,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               BlocProvider(create: (ctx) => sl<MediaBloc>()),
               BlocProvider(create: (ctx) => QrCodeBloc()),
               BlocProvider(create: (ctx) => sl<UaepassAuthCubit>()),
+              BlocProvider.value(value: _appUpdateBloc),
             ],
             child: ScreenUtilInit(
               designSize: const Size(411.4, 843.4),

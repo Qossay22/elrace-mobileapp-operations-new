@@ -2,7 +2,61 @@
 
 Generated at: 2026-07-30 12:22 +04:00
 Project: `elrace-mobileapp-operations-new`
-Source sync target reviewed: `97jaw/Elrace-mobileapp-operations/main` at `1d9e265`
+Source sync target reviewed: `97jaw/Elrace-mobileapp-operations/main` at `8decf8a`
+
+## Source Main Sync Addendum - 2026-08-05
+
+Synced the latest `source/main` updates from `97jaw/Elrace-mobileapp-operations` into this project.
+
+- Updated source tracking from `1d9e265` to `8decf8a`.
+- Pulled the new productivity hub/tasks/tickets UI updates, including ticket models/providers/screens and refreshed task dashboard screens.
+- Pulled source hotfixes for admin force-logout handling, HR/approval detail layouts, invoice/RFQ work-order resolution, document attachment handling, project ordering/group labels, notification badge sync, and assignment push functions.
+- Preserved the local mandatory In-App Updates flow, `AppUpdateBloc`, force-update dialog, and black pre-video splash placeholder.
+- Resolved the only merge conflict in `lib/ui/presentation/splash_screen/splash_screen.dart` by keeping both source's `ForceLogoutGuard` flow and the local app-update gate.
+- Regenerated `PROJECT_FILE_INDEX.md` after the sync.
+
+Verification for this sync:
+
+| Check | Result | Notes |
+|---|---:|---|
+| `git fetch source main --prune` | Pass | Updated `source/main` from `1d9e265` to `8decf8a`. |
+| `git merge --no-edit source/main` | Pass | Source updates merged into local `main`. |
+| Merge conflict resolution | Pass | One conflict in `splash_screen.dart`; resolved by preserving both force logout and force update behavior. |
+| `flutter pub get` | Pass | Dependency graph resolves with `in_app_update 4.2.5`. |
+| Conflict marker scan | Pass | `rg "^(<<<<<<<|=======|>>>>>>>)"` found no conflict markers. |
+| `git diff --check` | Pass | No whitespace or conflict-marker errors. |
+| `flutter test` | Pass | `48/48` tests passed. |
+| `flutter build apk --debug` | Pass | Built `build/app/outputs/flutter-apk/app-debug.apk`. |
+| `dart analyze --format=machine` error scan | Pass | No `ERROR` diagnostics found. |
+| `flutter analyze` | Warnings | Completed with existing lint/info backlog: 2162 diagnostics, mostly `avoid_print`, unused imports, deprecated APIs, and style lints. |
+
+Follow-up cleanup on 2026-08-05:
+
+- Removed the local analyzer warning added by keeping the optional screen-protection helper disabled; `_enableGlobalScreenProtection` is now explicitly marked as intentionally unused while the startup call remains commented.
+- Confirmed `flutter test` still passes after the cleanup (`48/48`).
+- Regenerated `PROJECT_FILE_INDEX.md` after the cleanup.
+
+## Update Addendum - 2026-08-05
+
+Implemented a mandatory app-update gate using Google Play **In-App Updates**.
+
+- Added `in_app_update` as a direct Flutter dependency.
+- Replaced the previous backend-driven version check in `UpdateService` with `InAppUpdate.checkForUpdate()` on Android.
+- Added `AppUpdateBloc`, `AppUpdateEvent`, and `AppUpdateState` under `lib/core/update/bloc/` to keep update detection and update-start state in the app's BLoC pattern.
+- Wired `AppUpdateBloc` at app startup in `main.dart`, and re-checks are triggered when the app resumes.
+- Updated `SplashScreen` to await the BLoC update check before navigation. If an update is available, navigation is blocked.
+- Rebuilt `UpdateDialog` as a concise, non-dismissible corporate force-update dialog. The action button starts the immediate in-app update when allowed, with a Play Store fallback URL for `ae.elrace.mobile`.
+- Reduced the visible pre-video splash gap by changing the Flutter placeholder and Android native launch background from near-white to black, and shortening the Flutter video transition.
+- Regenerated `PROJECT_FILE_INDEX.md` on 2026-08-05 after adding the update BLoC files.
+
+Verification for this addendum:
+
+| Check | Result | Notes |
+|---|---:|---|
+| `flutter pub add in_app_update` / dependency resolution | Pass | Added `in_app_update 4.2.5`; dependency graph resolves. |
+| `dart format` on changed Dart files | Pass | Formatted update service, update BLoC, dialog, splash, and main wiring. |
+| `flutter test test/widget_test.dart` | Pass | Smoke test passed after the update-gate changes. |
+| Targeted `dart analyze` | Timeout | Timed out after 124 seconds; analyzer timeout behavior matches the existing audit limitation. |
 
 ## Executive Summary
 
@@ -30,17 +84,17 @@ The application dependencies resolve, the Flutter test suite passes, and a debug
 
 ## Project Inventory
 
-`PROJECT_FILE_INDEX.md` was regenerated on 2026-07-30 after the exact-alarm startup fix.
+`PROJECT_FILE_INDEX.md` was regenerated on 2026-08-05 after syncing latest `source/main`.
 
 Key counts:
 
-- Indexed files: **2279**
-- Indexed total size: **104.96 MB**
-- Flutter/Dart files from `rg --files`: **1292**
+- Indexed files: **2297**
+- Indexed total size: **105.15 MB**
+- Flutter/Dart files from `rg --files`: **1306**
 - Test files: **9**
 - Asset files: **525**
 - App assets total in file index: **88.76 MB**
-- Flutter app code total in file index: **1274 files, 10.32 MB**
+- Flutter app code total in file index: **1288 files, 10.38 MB**
 
 ## Security And Code Quality Improvements
 
