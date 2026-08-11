@@ -60,6 +60,49 @@ void main() {
       expect(result.optionalUpdate, isFalse);
     });
 
+    test('exposes updateAvailable for force and optional updates', () {
+      final forceResult = service.buildResultFromPayload(
+        currentVersion: '1.0.17',
+        payload: {
+          'minVersion': '1.0.18',
+        },
+      );
+      final optionalResult = service.buildResultFromPayload(
+        currentVersion: '1.0.17',
+        payload: {
+          'latestVersion': '1.0.18',
+        },
+      );
+      final noUpdateResult = service.buildResultFromPayload(
+        currentVersion: '1.0.18',
+        payload: {
+          'latestVersion': '1.0.18',
+        },
+      );
+
+      expect(forceResult.updateAvailable, isTrue);
+      expect(optionalResult.updateAvailable, isTrue);
+      expect(noUpdateResult.updateAvailable, isFalse);
+    });
+
+    test('reads localized backend messages from snake case payloads', () {
+      final result = service.buildResultFromPayload(
+        currentVersion: '1.0.17',
+        payload: {
+          'latest_version': '1.0.18',
+          'update_message_en': 'Please update for stability improvements.',
+          'update_message_ar': 'يرجى تحديث التطبيق لتحسين الاستقرار.',
+        },
+      );
+
+      expect(result.optionalUpdate, isTrue);
+      expect(
+        result.updateMessageEn,
+        'Please update for stability improvements.',
+      );
+      expect(result.updateMessageAr, 'يرجى تحديث التطبيق لتحسين الاستقرار.');
+    });
+
     test('ignores build metadata while comparing semver', () {
       expect(
         service.compareVersions(

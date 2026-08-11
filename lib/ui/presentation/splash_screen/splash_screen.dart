@@ -32,7 +32,9 @@ class _SplashScreenState extends State<SplashScreen> {
   bool _didScheduleNavigation = false;
   late VideoPlayerController _videoController;
   late final Future<void> _videoInitializeFuture;
+  late final Future<void> _minimumSplashFuture;
   bool _isVideoReady = false;
+  bool _didUseVideoFallback = false;
   final Completer<void> _videoCompletedCompleter = Completer<void>();
   // Phase 2: replaces the _waitForSecurityCheck() polling loop so the
   // security gate can be awaited alongside init/video instead of after them.
@@ -49,8 +51,16 @@ class _SplashScreenState extends State<SplashScreen> {
   final Stopwatch _splashStopwatch = Stopwatch()..start();
 
   void _logGateTiming(String label) {
-    debugPrint(
-        '⏱️ [splash] $label at ${_splashStopwatch.elapsedMilliseconds}ms');
+    if (kDebugMode) {
+      debugPrint(
+          '[splash] $label at ${_splashStopwatch.elapsedMilliseconds}ms');
+    }
+  }
+
+  void _debugLog(Object? message) {
+    if (kDebugMode) {
+      debugPrint(message?.toString());
+    }
   }
 
   Future<AppUpdateState> _waitForAppUpdateCheck(AppUpdateBloc bloc) {
@@ -69,7 +79,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint('🚀 SplashScreen.initState(): first screen mounted');
+    _debugLog('SplashScreen.initState(): first screen mounted');
     _logGateTiming('initState');
 
     // Instrumentation only: log when appInitCompleter resolves, independent
@@ -87,6 +97,7 @@ class _SplashScreenState extends State<SplashScreen> {
     _updateCheckFuture = _waitForAppUpdateCheck(context.read<AppUpdateBloc>());
     _logGateTiming('update-check-start');
     _updateCheckFuture.catchError((_) => const AppUpdateState.initial());
+    _minimumSplashFuture = Future<void>.delayed(const Duration(seconds: 3));
 
     // Initialize video player (uses hardware decoder, not main thread).
     _videoController = VideoPlayerController.asset('assets/mp4/splash.mp4');
@@ -98,7 +109,10 @@ class _SplashScreenState extends State<SplashScreen> {
         _videoController.play();
       }
     }).catchError((e) {
-      print('Video init error: $e');
+      _debugLog('Video init error: $e');
+      if (mounted) {
+        setState(() => _didUseVideoFallback = true);
+      }
       _completeVideoIfNeeded();
     });
 
@@ -109,7 +123,7 @@ class _SplashScreenState extends State<SplashScreen> {
       final provider =
           Provider.of<QrSurveyDataProvider>(context, listen: false);
       provider.clearData();
-      print('🧹 SplashScreen - Cleared QR data on app start');
+      _debugLog('SplashScreen: cleared QR data on app start');
     });
   }
 
@@ -117,7 +131,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _performSecurityCheck() async {
     _logGateTiming('security-check-start');
     try {
-      print('🔒 Starting security check...');
+      _debugLog('Starting security check...');
       final result = await DeviceSecurityService.instance
           .performSecurityCheck()
           .timeout(const Duration(seconds: kDebugMode ? 2 : 6));
@@ -129,16 +143,16 @@ class _SplashScreenState extends State<SplashScreen> {
         });
 
         if (!result.isSecure) {
-          print('❌ Device security check failed!');
+          _debugLog('Device security check failed');
           // Show security warning dialog
           DeviceSecurityService.showSecurityBlockDialog(context, result);
         } else {
-          print('✅ Device security check passed!');
+          _debugLog('Device security check passed');
         }
       }
       _logGateTiming('security-check-complete (isSecure=${result.isSecure})');
     } catch (e) {
-      print('⚠️ Error during security check: $e');
+      _debugLog('Error during security check: $e');
       // On error, allow app to continue (fail-open for better UX)
       if (mounted) {
         setState(() {
@@ -169,29 +183,30 @@ class _SplashScreenState extends State<SplashScreen> {
 
   /// Wait for startup gates and let the splash video finish before navigating.
   Future<void> _waitForInitAndNavigate() async {
-    debugPrint('SplashScreen: waiting for bounded startup checks');
+    _debugLog('SplashScreen: waiting for bounded startup checks');
     _logGateTiming('waitForInitAndNavigate-start');
     await Future.wait<void>([
       appInitCompleter.future.timeout(
         const Duration(seconds: 12),
         onTimeout: () {
-          print('Heavy init timeout in splash - continuing anyway');
+          _debugLog('Heavy init timeout in splash - continuing anyway');
         },
       ),
       _securityCheckCompleter.future.timeout(
         const Duration(seconds: kDebugMode ? 2 : 6),
         onTimeout: () {
-          print('Security check timeout in splash - continuing anyway');
+          _debugLog('Security check timeout in splash - continuing anyway');
         },
       ),
       _waitForVideoCompletion(),
+      _minimumSplashFuture,
     ]);
     _logGateTiming('waitForInitAndNavigate-gate-resolved');
 
     if (!mounted) return;
 
     if (!_isDeviceSecure && _isSecurityCheckComplete) {
-      print('Navigation blocked - device not secure');
+      _debugLog('Navigation blocked - device not secure');
       return;
     }
 
@@ -244,7 +259,7 @@ class _SplashScreenState extends State<SplashScreen> {
   /// Runs the update check first, then proceeds with routing.
   void _navigateToNextScreen() {
     if (!mounted) return;
-    debugPrint('🚀 SplashScreen: initialization finished; checking route');
+    _debugLog('SplashScreen: initialization finished; checking route');
     _checkForUpdateThenNavigate();
   }
 
@@ -275,7 +290,7 @@ class _SplashScreenState extends State<SplashScreen> {
       // Force-update: block navigation until user updates the app
       if (blocked) return;
     } catch (e) {
-      print('⚠️ Update check error (ignored): $e');
+      _debugLog('Update check error (ignored): $e');
       _logGateTiming('update-check-complete (error, ignored)');
     }
 
@@ -293,7 +308,7 @@ class _SplashScreenState extends State<SplashScreen> {
     try {
       // Check authentication first
       final isAuthenticated = SharedPref.isUserAuthenticated();
-      debugPrint(
+      _debugLog(
         '🚀 SplashScreen: navigating to '
         '${isAuthenticated ? 'home' : 'sign-in'}',
       );
@@ -347,7 +362,7 @@ class _SplashScreenState extends State<SplashScreen> {
         Util.pushPageAndRemoveRoutes(const SignInScreen(), context);
       }
     } catch (e) {
-      print('❌ Error navigating from splash: $e');
+      _debugLog('Error navigating from splash: $e');
       // Fallback based on authentication status, not to login screen blindly
       if (mounted) {
         if (SharedPref.isUserAuthenticated()) {
@@ -381,7 +396,10 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
                 ),
               )
-            : const _SplashLoadingPlaceholder(key: ValueKey('splash-loading')),
+            : _SplashLoadingPlaceholder(
+                key: const ValueKey('splash-loading'),
+                showBrandFallback: _didUseVideoFallback,
+              ),
       ),
     );
   }
@@ -395,12 +413,31 @@ class _SplashScreenState extends State<SplashScreen> {
 }
 
 class _SplashLoadingPlaceholder extends StatelessWidget {
-  const _SplashLoadingPlaceholder({super.key});
+  const _SplashLoadingPlaceholder({
+    super.key,
+    required this.showBrandFallback,
+  });
+
+  final bool showBrandFallback;
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox.expand(
-      child: ColoredBox(color: Colors.black),
+    return SizedBox.expand(
+      child: ColoredBox(
+        color: Colors.black,
+        child: AnimatedOpacity(
+          opacity: showBrandFallback ? 1 : 0,
+          duration: const Duration(milliseconds: 180),
+          child: Center(
+            child: Image.asset(
+              'assets/gif/el-race-logo.gif',
+              width: 170,
+              fit: BoxFit.contain,
+              gaplessPlayback: true,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

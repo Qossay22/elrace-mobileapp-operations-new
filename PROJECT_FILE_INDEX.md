@@ -2,10 +2,10 @@
 
 Quick reference for the project files: path, size, category, and a short responsibility note.
 
-- Generated at: 2026-08-11 09:42:10 +04:00
+- Generated at: 2026-08-11 10:33:51 +04:00
 - Root: C:\Users\Qossay\Desktop\project\Elrace-mobileapp-operations-qossay_update
 - Indexed files: 2320
-- Indexed total size: 105.47 MB
+- Indexed total size: 105.48 MB
 - Skipped generated/heavy folders: .git, .dart_tool, .idea, .vscode, build, dist, coverage, node_modules, Pods, .gradle, DerivedData
 
 > Note: descriptions are inferred from file path, name, and extension. Regenerate after major updates with: powershell -ExecutionPolicy Bypass -File .\scripts\generate_project_file_index.ps1
@@ -15,7 +15,7 @@ Quick reference for the project files: path, size, category, and a short respons
 - **Android native project**: 34 files, 1.08 MB
 - **App assets**: 525 files, 88.76 MB
 - **Architecture/documentation notes**: 5 files, 82.49 KB
-- **Automated tests**: 10 files, 39.71 KB
+- **Automated tests**: 10 files, 41.15 KB
 - **Code generation templates**: 35 files, 31.22 KB
 - **Configuration examples**: 2 files, 1.10 KB
 - **Developer/automation scripts**: 5 files, 14.81 KB
@@ -25,7 +25,7 @@ Quick reference for the project files: path, size, category, and a short respons
 - **iOS native project**: 69 files, 2.24 MB
 - **Local package/plugin**: 240 files, 523.33 KB
 - **Project documentation**: 54 files, 1.08 MB
-- **Project root/configuration**: 26 files, 694.44 KB
+- **Project root/configuration**: 26 files, 704.78 KB
 
 ## Files
 
@@ -67,7 +67,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | android/gradlew.bat | 2.35 KB | Android native project | Project file; use its path and extension to locate its role. |
 | android/hs_err_pid25728.log | 465.50 KB | Android native project | Project file; use its path and extension to locate its role. |
 | android/key.properties.example | 473 B | Android native project | Project file; use its path and extension to locate its role. |
-| android/local.properties | 168 B | Android native project | Project file; use its path and extension to locate its role. |
+| android/local.properties | 170 B | Android native project | Project file; use its path and extension to locate its role. |
 | android/settings.gradle | 797 B | Android native project | Gradle build configuration for Android. |
 | ASSET_USAGE_REPORT.md | 3.18 KB | Project root/configuration | Markdown documentation file. |
 | AssetManifest.json | 119 B | Project root/configuration | JSON data or configuration file. |
@@ -825,13 +825,13 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/core/recruitment/recruitment_mock_repository.dart | 9.39 KB | Flutter app code | Repository layer for reading/writing data. |
 | lib/core/recruitment/recruitment_mock_requisitions.dart | 4.56 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/recruitment/recruitment_salary_visibility.dart | 814 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/security/device_security_service.dart | 14.27 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/core/security/device_security_service.dart | 13.88 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/core/services/android_play_update_service.dart | 788 B | Flutter app code | Service helper for business logic or integration. |
 | lib/core/services/app_config_service.dart | 4.33 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/core/services/app_icon_badge_service.dart | 1.11 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/core/services/approval_count_service.dart | 4.02 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/core/services/approval_viewed_service.dart | 4.13 KB | Flutter app code | Service helper for business logic or integration. |
-| lib/core/services/attendance_status_sync_service.dart | 7.50 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/core/services/attendance_status_sync_service.dart | 6.87 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/core/services/auth_verification_service.dart | 12.19 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/core/services/badge_refresh_service.dart | 2.86 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/core/services/biometric_auth_example.dart | 10.97 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -840,7 +840,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/core/services/kyc/iproov_kyc_liveness_service.dart | 0 B | Flutter app code | Service helper for business logic or integration. |
 | lib/core/services/kyc/iproov_liveness_service.dart | 0 B | Flutter app code | Service helper for business logic or integration. |
 | lib/core/services/notification_api_service.dart | 15.53 KB | Flutter app code | Service helper for business logic or integration. |
-| lib/core/services/notification_storage_service.dart | 40.36 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/core/services/notification_storage_service.dart | 40.34 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/core/services/resume_coordinator.dart | 5.66 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/services/update_service.dart | 7.47 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/core/session/force_logout_guard.dart | 7.14 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -955,7 +955,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/core/utils/flush_bar.dart | 3.20 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/utils/pdf_watermark.dart | 6.27 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/utils/responsive_breakpoints.dart | 7.66 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/core/utils/shared_pref.dart | 7.88 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/core/utils/shared_pref.dart | 7.39 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/utils/widgets/constrained_scaffold.dart | 673 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/widgets/hr_management/hr_detail_row.dart | 1.46 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/core/widgets/hr_management/hr_employee_info_card.dart | 3.97 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -1854,7 +1854,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/signin/data/model.dart | 63.80 KB | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/ui/presentation/signin/data/repository.dart | 3.81 KB | Flutter app code | Repository layer for reading/writing data. |
 | lib/ui/presentation/signin/sign_in_screen.dart | 15.92 KB | Flutter app code | Flutter screen or page UI. |
-| lib/ui/presentation/splash_screen/splash_screen.dart | 14.20 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/splash_screen/splash_screen.dart | 15.12 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/splash_screen/widgets/app_update_popup.dart | 15.25 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/task_sheet/add_task_sheet.dart | 61.02 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/task_sheet/EmployeeShiftRequestPage.dart | 46.71 KB | Flutter app code | Flutter screen or page UI. |
@@ -2293,8 +2293,8 @@ Quick reference for the project files: path, size, category, and a short respons
 | packages/face_liveness_detector/README.md | 6.76 KB | Local package/plugin | Markdown documentation file. |
 | packages/face_liveness_detector/test/rekognition_face_liveness_test.dart | 16 B | Local package/plugin | Dart file in the Flutter app; purpose follows its folder and name. |
 | proguard-rules.pro | 3.62 KB | Project root/configuration | Project file; use its path and extension to locate its role. |
-| PROJECT_FILE_INDEX.md | 314.43 KB | Project root/configuration | Markdown documentation file. |
-| PROJECT_FULL_AUDIT_REPORT.md | 15.13 KB | Project root/configuration | Markdown documentation file. |
+| PROJECT_FILE_INDEX.md | 317.60 KB | Project root/configuration | Markdown documentation file. |
+| PROJECT_FULL_AUDIT_REPORT.md | 22.30 KB | Project root/configuration | Markdown documentation file. |
 | PROJECT_FULL_AUDIT_REPORT_ELRACE_MOBILEAPP_OPERATIONS.md | 8.39 KB | Project root/configuration | Markdown documentation file. |
 | pubspec.lock | 85.21 KB | Project root/configuration | Pinned Dart/Flutter dependency versions. |
 | pubspec.yaml | 6.03 KB | Project root/configuration | Flutter project manifest for packages, assets, and fonts. |
@@ -2349,5 +2349,5 @@ Quick reference for the project files: path, size, category, and a short respons
 | test/projects_dashboard_aggregator_test.dart | 1.85 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/projects_group_manager_test.dart | 8.51 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/tasks_api_service_test.dart | 2.34 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
-| test/update_service_test.dart | 2.08 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
+| test/update_service_test.dart | 3.52 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/widget_test.dart | 311 B | Automated tests | Automated Flutter/Dart test for app behavior. |

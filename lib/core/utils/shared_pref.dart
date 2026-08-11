@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:el_race/ui/presentation/signin/data/model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPref {
@@ -110,24 +111,13 @@ class SharedPref {
     final data = checkLoginAndRegistration();
     final loginData = data['loginResponse'] as LoginResponseModel?;
 
-    // Debug: Print all user data fields (silenced to reduce noise)
-    // if (loginData?.result?.data != null) {
-    //   print('\n🔐 ===== LOGIN DATA DEBUG =====');
-    //   print('uid: ${loginData!.result!.data!.uid}');
-    //   print('emp_id: ${loginData.result!.data!.emp_id}');
-    //   print('emp_profile_id: ${loginData.result!.data!.emp_profile_id}');
-    //   print('username: ${loginData.result!.data!.username}');
-    //   print('name: ${loginData.result!.data!.name}');
-    //   print('emp_name: ${loginData.result!.data!.emp_name}');
-    //   print('===============================\n');
-    // }
-
     // Return empty model if not authenticated (for guest mode)
     return loginData ?? LoginResponseModel();
   }
 
   static String getCachedLeaveBalance({String fallback = '0'}) {
-    final modeled = getLoginData().result?.data?.leaveBalance?.toString().trim();
+    final modeled =
+        getLoginData().result?.data?.leaveBalance?.toString().trim();
     if (modeled != null &&
         modeled.isNotEmpty &&
         modeled.toLowerCase() != 'null' &&
@@ -170,7 +160,8 @@ class SharedPref {
   }
 
   /// Merge server role/profile fields into cached login `result.data`.
-  static Future<bool> mergeLoginRoleFields(Map<String, dynamic> roleData) async {
+  static Future<bool> mergeLoginRoleFields(
+      Map<String, dynamic> roleData) async {
     final loginJson = sharedPreferences.getString('loginResponse') ??
         sharedPreferences.getString('LOGIN_RESPONSE');
     if (loginJson == null || loginJson.isEmpty) return false;
@@ -224,12 +215,16 @@ class SharedPref {
 
   static int getSelectedCompany() {
     final id = sharedPreferences.getInt("selectedCompany") ?? 1;
-    print('🏢 SharedPref.getSelectedCompany() → $id');
+    if (kDebugMode) {
+      debugPrint('SharedPref.getSelectedCompany() -> $id');
+    }
     return id;
   }
 
   static Future<void> saveSelectedCompany(int id) async {
-    print('🏢 SharedPref.saveSelectedCompany($id)');
+    if (kDebugMode) {
+      debugPrint('SharedPref.saveSelectedCompany($id)');
+    }
     await sharedPreferences.setInt("selectedCompany", id);
   }
 

@@ -21,7 +21,7 @@ class NotificationStorageService {
       'notification_categories_v1_fetched_at';
 
   static const Duration _muteSettingsCacheTtl = Duration(minutes: 5);
-  static const Duration _categoriesCacheTtl = Duration(minutes: 5);
+
   /// Avoid hammering /notifications when Odoo/proxy returns 5xx (home polls every 5s).
   static const Duration _badgeSyncFailureCooldown = Duration(seconds: 60);
 
@@ -390,7 +390,9 @@ class NotificationStorageService {
         model: key,
         muted: muted,
       );
-      print('[MuteSettings][UpdateResponse][$key] $apiResponse');
+      if (kDebugMode) {
+        debugPrint('[MuteSettings][UpdateResponse][$key] $apiResponse');
+      }
       await _updateUnreadCount();
       _notifyCountListeners();
     } catch (e) {
@@ -702,7 +704,8 @@ class NotificationStorageService {
       for (final notification in normalized) {
         final id = '${notification['id'] ?? ''}';
         if (id.isNotEmpty && existingIds.contains(id)) continue;
-        if (mergedNotifications.any((local) => _sameContent(local, notification))) {
+        if (mergedNotifications
+            .any((local) => _sameContent(local, notification))) {
           continue;
         }
         mergedNotifications.add(notification);
@@ -755,8 +758,9 @@ class NotificationStorageService {
 
       final prefs = await SharedPreferences.getInstance();
       final baseline = prefs.getInt(_badgeUnreadBaselineKey);
-      final remoteBadge =
-          baseline == null ? unread : (unread - baseline < 0 ? 0 : unread - baseline);
+      final remoteBadge = baseline == null
+          ? unread
+          : (unread - baseline < 0 ? 0 : unread - baseline);
 
       final previous = prefs.getInt(_unreadCountKey) ?? 0;
       // Raise to server-computed "new since open". Keep a higher local value
@@ -848,9 +852,7 @@ class NotificationStorageService {
 
   static Map<String, dynamic> _withLpoIssuedRemap(Map<String, dynamic> item) {
     final dataRaw = item['data'] ?? item['payload'];
-    final data = dataRaw is Map
-        ? Map<String, dynamic>.from(dataRaw)
-        : null;
+    final data = dataRaw is Map ? Map<String, dynamic>.from(dataRaw) : null;
     final remapped = _remapLpoIssuedNotification(
       title: (item['title'] ?? '').toString(),
       body: (item['body'] ?? '').toString(),
@@ -900,7 +902,9 @@ class NotificationStorageService {
       category: normalized['category']?.toString() ??
           raw['category']?.toString() ??
           '',
-      data: notificationData is Map ? Map<String, dynamic>.from(notificationData) : null,
+      data: notificationData is Map
+          ? Map<String, dynamic>.from(notificationData)
+          : null,
     );
     normalized['title'] = remapped.$1;
     normalized['body'] = remapped.$2;
@@ -1008,9 +1012,7 @@ class NotificationStorageService {
   /// Mark all notifications in a category as read — local first, API in background.
   static Future<void> markCategoryAsRead(String category) async {
     final selected = _normalizeKey(category);
-    if (selected.isEmpty ||
-        selected == 'all' ||
-        selected == '__all__') {
+    if (selected.isEmpty || selected == 'all' || selected == '__all__') {
       await markAllAsRead();
       return;
     }
@@ -1108,8 +1110,8 @@ class NotificationStorageService {
       final prefs = await SharedPreferences.getInstance();
       final notifications = await _getStoredNotifications();
 
-      final index = notifications
-          .indexWhere((n) => '${n['id'] ?? ''}' == notificationId);
+      final index =
+          notifications.indexWhere((n) => '${n['id'] ?? ''}' == notificationId);
       final wasUnread = index != -1 &&
           notifications[index]['isRead'] != true &&
           notifications[index]['is_read'] != true;

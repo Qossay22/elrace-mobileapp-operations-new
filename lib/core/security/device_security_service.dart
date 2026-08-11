@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:flutter/foundation.dart' show debugPrint, kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_jailbreak_detection/flutter_jailbreak_detection.dart';
 import 'package:safe_device/safe_device.dart';
@@ -74,6 +74,12 @@ class DeviceSecurityService {
 
   static DeviceSecurityService get instance => _instance;
 
+  void _debugLog(Object? message) {
+    if (kDebugMode) {
+      debugPrint(message?.toString());
+    }
+  }
+
   /// Performs all security checks and returns the result
   Future<SecurityCheckResult> performSecurityCheck() async {
     bool isRooted = false;
@@ -90,27 +96,27 @@ class DeviceSecurityService {
         if (Platform.isAndroid) {
           isRooted = await FlutterJailbreakDetection.jailbroken
               .timeout(const Duration(milliseconds: 1200), onTimeout: () {
-            print('⚠️ Root check timeout – assuming not rooted');
+            _debugLog('Root check timeout - assuming not rooted');
             return false;
           });
-          print('🔒 Root check: $isRooted');
+          _debugLog('Root check: $isRooted');
         } else if (Platform.isIOS) {
           if (kDebugMode) {
             // Debug installs are never App Store builds; skip the slow native
             // probe so splash isn't blocked for ~5s every run.
-            print('🔒 Jailbreak check: SKIPPED in debug');
+            _debugLog('Jailbreak check: SKIPPED in debug');
             isJailbroken = false;
           } else {
             isJailbroken = await FlutterJailbreakDetection.jailbroken
                 .timeout(const Duration(milliseconds: 1200), onTimeout: () {
-              print('⚠️ Jailbreak check timeout – assuming not jailbroken');
+              _debugLog('Jailbreak check timeout - assuming not jailbroken');
               return false;
             });
-            print('🔒 Jailbreak check: $isJailbroken');
+            _debugLog('Jailbreak check: $isJailbroken');
           }
         }
       } catch (e) {
-        print('⚠️ Error checking root/jailbreak: $e');
+        _debugLog('Error checking root/jailbreak: $e');
       }
 
       // Check VPN (Android only).
@@ -118,16 +124,16 @@ class DeviceSecurityService {
       // a VPN is active risks App Store rejection, and the NEVPNManager /
       // NETunnelProviderManager check was removed from the iOS AppDelegate.
       if (Platform.isIOS) {
-        print('🔒 VPN check: SKIPPED on iOS (App Store compliance)');
+        _debugLog('VPN check: SKIPPED on iOS (App Store compliance)');
       } else if (AppConfigService.instance.shouldSkipVpnCheck) {
-        print('🔒 VPN check: SKIPPED (shouldSkipVpnCheck=true)');
+        _debugLog('VPN check: SKIPPED (shouldSkipVpnCheck=true)');
       } else {
         try {
-          print('🔒 Android: Calling VPN detector...');
+          _debugLog('Android: Calling VPN detector...');
           isUsingVpn = await VpnConnectionDetector.isVpnActive();
-          print('🔒 Android: VPN check result: $isUsingVpn');
+          _debugLog('Android: VPN check result: $isUsingVpn');
         } catch (e) {
-          print('⚠️ Error checking VPN: $e');
+          _debugLog('Error checking VPN: $e');
           // Don't fail the security check if VPN detection fails
           isUsingVpn = false;
         }
@@ -137,19 +143,19 @@ class DeviceSecurityService {
       try {
         if (Platform.isAndroid) {
           isMockLocation = await SafeDevice.isMockLocation;
-          print('🔒 Mock location check: $isMockLocation');
+          _debugLog('Mock location check: $isMockLocation');
         }
       } catch (e) {
-        print('⚠️ Error checking mock location: $e');
+        _debugLog('Error checking mock location: $e');
       }
 
       // Note: Emulator check disabled - SafeDevice.isRealDevice is unreliable
       // and gives false positives on some Samsung devices
       // If you need emulator detection, consider using a different approach
-      print('🔒 Emulator check: skipped (unreliable)');
+      _debugLog('Emulator check: skipped (unreliable)');
     } catch (e) {
       errorMessage = 'Security check error: $e';
-      print('❌ Security check error: $e');
+      _debugLog('Security check error: $e');
     }
 
     final result = SecurityCheckResult(
@@ -161,14 +167,10 @@ class DeviceSecurityService {
       errorMessage: errorMessage,
     );
 
-    print('═══════════════════════════════════════════════════════════');
-    print('🔒 SECURITY CHECK RESULT:');
-    print('   - Root/Jailbreak: ${isRooted || isJailbroken}');
-    print('   - VPN Active: $isUsingVpn');
-    print('   - Mock Location: $isMockLocation');
-    print('   - Emulator: $isEmulator');
-    print('   - Is Secure: ${result.isSecure}');
-    print('═══════════════════════════════════════════════════════════');
+    _debugLog('SECURITY CHECK RESULT: '
+        'rootOrJailbreak=${isRooted || isJailbroken}, '
+        'vpn=$isUsingVpn, mockLocation=$isMockLocation, '
+        'emulator=$isEmulator, secure=${result.isSecure}');
 
     return result;
   }
@@ -187,8 +189,8 @@ class DeviceSecurityService {
     await showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => WillPopScope(
-        onWillPop: () async => false, // Prevent back button
+      builder: (context) => PopScope(
+        canPop: false,
         child: AlertDialog(
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(

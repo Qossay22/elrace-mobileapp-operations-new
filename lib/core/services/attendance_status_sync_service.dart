@@ -4,6 +4,7 @@ import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/data/services/checkin_reminder_notification_service.dart';
 import 'package:el_race/ui/presentation/Attendace_list/repository/attendance_repository.dart';
 import 'package:el_race/ui/presentation/home_screen/widgets/timer_controller.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 class AttendanceStatusSnapshot {
@@ -53,13 +54,14 @@ class AttendanceStatusSyncService {
       final status = await AttendanceRepo().getTodayStatus();
       final snapshot = _toSnapshot(status);
 
-      print('\n🔍 ===== AttendanceSync ($reason) =====');
-      print('🔍 SERVER: checkedIn=${snapshot.checkedIn}, '
+      if (kDebugMode) {
+        debugPrint(
+          'AttendanceSync($reason): checkedIn=${snapshot.checkedIn}, '
           'checkedOut=${snapshot.checkedOut}, '
           'checkIn=${snapshot.checkInDisplayTime}, '
-          'checkOut=${snapshot.checkOutDisplayTime}');
-      print('✅ AttendanceSync: Accepting server data ($reason)');
-      print('🔍 ===== END AttendanceSync =====\n');
+          'checkOut=${snapshot.checkOutDisplayTime}',
+        );
+      }
 
       await _persistSnapshot(snapshot);
       _updatesController.add(snapshot);
@@ -104,10 +106,13 @@ class AttendanceStatusSyncService {
 
   static Future<void> _persistSnapshot(
       AttendanceStatusSnapshot snapshot) async {
-    print('\n📝 _persistSnapshot: WRITING from server:');
-    print('📝   isCheckedIn = ${snapshot.checkedIn}');
-    print('📝   checkInDisplayTime = ${snapshot.checkInDisplayTime}');
-    print('📝   checkOutDisplayTime = ${snapshot.checkOutDisplayTime}');
+    if (kDebugMode) {
+      debugPrint(
+        'AttendanceSync.persist: checkedIn=${snapshot.checkedIn}, '
+        'checkIn=${snapshot.checkInDisplayTime}, '
+        'checkOut=${snapshot.checkOutDisplayTime}',
+      );
+    }
 
     // دائماً نكتب بيانات السيرفر مباشرة بدون مقارنة محلية
     await SharedPref().setPreferencesBoolean('isCheckedIn', snapshot.checkedIn);
@@ -129,17 +134,12 @@ class AttendanceStatusSyncService {
     }
 
     // حفظ check_in_record_id من السيرفر
-    if (snapshot.checkedIn && snapshot.checkInRecordId != null && snapshot.checkInRecordId! > 0) {
-      await SharedPref().setPreferenceInt('checkInRecordId', snapshot.checkInRecordId!);
+    if (snapshot.checkedIn &&
+        snapshot.checkInRecordId != null &&
+        snapshot.checkInRecordId! > 0) {
+      await SharedPref()
+          .setPreferenceInt('checkInRecordId', snapshot.checkInRecordId!);
     }
-
-    print('📝 _persistSnapshot: AFTER');
-    print('📝   isCheckedIn = ${SharedPref().getPreferenceBoolean('isCheckedIn')}');
-    print('📝   checkInDisplayTime = ${SharedPref().getPreferenceString('checkInDisplayTime')}');
-    print('📝   checkOutDisplayTime = ${SharedPref().getPreferenceString('checkOutDisplayTime')}');
-    print('📝   checkInTime (ms) = ${SharedPref().getPreferenceInt('checkInTime')}');
-    print('📝   checkInRecordId = ${SharedPref().getPreferenceInt('checkInRecordId')}');
-    print('📝 ===== END _persistSnapshot =====\n');
 
     // Reload the timer controller so it reflects the server's check-in time.
     try {
