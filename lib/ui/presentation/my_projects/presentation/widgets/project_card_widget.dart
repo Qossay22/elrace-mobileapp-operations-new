@@ -4,7 +4,7 @@ import 'package:el_race/ui/presentation/my_projects/domain/entities/project_enti
 import 'package:el_race/ui/presentation/my_projects/presentation/bloc/project_list_event.dart';
 import 'package:el_race/ui/presentation/my_projects/presentation/widgets/project_documents_dialog.dart';
 import 'package:el_race/utils/Util.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -42,10 +42,10 @@ class ProjectCardWidget extends StatelessWidget {
           //     //     left: 20.tw,
           //     //   ),
           //     //   decoration: BoxDecoration(
-          //     //     color: red,
+          //     //     color: AppThemeColors.legacyRed,
           //     //     boxShadow: [
           //     //       BoxShadow(
-          //     //         color: red.withValues(alpha: 0.3),
+          //     //         color: AppThemeColors.legacyRed.withValues(alpha: 0.3),
           //     //         blurRadius: 4,
           //     //         spreadRadius: 1,
           //     //       ),
@@ -152,7 +152,7 @@ class ProjectCardWidget extends StatelessWidget {
                                   style: GoogleFonts.poppins(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w400,
-                                    color: black,
+                                    color: AppThemeColors.legacyInk,
                                     //letterSpacing: 1.0,
                                   ),
                                   overflow: TextOverflow.visible,
@@ -167,7 +167,7 @@ class ProjectCardWidget extends StatelessWidget {
                                 "assets/png/icons/hand.png",
                                 height: 11.14.th,
                                 width: 18.03.tw,
-                                color: black,
+                                color: AppThemeColors.legacyInk,
                               ),
                               SizedBox(width: 2.tw),
                               SizedBox(
@@ -178,7 +178,7 @@ class ProjectCardWidget extends StatelessWidget {
                                   style: GoogleFonts.poppins(
                                     fontSize: 11.06,
                                     fontWeight: FontWeight.w400,
-                                    color: black,
+                                    color: AppThemeColors.legacyInk,
                                     // letterSpacing: 1.0,
                                   ),
                                   overflow: TextOverflow.visible,
@@ -199,7 +199,8 @@ class ProjectCardWidget extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: Colors.transparent,
                               shape: BoxShape.circle,
-                              border: Border.all(color: black, width: 1),
+                              border: Border.all(
+                                  color: AppThemeColors.legacyInk, width: 1),
                             ),
                             child: Center(
                               child: Text(

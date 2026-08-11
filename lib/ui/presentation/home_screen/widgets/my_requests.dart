@@ -1,4 +1,4 @@
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/utils/string_utils.dart';
 import 'package:flutter/material.dart';
 
@@ -12,10 +12,13 @@ class MyRequests extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
       child: Container(
         decoration: BoxDecoration(
-            color: lightGrey,
+            color: AppThemeColors.lightGrey,
             borderRadius: BorderRadius.circular(15),
             boxShadow: const [
-              BoxShadow(color: darkGrey, offset: Offset(2, 4), blurRadius: 12)
+              BoxShadow(
+                  color: AppThemeColors.darkGrey,
+                  offset: Offset(2, 4),
+                  blurRadius: 12)
             ]),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -31,7 +34,8 @@ class MyRequests extends StatelessWidget {
                   Text(
                     title,
                     style: const TextStyle(
-                        color: blue, fontWeight: FontWeight.w500),
+                        color: AppThemeColors.brandBlue,
+                        fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
@@ -49,10 +53,10 @@ class MyRequests extends StatelessWidget {
                           width: 320,
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(25),
-                              color: white,
+                              color: AppThemeColors.softWhite,
                               boxShadow: const [
                                 BoxShadow(
-                                    color: darkGrey,
+                                    color: AppThemeColors.darkGrey,
                                     offset: Offset(2, 4),
                                     blurRadius: 12)
                               ]),
@@ -64,7 +68,7 @@ class MyRequests extends StatelessWidget {
                               children: [
                                 Image.asset('$imagePrefixIcons/fav2.png'),
                                 Container(
-                                  color: darkGrey,
+                                  color: AppThemeColors.darkGrey,
                                   width: 2,
                                   height: 50,
                                 ),
@@ -74,18 +78,20 @@ class MyRequests extends StatelessWidget {
                                       'ANNUAL LEAVE',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          color: blue),
+                                          color: AppThemeColors.brandBlue),
                                     ),
                                     Row(
                                       children: [
                                         Container(
                                           height: 15,
                                           width: 15,
-                                          color: red,
+                                          color: AppThemeColors.legacyRed,
                                           child: const Center(
                                             child: Text(
                                               '1',
-                                              style: TextStyle(color: white),
+                                              style: TextStyle(
+                                                  color:
+                                                      AppThemeColors.softWhite),
                                             ),
                                           ),
                                         ),
@@ -96,7 +102,7 @@ class MyRequests extends StatelessWidget {
                                           'ANNUAL LEAVE',
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold,
-                                              color: darkGrey,
+                                              color: AppThemeColors.darkGrey,
                                               fontSize: 10),
                                         ),
                                       ],
@@ -104,7 +110,7 @@ class MyRequests extends StatelessWidget {
                                   ],
                                 ),
                                 Container(
-                                  color: darkGrey,
+                                  color: AppThemeColors.darkGrey,
                                   width: 2,
                                   height: 50,
                                 ),
@@ -115,12 +121,14 @@ class MyRequests extends StatelessWidget {
                                     Text(
                                       'REQUESTED',
                                       style: TextStyle(
-                                          fontSize: 10, color: darkGrey),
+                                          fontSize: 10,
+                                          color: AppThemeColors.darkGrey),
                                     ),
                                     Text(
                                       '2 DAYS AGO',
                                       style: TextStyle(
-                                          fontSize: 10, color: darkGrey),
+                                          fontSize: 10,
+                                          color: AppThemeColors.darkGrey),
                                     )
                                   ],
                                 ),
@@ -131,8 +139,9 @@ class MyRequests extends StatelessWidget {
                                   height: 30,
                                   width: 30,
                                   decoration: BoxDecoration(
-                                      border:
-                                          Border.all(color: blue, width: 2)),
+                                      border: Border.all(
+                                          color: AppThemeColors.brandBlue,
+                                          width: 2)),
                                 )
                               ],
                             ),

@@ -1,9 +1,9 @@
 import 'package:el_race/core/services/update_service.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/core/update/bloc/app_update_bloc.dart';
 import 'package:el_race/core/update/bloc/app_update_event.dart';
 import 'package:el_race/core/update/bloc/app_update_state.dart';
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
-import 'package:el_race/utils/color_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -63,14 +63,14 @@ class UpdateDialog extends StatelessWidget {
                       width: 58.tr,
                       height: 58.tr,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFEFEF),
+                        color: AppThemeColors.errorContainer,
                         shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFFFFD7D8)),
+                        border: Border.all(color: AppThemeColors.errorBorder),
                       ),
                       child: Icon(
                         Icons.system_update_alt_rounded,
                         size: 31.tr,
-                        color: const Color(0xFFBA1719),
+                        color: AppThemeColors.error,
                       ),
                     ),
                     SizedBox(height: 14.th),
@@ -80,7 +80,7 @@ class UpdateDialog extends StatelessWidget {
                       style: GoogleFonts.poppins(
                         fontSize: 17.tsp,
                         fontWeight: FontWeight.w700,
-                        color: appFontColor,
+                        color: AppThemeColors.brandPrimary,
                       ),
                     ),
                     SizedBox(height: 8.th),
@@ -90,7 +90,7 @@ class UpdateDialog extends StatelessWidget {
                       style: GoogleFonts.poppins(
                         fontSize: 13.tsp,
                         fontWeight: FontWeight.w400,
-                        color: const Color(0xFF55596A),
+                        color: AppThemeColors.textSecondary,
                         height: 1.45,
                       ),
                     ),
@@ -102,7 +102,8 @@ class UpdateDialog extends StatelessWidget {
                           vertical: 5.th,
                         ),
                         decoration: BoxDecoration(
-                          color: appFontColor.withValues(alpha: 0.08),
+                          color: AppThemeColors.brandPrimary
+                              .withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(999),
                         ),
                         child: Text(
@@ -110,7 +111,7 @@ class UpdateDialog extends StatelessWidget {
                           style: GoogleFonts.poppins(
                             fontSize: 12.tsp,
                             fontWeight: FontWeight.w600,
-                            color: appFontColor,
+                            color: AppThemeColors.brandPrimary,
                           ),
                         ),
                       ),
@@ -122,7 +123,7 @@ class UpdateDialog extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style: GoogleFonts.poppins(
                           fontSize: 12.tsp,
-                          color: const Color(0xFFBA1719),
+                          color: AppThemeColors.error,
                         ),
                       ),
                     ],
@@ -144,17 +145,17 @@ class UpdateDialog extends StatelessWidget {
                                 child: const CircularProgressIndicator(
                                   strokeWidth: 2,
                                   valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white,
+                                    AppThemeColors.onBrand,
                                   ),
                                 ),
                               )
                             : const Icon(Icons.open_in_new_rounded, size: 19),
                         label: Text(updateLabel),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: appFontColor,
-                          foregroundColor: Colors.white,
-                          disabledBackgroundColor:
-                              appFontColor.withValues(alpha: 0.55),
+                          backgroundColor: AppThemeColors.brandPrimary,
+                          foregroundColor: AppThemeColors.onBrand,
+                          disabledBackgroundColor: AppThemeColors.brandPrimary
+                              .withValues(alpha: 0.55),
                           padding: EdgeInsets.symmetric(vertical: 13.th),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12.tr),
@@ -176,7 +177,7 @@ class UpdateDialog extends StatelessWidget {
                           style: GoogleFonts.poppins(
                             fontSize: 13.tsp,
                             fontWeight: FontWeight.w600,
-                            color: const Color(0xFF747789),
+                            color: AppThemeColors.textTertiary,
                           ),
                         ),
                       ),

@@ -1,4 +1,4 @@
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -61,7 +61,7 @@ class ColleaspedCard extends StatelessWidget {
                   style: GoogleFonts.poppins(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.bold,
-                    color: appFontColor,
+                    color: AppThemeColors.brandPrimary,
                   ),
                 ),
               ),
@@ -83,7 +83,7 @@ class ColleaspedCard extends StatelessWidget {
                       style: GoogleFonts.poppins(
                         fontSize: 13.sp,
                         fontWeight: FontWeight.bold,
-                        color: appFontColor,
+                        color: AppThemeColors.brandPrimary,
                       ),
                     ),
                     Text(
@@ -109,7 +109,7 @@ class ColleaspedCard extends StatelessWidget {
                       style: GoogleFonts.poppins(
                         fontSize: 13.sp,
                         fontWeight: FontWeight.bold,
-                        color: appFontColor,
+                        color: AppThemeColors.brandPrimary,
                       ),
                     ),
                     Text(

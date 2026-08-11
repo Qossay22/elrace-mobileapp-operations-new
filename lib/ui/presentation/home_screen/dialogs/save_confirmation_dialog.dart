@@ -1,4 +1,4 @@
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/utils/orientation_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -22,11 +22,11 @@ class SaveConfirmationDialog extends StatelessWidget {
         width: SizeConfig().getWidth(280),
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: white,
+          color: AppThemeColors.softWhite,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: black.withAlpha((0.1 * 255).toInt()),
+              color: AppThemeColors.legacyInk.withAlpha((0.1 * 255).toInt()),
               spreadRadius: 2,
               blurRadius: 10,
             ),
@@ -36,7 +36,6 @@ class SaveConfirmationDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(height: 16),
-            
             Text(
               'Save Changes',
               style: GoogleFonts.poppins(
@@ -46,7 +45,6 @@ class SaveConfirmationDialog extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            
             Text(
               'Do you want to save your widget changes?',
               style: GoogleFonts.poppins(
@@ -56,7 +54,6 @@ class SaveConfirmationDialog extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
-            
             Row(
               children: [
                 Expanded(
@@ -65,7 +62,7 @@ class SaveConfirmationDialog extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: red,
+                        color: AppThemeColors.legacyRed,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -95,7 +92,7 @@ class SaveConfirmationDialog extends StatelessWidget {
                         style: GoogleFonts.poppins(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w600,
-                          color: white,
+                          color: AppThemeColors.softWhite,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -109,4 +106,4 @@ class SaveConfirmationDialog extends StatelessWidget {
       ),
     );
   }
-} 
+}

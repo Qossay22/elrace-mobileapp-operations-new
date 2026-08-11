@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../../../core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 
 import '../../../../../data/repositories/company_repository.dart';
 import '../../../../widgets/bottom_appbar.dart';
@@ -60,19 +60,19 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: CustomColors.white,
+      backgroundColor: AppThemeColors.surface,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         surfaceTintColor: Colors.transparent,
-        backgroundColor: CustomColors.white,
+        backgroundColor: AppThemeColors.surface,
         centerTitle: true,
         leadingWidth: 60,
         leading: Align(
           alignment: Alignment.centerRight,
           child: SquareButton(
             icon: Icons.keyboard_backspace,
-            color: CustomColors.white,
-            borderColor: CustomColors.black,
+            color: AppThemeColors.surface,
+            borderColor: AppThemeColors.pureBlack,
             onPressed: () {
               Navigator.pop(context);
             },
@@ -86,8 +86,8 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
         actions: [
           SquareButton(
             icon: Icons.share_outlined,
-            color: CustomColors.maroon,
-            borderColor: CustomColors.white,
+            color: AppThemeColors.reportMaroon,
+            borderColor: AppThemeColors.surface,
             onPressed: () async {
               await Navigator.push(
                   context,
@@ -103,8 +103,8 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
       ),
       floatingActionButton: SquareButton(
         icon: Icons.add,
-        color: CustomColors.maroon,
-        borderColor: CustomColors.white,
+        color: AppThemeColors.reportMaroon,
+        borderColor: AppThemeColors.surface,
         onPressed: _showAddOptions,
       ),
       body: reportDetail != null

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:el_race/report_module/core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/report_module/core/constants/text_styles.dart';
 import 'package:el_race/report_module/data/models/report_detail_model.dart';
 import 'package:el_race/report_module/data/models/report_item_model.dart';
@@ -10,7 +10,6 @@ import 'package:el_race/report_module/presentation/screens/report_detail/camera_
 import 'package:el_race/report_module/presentation/screens/report_detail/image_editing_screen.dart';
 import 'package:el_race/report_module/presentation/widgets/bottom_appbar.dart';
 import 'package:el_race/report_module/presentation/widgets/square_button.dart';
-import 'package:el_race/utils/color_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -66,17 +65,17 @@ class _AddNewItemState extends State<AddNewItem> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: CustomColors.white,
+      backgroundColor: AppThemeColors.surface,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         surfaceTintColor: Colors.transparent,
-        backgroundColor: CustomColors.white,
+        backgroundColor: AppThemeColors.surface,
         centerTitle: true,
         leadingWidth: 70,
         leading: SquareButton(
           icon: Icons.keyboard_backspace,
-          color: CustomColors.white,
-          borderColor: CustomColors.black,
+          color: AppThemeColors.surface,
+          borderColor: AppThemeColors.pureBlack,
           onPressed: () {
             Navigator.pop(context);
           },
@@ -90,8 +89,8 @@ class _AddNewItemState extends State<AddNewItem> {
               widget.report.reportItems[currentIndex].type == "image")
             SquareButton(
               icon: Icons.edit,
-              color: CustomColors.white,
-              borderColor: CustomColors.black,
+              color: AppThemeColors.surface,
+              borderColor: AppThemeColors.pureBlack,
               onPressed: () async {
                 if (widget.report.reportItems[currentIndex].type == "image") {
                   var bytes = await Navigator.push(
@@ -137,7 +136,7 @@ class _AddNewItemState extends State<AddNewItem> {
                       width: double.infinity,
                       height: 216,
                       decoration: BoxDecoration(
-                          color: CustomColors.containerColor,
+                          color: AppThemeColors.reportContainer,
                           borderRadius: BorderRadius.circular(8)),
                       child: Image.file(
                         key: Key(_imageBust.toString()),
@@ -151,8 +150,8 @@ class _AddNewItemState extends State<AddNewItem> {
                     right: 10,
                     child: SquareButton(
                       icon: Icons.flip_camera_ios,
-                      color: CustomColors.white,
-                      borderColor: CustomColors.black,
+                      color: AppThemeColors.surface,
+                      borderColor: AppThemeColors.pureBlack,
                       onPressed: () async {
                         setState(() {});
                         var result = await Navigator.push(
@@ -244,7 +243,9 @@ class _AddNewItemState extends State<AddNewItem> {
           Center(
             child: Text(
               "item no : ${currentIndex + 1}/${widget.report.reportItems.length}",
-              style: CustomTextStyle.reportHeader.copyWith(color: black),
+              style: CustomTextStyle.reportHeader.copyWith(
+                color: AppThemeColors.legacyInk,
+              ),
             ),
           ),
           // const SizedBox(height: 12),
@@ -294,7 +295,7 @@ class _AddNewItemState extends State<AddNewItem> {
           //     Navigator.pop(context, _newItem);
           //   },
           //   height: 44,
-          //   color: CustomColors.maroon,
+          //   color: AppThemeColors.reportModuleMaroon,
           //   shape:
           //       RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           //   child: _loading
@@ -302,12 +303,12 @@ class _AddNewItemState extends State<AddNewItem> {
           //           height: 30,
           //           width: 30,
           //           child: CircularProgressIndicator(
-          //             color: CustomColors.white,
+          //             color: AppThemeColors.surface,
           //           ))
           //       : Text(
           //           "Save",
           //           style: CustomTextStyle.reportTitle.copyWith(
-          //             color: CustomColors.white,
+          //             color: AppThemeColors.surface,
           //             fontWeight: FontWeight.w500,
           //           ),
           //         ),
@@ -320,7 +321,8 @@ class _AddNewItemState extends State<AddNewItem> {
               children: [
                 Expanded(
                   child: MaterialButton(
-                    disabledColor: CustomColors.maroon.withValues(alpha: .3),
+                    disabledColor:
+                        AppThemeColors.reportModuleMaroon.withValues(alpha: .3),
                     onPressed: currentIndex == 0
                         ? null
                         : () async {
@@ -334,13 +336,13 @@ class _AddNewItemState extends State<AddNewItem> {
                                     .description);
                           },
                     height: 44,
-                    color: CustomColors.maroon,
+                    color: AppThemeColors.reportModuleMaroon,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15)),
                     child: Text(
                       "Previous",
                       style: CustomTextStyle.reportTitle.copyWith(
-                        color: CustomColors.white,
+                        color: AppThemeColors.surface,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -349,7 +351,8 @@ class _AddNewItemState extends State<AddNewItem> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: MaterialButton(
-                    disabledColor: CustomColors.blue.withValues(alpha: .3),
+                    disabledColor:
+                        AppThemeColors.reportBlue.withValues(alpha: .3),
                     onPressed:
                         (currentIndex + 1) == widget.report.reportItems.length
                             ? null
@@ -365,13 +368,13 @@ class _AddNewItemState extends State<AddNewItem> {
                                 setState(() {});
                               },
                     height: 44,
-                    color: CustomColors.blue,
+                    color: AppThemeColors.reportBlue,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15)),
                     child: Text(
                       "Next",
                       style: CustomTextStyle.reportTitle.copyWith(
-                        color: CustomColors.white,
+                        color: AppThemeColors.surface,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -392,7 +395,7 @@ class _AddNewItemState extends State<AddNewItem> {
               child: Text(
                 "Done",
                 style: CustomTextStyle.reportTitle.copyWith(
-                  color: CustomColors.white,
+                  color: AppThemeColors.surface,
                   fontWeight: FontWeight.w600,
                 ),
               ),

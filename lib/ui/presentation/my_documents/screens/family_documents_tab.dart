@@ -5,7 +5,7 @@ import 'dart:io';
 
 import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -832,7 +832,8 @@ class _FamilyDocumentsTabState extends State<FamilyDocumentsTab> {
         selectedDocType == 'expired' || selectedDocType == 'expiry_soon';
 
     return ListView(
-      padding: EdgeInsets.only(left: 12.tw, right: 12.tw, top: 14.th, bottom: 8.th),
+      padding:
+          EdgeInsets.only(left: 12.tw, right: 12.tw, top: 14.th, bottom: 8.th),
       children: [
         Container(
           height: 96.th,
@@ -1433,7 +1434,8 @@ class _FamilyDocumentsTabState extends State<FamilyDocumentsTab> {
 
   Widget _buildRequestedMode(List<Map<String, dynamic>> docs) {
     return ListView(
-      padding: EdgeInsets.only(left: 12.tw, right: 12.tw, top: 14.th, bottom: 8.th),
+      padding:
+          EdgeInsets.only(left: 12.tw, right: 12.tw, top: 14.th, bottom: 8.th),
       children: [
         _buildRequestedSummaryCard(),
         SizedBox(height: 12.th),
@@ -1718,7 +1720,8 @@ class _FamilyDocumentsTabState extends State<FamilyDocumentsTab> {
           fontSize: 11.tsp,
           color: const Color(0xFF9A9A9A),
         ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 12.tw, vertical: 12.th),
+        contentPadding:
+            EdgeInsets.symmetric(horizontal: 12.tw, vertical: 12.th),
         filled: true,
         fillColor: const Color(0xFFD6D6D8),
         border: OutlineInputBorder(
@@ -1906,8 +1909,8 @@ class _FamilyDocumentsTabState extends State<FamilyDocumentsTab> {
     return Column(
       children: [
         Padding(
-          padding:
-              EdgeInsets.only(left: 8.tw, right: 20.tw, top: 8.th, bottom: 8.th),
+          padding: EdgeInsets.only(
+              left: 8.tw, right: 20.tw, top: 8.th, bottom: 8.th),
           child: Row(
             children: [
               IconButton(
@@ -2058,7 +2061,8 @@ class _FamilyDocumentsTabState extends State<FamilyDocumentsTab> {
                                   if (isExpired) SizedBox(height: 4.th),
                                   Expanded(
                                     child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(12.tr),
+                                      borderRadius:
+                                          BorderRadius.circular(12.tr),
                                       child: Image.asset(
                                         iconPath,
                                         fit: BoxFit.contain,
@@ -2160,7 +2164,8 @@ class _FamilyDocumentsTabState extends State<FamilyDocumentsTab> {
     final folders = _effectiveFolders(liveDocs);
 
     return ListView(
-      padding: EdgeInsets.only(left: 6.tw, right: 6.tw, top: 16.th, bottom: 4.th),
+      padding:
+          EdgeInsets.only(left: 6.tw, right: 6.tw, top: 16.th, bottom: 4.th),
       children: [
         _buildSummaryCards(),
         SizedBox(height: 12.th),
@@ -2483,8 +2488,8 @@ class _FamilyDocumentsTabState extends State<FamilyDocumentsTab> {
       children: [
         // Back button + Files count
         Padding(
-          padding:
-              EdgeInsets.only(left: 8.tw, right: 20.tw, top: 8.th, bottom: 8.th),
+          padding: EdgeInsets.only(
+              left: 8.tw, right: 20.tw, top: 8.th, bottom: 8.th),
           child: Row(
             children: [
               IconButton(
@@ -2666,7 +2671,7 @@ class _FamilyDocumentsTabState extends State<FamilyDocumentsTab> {
                           child: Icon(
                             Icons.edit,
                             size: 14.tsp,
-                            color: appFontColor,
+                            color: AppThemeColors.brandPrimary,
                           ),
                         ),
                       ),

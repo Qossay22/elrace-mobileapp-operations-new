@@ -13,7 +13,7 @@ import 'package:el_race/ui/presentation/My_task/screens/report_detail/camera_scr
 import 'package:el_race/ui/presentation/My_task/screens/report_detail/pdf_preview_screen.dart';
 // Import the login model
 import 'package:el_race/ui/presentation/Attendace_list/repository/attendance_repository.dart';
-import 'package:el_race/utils/color_utils.dart'; // Import global colors
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_translate/flutter_translate.dart';
@@ -119,7 +119,7 @@ class _PettyCashPopUpScreenState extends State<PettyCashPopUpScreen> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: appFontColor,
+                    color: AppThemeColors.brandPrimary,
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -153,7 +153,7 @@ class _PettyCashPopUpScreenState extends State<PettyCashPopUpScreen> {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: appFontColor,
+                              color: AppThemeColors.brandPrimary,
                             ),
                           ),
                         ],
@@ -186,7 +186,7 @@ class _PettyCashPopUpScreenState extends State<PettyCashPopUpScreen> {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: appFontColor,
+                              color: AppThemeColors.brandPrimary,
                             ),
                           ),
                         ],
@@ -269,7 +269,7 @@ class _PettyCashPopUpScreenState extends State<PettyCashPopUpScreen> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: appFontColor,
+                        color: AppThemeColors.brandPrimary,
                       ),
                     ),
                     IconButton(
@@ -292,10 +292,7 @@ class _PettyCashPopUpScreenState extends State<PettyCashPopUpScreen> {
                     itemCount: attachments.length,
                     itemBuilder: (context, index) {
                       final file = attachments[index];
-                      final ext = file.path
-                          .split('.')
-                          .last
-                          .toLowerCase();
+                      final ext = file.path.split('.').last.toLowerCase();
                       final isPdf = ext == 'pdf';
                       return Stack(
                         children: [
@@ -336,8 +333,7 @@ class _PettyCashPopUpScreenState extends State<PettyCashPopUpScreen> {
                             child: Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(8),
-                                border:
-                                    Border.all(color: Colors.grey.shade300),
+                                border: Border.all(color: Colors.grey.shade300),
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
@@ -474,12 +470,12 @@ class _PettyCashPopUpScreenState extends State<PettyCashPopUpScreen> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: appFontColor.withOpacity(0.1),
+                        color: AppThemeColors.brandPrimary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
                         _getExpenseTypeIcon(expense['x_expense_type'] ?? ''),
-                        color: appFontColor,
+                        color: AppThemeColors.brandPrimary,
                         size: 28,
                       ),
                     ),
@@ -540,7 +536,9 @@ class _PettyCashPopUpScreenState extends State<PettyCashPopUpScreen> {
                 const SizedBox(height: 12),
                 _buildDetailRow(
                   'Type',
-                  (expense['x_expense_type'] ?? 'Other').toString().toUpperCase(),
+                  (expense['x_expense_type'] ?? 'Other')
+                      .toString()
+                      .toUpperCase(),
                   Icons.category,
                 ),
                 const SizedBox(height: 12),
@@ -549,7 +547,8 @@ class _PettyCashPopUpScreenState extends State<PettyCashPopUpScreen> {
                   (expense['state'] ?? 'Draft').toString().toUpperCase(),
                   Icons.info_outline,
                 ),
-                if (expense['project_name'] != null && expense['project_name'].toString().isNotEmpty) ...[
+                if (expense['project_name'] != null &&
+                    expense['project_name'].toString().isNotEmpty) ...[
                   const SizedBox(height: 12),
                   _buildDetailRow(
                     'Project',
@@ -565,7 +564,7 @@ class _PettyCashPopUpScreenState extends State<PettyCashPopUpScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: appFontColor,
+                      backgroundColor: AppThemeColors.brandPrimary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -590,10 +589,12 @@ class _PettyCashPopUpScreenState extends State<PettyCashPopUpScreen> {
     );
   }
 
-  Widget _buildDetailRow(String label, String value, IconData icon, {bool isAmount = false}) {
+  Widget _buildDetailRow(String label, String value, IconData icon,
+      {bool isAmount = false}) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: appFontColor.withOpacity(0.6)),
+        Icon(icon,
+            size: 20, color: AppThemeColors.brandPrimary.withOpacity(0.6)),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -2087,7 +2088,7 @@ class _PettyCashPopUpScreenState extends State<PettyCashPopUpScreen> {
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: appFontColor),
+                          color: AppThemeColors.brandPrimary),
                     ),
                   ),
                 ),
@@ -2112,7 +2113,7 @@ class _PettyCashPopUpScreenState extends State<PettyCashPopUpScreen> {
                               draftAmount.toStringAsFixed(0),
                               'assets/png/draft_bg_1.png',
                               'assets/png/draft_icon.png',
-                              appFontColor,
+                              AppThemeColors.brandPrimary,
                             ),
                           ),
                           _buildDraftInfo(
@@ -2175,7 +2176,7 @@ class _PettyCashPopUpScreenState extends State<PettyCashPopUpScreen> {
                                   style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
-                                      color: appFontColor),
+                                      color: AppThemeColors.brandPrimary),
                                 ),
                               ],
                             ),
@@ -2198,31 +2199,31 @@ class _PettyCashPopUpScreenState extends State<PettyCashPopUpScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1B1464),
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.visibility,
-                                color: Colors.white, size: 20),
-                            const SizedBox(width: 8),
-                            Text(
-                              attachments.isEmpty 
-                                  ? "View Attachments"
-                                  : "View ${attachments.length} Attachment${attachments.length > 1 ? 's' : ''}",
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1B1464),
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.visibility,
+                              color: Colors.white, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            attachments.isEmpty
+                                ? "View Attachments"
+                                : "View ${attachments.length} Attachment${attachments.length > 1 ? 's' : ''}",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
+                ),
 
                 // if (attachments.isNotEmpty)
                 //   Padding(
@@ -2320,7 +2321,7 @@ class _PettyCashPopUpScreenState extends State<PettyCashPopUpScreen> {
                               style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: appFontColor),
+                                  color: AppThemeColors.brandPrimary),
                             ),
                           ],
                         ),
@@ -2366,8 +2367,11 @@ class _PettyCashPopUpScreenState extends State<PettyCashPopUpScreen> {
                                   final date =
                                       expense['date']?.toString() ?? 'N/A';
                                   final amount = expense['amount'] ?? 0;
-                                  final name = expense['name'] ?? expense['remarks'] ?? 'Expense';
-                                  final expenseType = expense['x_expense_type'] ?? '';
+                                  final name = expense['name'] ??
+                                      expense['remarks'] ??
+                                      'Expense';
+                                  final expenseType =
+                                      expense['x_expense_type'] ?? '';
 
                                   return Padding(
                                     padding: const EdgeInsets.symmetric(
@@ -2407,7 +2411,7 @@ class _PettyCashPopUpScreenState extends State<PettyCashPopUpScreen> {
                         child: Text(
                           'Please be aware that No of attachments & draft invoices should be the same.',
                           style: TextStyle(
-                            color: appFontColor,
+                            color: AppThemeColors.brandPrimary,
                             fontSize: 9,
                             fontWeight: FontWeight.w500,
                           ),
@@ -2474,7 +2478,7 @@ class _PettyCashPopUpScreenState extends State<PettyCashPopUpScreen> {
               Icon(
                 _getExpenseTypeIcon(expenseType ?? ''),
                 size: 24,
-                color: appFontColor,
+                color: AppThemeColors.brandPrimary,
               ),
               const SizedBox(width: 8),
               const SizedBox(
@@ -2507,7 +2511,7 @@ class _PettyCashPopUpScreenState extends State<PettyCashPopUpScreen> {
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
-                          color: appFontColor.withOpacity(0.7),
+                          color: AppThemeColors.brandPrimary.withOpacity(0.7),
                         ),
                       ),
                   ],
@@ -2531,7 +2535,7 @@ class _PettyCashPopUpScreenState extends State<PettyCashPopUpScreen> {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
-                        color: appFontColor,
+                        color: AppThemeColors.brandPrimary,
                       ),
                     ),
                     Text(
@@ -2563,7 +2567,7 @@ class _PettyCashPopUpScreenState extends State<PettyCashPopUpScreen> {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
-                        color: appFontColor,
+                        color: AppThemeColors.brandPrimary,
                       ),
                     ),
                     Text(
@@ -2580,7 +2584,7 @@ class _PettyCashPopUpScreenState extends State<PettyCashPopUpScreen> {
               const SizedBox(width: 8),
               const Icon(
                 Icons.chevron_right,
-                color: appFontColor,
+                color: AppThemeColors.brandPrimary,
                 size: 20,
               ),
             ],

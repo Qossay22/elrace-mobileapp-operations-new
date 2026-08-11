@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:el_race/ui/presentation/signin/data/model.dart'; // Import login model
 import 'package:google_fonts/google_fonts.dart';
@@ -17,7 +17,12 @@ class EmptyShiftPage extends StatefulWidget {
   final int taskId; // <-- Task ID to send in API
   final int project_id;
 
-  const EmptyShiftPage({super.key, required this.loginResponseModel, required this.selectedDate,required this.taskId, required this.project_id});
+  const EmptyShiftPage(
+      {super.key,
+      required this.loginResponseModel,
+      required this.selectedDate,
+      required this.taskId,
+      required this.project_id});
 
   @override
   State<EmptyShiftPage> createState() => _EmptyShiftPageState();
@@ -39,7 +44,8 @@ class _EmptyShiftPageState extends State<EmptyShiftPage> {
     final body = {
       "jsonrpc": "2.0",
       "params": {
-        "task_id": widget.taskId, // Replace this with the actual task_id if dynamic
+        "task_id":
+            widget.taskId, // Replace this with the actual task_id if dynamic
         "from_date": _formatDate(widget.selectedDate),
         "to_date": _formatDate(widget.selectedDate),
       }
@@ -53,7 +59,8 @@ class _EmptyShiftPageState extends State<EmptyShiftPage> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         setState(() {
-          timesheets = List<Map<String, dynamic>>.from(data['result']['timesheets']);
+          timesheets =
+              List<Map<String, dynamic>>.from(data['result']['timesheets']);
           isLoading = false;
         });
       } else {
@@ -72,7 +79,8 @@ class _EmptyShiftPageState extends State<EmptyShiftPage> {
 
   @override
   Widget build(BuildContext context) {
-    final formattedDate = "${_getWeekday(widget.selectedDate)}, ${_getMonth(widget.selectedDate)} ${widget.selectedDate.day}";
+    final formattedDate =
+        "${_getWeekday(widget.selectedDate)}, ${_getMonth(widget.selectedDate)} ${widget.selectedDate.day}";
 
     return Scaffold(
       appBar: const HeaderWidget(),
@@ -88,8 +96,6 @@ class _EmptyShiftPageState extends State<EmptyShiftPage> {
   Widget _buildTimesheetList(String formattedDate) {
     return Column(
       children: [
-
-
         const SizedBox(height: 10),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -103,11 +109,10 @@ class _EmptyShiftPageState extends State<EmptyShiftPage> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => EmployeeShiftRequestPage(
-                        loginResponseModel: widget.loginResponseModel,
-                        taskId: widget.taskId,
-                        project_id: widget.project_id,
-                        selectedDate : widget.selectedDate
-                      ),
+                          loginResponseModel: widget.loginResponseModel,
+                          taskId: widget.taskId,
+                          project_id: widget.project_id,
+                          selectedDate: widget.selectedDate),
                     ),
                   );
                 },
@@ -117,14 +122,14 @@ class _EmptyShiftPageState extends State<EmptyShiftPage> {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: appFontColor,
+                  color: AppThemeColors.brandPrimary,
                 ),
               ),
               Container(
                 width: 25,
                 height: 25,
                 decoration: const BoxDecoration(
-                  color: appFontColor,
+                  color: AppThemeColors.brandPrimary,
                   shape: BoxShape.circle,
                 ),
                 child: IconButton(
@@ -134,12 +139,10 @@ class _EmptyShiftPageState extends State<EmptyShiftPage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => EmployeeShiftRequestPage(
-                          loginResponseModel: widget.loginResponseModel,
-                          taskId: widget.taskId,
-                          project_id: widget.project_id,
-                          selectedDate : widget.selectedDate
-
-                        ),
+                            loginResponseModel: widget.loginResponseModel,
+                            taskId: widget.taskId,
+                            project_id: widget.project_id,
+                            selectedDate: widget.selectedDate),
                       ),
                     );
                   },
@@ -148,7 +151,6 @@ class _EmptyShiftPageState extends State<EmptyShiftPage> {
                 ),
               ),
             ],
-
           ),
         ),
         const SizedBox(height: 0),
@@ -162,7 +164,8 @@ class _EmptyShiftPageState extends State<EmptyShiftPage> {
               final status = item['state'] ?? "Unknown";
 
               return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 7.0, horizontal: 14.0),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 7.0, horizontal: 14.0),
                 child: Container(
                   decoration: BoxDecoration(
                     image: const DecorationImage(
@@ -198,7 +201,7 @@ class _EmptyShiftPageState extends State<EmptyShiftPage> {
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: appFontColor,
+                              color: AppThemeColors.brandPrimary,
                             ),
                           ),
                         ),
@@ -217,7 +220,7 @@ class _EmptyShiftPageState extends State<EmptyShiftPage> {
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
-                                  color: appFontColor,
+                                  color: AppThemeColors.brandPrimary,
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -226,11 +229,10 @@ class _EmptyShiftPageState extends State<EmptyShiftPage> {
                                 style: const TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
-                                  color: appFontColor,
+                                  color: AppThemeColors.brandPrimary,
                                 ),
                               ),
                               const SizedBox(height: 4),
-
                               Text(
                                 "Status: $status",
                                 style: const TextStyle(
@@ -244,7 +246,7 @@ class _EmptyShiftPageState extends State<EmptyShiftPage> {
                         ),
                         // const Padding(
                         //   padding: EdgeInsets.only(right: 18.0),
-                        //   child: Icon(Icons.arrow_forward_ios, size: 19, color: appFontColor),
+                        //   child: Icon(Icons.arrow_forward_ios, size: 19, color: AppThemeColors.brandPrimary),
                         // ),
                       ],
                     ),
@@ -254,7 +256,6 @@ class _EmptyShiftPageState extends State<EmptyShiftPage> {
             },
           ),
         ),
-
       ],
     );
   }
@@ -382,7 +383,20 @@ class _EmptyShiftPageState extends State<EmptyShiftPage> {
   }
 
   String _getMonth(DateTime date) {
-    List<String> months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    List<String> months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ];
     return months[date.month - 1];
   }
 }

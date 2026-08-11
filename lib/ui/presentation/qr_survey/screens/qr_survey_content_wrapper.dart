@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:el_race/ui/widgets/header_widget.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import '../providers/qr_survey_data_provider.dart';
 import 'list_documents_screen.dart';
 import 'list_media_screen.dart';
@@ -41,7 +41,7 @@ class _QrSurveyContentWrapperState extends State<QrSurveyContentWrapper> {
           // Not accessed via QR code - show access denied
           return Scaffold(
             appBar: const HeaderWidget(),
-            backgroundColor: lightGrey,
+            backgroundColor: AppThemeColors.lightGrey,
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
@@ -118,7 +118,7 @@ class _QrSurveyContentWrapperState extends State<QrSurveyContentWrapper> {
 
         return Scaffold(
           appBar: const HeaderWidget(),
-          backgroundColor: lightGrey,
+          backgroundColor: AppThemeColors.lightGrey,
           body: qrSurveyContent,
         );
       },

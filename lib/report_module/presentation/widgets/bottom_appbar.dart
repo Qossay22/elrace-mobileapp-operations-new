@@ -1,8 +1,7 @@
-import 'package:el_race/report_module/core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/report_module/core/constants/text_styles.dart';
 import 'package:el_race/report_module/data/models/report_detail_model.dart';
 import 'package:el_race/report_module/data/repositories/company_repository.dart';
-import 'package:el_race/utils/color_utils.dart';
 import 'package:flutter/material.dart';
 
 PreferredSize getBottomAppBar(context,
@@ -38,7 +37,7 @@ PreferredSize getBottomAppBar(context,
                     onTap: onClick!,
                     child: Icon(
                       Icons.edit_note_rounded,
-                      color: CustomColors.white,
+                      color: AppThemeColors.surface,
                     ),
                   )
               ],
@@ -48,13 +47,13 @@ PreferredSize getBottomAppBar(context,
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               height: 20,
-              color: CustomColors.blue,
+              color: AppThemeColors.reportBlue,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Image.asset(
                     "assets/png/icons/arrow_turn.png",
-                    color: white,
+                    color: AppThemeColors.softWhite,
                   ),
                   const SizedBox(width: 8),
                   Text(
@@ -68,13 +67,13 @@ PreferredSize getBottomAppBar(context,
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               height: 20,
-              color: CustomColors.black,
+              color: AppThemeColors.pureBlack,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Image.asset(
                     "assets/png/icons/report_arrow.png",
-                    color: white,
+                    color: AppThemeColors.softWhite,
                   ),
                   const SizedBox(width: 8),
                   Text(

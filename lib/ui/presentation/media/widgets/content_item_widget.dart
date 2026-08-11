@@ -1,4 +1,4 @@
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -31,7 +31,7 @@ class ContentItemWidget extends StatelessWidget {
         child: Icon(
           content.is360View ? Icons.threesixty : Icons.image_outlined,
           size: 44.sp,
-          color: appFontColor.withOpacity(0.55),
+          color: AppThemeColors.brandPrimary.withOpacity(0.55),
         ),
       );
     }

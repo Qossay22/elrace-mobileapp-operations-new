@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:el_race/core/services/android_play_update_service.dart';
 import 'package:el_race/core/app_globals.dart' show appInitCompleter;
 import 'package:el_race/core/session/force_logout_guard.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/core/update/bloc/app_update_bloc.dart';
 import 'package:el_race/core/update/bloc/app_update_state.dart';
 import 'package:el_race/core/utils/shared_pref.dart';
@@ -378,14 +379,14 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppThemeColors.splashBackground,
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 120),
         child: _isVideoReady
             ? SizedBox.expand(
                 key: const ValueKey('splash-video'),
                 child: ColoredBox(
-                  color: Colors.black,
+                  color: AppThemeColors.splashBackground,
                   child: FittedBox(
                     fit: BoxFit.cover,
                     child: SizedBox(
@@ -424,7 +425,7 @@ class _SplashLoadingPlaceholder extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox.expand(
       child: ColoredBox(
-        color: Colors.black,
+        color: AppThemeColors.splashBackground,
         child: AnimatedOpacity(
           opacity: showBrandFallback ? 1 : 0,
           duration: const Duration(milliseconds: 180),

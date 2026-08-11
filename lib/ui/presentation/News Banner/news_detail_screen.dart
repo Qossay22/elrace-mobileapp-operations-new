@@ -1,5 +1,5 @@
 import 'package:el_race/ui/widgets/header_widget.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_translate/flutter_translate.dart';
@@ -47,7 +47,7 @@ class NewsDetailScreen extends StatelessWidget {
                         style: GoogleFonts.poppins(
                             fontSize: 25,
                             fontWeight: FontWeight.w400,
-                            color: appFontColor),
+                            color: AppThemeColors.brandPrimary),
                       ),
                     ],
                   ),

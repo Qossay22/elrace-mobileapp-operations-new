@@ -6,7 +6,7 @@ import 'package:el_race/ui/presentation/My_task/dialogs/add_report.dart';
 import 'package:el_race/ui/presentation/My_task/dialogs/rename_report_dialog.dart';
 import 'package:el_race/ui/widgets/report_tile.dart';
 import 'package:flutter/material.dart';
-import '../../../../../core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import '../../../../../core/constants/text_styles.dart';
 import '../../../../../data/repositories/company_repository.dart';
 import '../../../../widgets/bottom_appbar.dart';
@@ -40,19 +40,19 @@ class _FolderReportScreenState extends State<FolderReportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: CustomColors.white,
+      backgroundColor: AppThemeColors.surface,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         surfaceTintColor: Colors.transparent,
-        backgroundColor: CustomColors.white,
+        backgroundColor: AppThemeColors.surface,
         centerTitle: true,
         leadingWidth: 60,
         leading: Align(
           alignment: Alignment.centerRight,
           child: SquareButton(
             icon: Icons.keyboard_backspace,
-            color: CustomColors.white,
-            borderColor: CustomColors.black,
+            color: AppThemeColors.surface,
+            borderColor: AppThemeColors.pureBlack,
             onPressed: () {
               Navigator.pop(context);
             },
@@ -67,8 +67,8 @@ class _FolderReportScreenState extends State<FolderReportScreen> {
             padding: const EdgeInsets.only(right: 16),
             child: SquareButton(
               icon: Icons.add,
-              color: CustomColors.blue,
-              borderColor: CustomColors.white,
+              color: AppThemeColors.reportBlue,
+              borderColor: AppThemeColors.surface,
               onPressed: () async {
                 ReportModel? report = await showAddNewReport(context,
                     type: 1, folderID: widget.folder.id);
@@ -89,7 +89,7 @@ class _FolderReportScreenState extends State<FolderReportScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             height: 20,
-            color: CustomColors.blue,
+            color: AppThemeColors.reportBlue,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

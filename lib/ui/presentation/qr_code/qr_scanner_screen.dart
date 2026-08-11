@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:el_race/core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -156,7 +156,7 @@ class _QrScannerScreenState extends State<QrScannerScreen>
       msg: "Signing in...",
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.CENTER,
-      backgroundColor: CustomColors.blue,
+      backgroundColor: AppThemeColors.reportBlue,
       textColor: Colors.white,
       fontSize: 16.0,
     );
@@ -333,17 +333,17 @@ class _QrScannerScreenState extends State<QrScannerScreen>
                                     decoration: BoxDecoration(
                                       gradient: LinearGradient(colors: [
                                         Colors.transparent,
-                                        CustomColors.blue
+                                        AppThemeColors.reportBlue
                                             .withValues(alpha: 0.8),
                                         Colors.white,
-                                        CustomColors.blue
+                                        AppThemeColors.reportBlue
                                             .withValues(alpha: 0.8),
                                         Colors.transparent,
                                       ]),
                                       borderRadius: BorderRadius.circular(2),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: CustomColors.blue
+                                          color: AppThemeColors.reportBlue
                                               .withValues(alpha: 0.5),
                                           blurRadius: 10,
                                           spreadRadius: 3,
@@ -368,7 +368,7 @@ class _QrScannerScreenState extends State<QrScannerScreen>
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             CircularProgressIndicator(
-                              color: CustomColors.blue,
+                              color: AppThemeColors.reportBlue,
                               strokeWidth: 3,
                             ),
                             SizedBox(height: 14.h),
@@ -422,7 +422,8 @@ class _QrScannerScreenState extends State<QrScannerScreen>
               color: const Color(0xFF0E0E1A),
               border: Border(
                 top: BorderSide(
-                    color: CustomColors.blue.withValues(alpha: 0.35), width: 1),
+                    color: AppThemeColors.reportBlue.withValues(alpha: 0.35),
+                    width: 1),
               ),
             ),
             padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 20.h),
@@ -453,11 +454,11 @@ class _QrScannerScreenState extends State<QrScannerScreen>
                     Expanded(
                       child: SliderTheme(
                         data: SliderThemeData(
-                          thumbColor: CustomColors.blue,
-                          activeTrackColor: CustomColors.blue,
+                          thumbColor: AppThemeColors.reportBlue,
+                          activeTrackColor: AppThemeColors.reportBlue,
                           inactiveTrackColor: Colors.white12,
                           overlayColor:
-                              CustomColors.blue.withValues(alpha: 0.15),
+                              AppThemeColors.reportBlue.withValues(alpha: 0.15),
                           thumbShape: const RoundSliderThumbShape(
                               enabledThumbRadius: 7),
                           trackHeight: 3,
@@ -566,16 +567,16 @@ class _Corner extends StatelessWidget {
         decoration: BoxDecoration(
           border: Border(
             top: isTop
-                ? BorderSide(color: CustomColors.blue, width: 3.5)
+                ? BorderSide(color: AppThemeColors.reportBlue, width: 3.5)
                 : BorderSide.none,
             bottom: !isTop
-                ? BorderSide(color: CustomColors.blue, width: 3.5)
+                ? BorderSide(color: AppThemeColors.reportBlue, width: 3.5)
                 : BorderSide.none,
             left: isLeft
-                ? BorderSide(color: CustomColors.blue, width: 3.5)
+                ? BorderSide(color: AppThemeColors.reportBlue, width: 3.5)
                 : BorderSide.none,
             right: !isLeft
-                ? BorderSide(color: CustomColors.blue, width: 3.5)
+                ? BorderSide(color: AppThemeColors.reportBlue, width: 3.5)
                 : BorderSide.none,
           ),
         ),
@@ -610,22 +611,22 @@ class _ControlButton extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: active
-                  ? CustomColors.blue.withValues(alpha: 0.2)
+                  ? AppThemeColors.reportBlue.withValues(alpha: 0.2)
                   : Colors.white.withValues(alpha: 0.08),
               border: Border.all(
-                color: active ? CustomColors.blue : Colors.white24,
+                color: active ? AppThemeColors.reportBlue : Colors.white24,
                 width: 1.5,
               ),
             ),
             child: Icon(icon,
-                color: active ? CustomColors.blue : Colors.white70,
+                color: active ? AppThemeColors.reportBlue : Colors.white70,
                 size: 24.sp),
           ),
           SizedBox(height: 6.h),
           Text(
             label,
             style: TextStyle(
-              color: active ? CustomColors.blue : Colors.white38,
+              color: active ? AppThemeColors.reportBlue : Colors.white38,
               fontSize: 11.sp,
               fontWeight: FontWeight.w500,
             ),

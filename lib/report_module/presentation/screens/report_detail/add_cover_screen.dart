@@ -1,4 +1,4 @@
-import 'package:el_race/report_module/core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/report_module/core/constants/text_styles.dart';
 import 'package:el_race/report_module/data/models/cover_page_model.dart';
 import 'package:el_race/report_module/data/models/report_detail_model.dart';
@@ -45,19 +45,19 @@ class _AddCoverScreenState extends State<AddCoverScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: CustomColors.white,
+      backgroundColor: AppThemeColors.surface,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         surfaceTintColor: Colors.transparent,
-        backgroundColor: CustomColors.white,
+        backgroundColor: AppThemeColors.surface,
         centerTitle: true,
         leadingWidth: 60,
         leading: Align(
           alignment: Alignment.centerRight,
           child: SquareButton(
             icon: Icons.keyboard_backspace,
-            color: CustomColors.white,
-            borderColor: CustomColors.black,
+            color: AppThemeColors.surface,
+            borderColor: AppThemeColors.pureBlack,
             onPressed: () {
               Navigator.pop(context);
             },
@@ -126,13 +126,13 @@ class _AddCoverScreenState extends State<AddCoverScreen> {
                 // Navigator.pop(context);
               },
               height: 44,
-              color: CustomColors.maroon,
+              color: AppThemeColors.reportModuleMaroon,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15)),
               child: Text(
                 "Save",
                 style: CustomTextStyle.reportTitle.copyWith(
-                  color: CustomColors.white,
+                  color: AppThemeColors.surface,
                   fontWeight: FontWeight.w500,
                 ),
               ),

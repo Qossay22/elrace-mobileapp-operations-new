@@ -1,4 +1,4 @@
-import 'package:el_race/report_module/core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/report_module/core/constants/text_styles.dart';
 import 'package:el_race/report_module/data/models/report_pdf_model.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +22,7 @@ class PdfTile extends StatelessWidget {
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            color: CustomColors.containerColor),
+            color: AppThemeColors.reportContainer),
         child: Stack(
           children: [
             Column(
@@ -36,7 +36,7 @@ class PdfTile extends StatelessWidget {
                         height: 33,
                         clipBehavior: Clip.antiAlias,
                         decoration: BoxDecoration(
-                            color: CustomColors.white,
+                            color: AppThemeColors.surface,
                             borderRadius: BorderRadius.circular(8)),
                         child: Center(
                             child: Image.asset(
@@ -58,7 +58,7 @@ class PdfTile extends StatelessWidget {
                                   pdf.fileName,
                                   style: CustomTextStyle.reportHeader.copyWith(
                                       // fontWeight: FontWeight.w500,
-                                      color: CustomColors.black),
+                                      color: AppThemeColors.pureBlack),
                                 ),
                               ),
                               const SizedBox(
@@ -72,7 +72,7 @@ class PdfTile extends StatelessWidget {
                               pdf.createdAt,
                               style: CustomTextStyle.smallGrey.copyWith(
                                   fontWeight: FontWeight.normal,
-                                  color: CustomColors.black),
+                                  color: AppThemeColors.pureBlack),
                             ),
                           ),
                         ],

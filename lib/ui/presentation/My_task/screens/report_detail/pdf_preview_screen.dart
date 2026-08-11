@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../../../../core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 
 import '../../../../../data/repositories/company_repository.dart';
 import '../../../../widgets/square_button.dart';
@@ -51,19 +51,19 @@ class _PdfDisplayScreenState extends State<PdfDisplayScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: CustomColors.containerColor,
+      backgroundColor: AppThemeColors.reportContainer,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         surfaceTintColor: Colors.transparent,
-        backgroundColor: CustomColors.white,
+        backgroundColor: AppThemeColors.surface,
         centerTitle: true,
         leadingWidth: 60,
         leading: Align(
           alignment: Alignment.centerRight,
           child: SquareButton(
             icon: Icons.keyboard_backspace,
-            color: CustomColors.white,
-            borderColor: CustomColors.black,
+            color: AppThemeColors.surface,
+            borderColor: AppThemeColors.pureBlack,
             onPressed: _goBack,
           ),
         ),
@@ -74,8 +74,8 @@ class _PdfDisplayScreenState extends State<PdfDisplayScreen> {
         actions: [
           SquareButton(
             icon: Icons.share_outlined,
-            color: CustomColors.maroon,
-            borderColor: CustomColors.white,
+            color: AppThemeColors.reportMaroon,
+            borderColor: AppThemeColors.surface,
             onPressed: () async {
               await Share.shareXFiles([XFile(widget.path)]);
             },

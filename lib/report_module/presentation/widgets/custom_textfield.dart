@@ -1,4 +1,4 @@
-import 'package:el_race/report_module/core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/report_module/core/constants/text_styles.dart';
 import 'package:flutter/material.dart';
 
@@ -53,31 +53,31 @@ class CustomTextField extends StatelessWidget {
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
             borderSide: BorderSide(
-                color: CustomColors.black.withValues(alpha: .1),
+                color: AppThemeColors.pureBlack.withValues(alpha: .1),
                 width: .5), // Removes border
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
             borderSide: BorderSide(
-                color: CustomColors.blue, width: 1), // Removes border
+                color: AppThemeColors.reportBlue, width: 1), // Removes border
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
             borderSide: BorderSide(
-                color: CustomColors.black.withValues(alpha: .1),
+                color: AppThemeColors.pureBlack.withValues(alpha: .1),
                 width: .5), // Removes border
           ),
           filled: true,
-          fillColor: CustomColors.containerColor,
+          fillColor: AppThemeColors.reportContainer,
           hintStyle: CustomTextStyle.reportTitle.copyWith(
               fontWeight: FontWeight.normal,
-              color: CustomColors.black.withValues(alpha: .4)),
+              color: AppThemeColors.pureBlack.withValues(alpha: .4)),
           isDense: true,
           contentPadding:
               EdgeInsets.symmetric(horizontal: 15, vertical: verticalPadding),
           labelStyle: CustomTextStyle.reportTitle.copyWith(
               fontWeight: FontWeight.normal,
-              color: CustomColors.black.withValues(alpha: .4)),
+              color: AppThemeColors.pureBlack.withValues(alpha: .4)),
           hintText: hintText),
     );
   }

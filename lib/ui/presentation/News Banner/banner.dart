@@ -1,5 +1,5 @@
 import 'package:el_race/ui/presentation/News%20Banner/news_detail_screen.dart';
-import 'package:el_race/utils/color_utils.dart'; // Import global colors
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/utils/safe_insets.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -108,7 +108,7 @@ We extend our gratitude to our skilled team, trusted partners, and the community
                       style: GoogleFonts.poppins(
                           fontSize: 20.sp,
                           fontWeight: FontWeight.w400,
-                          color: appFontColor),
+                          color: AppThemeColors.brandPrimary),
                     ),
                   ],
                 ),
@@ -181,7 +181,7 @@ We extend our gratitude to our skilled team, trusted partners, and the community
                               child: Text(
                                 "${item['titles']}".toUpperCase(),
                                 style: GoogleFonts.poppins(
-                                  color: appFontColor,
+                                  color: AppThemeColors.brandPrimary,
                                   fontWeight: FontWeight.w400,
                                   fontSize: 24,
                                 ),

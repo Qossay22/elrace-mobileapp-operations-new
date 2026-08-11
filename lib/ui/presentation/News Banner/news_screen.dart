@@ -3,7 +3,7 @@ import 'package:el_race/data/services/announcements_api_service.dart';
 import 'package:el_race/providers/announcements_provider.dart';
 import 'package:el_race/ui/presentation/News%20Banner/news_detail_screen_api.dart';
 import 'package:el_race/ui/widgets/header_widget.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -58,7 +58,7 @@ class _NewsScreenState extends State<NewsScreen> {
                             errorBuilder: (context, error, stackTrace) => Icon(
                                 Icons.article,
                                 size: 24.h,
-                                color: appFontColor),
+                                color: AppThemeColors.brandPrimary),
                           ),
                           SizedBox(width: 6.w),
                           Text(
@@ -66,7 +66,7 @@ class _NewsScreenState extends State<NewsScreen> {
                             style: GoogleFonts.poppins(
                               fontSize: 20.sp,
                               fontWeight: FontWeight.w400,
-                              color: appFontColor,
+                              color: AppThemeColors.brandPrimary,
                             ),
                           ),
                         ],
@@ -101,7 +101,8 @@ class _NewsScreenState extends State<NewsScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(appFontColor),
+              valueColor:
+                  AlwaysStoppedAnimation<Color>(AppThemeColors.brandPrimary),
             ),
             SizedBox(height: 16.h),
             Text(
@@ -154,7 +155,7 @@ class _NewsScreenState extends State<NewsScreen> {
                 icon: const Icon(Icons.refresh),
                 label: const Text('Retry'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: appFontColor,
+                  backgroundColor: AppThemeColors.brandPrimary,
                   foregroundColor: Colors.white,
                   padding:
                       EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
@@ -282,7 +283,7 @@ class _NewsScreenState extends State<NewsScreen> {
                   newsItem.name.toUpperCase(),
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
-                    color: appFontColor,
+                    color: AppThemeColors.brandPrimary,
                     fontWeight: FontWeight.w400,
                     fontSize: 24.sp,
                   ),

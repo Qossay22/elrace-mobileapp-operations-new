@@ -1,4 +1,4 @@
-import 'package:el_race/report_module/core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/report_module/core/constants/text_styles.dart';
 import 'package:flutter/material.dart';
 
@@ -13,7 +13,7 @@ Future<int> showAddImageOptions(BuildContext context) async {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
         ),
-        backgroundColor: CustomColors.white,
+        backgroundColor: AppThemeColors.surface,
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 20),
           child: Column(
@@ -32,13 +32,13 @@ Future<int> showAddImageOptions(BuildContext context) async {
                   Navigator.pop(context);
                 },
                 height: 44,
-                color: CustomColors.blue,
+                color: AppThemeColors.reportBlue,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15)),
                 child: Text(
                   "Image From Gallery",
                   style: CustomTextStyle.reportTitle.copyWith(
-                    color: CustomColors.white,
+                    color: AppThemeColors.surface,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -50,13 +50,13 @@ Future<int> showAddImageOptions(BuildContext context) async {
                   Navigator.pop(context);
                 },
                 height: 44,
-                color: CustomColors.blue,
+                color: AppThemeColors.reportBlue,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15)),
                 child: Text(
                   "Image From Camera",
                   style: CustomTextStyle.reportTitle.copyWith(
-                    color: CustomColors.white,
+                    color: AppThemeColors.surface,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -67,13 +67,13 @@ Future<int> showAddImageOptions(BuildContext context) async {
                   Navigator.pop(context);
                 },
                 height: 44,
-                color: CustomColors.containerColor,
+                color: AppThemeColors.reportContainer,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15)),
                 child: Text(
                   "Cancel",
                   style: CustomTextStyle.reportTitle.copyWith(
-                    color: CustomColors.maroon,
+                    color: AppThemeColors.reportModuleMaroon,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

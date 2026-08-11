@@ -6,7 +6,7 @@ import 'package:el_race/ui/presentation/home_screen/screens/main_screens.dart';
 import 'package:el_race/ui/presentation/lpo/widgets/lpo_card_widget.dart';
 import 'package:el_race/ui/widgets/header_widget.dart';
 import 'package:el_race/utils/api_logger.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/utils/safe_insets.dart';
 import 'package:el_race/utils/Util.dart';
 import 'package:flutter/foundation.dart';
@@ -356,7 +356,8 @@ class _LpoListScreenState extends State<LpoListScreen> {
           hintText: 'Find LPO',
           prefixIcon: Padding(
             padding: EdgeInsets.all(8.0),
-            child: Icon(Icons.search, size: 18, color: appFontColor),
+            child: Icon(Icons.search,
+                size: 18, color: AppThemeColors.brandPrimary),
           ),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
@@ -404,7 +405,7 @@ class _LpoListScreenState extends State<LpoListScreen> {
                           style: GoogleFonts.poppins(
                             fontSize: 22.sp,
                             fontWeight: FontWeight.w500,
-                            color: appFontColor,
+                            color: AppThemeColors.brandPrimary,
                           ),
                           overflow: TextOverflow.visible,
                         )
@@ -446,7 +447,7 @@ class _LpoListScreenState extends State<LpoListScreen> {
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 16.sp,
-                                  color: appFontColor,
+                                  color: AppThemeColors.brandPrimary,
                                 ),
                               ),
                             ),
@@ -501,9 +502,8 @@ class _LpoListScreenState extends State<LpoListScreen> {
                                       ? () => Util.openLpoPdfReport(
                                             context,
                                             poId,
-                                            lpoName: name.isNotEmpty
-                                                ? name
-                                                : null,
+                                            lpoName:
+                                                name.isNotEmpty ? name : null,
                                           )
                                       : null,
                                 );

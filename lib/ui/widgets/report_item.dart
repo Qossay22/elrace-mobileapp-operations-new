@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:el_race/core/constants/colors.dart';
 import 'package:el_race/core/constants/text_styles.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/data/models/report_detail_item.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -29,7 +29,7 @@ class ReportItem extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              color: CustomColors.containerColor),
+              color: AppThemeColors.reportContainer),
           child: Stack(
             children: [
               Column(
@@ -43,7 +43,7 @@ class ReportItem extends StatelessWidget {
                         height: 52,
                         clipBehavior: Clip.antiAlias,
                         decoration: BoxDecoration(
-                            color: CustomColors.white,
+                            color: AppThemeColors.surface,
                             borderRadius: BorderRadius.circular(8)),
                         child: item.type == "text"
                             ? Center(
@@ -72,7 +72,7 @@ class ReportItem extends StatelessWidget {
                                     style:
                                         CustomTextStyle.reportHeader.copyWith(
                                             // fontWeight: FontWeight.w500,
-                                            color: CustomColors.black),
+                                            color: AppThemeColors.pureBlack),
                                   ),
                                 ),
                                 const SizedBox(
@@ -88,7 +88,7 @@ class ReportItem extends StatelessWidget {
                                   item.description!,
                                   style: CustomTextStyle.reportHeader.copyWith(
                                       fontWeight: FontWeight.normal,
-                                      color: CustomColors.black),
+                                      color: AppThemeColors.pureBlack),
                                 ),
                               ),
                           ],

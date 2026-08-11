@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/ui/presentation/circular_announcement/data/circular_announcement_model.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -230,7 +230,7 @@ class _CircularAnnouncementFileViewerState
             ),
             child: const Icon(
               Icons.arrow_back,
-              color: appFontColor,
+              color: AppThemeColors.brandPrimary,
             ),
           ),
           onPressed: () => Navigator.pop(context),
@@ -263,7 +263,7 @@ class _CircularAnnouncementFileViewerState
               icon: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: appFontColor,
+                  color: AppThemeColors.brandPrimary,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
@@ -287,7 +287,7 @@ class _CircularAnnouncementFileViewerState
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(color: appFontColor),
+            CircularProgressIndicator(color: AppThemeColors.brandPrimary),
             SizedBox(height: 16),
             Text('Loading file...'),
           ],
@@ -340,7 +340,7 @@ class _CircularAnnouncementFileViewerState
                   icon: const Icon(Icons.refresh),
                   label: const Text('Retry'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: appFontColor,
+                    backgroundColor: AppThemeColors.brandPrimary,
                     foregroundColor: Colors.white,
                   ),
                 ),
@@ -350,7 +350,7 @@ class _CircularAnnouncementFileViewerState
                   icon: const Icon(Icons.arrow_back),
                   label: const Text('Go Back'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: appFontColor,
+                    foregroundColor: AppThemeColors.brandPrimary,
                   ),
                 ),
             ],

@@ -35,7 +35,7 @@ import 'package:el_race/ui/presentation/my_projects/presentation/widgets/project
 import 'package:el_race/ui/presentation/my_projects/presentation/widgets/projects_section_frame.dart';
 import 'package:el_race/ui/presentation/my_projects/presentation/widgets/projects_toolbar_icons_row.dart';
 import 'package:el_race/ui/presentation/my_projects/presentation/widgets/projects_view_switch_row.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -193,15 +193,16 @@ class _MyProjectState extends State<MyProject> {
               ProjectsGroupByMode.client => ProjectsListContext.client,
               ProjectsGroupByMode.city => ProjectsListContext.city,
             };
-            final projectManagerId = mode == ProjectsGroupByMode.projectManager &&
-                    item.id > 0
-                ? item.id
-                : null;
+            final projectManagerId =
+                mode == ProjectsGroupByMode.projectManager && item.id > 0
+                    ? item.id
+                    : null;
             final partnerId = mode == ProjectsGroupByMode.client && item.id > 0
                 ? item.id
                 : null;
-            final cityId =
-                mode == ProjectsGroupByMode.city && item.id > 0 ? item.id : null;
+            final cityId = mode == ProjectsGroupByMode.city && item.id > 0
+                ? item.id
+                : null;
             final bucketName = item.id <= 0 ? item.name : null;
             _openGroupedProjectList(
               projectManagerId: projectManagerId,
@@ -541,8 +542,7 @@ class _MyProjectState extends State<MyProject> {
                               child: ProjectsToolbarIconsRow(
                                 viewMode: _viewMode,
                                 onDashboardTap: () => setState(
-                                  () =>
-                                      _viewMode = ProjectsViewMode.dashboard,
+                                  () => _viewMode = ProjectsViewMode.dashboard,
                                 ),
                                 onMapsTap: _openPortfolioMapScreen,
                                 onGroupByTap: _openGroupByHub,
@@ -651,34 +651,34 @@ class _MyProjectState extends State<MyProject> {
           gradient: ProjectsDashboardTheme.screenGradient,
         ),
         child: _error != null && !_isLoading
-                ? Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(24.tw),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            _error!,
-                            style: GoogleFonts.poppins(
-                              color: ProjectsDashboardTheme.white,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(height: 16.th),
-                          TextButton(
-                            onPressed: _loadDashboard,
-                            child: Text(
-                              translate('projects_dashboard.retry'),
-                              style: GoogleFonts.poppins(
-                                color: ProjectsDashboardTheme.greyPanel,
-                              ),
-                            ),
-                          ),
-                        ],
+            ? Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24.tw),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _error!,
+                        style: GoogleFonts.poppins(
+                          color: ProjectsDashboardTheme.white,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                    ),
-                  )
-                : _buildDashboardBody(),
+                      SizedBox(height: 16.th),
+                      TextButton(
+                        onPressed: _loadDashboard,
+                        child: Text(
+                          translate('projects_dashboard.retry'),
+                          style: GoogleFonts.poppins(
+                            color: ProjectsDashboardTheme.greyPanel,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            : _buildDashboardBody(),
       ),
     );
   }
@@ -857,7 +857,8 @@ Widget buildProjectCard({
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.location_on, size: 16.tw, color: red),
+                    Icon(Icons.location_on,
+                        size: 16.tw, color: AppThemeColors.legacyRed),
                     SizedBox(width: 4.tw),
                     Flexible(
                       child: Text(
@@ -911,14 +912,14 @@ Widget buildProjectCard({
                         errorBuilder: (_, __, ___) => Icon(
                           Icons.business,
                           size: 18.tw,
-                          color: appFontColor,
+                          color: AppThemeColors.brandPrimary,
                         ),
                       ),
                     )
                   : Icon(
                       Icons.business,
                       size: 18.tw,
-                      color: appFontColor,
+                      color: AppThemeColors.brandPrimary,
                     ),
             ),
           ),
@@ -1025,134 +1026,137 @@ class _ProjectManagersScreenState extends State<_ProjectManagersScreen> {
         backgroundColor: const Color(0xFFF2F2F2),
         onLightSurface: true,
         body: Column(
-        children: [
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _error != null
-                    ? Center(
-                        child: Text(
-                          _error!,
-                          style: GoogleFonts.poppins(
-                            color: const Color(0xFFBA1719),
-                            fontSize: 12.tsp,
+          children: [
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _error != null
+                      ? Center(
+                          child: Text(
+                            _error!,
+                            style: GoogleFonts.poppins(
+                              color: const Color(0xFFBA1719),
+                              fontSize: 12.tsp,
+                            ),
                           ),
-                        ),
-                      )
-                    : ListView.separated(
-                        padding: EdgeInsets.only(
-                          left: 14.tw,
-                          right: 14.tw,
-                          top: 6.th,
-                          bottom: 20.th,
-                        ),
-                        itemCount: _managers.length,
-                        separatorBuilder: (_, __) => Divider(
-                          height: 1,
-                          color: const Color(0xFFD5D5D5),
-                          thickness: 1,
-                          indent: 10.tw,
-                          endIndent: 10.tw,
-                        ),
-                        itemBuilder: (context, index) {
-                          final manager = _managers[index];
-                          final avatarUrl = manager.photoUrl;
+                        )
+                      : ListView.separated(
+                          padding: EdgeInsets.only(
+                            left: 14.tw,
+                            right: 14.tw,
+                            top: 6.th,
+                            bottom: 20.th,
+                          ),
+                          itemCount: _managers.length,
+                          separatorBuilder: (_, __) => Divider(
+                            height: 1,
+                            color: const Color(0xFFD5D5D5),
+                            thickness: 1,
+                            indent: 10.tw,
+                            endIndent: 10.tw,
+                          ),
+                          itemBuilder: (context, index) {
+                            final manager = _managers[index];
+                            final avatarUrl = manager.photoUrl;
 
-                          return InkWell(
-                            onTap: () => _openManagerProjects(manager),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 4.tw,
-                                vertical: 10.th,
-                              ),
-                              child: Row(
-                                children: [
-                                  CircleAvatar(
-                                    radius: 27.tr,
-                                    backgroundColor: Colors.white,
-                                    child: CircleAvatar(
-                                      radius: 25.tr,
-                                      backgroundColor: const Color(0xFFE8E8E8),
-                                      backgroundImage: avatarUrl != null &&
-                                              avatarUrl.isNotEmpty
-                                          ? NetworkImage(avatarUrl)
-                                          : null,
-                                      child: (avatarUrl == null ||
-                                              avatarUrl.isEmpty)
-                                          ? Text(
-                                              manager.name.isEmpty
-                                                  ? 'M'
-                                                  : manager.name[0]
-                                                      .toUpperCase(),
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 18.tsp,
-                                                fontWeight: FontWeight.w700,
-                                                color: const Color(0xFF5C5C5C),
-                                              ),
-                                            )
-                                          : null,
+                            return InkWell(
+                              onTap: () => _openManagerProjects(manager),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 4.tw,
+                                  vertical: 10.th,
+                                ),
+                                child: Row(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 27.tr,
+                                      backgroundColor: Colors.white,
+                                      child: CircleAvatar(
+                                        radius: 25.tr,
+                                        backgroundColor:
+                                            const Color(0xFFE8E8E8),
+                                        backgroundImage: avatarUrl != null &&
+                                                avatarUrl.isNotEmpty
+                                            ? NetworkImage(avatarUrl)
+                                            : null,
+                                        child: (avatarUrl == null ||
+                                                avatarUrl.isEmpty)
+                                            ? Text(
+                                                manager.name.isEmpty
+                                                    ? 'M'
+                                                    : manager.name[0]
+                                                        .toUpperCase(),
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 18.tsp,
+                                                  fontWeight: FontWeight.w700,
+                                                  color:
+                                                      const Color(0xFF5C5C5C),
+                                                ),
+                                              )
+                                            : null,
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(width: 12.tw),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          manager.name,
-                                          maxLines: 5,
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 21.tsp,
-                                            fontWeight: FontWeight.w700,
-                                            color: const Color(0xFF3A3A3A),
+                                    SizedBox(width: 12.tw),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            manager.name,
+                                            maxLines: 5,
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 21.tsp,
+                                              fontWeight: FontWeight.w700,
+                                              color: const Color(0xFF3A3A3A),
+                                            ),
                                           ),
-                                        ),
-                                        SizedBox(height: 2.th),
-                                        Text(
-                                          _lastUpdateText(manager.lastUpdate),
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 15.tsp,
-                                            fontWeight: FontWeight.w500,
-                                            color: const Color(0xFFA2A2A2),
+                                          SizedBox(height: 2.th),
+                                          Text(
+                                            _lastUpdateText(manager.lastUpdate),
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 15.tsp,
+                                              fontWeight: FontWeight.w500,
+                                              color: const Color(0xFFA2A2A2),
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 50.tw,
-                                    height: 54.th,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12.tr),
-                                      gradient: const LinearGradient(
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                        colors: [
-                                          Color(0xFF3C4C80),
-                                          Color(0xFF202F5C),
                                         ],
                                       ),
                                     ),
-                                    child: Text(
-                                      manager.projectCount.toString(),
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 20.tsp,
-                                        fontWeight: FontWeight.w700,
-                                        color: Colors.white,
+                                    Container(
+                                      width: 50.tw,
+                                      height: 54.th,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(12.tr),
+                                        gradient: const LinearGradient(
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                          colors: [
+                                            Color(0xFF3C4C80),
+                                            Color(0xFF202F5C),
+                                          ],
+                                        ),
+                                      ),
+                                      child: Text(
+                                        manager.projectCount.toString(),
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 20.tsp,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                      ),
-          ),
-        ],
-      ),
+                            );
+                          },
+                        ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1256,134 +1260,137 @@ class _ClientsScreenState extends State<_ClientsScreen> {
         backgroundColor: const Color(0xFFF2F2F2),
         onLightSurface: true,
         body: Column(
-        children: [
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _error != null
-                    ? Center(
-                        child: Text(
-                          _error!,
-                          style: GoogleFonts.poppins(
-                            color: const Color(0xFFBA1719),
-                            fontSize: 12.tsp,
+          children: [
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _error != null
+                      ? Center(
+                          child: Text(
+                            _error!,
+                            style: GoogleFonts.poppins(
+                              color: const Color(0xFFBA1719),
+                              fontSize: 12.tsp,
+                            ),
                           ),
-                        ),
-                      )
-                    : ListView.separated(
-                        padding: EdgeInsets.only(
-                          left: 14.tw,
-                          right: 14.tw,
-                          top: 6.th,
-                          bottom: 20.th,
-                        ),
-                        itemCount: _clients.length,
-                        separatorBuilder: (_, __) => Divider(
-                          height: 1,
-                          color: const Color(0xFFD5D5D5),
-                          thickness: 1,
-                          indent: 10.tw,
-                          endIndent: 10.tw,
-                        ),
-                        itemBuilder: (context, index) {
-                          final client = _clients[index];
-                          final avatarUrl = client.photoUrl;
+                        )
+                      : ListView.separated(
+                          padding: EdgeInsets.only(
+                            left: 14.tw,
+                            right: 14.tw,
+                            top: 6.th,
+                            bottom: 20.th,
+                          ),
+                          itemCount: _clients.length,
+                          separatorBuilder: (_, __) => Divider(
+                            height: 1,
+                            color: const Color(0xFFD5D5D5),
+                            thickness: 1,
+                            indent: 10.tw,
+                            endIndent: 10.tw,
+                          ),
+                          itemBuilder: (context, index) {
+                            final client = _clients[index];
+                            final avatarUrl = client.photoUrl;
 
-                          return InkWell(
-                            onTap: () => _openClientProjects(client),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 4.tw,
-                                vertical: 10.th,
-                              ),
-                              child: Row(
-                                children: [
-                                  CircleAvatar(
-                                    radius: 27.tr,
-                                    backgroundColor: Colors.white,
-                                    child: CircleAvatar(
-                                      radius: 25.tr,
-                                      backgroundColor: const Color(0xFFE8E8E8),
-                                      backgroundImage: avatarUrl != null &&
-                                              avatarUrl.isNotEmpty
-                                          ? NetworkImage(avatarUrl)
-                                          : null,
-                                      child: (avatarUrl == null ||
-                                              avatarUrl.isEmpty)
-                                          ? Text(
-                                              client.name.isEmpty
-                                                  ? 'C'
-                                                  : client.name[0]
-                                                      .toUpperCase(),
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 18.tsp,
-                                                fontWeight: FontWeight.w700,
-                                                color: const Color(0xFF5C5C5C),
-                                              ),
-                                            )
-                                          : null,
+                            return InkWell(
+                              onTap: () => _openClientProjects(client),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 4.tw,
+                                  vertical: 10.th,
+                                ),
+                                child: Row(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 27.tr,
+                                      backgroundColor: Colors.white,
+                                      child: CircleAvatar(
+                                        radius: 25.tr,
+                                        backgroundColor:
+                                            const Color(0xFFE8E8E8),
+                                        backgroundImage: avatarUrl != null &&
+                                                avatarUrl.isNotEmpty
+                                            ? NetworkImage(avatarUrl)
+                                            : null,
+                                        child: (avatarUrl == null ||
+                                                avatarUrl.isEmpty)
+                                            ? Text(
+                                                client.name.isEmpty
+                                                    ? 'C'
+                                                    : client.name[0]
+                                                        .toUpperCase(),
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 18.tsp,
+                                                  fontWeight: FontWeight.w700,
+                                                  color:
+                                                      const Color(0xFF5C5C5C),
+                                                ),
+                                              )
+                                            : null,
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(width: 12.tw),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          client.name,
-                                          maxLines: 5,
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 21.tsp,
-                                            fontWeight: FontWeight.w700,
-                                            color: const Color(0xFF3A3A3A),
+                                    SizedBox(width: 12.tw),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            client.name,
+                                            maxLines: 5,
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 21.tsp,
+                                              fontWeight: FontWeight.w700,
+                                              color: const Color(0xFF3A3A3A),
+                                            ),
                                           ),
-                                        ),
-                                        SizedBox(height: 2.th),
-                                        Text(
-                                          _lastUpdateText(client.lastUpdate),
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 15.tsp,
-                                            fontWeight: FontWeight.w500,
-                                            color: const Color(0xFFA2A2A2),
+                                          SizedBox(height: 2.th),
+                                          Text(
+                                            _lastUpdateText(client.lastUpdate),
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 15.tsp,
+                                              fontWeight: FontWeight.w500,
+                                              color: const Color(0xFFA2A2A2),
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 50.tw,
-                                    height: 54.th,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12.tr),
-                                      gradient: const LinearGradient(
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                        colors: [
-                                          Color(0xFF3C4C80),
-                                          Color(0xFF202F5C),
                                         ],
                                       ),
                                     ),
-                                    child: Text(
-                                      client.projectCount.toString(),
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 20.tsp,
-                                        fontWeight: FontWeight.w700,
-                                        color: Colors.white,
+                                    Container(
+                                      width: 50.tw,
+                                      height: 54.th,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(12.tr),
+                                        gradient: const LinearGradient(
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                          colors: [
+                                            Color(0xFF3C4C80),
+                                            Color(0xFF202F5C),
+                                          ],
+                                        ),
+                                      ),
+                                      child: Text(
+                                        client.projectCount.toString(),
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 20.tsp,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                      ),
-          ),
-        ],
-      ),
+                            );
+                          },
+                        ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1487,112 +1494,113 @@ class _CitiesScreenState extends State<_CitiesScreen> {
         backgroundColor: const Color(0xFFF2F2F2),
         onLightSurface: true,
         body: Column(
-        children: [
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _error != null
-                    ? Center(
-                        child: Text(
-                          _error!,
-                          style: GoogleFonts.poppins(
-                            color: const Color(0xFFBA1719),
-                            fontSize: 12.tsp,
+          children: [
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _error != null
+                      ? Center(
+                          child: Text(
+                            _error!,
+                            style: GoogleFonts.poppins(
+                              color: const Color(0xFFBA1719),
+                              fontSize: 12.tsp,
+                            ),
                           ),
-                        ),
-                      )
-                    : ListView.separated(
-                        padding: EdgeInsets.only(
-                          left: 14.tw,
-                          right: 14.tw,
-                          top: 6.th,
-                          bottom: 20.th,
-                        ),
-                        itemCount: _cities.length,
-                        separatorBuilder: (_, __) => Divider(
-                          height: 1,
-                          color: const Color(0xFFD5D5D5),
-                          thickness: 1,
-                          indent: 10.tw,
-                          endIndent: 10.tw,
-                        ),
-                        itemBuilder: (context, index) {
-                          final city = _cities[index];
+                        )
+                      : ListView.separated(
+                          padding: EdgeInsets.only(
+                            left: 14.tw,
+                            right: 14.tw,
+                            top: 6.th,
+                            bottom: 20.th,
+                          ),
+                          itemCount: _cities.length,
+                          separatorBuilder: (_, __) => Divider(
+                            height: 1,
+                            color: const Color(0xFFD5D5D5),
+                            thickness: 1,
+                            indent: 10.tw,
+                            endIndent: 10.tw,
+                          ),
+                          itemBuilder: (context, index) {
+                            final city = _cities[index];
 
-                          return InkWell(
-                            onTap: () => _openCityProjects(city),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 4.tw,
-                                vertical: 10.th,
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.location_on,
-                                    color: const Color(0xFFD61518),
-                                    size: 40.tsp,
-                                  ),
-                                  SizedBox(width: 8.tw),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          city.name,
-                                          maxLines: 5,
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 21.tsp,
-                                            fontWeight: FontWeight.w700,
-                                            color: const Color(0xFF3A3A3A),
-                                          ),
-                                        ),
-                                        SizedBox(height: 2.th),
-                                        Text(
-                                          _lastUpdateText(city.lastUpdate),
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 15.tsp,
-                                            fontWeight: FontWeight.w500,
-                                            color: const Color(0xFFA2A2A2),
-                                          ),
-                                        ),
-                                      ],
+                            return InkWell(
+                              onTap: () => _openCityProjects(city),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 4.tw,
+                                  vertical: 10.th,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.location_on,
+                                      color: const Color(0xFFD61518),
+                                      size: 40.tsp,
                                     ),
-                                  ),
-                                  Container(
-                                    width: 50.tw,
-                                    height: 54.th,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12.tr),
-                                      gradient: const LinearGradient(
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                        colors: [
-                                          Color(0xFF3C4C80),
-                                          Color(0xFF202F5C),
+                                    SizedBox(width: 8.tw),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            city.name,
+                                            maxLines: 5,
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 21.tsp,
+                                              fontWeight: FontWeight.w700,
+                                              color: const Color(0xFF3A3A3A),
+                                            ),
+                                          ),
+                                          SizedBox(height: 2.th),
+                                          Text(
+                                            _lastUpdateText(city.lastUpdate),
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 15.tsp,
+                                              fontWeight: FontWeight.w500,
+                                              color: const Color(0xFFA2A2A2),
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ),
-                                    child: Text(
-                                      city.projectCount.toString(),
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 20.tsp,
-                                        fontWeight: FontWeight.w700,
-                                        color: Colors.white,
+                                    Container(
+                                      width: 50.tw,
+                                      height: 54.th,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(12.tr),
+                                        gradient: const LinearGradient(
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                          colors: [
+                                            Color(0xFF3C4C80),
+                                            Color(0xFF202F5C),
+                                          ],
+                                        ),
+                                      ),
+                                      child: Text(
+                                        city.projectCount.toString(),
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 20.tsp,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                      ),
-          ),
-        ],
-      ),
+                            );
+                          },
+                        ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:el_race/core/utils/shared_pref.dart';
-import 'package:el_race/report_module/core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/report_module/core/constants/text_styles.dart';
 import 'package:el_race/report_module/data/models/report_detail_model.dart';
 import 'package:el_race/ui/presentation/tasks/logic/tasks_provider.dart';
@@ -133,7 +133,7 @@ class _CreateTaskFromReportSheetState extends State<CreateTaskFromReportSheet> {
         msg: 'Please enter a task title',
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
-        backgroundColor: CustomColors.maroon,
+        backgroundColor: AppThemeColors.reportModuleMaroon,
         textColor: Colors.white,
         fontSize: 16.0,
       );
@@ -197,7 +197,7 @@ class _CreateTaskFromReportSheetState extends State<CreateTaskFromReportSheet> {
         msg: error,
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
-        backgroundColor: CustomColors.maroon,
+        backgroundColor: AppThemeColors.reportModuleMaroon,
         textColor: Colors.white,
         fontSize: 16.0,
       );
@@ -222,7 +222,7 @@ class _CreateTaskFromReportSheetState extends State<CreateTaskFromReportSheet> {
         bottom: MediaQuery.of(context).viewInsets.bottom + 20.h,
       ),
       decoration: BoxDecoration(
-        color: CustomColors.white,
+        color: AppThemeColors.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       child: SingleChildScrollView(
@@ -235,7 +235,7 @@ class _CreateTaskFromReportSheetState extends State<CreateTaskFromReportSheet> {
               children: [
                 Icon(
                   Icons.task_alt,
-                  color: CustomColors.maroon,
+                  color: AppThemeColors.reportModuleMaroon,
                   size: 28.sp,
                 ),
                 SizedBox(width: 12.w),
@@ -280,7 +280,8 @@ class _CreateTaskFromReportSheetState extends State<CreateTaskFromReportSheet> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.r),
-                  borderSide: BorderSide(color: CustomColors.maroon, width: 2),
+                  borderSide: BorderSide(
+                      color: AppThemeColors.reportModuleMaroon, width: 2),
                 ),
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: 16.w,
@@ -317,7 +318,8 @@ class _CreateTaskFromReportSheetState extends State<CreateTaskFromReportSheet> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.r),
-                  borderSide: BorderSide(color: CustomColors.maroon, width: 2),
+                  borderSide: BorderSide(
+                      color: AppThemeColors.reportModuleMaroon, width: 2),
                 ),
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: 16.w,
@@ -354,7 +356,8 @@ class _CreateTaskFromReportSheetState extends State<CreateTaskFromReportSheet> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.r),
-                  borderSide: BorderSide(color: CustomColors.maroon, width: 2),
+                  borderSide: BorderSide(
+                      color: AppThemeColors.reportModuleMaroon, width: 2),
                 ),
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: 16.w,
@@ -384,8 +387,8 @@ class _CreateTaskFromReportSheetState extends State<CreateTaskFromReportSheet> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.r),
-                        borderSide:
-                            BorderSide(color: CustomColors.maroon, width: 2),
+                        borderSide: BorderSide(
+                            color: AppThemeColors.reportModuleMaroon, width: 2),
                       ),
                       contentPadding: EdgeInsets.symmetric(
                           horizontal: 14.w, vertical: 12.h),
@@ -450,7 +453,8 @@ class _CreateTaskFromReportSheetState extends State<CreateTaskFromReportSheet> {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.r),
                             borderSide: BorderSide(
-                                color: CustomColors.maroon, width: 2),
+                                color: AppThemeColors.reportModuleMaroon,
+                                width: 2),
                           ),
                           contentPadding: EdgeInsets.symmetric(
                               horizontal: 14.w, vertical: 12.h),
@@ -538,8 +542,8 @@ class _CreateTaskFromReportSheetState extends State<CreateTaskFromReportSheet> {
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _createTask,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: CustomColors.maroon,
-                  foregroundColor: CustomColors.white,
+                  backgroundColor: AppThemeColors.reportModuleMaroon,
+                  foregroundColor: AppThemeColors.surface,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r),
                   ),
@@ -560,7 +564,7 @@ class _CreateTaskFromReportSheetState extends State<CreateTaskFromReportSheet> {
                         style: CustomTextStyle.reportTitle.copyWith(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w600,
-                          color: CustomColors.white,
+                          color: AppThemeColors.surface,
                         ),
                       ),
               ),

@@ -9,7 +9,7 @@ import 'package:el_race/ui/presentation/productivity/theme/productivity_theme.da
 import 'package:el_race/ui/presentation/productivity/widgets/productivity_background.dart';
 import 'package:el_race/ui/presentation/productivity/widgets/productivity_glass_header.dart';
 import 'package:el_race/utils/api_logger.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/utils/urll_utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -280,8 +280,7 @@ class _MyDocumentsScreenState extends State<MyDocumentsScreen> {
       final token = SharedPref.getLoginData().result?.token ?? '';
       if (token.isEmpty) return;
 
-      final url =
-          Uri.parse('${UrlUtil.baseUrl}get_employee_documents');
+      final url = Uri.parse('${UrlUtil.baseUrl}get_employee_documents');
       final headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -355,8 +354,7 @@ class _MyDocumentsScreenState extends State<MyDocumentsScreen> {
 
     try {
       final token = SharedPref.getLoginData().result?.token ?? '';
-      final url =
-          Uri.parse('${UrlUtil.baseUrl}get_employee_documents');
+      final url = Uri.parse('${UrlUtil.baseUrl}get_employee_documents');
       final headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -1028,7 +1026,8 @@ class _MyDocumentsScreenState extends State<MyDocumentsScreen> {
     }
 
     return ListView(
-      padding: EdgeInsets.only(left: 12.tw, right: 12.tw, top: 14.th, bottom: 8.th),
+      padding:
+          EdgeInsets.only(left: 12.tw, right: 12.tw, top: 14.th, bottom: 8.th),
       children: [
         Container(
           height: 96.th,
@@ -1312,9 +1311,8 @@ class _MyDocumentsScreenState extends State<MyDocumentsScreen> {
     }
     if (action == 'update') {
       final rawId = item['id'];
-      final documentId = rawId is int
-          ? rawId
-          : int.tryParse(rawId?.toString() ?? '');
+      final documentId =
+          rawId is int ? rawId : int.tryParse(rawId?.toString() ?? '');
       await _showDocumentDialogByType(
         type,
         fixedDocumentType: _documentNameForChange(item),
@@ -1374,7 +1372,8 @@ class _MyDocumentsScreenState extends State<MyDocumentsScreen> {
     final docs = _filteredDocs();
 
     return ListView(
-      padding: EdgeInsets.only(left: 12.tw, right: 12.tw, top: 14.th, bottom: 8.th),
+      padding:
+          EdgeInsets.only(left: 12.tw, right: 12.tw, top: 14.th, bottom: 8.th),
       children: [
         Container(
           height: 96.th,
@@ -1639,7 +1638,8 @@ class _MyDocumentsScreenState extends State<MyDocumentsScreen> {
           hintText: 'Find document',
           prefixIcon: Padding(
             padding: EdgeInsets.all(8.0),
-            child: Icon(Icons.search, size: 18, color: appFontColor),
+            child: Icon(Icons.search,
+                size: 18, color: AppThemeColors.brandPrimary),
           ),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
@@ -1830,107 +1830,107 @@ class _MyDocumentsScreenState extends State<MyDocumentsScreen> {
         children: [
           ProductivityBackground(
             child: Scaffold(
-            backgroundColor: Colors.transparent,
-            body: Column(
-          children: [
-            ProductivityGlassHeader(
-              title: _headerTitle,
-              showBack: true,
-            ),
-            const SizedBox(height: 6),
-            MyDocumentsTabBar(
-              tabs: _documentTabs,
-              selectedIndex: currentIndex,
-              onChanged: (index) {
-                if (currentIndex == index) return;
-                final shouldFetchDocs = index == 0 || index == 1;
+              backgroundColor: Colors.transparent,
+              body: Column(
+                children: [
+                  ProductivityGlassHeader(
+                    title: _headerTitle,
+                    showBack: true,
+                  ),
+                  const SizedBox(height: 6),
+                  MyDocumentsTabBar(
+                    tabs: _documentTabs,
+                    selectedIndex: currentIndex,
+                    onChanged: (index) {
+                      if (currentIndex == index) return;
+                      final shouldFetchDocs = index == 0 || index == 1;
 
-                setState(() {
-                  currentIndex = index;
-                  if (shouldFetchDocs) {
-                    if (index == 0) {
-                      _activeMyDocType = null;
-                    }
-                    if (index == 1) {
-                      _activeFamilyDocType = null;
-                    }
-                    _loading = true;
-                    _error = null;
-                    if (index == 1) {
-                      documents = [];
-                    }
-                  }
-                });
+                      setState(() {
+                        currentIndex = index;
+                        if (shouldFetchDocs) {
+                          if (index == 0) {
+                            _activeMyDocType = null;
+                          }
+                          if (index == 1) {
+                            _activeFamilyDocType = null;
+                          }
+                          _loading = true;
+                          _error = null;
+                          if (index == 1) {
+                            documents = [];
+                          }
+                        }
+                      });
 
-                if (shouldFetchDocs) {
-                  final keyword = _searchController.text.trim();
-                  unawaited(
-                    _fetchMyDocuments(
-                      keyword: keyword.isEmpty ? null : keyword,
-                      docType: index == 1 ? _activeFamilyDocType : null,
-                    ),
-                  );
-                }
-              },
-            ),
-            SizedBox(height: 10.th),
-            // ── Tab Content ──
-            Expanded(
-              child: currentIndex == 0
-                  ? _buildMyDocumentsContent()
-                  : FamilyDocumentsTab(
-                          isActive: currentIndex == 1,
-                          isLoading: currentIndex == 1 && _loading,
-                          documents: documents,
-                          statTotal: _statTotal,
-                          statRequested: _statRequested,
-                          statExpiringSoon: _statExpiringSoon,
-                          statExpired: _statExpired,
-                          selectedDocType: _activeFamilyDocType,
-                          recentActivities: _familyRecentActivities,
-                          onDocTypeSelected: (docType) {
-                            final keyword = _searchController.text.trim();
-                            unawaited(
-                              _fetchMyDocuments(
-                                keyword: keyword.isEmpty ? null : keyword,
-                                docType: docType,
-                              ),
-                            );
-                          },
-                          onOpenDocument: _openDocumentAttachment,
-                          onChangeDocument: (document) =>
-                              _showChangeDocumentDialog(
-                                  document, DocumentDialogType.family),
-                          onAddDocument: () {
-                            _showDocumentDialogByType(
-                                DocumentDialogType.family);
-                          },
-                          onAddNewRequest: () {
-                            unawaited(() async {
-                              final result =
-                                  await Navigator.of(context).push<bool>(
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      const FamilyInsuranceRequestScreen(),
+                      if (shouldFetchDocs) {
+                        final keyword = _searchController.text.trim();
+                        unawaited(
+                          _fetchMyDocuments(
+                            keyword: keyword.isEmpty ? null : keyword,
+                            docType: index == 1 ? _activeFamilyDocType : null,
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                  SizedBox(height: 10.th),
+                  // ── Tab Content ──
+                  Expanded(
+                    child: currentIndex == 0
+                        ? _buildMyDocumentsContent()
+                        : FamilyDocumentsTab(
+                            isActive: currentIndex == 1,
+                            isLoading: currentIndex == 1 && _loading,
+                            documents: documents,
+                            statTotal: _statTotal,
+                            statRequested: _statRequested,
+                            statExpiringSoon: _statExpiringSoon,
+                            statExpired: _statExpired,
+                            selectedDocType: _activeFamilyDocType,
+                            recentActivities: _familyRecentActivities,
+                            onDocTypeSelected: (docType) {
+                              final keyword = _searchController.text.trim();
+                              unawaited(
+                                _fetchMyDocuments(
+                                  keyword: keyword.isEmpty ? null : keyword,
+                                  docType: docType,
                                 ),
                               );
-
-                              if (result == true && mounted) {
-                                final keyword = _searchController.text.trim();
-                                await _fetchMyDocuments(
-                                  keyword: keyword.isEmpty ? null : keyword,
-                                  docType: _activeFamilyDocType,
+                            },
+                            onOpenDocument: _openDocumentAttachment,
+                            onChangeDocument: (document) =>
+                                _showChangeDocumentDialog(
+                                    document, DocumentDialogType.family),
+                            onAddDocument: () {
+                              _showDocumentDialogByType(
+                                  DocumentDialogType.family);
+                            },
+                            onAddNewRequest: () {
+                              unawaited(() async {
+                                final result =
+                                    await Navigator.of(context).push<bool>(
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        const FamilyInsuranceRequestScreen(),
+                                  ),
                                 );
-                              }
-                            }());
-                          },
-                        ),
-              // Shared documents UI kept in [ShareDocumentsTab] for later placement.
-              // ShareDocumentsTab(onOpenDocument: _openDocumentAttachment),
+
+                                if (result == true && mounted) {
+                                  final keyword = _searchController.text.trim();
+                                  await _fetchMyDocuments(
+                                    keyword: keyword.isEmpty ? null : keyword,
+                                    docType: _activeFamilyDocType,
+                                  );
+                                }
+                              }());
+                            },
+                          ),
+                    // Shared documents UI kept in [ShareDocumentsTab] for later placement.
+                    // ShareDocumentsTab(onOpenDocument: _openDocumentAttachment),
+                  ),
+                ],
+              ),
             ),
-          ],
-            ),
-          ),
           ),
           if (Platform.isIOS)
             Positioned(
@@ -2241,9 +2241,8 @@ class _MyDocumentsScreenState extends State<MyDocumentsScreen> {
   }
 
   void showDocumentDialog(BuildContext context) async {
-    final type = currentIndex == 1
-        ? DocumentDialogType.family
-        : DocumentDialogType.my;
+    final type =
+        currentIndex == 1 ? DocumentDialogType.family : DocumentDialogType.my;
     _showDocumentDialogByType(type);
   }
 
@@ -3546,8 +3545,7 @@ class _DocumentDialogState extends State<DocumentDialog> {
 
     try {
       final token = SharedPref.getLoginData().result?.token ?? '';
-      final url =
-          Uri.parse('${UrlUtil.baseUrl}upload_employee_document');
+      final url = Uri.parse('${UrlUtil.baseUrl}upload_employee_document');
 
       // Debug: Check values before sending
       print('🔍 Debug - selectedType: "$selectedType"');
@@ -3816,82 +3814,88 @@ class _DocumentDialogState extends State<DocumentDialog> {
                   ],
                 ),
               ),
-              SizedBox(height: _hasFixedDocumentType ? 6.th : (_showIdAndExpiry ? 14.th : 28.th)),
+              SizedBox(
+                  height: _hasFixedDocumentType
+                      ? 6.th
+                      : (_showIdAndExpiry ? 14.th : 28.th)),
 
               // Document type dropdown (hidden when a fixed type is pre-selected).
               if (!_hasFixedDocumentType)
                 _buildPillField(
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton2<String>(
-                          value: _selectedType,
-                          isExpanded: true,
-                          hint: Center(
-                            child: Text(
-                              _isLoadingTypes && _types.isEmpty
-                                  ? 'Loading document types...'
-                                  : 'document type',
-                              style: GoogleFonts.poppins(
-                                color: Colors.grey,
-                                fontSize: 12.tsp,
-                                fontWeight: FontWeight.w400,
-                                letterSpacing: 1.0,
-                              ),
-                            ),
-                          ),
-                          items: _types
-                              .map(
-                                (t) => DropdownMenuItem<String>(
-                                  value: t,
-                                  child: Center(
-                                    child: Text(
-                                      t,
-                                      overflow: TextOverflow.visible,
-                                      style: GoogleFonts.poppins(
-                                        color: Colors.black87,
-                                        fontSize: 12.tsp,
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: _isLoadingTypes && _types.isEmpty
-                              ? null
-                              : (v) => setState(() => _selectedType = v),
-                          // Keep the pill container as the button background.
-                          buttonStyleData: ButtonStyleData(
-                            height: 30.th,
-                            padding: EdgeInsets.symmetric(horizontal: 4.tw),
-                            decoration:
-                                const BoxDecoration(color: Colors.transparent),
-                          ),
-                          iconStyleData: const IconStyleData(
-                            icon: Icon(Icons.keyboard_arrow_down_rounded),
-                            iconSize: 20,
-                            iconEnabledColor: Colors.grey,
-                          ),
-                          dropdownStyleData: DropdownStyleData(
-                            maxHeight: 260.th,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16.tr),
-                              color: Colors.white,
-                            ),
-                            offset: const Offset(0, -4),
-                            scrollbarTheme: ScrollbarThemeData(
-                              radius: const Radius.circular(40),
-                              thickness: WidgetStateProperty.all(6),
-                              thumbVisibility: WidgetStateProperty.all(true),
-                            ),
-                          ),
-                          menuItemStyleData: MenuItemStyleData(
-                            height: 44.th,
-                            padding: EdgeInsets.symmetric(horizontal: 12.tw),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton2<String>(
+                      value: _selectedType,
+                      isExpanded: true,
+                      hint: Center(
+                        child: Text(
+                          _isLoadingTypes && _types.isEmpty
+                              ? 'Loading document types...'
+                              : 'document type',
+                          style: GoogleFonts.poppins(
+                            color: Colors.grey,
+                            fontSize: 12.tsp,
+                            fontWeight: FontWeight.w400,
+                            letterSpacing: 1.0,
                           ),
                         ),
                       ),
+                      items: _types
+                          .map(
+                            (t) => DropdownMenuItem<String>(
+                              value: t,
+                              child: Center(
+                                child: Text(
+                                  t,
+                                  overflow: TextOverflow.visible,
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.black87,
+                                    fontSize: 12.tsp,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: _isLoadingTypes && _types.isEmpty
+                          ? null
+                          : (v) => setState(() => _selectedType = v),
+                      // Keep the pill container as the button background.
+                      buttonStyleData: ButtonStyleData(
+                        height: 30.th,
+                        padding: EdgeInsets.symmetric(horizontal: 4.tw),
+                        decoration:
+                            const BoxDecoration(color: Colors.transparent),
+                      ),
+                      iconStyleData: const IconStyleData(
+                        icon: Icon(Icons.keyboard_arrow_down_rounded),
+                        iconSize: 20,
+                        iconEnabledColor: Colors.grey,
+                      ),
+                      dropdownStyleData: DropdownStyleData(
+                        maxHeight: 260.th,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16.tr),
+                          color: Colors.white,
+                        ),
+                        offset: const Offset(0, -4),
+                        scrollbarTheme: ScrollbarThemeData(
+                          radius: const Radius.circular(40),
+                          thickness: WidgetStateProperty.all(6),
+                          thumbVisibility: WidgetStateProperty.all(true),
+                        ),
+                      ),
+                      menuItemStyleData: MenuItemStyleData(
+                        height: 44.th,
+                        padding: EdgeInsets.symmetric(horizontal: 12.tw),
+                      ),
                     ),
-              SizedBox(height: _hasFixedDocumentType ? 0 : (_showIdAndExpiry ? 14.th : 40.th)),
+                  ),
+                ),
+              SizedBox(
+                  height: _hasFixedDocumentType
+                      ? 0
+                      : (_showIdAndExpiry ? 14.th : 40.th)),
 
               if (_showIdAndExpiry) ...[
                 SizedBox(height: 10.th),

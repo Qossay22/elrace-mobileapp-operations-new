@@ -1,4 +1,4 @@
-import 'package:el_race/report_module/core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/report_module/core/constants/text_styles.dart';
 import 'package:flutter/material.dart';
 
@@ -8,7 +8,7 @@ Future<int> showEditOptions(BuildContext context,
   await showModalBottomSheet(
     useSafeArea: true,
     context: context,
-    backgroundColor: CustomColors.containerColor,
+    backgroundColor: AppThemeColors.reportContainer,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
     ),
@@ -22,14 +22,14 @@ Future<int> showEditOptions(BuildContext context,
               height: 4,
               width: 80,
               decoration: BoxDecoration(
-                  color: CustomColors.blue,
+                  color: AppThemeColors.reportBlue,
                   borderRadius: BorderRadius.circular(2)),
             ),
             const SizedBox(height: 15),
             Container(
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
-                  color: CustomColors.white,
+                  color: AppThemeColors.surface,
                   borderRadius: BorderRadius.circular(12)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -42,7 +42,7 @@ Future<int> showEditOptions(BuildContext context,
                             : BoxDecoration(
                                 border: Border(
                                     bottom: BorderSide(
-                                        color: CustomColors.blue
+                                        color: AppThemeColors.reportBlue
                                             .withValues(alpha: .3)))),
                         child: InkWell(
                           onTap: () {

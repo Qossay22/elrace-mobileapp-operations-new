@@ -4,7 +4,7 @@ import 'package:el_race/report_module/presentation/screens/report_detail/report_
 import 'package:el_race/ui/presentation/tasks/data/task_model.dart';
 import 'package:el_race/ui/presentation/tasks/logic/tasks_provider.dart';
 import 'package:el_race/ui/presentation/productivity/widgets/productivity_light_shell.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -237,7 +237,7 @@ class TaskDetailsScreen extends StatelessWidget {
                 style: GoogleFonts.poppins(
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w700,
-                  color: appFontColor,
+                  color: AppThemeColors.brandPrimary,
                 ),
               ),
             ),
@@ -365,7 +365,7 @@ class TaskDetailsScreen extends StatelessWidget {
                             style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w800,
-                                color: appFontColor),
+                                color: AppThemeColors.brandPrimary),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -402,12 +402,12 @@ class TaskDetailsScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: task.isCompleted
                               ? Colors.green.shade50
-                              : appFontColor.withOpacity(0.08),
+                              : AppThemeColors.brandPrimary.withOpacity(0.08),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
                             color: task.isCompleted
                                 ? Colors.green
-                                : appFontColor.withOpacity(0.2),
+                                : AppThemeColors.brandPrimary.withOpacity(0.2),
                             width: 1,
                           ),
                         ),
@@ -421,7 +421,7 @@ class TaskDetailsScreen extends StatelessWidget {
                               size: 16,
                               color: currentTask.isCompleted
                                   ? Colors.green.shade700
-                                  : appFontColor,
+                                  : AppThemeColors.brandPrimary,
                             ),
                             const SizedBox(width: 6),
                             Text(
@@ -431,7 +431,7 @@ class TaskDetailsScreen extends StatelessWidget {
                                 fontWeight: FontWeight.w700,
                                 color: task.isCompleted
                                     ? Colors.green.shade700
-                                    : appFontColor,
+                                    : AppThemeColors.brandPrimary,
                               ),
                             ),
                           ],
@@ -447,7 +447,7 @@ class TaskDetailsScreen extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
-                            color: appFontColor),
+                            color: AppThemeColors.brandPrimary),
                       ),
                       const SizedBox(height: 8),
                       Container(
@@ -461,7 +461,8 @@ class TaskDetailsScreen extends StatelessWidget {
                           currentTask.description ?? '',
                           style: TextStyle(
                               fontSize: 14,
-                              color: appFontColor.withOpacity(0.8),
+                              color:
+                                  AppThemeColors.brandPrimary.withOpacity(0.8),
                               height: 1.5),
                         ),
                       ),
@@ -498,7 +499,7 @@ class TaskDetailsScreen extends StatelessWidget {
                             style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
-                                color: appFontColor),
+                                color: AppThemeColors.brandPrimary),
                           ),
                         ],
                       ),
@@ -527,19 +528,22 @@ class TaskDetailsScreen extends StatelessWidget {
                                 height: 20,
                                 width: 20,
                                 child: CircularProgressIndicator(
-                                    strokeWidth: 2, color: appFontColor),
+                                    strokeWidth: 2,
+                                    color: AppThemeColors.brandPrimary),
                               )
-                            : Icon(Icons.edit, color: appFontColor),
+                            : Icon(Icons.edit,
+                                color: AppThemeColors.brandPrimary),
                         label: Text(
                           'Edit Task',
                           style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: appFontColor),
+                              color: AppThemeColors.brandPrimary),
                         ),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          side: BorderSide(color: appFontColor, width: 1.5),
+                          side: BorderSide(
+                              color: AppThemeColors.brandPrimary, width: 1.5),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12)),
                         ),
@@ -599,19 +603,22 @@ class TaskDetailsScreen extends StatelessWidget {
                                 height: 20,
                                 width: 20,
                                 child: CircularProgressIndicator(
-                                    strokeWidth: 2, color: appFontColor),
+                                    strokeWidth: 2,
+                                    color: AppThemeColors.brandPrimary),
                               )
-                            : Icon(Icons.link, color: appFontColor),
+                            : Icon(Icons.link,
+                                color: AppThemeColors.brandPrimary),
                         label: Text(
                           'Link Report',
                           style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: appFontColor),
+                              color: AppThemeColors.brandPrimary),
                         ),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          side: BorderSide(color: appFontColor, width: 1.5),
+                          side: BorderSide(
+                              color: AppThemeColors.brandPrimary, width: 1.5),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12)),
                         ),
@@ -656,7 +663,7 @@ class TaskDetailsScreen extends StatelessWidget {
                 value,
                 style: TextStyle(
                     fontSize: 14,
-                    color: appFontColor,
+                    color: AppThemeColors.brandPrimary,
                     fontWeight: FontWeight.w600),
               ),
             ],
@@ -712,7 +719,7 @@ class TaskDetailsScreen extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: appFontColor),
+                      color: AppThemeColors.brandPrimary),
                 ),
                 subtitle: Text(
                   'ID: ${report.id}',
@@ -826,7 +833,8 @@ class _EditTaskSheetState extends State<_EditTaskSheet> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: appFontColor, width: 2),
+                  borderSide:
+                      BorderSide(color: AppThemeColors.brandPrimary, width: 2),
                 ),
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -849,7 +857,8 @@ class _EditTaskSheetState extends State<_EditTaskSheet> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: appFontColor, width: 2),
+                  borderSide:
+                      BorderSide(color: AppThemeColors.brandPrimary, width: 2),
                 ),
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -870,7 +879,8 @@ class _EditTaskSheetState extends State<_EditTaskSheet> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: appFontColor, width: 2),
+                  borderSide:
+                      BorderSide(color: AppThemeColors.brandPrimary, width: 2),
                 ),
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -924,7 +934,7 @@ class _EditTaskSheetState extends State<_EditTaskSheet> {
                         }
                       },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: appFontColor,
+                  backgroundColor: AppThemeColors.brandPrimary,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),

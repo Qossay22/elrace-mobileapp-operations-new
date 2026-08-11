@@ -2,7 +2,7 @@ import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/ui/presentation/home_screen/screens/custom_swipe_button.dart';
 import 'package:el_race/ui/presentation/home_screen/widgets/list_view_widgets.dart';
 import 'package:el_race/ui/presentation/home_screen/widgets/my_actions_section.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/utils/orientation_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -16,16 +16,16 @@ class WidgetContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     final isAuthenticated = SharedPref.isUserAuthenticated();
     final loginData = SharedPref.getLoginData();
-    final isCheckInWidgetDisabled =
-        loginData.result?.data?.defaultWidgets?.data?.checkinWidget?.isDisabled ==
-            true;
+    final isCheckInWidgetDisabled = loginData
+            .result?.data?.defaultWidgets?.data?.checkinWidget?.isDisabled ==
+        true;
     final isSwipeEnabled = isAuthenticated && !isCheckInWidgetDisabled;
 
     return Container(
       //width: ScreenUtil().screenWidth,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: white,
+        color: AppThemeColors.softWhite,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.15),
@@ -47,7 +47,6 @@ class WidgetContainer extends StatelessWidget {
             child: Column(
               children: [
                 SizedBox(height: 15.h),
-
                 Padding(
                   padding: EdgeInsets.symmetric(
                       horizontal: SizeConfig().getWidth(20)),
@@ -78,7 +77,6 @@ class WidgetContainer extends StatelessWidget {
                     ],
                   ),
                 ),
-
                 Opacity(
                   opacity: isSwipeEnabled ? 1 : 0.5,
                   child: SizedBox(
@@ -132,7 +130,6 @@ class WidgetContainer extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 SizedBox(height: 14.h),
               ],
             ),
@@ -152,6 +149,6 @@ class WidgetContainer extends StatelessWidget {
           ),
         ],
       ),
-      );
+    );
   }
 }

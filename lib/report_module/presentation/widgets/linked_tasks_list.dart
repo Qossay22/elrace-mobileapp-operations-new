@@ -1,4 +1,4 @@
-import 'package:el_race/report_module/core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/report_module/core/constants/text_styles.dart';
 import 'package:el_race/ui/presentation/tasks/data/task_model.dart';
 import 'package:el_race/ui/presentation/tasks/task_details_screen.dart';
@@ -30,15 +30,15 @@ class LinkedTasksList extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: CustomColors.white,
+        color: AppThemeColors.surface,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
-          color: CustomColors.maroon.withOpacity(0.2),
+          color: AppThemeColors.reportModuleMaroon.withValues(alpha: 0.2),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -53,12 +53,13 @@ class LinkedTasksList extends StatelessWidget {
               Container(
                 padding: EdgeInsets.all(8.w),
                 decoration: BoxDecoration(
-                  color: CustomColors.maroon.withOpacity(0.1),
+                  color:
+                      AppThemeColors.reportModuleMaroon.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: Icon(
                   Icons.task_alt,
-                  color: CustomColors.maroon,
+                  color: AppThemeColors.reportModuleMaroon,
                   size: 20.sp,
                 ),
               ),
@@ -89,7 +90,7 @@ class LinkedTasksList extends StatelessWidget {
                 child: Text(
                   'View All',
                   style: TextStyle(
-                    color: CustomColors.maroon,
+                    color: AppThemeColors.reportModuleMaroon,
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w600,
                   ),
@@ -124,7 +125,7 @@ class LinkedTasksList extends StatelessWidget {
                       Text(
                         '+${tasks.length - 3} more tasks',
                         style: TextStyle(
-                          color: CustomColors.maroon,
+                          color: AppThemeColors.reportModuleMaroon,
                           fontSize: 13.sp,
                           fontWeight: FontWeight.w600,
                         ),
@@ -133,7 +134,7 @@ class LinkedTasksList extends StatelessWidget {
                       Icon(
                         Icons.arrow_forward_ios,
                         size: 12.sp,
-                        color: CustomColors.maroon,
+                        color: AppThemeColors.reportModuleMaroon,
                       ),
                     ],
                   ),
@@ -171,12 +172,12 @@ class LinkedTasksList extends StatelessWidget {
             decoration: BoxDecoration(
               color: completed
                   ? Colors.grey[100]
-                  : CustomColors.maroon.withOpacity(0.05),
+                  : AppThemeColors.reportModuleMaroon.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(12.r),
               border: Border.all(
                 color: completed
                     ? Colors.grey[300]!
-                    : CustomColors.maroon.withOpacity(0.2),
+                    : AppThemeColors.reportModuleMaroon.withValues(alpha: 0.2),
                 width: 1,
               ),
             ),
@@ -190,7 +191,9 @@ class LinkedTasksList extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: completed ? Colors.green : CustomColors.maroon,
+                        color: completed
+                            ? Colors.green
+                            : AppThemeColors.reportModuleMaroon,
                         width: 2,
                       ),
                       color: completed ? Colors.green : Colors.transparent,
@@ -215,7 +218,7 @@ class LinkedTasksList extends StatelessWidget {
                             fontWeight: FontWeight.w600,
                             color: completed
                                 ? Colors.grey[600]
-                                : CustomColors.black,
+                                : AppThemeColors.pureBlack,
                             decoration: completed
                                 ? TextDecoration.lineThrough
                                 : TextDecoration.none,
@@ -228,8 +231,9 @@ class LinkedTasksList extends StatelessWidget {
                           stageLabel,
                           style: TextStyle(
                             fontSize: 12.sp,
-                            color:
-                                completed ? Colors.green : CustomColors.maroon,
+                            color: completed
+                                ? Colors.green
+                                : AppThemeColors.reportModuleMaroon,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -281,13 +285,13 @@ class LinkedTasksList extends StatelessWidget {
                           : Icon(
                               Icons.send,
                               size: 16.sp,
-                              color: CustomColors.maroon,
+                              color: AppThemeColors.reportModuleMaroon,
                             ),
                       label: Text(
                         'Submit',
                         style: TextStyle(
                           fontSize: 12.sp,
-                          color: CustomColors.maroon,
+                          color: AppThemeColors.reportModuleMaroon,
                           fontWeight: FontWeight.w700,
                         ),
                       ),

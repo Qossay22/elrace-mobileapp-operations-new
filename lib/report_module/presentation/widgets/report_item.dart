@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:el_race/report_module/core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/report_module/core/constants/text_styles.dart';
 import 'package:el_race/report_module/data/models/report_item_model.dart';
 import 'package:flutter/material.dart';
@@ -33,11 +33,11 @@ class ReportItem extends StatelessWidget {
       width: 110.w,
       height: 110.w,
       decoration: BoxDecoration(
-        color: CustomColors.white,
+        color: AppThemeColors.surface,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -58,7 +58,7 @@ class ReportItem extends StatelessWidget {
                 errorBuilder: (_, __, ___) => Center(
                   child: Icon(
                     Icons.broken_image_outlined,
-                    color: CustomColors.black.withOpacity(0.4),
+                    color: AppThemeColors.pureBlack.withValues(alpha: 0.4),
                   ),
                 ),
               ),
@@ -106,7 +106,7 @@ class ReportItem extends StatelessWidget {
                                         "assets/png/icons/tag.png",
                                         height: 12.h,
                                         width: 12.w,
-                                        color: CustomColors.black,
+                                        color: AppThemeColors.pureBlack,
                                       ),
                                       SizedBox(width: 8.w),
                                       Text(
@@ -114,7 +114,7 @@ class ReportItem extends StatelessWidget {
                                         style: GoogleFonts.poppins(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w400,
-                                          color: CustomColors.black,
+                                          color: AppThemeColors.pureBlack,
                                         ),
                                       ),
                                     ],
@@ -132,7 +132,7 @@ class ReportItem extends StatelessWidget {
                                         style: CustomTextStyle.reportHeader
                                             .copyWith(
                                           fontWeight: FontWeight.normal,
-                                          color: CustomColors.black,
+                                          color: AppThemeColors.pureBlack,
                                         ),
                                       ),
                                     ),
@@ -140,7 +140,7 @@ class ReportItem extends StatelessWidget {
                                   Text(
                                     formattedDate,
                                     style: CustomTextStyle.smallGrey.copyWith(
-                                      color: CustomColors.black,
+                                      color: AppThemeColors.pureBlack,
                                     ),
                                   ),
                                 ],
@@ -164,7 +164,8 @@ class ReportItem extends StatelessWidget {
                                       ),
                                     ),
                                     child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Container(
                                           width: 42.w,

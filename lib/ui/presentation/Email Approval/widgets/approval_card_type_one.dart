@@ -1,6 +1,6 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
 import 'package:el_race/resources/app_colors.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_translate/flutter_translate.dart';
@@ -45,7 +45,7 @@ class ApprovalCardTypeOne extends StatelessWidget {
         case 'approved':
           return const Color(0xff009859);
         case 'rejected':
-          return red;
+          return AppThemeColors.legacyRed;
         case 'pending':
         default:
           return AppColors.statusPending;
@@ -118,7 +118,7 @@ class ApprovalCardTypeOne extends StatelessWidget {
                             style: GoogleFonts.poppins(
                               fontSize: 16.tsp,
                               fontWeight: FontWeight.bold,
-                              color: appFontColor,
+                              color: AppThemeColors.brandPrimary,
                             ),
                           ),
                           const SizedBox(
@@ -135,7 +135,7 @@ class ApprovalCardTypeOne extends StatelessWidget {
                                 style: GoogleFonts.poppins(
                                   fontSize: 12.tsp,
                                   fontWeight: FontWeight.bold,
-                                  color: appFontColor,
+                                  color: AppThemeColors.brandPrimary,
                                 ),
                               ),
                               Text(

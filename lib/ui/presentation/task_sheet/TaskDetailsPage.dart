@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:el_race/ui/presentation/signin/data/model.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -119,14 +119,18 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
         return StatefulBuilder(
           builder: (context, setModalState) {
             final firstDay = DateTime(visibleMonth.year, visibleMonth.month, 1);
-            final daysInMonth = DateUtils.getDaysInMonth(visibleMonth.year, visibleMonth.month);
+            final daysInMonth =
+                DateUtils.getDaysInMonth(visibleMonth.year, visibleMonth.month);
             final leading = firstDay.weekday % 7;
-            final prevMonth = DateTime(visibleMonth.year, visibleMonth.month - 1, 1);
-            final daysInPrevMonth = DateUtils.getDaysInMonth(prevMonth.year, prevMonth.month);
+            final prevMonth =
+                DateTime(visibleMonth.year, visibleMonth.month - 1, 1);
+            final daysInPrevMonth =
+                DateUtils.getDaysInMonth(prevMonth.year, prevMonth.month);
 
             return Dialog(
               insetPadding: const EdgeInsets.symmetric(horizontal: 22),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
               child: Container(
                 padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
                 decoration: BoxDecoration(
@@ -139,10 +143,12 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                     Row(
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.chevron_left, color: Colors.black, size: 22),
+                          icon: const Icon(Icons.chevron_left,
+                              color: Colors.black, size: 22),
                           onPressed: () {
                             setModalState(() {
-                              visibleMonth = DateTime(visibleMonth.year, visibleMonth.month - 1, 1);
+                              visibleMonth = DateTime(
+                                  visibleMonth.year, visibleMonth.month - 1, 1);
                             });
                           },
                         ),
@@ -152,10 +158,12 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                               Expanded(
                                 child: Container(
                                   height: 36,
-                                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(11),
-                                    border: Border.all(color: const Color(0xFFD7D7D7)),
+                                    border: Border.all(
+                                        color: const Color(0xFFD7D7D7)),
                                   ),
                                   child: DropdownButtonHideUnderline(
                                     child: DropdownButton<int>(
@@ -165,13 +173,16 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                                         final m = index + 1;
                                         return DropdownMenuItem<int>(
                                           value: m,
-                                          child: Text(months[index], style: const TextStyle(fontSize: 16)),
+                                          child: Text(months[index],
+                                              style: const TextStyle(
+                                                  fontSize: 16)),
                                         );
                                       }),
                                       onChanged: (value) {
                                         if (value == null) return;
                                         setModalState(() {
-                                          visibleMonth = DateTime(visibleMonth.year, value, 1);
+                                          visibleMonth = DateTime(
+                                              visibleMonth.year, value, 1);
                                         });
                                       },
                                     ),
@@ -182,26 +193,32 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                               Expanded(
                                 child: Container(
                                   height: 36,
-                                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(11),
-                                    border: Border.all(color: const Color(0xFFD7D7D7)),
+                                    border: Border.all(
+                                        color: const Color(0xFFD7D7D7)),
                                   ),
                                   child: DropdownButtonHideUnderline(
                                     child: DropdownButton<int>(
                                       value: visibleMonth.year,
                                       isExpanded: true,
                                       items: List.generate(31, (index) {
-                                        final y = DateTime.now().year - 10 + index;
+                                        final y =
+                                            DateTime.now().year - 10 + index;
                                         return DropdownMenuItem<int>(
                                           value: y,
-                                          child: Text('$y', style: const TextStyle(fontSize: 16)),
+                                          child: Text('$y',
+                                              style: const TextStyle(
+                                                  fontSize: 16)),
                                         );
                                       }),
                                       onChanged: (value) {
                                         if (value == null) return;
                                         setModalState(() {
-                                          visibleMonth = DateTime(value, visibleMonth.month, 1);
+                                          visibleMonth = DateTime(
+                                              value, visibleMonth.month, 1);
                                         });
                                       },
                                     ),
@@ -212,10 +229,12 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.chevron_right, color: Colors.black, size: 22),
+                          icon: const Icon(Icons.chevron_right,
+                              color: Colors.black, size: 22),
                           onPressed: () {
                             setModalState(() {
-                              visibleMonth = DateTime(visibleMonth.year, visibleMonth.month + 1, 1);
+                              visibleMonth = DateTime(
+                                  visibleMonth.year, visibleMonth.month + 1, 1);
                             });
                           },
                         ),
@@ -246,18 +265,21 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                       child: GridView.builder(
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: 42,
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 7,
                           mainAxisSpacing: 8,
                           crossAxisSpacing: 8,
                         ),
                         itemBuilder: (context, index) {
                           final dayNumber = index - leading + 1;
-                          final isCurrentMonth = dayNumber > 0 && dayNumber <= daysInMonth;
+                          final isCurrentMonth =
+                              dayNumber > 0 && dayNumber <= daysInMonth;
 
                           DateTime cellDate;
                           if (isCurrentMonth) {
-                            cellDate = DateTime(visibleMonth.year, visibleMonth.month, dayNumber);
+                            cellDate = DateTime(visibleMonth.year,
+                                visibleMonth.month, dayNumber);
                           } else if (dayNumber <= 0) {
                             cellDate = DateTime(
                               prevMonth.year,
@@ -272,7 +294,8 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                             );
                           }
 
-                          final selected = DateUtils.isSameDay(cellDate, selectedDate);
+                          final selected =
+                              DateUtils.isSameDay(cellDate, selectedDate);
 
                           return InkWell(
                             borderRadius: BorderRadius.circular(10),
@@ -288,7 +311,8 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                                   ? BoxDecoration(
                                       color: const Color(0xFFBFEBD6),
                                       borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(color: const Color(0xFF8DB6A6)),
+                                      border: Border.all(
+                                          color: const Color(0xFF8DB6A6)),
                                     )
                                   : null,
                               alignment: Alignment.center,
@@ -296,7 +320,9 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                                 '${cellDate.day}',
                                 style: TextStyle(
                                   fontSize: 16,
-                                  color: isCurrentMonth ? Colors.black : const Color(0xFFBEBEBE),
+                                  color: isCurrentMonth
+                                      ? Colors.black
+                                      : const Color(0xFFBEBEBE),
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -314,7 +340,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                           width: 110,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: red,
+                              backgroundColor: AppThemeColors.legacyRed,
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(22),
@@ -323,7 +349,8 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                             onPressed: () => Navigator.pop(dialogContext),
                             child: const Text(
                               'Cancel',
-                              style: TextStyle(color: Colors.white, fontSize: 12),
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 12),
                             ),
                           ),
                         ),
@@ -339,10 +366,12 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                                 borderRadius: BorderRadius.circular(22),
                               ),
                             ),
-                            onPressed: () => Navigator.pop(dialogContext, selectedDate),
+                            onPressed: () =>
+                                Navigator.pop(dialogContext, selectedDate),
                             child: const Text(
                               'Done',
-                              style: TextStyle(color: Colors.white, fontSize: 12),
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 12),
                             ),
                           ),
                         ),
@@ -482,7 +511,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
             style: GoogleFonts.poppins(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: appFontColor,
+              color: AppThemeColors.brandPrimary,
             ),
           ),
         ],
@@ -666,7 +695,7 @@ class _TaskDetailsPageState extends State<TaskDetailsPage> {
                           style: GoogleFonts.poppins(
                             fontSize: 30 / 2,
                             fontWeight: FontWeight.w500,
-                            color: appFontColor,
+                            color: AppThemeColors.brandPrimary,
                           ),
                         ),
                       ],

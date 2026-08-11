@@ -8,7 +8,7 @@ import 'package:el_race/ui/presentation/my_request/RequestLeavePage.dart';
 import 'package:el_race/ui/presentation/my_request/RequestPermission.dart';
 import 'package:el_race/ui/presentation/hr_management/hr_management_entry_screen.dart';
 import 'package:el_race/utils/api_logger.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_translate/flutter_translate.dart';
@@ -343,14 +343,14 @@ class _MyRequestsPageState extends State<MyRequestsPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Icon(Icons.info,
-                                size: 14, color: appFontColor),
+                                size: 14, color: AppThemeColors.brandPrimary),
                             const SizedBox(width: 4),
                             Expanded(
                               child: Text(
                                 translate('notification.pending_approval'),
                                 style: GoogleFonts.poppins(
                                   fontSize: 9,
-                                  color: appFontColor,
+                                  color: AppThemeColors.brandPrimary,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -506,7 +506,7 @@ class _MyRequestsPageState extends State<MyRequestsPage> {
                         style: GoogleFonts.poppins(
                           fontSize: 13.sp,
                           fontWeight: FontWeight.bold,
-                          color: appFontColor,
+                          color: AppThemeColors.brandPrimary,
                         ),
                       ),
                     ),
@@ -527,7 +527,7 @@ class _MyRequestsPageState extends State<MyRequestsPage> {
                             style: GoogleFonts.poppins(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
-                              color: appFontColor,
+                              color: AppThemeColors.brandPrimary,
                             ),
                           ),
                           Text(
@@ -557,7 +557,7 @@ class _MyRequestsPageState extends State<MyRequestsPage> {
                         style: GoogleFonts.poppins(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.bold,
-                          color: appFontColor,
+                          color: AppThemeColors.brandPrimary,
                         ),
                         overflow: TextOverflow.visible,
                       ),
@@ -714,7 +714,7 @@ class _MyRequestsPageState extends State<MyRequestsPage> {
                               style: GoogleFonts.poppins(
                                 fontSize: 22.sp,
                                 fontWeight: FontWeight.w400,
-                                color: appFontColor,
+                                color: AppThemeColors.brandPrimary,
                                 letterSpacing: 2.0,
                               ),
                               textAlign: TextAlign.center,
@@ -729,12 +729,14 @@ class _MyRequestsPageState extends State<MyRequestsPage> {
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
                             icon: Icon(Icons.add,
-                                size: 28.sp, color: appFontColor),
+                                size: 28.sp,
+                                color: AppThemeColors.brandPrimary),
                             onPressed: () async {
                               final result = await Navigator.push<bool>(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => const HrManagementEntryScreen(),
+                                  builder: (_) =>
+                                      const HrManagementEntryScreen(),
                                 ),
                               );
                               if (result == true) {
@@ -770,17 +772,20 @@ class _MyRequestsPageState extends State<MyRequestsPage> {
                           controller: searchController,
                           decoration: InputDecoration(
                             hintText: translate('home.Find_your_request'),
-                            hintStyle:
-                                TextStyle(fontSize: 14.sp, color: appFontColor),
+                            hintStyle: TextStyle(
+                                fontSize: 14.sp,
+                                color: AppThemeColors.brandPrimary),
                             prefixIcon: Padding(
                               padding: EdgeInsets.all(12.w),
                               child: Icon(Icons.menu,
-                                  size: 20.sp, color: appFontColor),
+                                  size: 20.sp,
+                                  color: AppThemeColors.brandPrimary),
                             ),
                             suffixIcon: Padding(
                               padding: EdgeInsets.only(right: 12.w),
                               child: Icon(Icons.search,
-                                  size: 20.sp, color: appFontColor),
+                                  size: 20.sp,
+                                  color: AppThemeColors.brandPrimary),
                             ),
                             border: InputBorder.none,
                             contentPadding:

@@ -1,5 +1,5 @@
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/utils/safe_insets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -140,7 +140,7 @@ class MyActionCard extends StatelessWidget {
                                   style: GoogleFonts.poppins(
                                     fontSize: 13.tsp,
                                     fontWeight: FontWeight.bold,
-                                    color: appFontColor,
+                                    color: AppThemeColors.brandPrimary,
                                   ),
                                 ),
                               ),
@@ -161,7 +161,7 @@ class MyActionCard extends StatelessWidget {
                                       style: GoogleFonts.poppins(
                                         fontSize: 11,
                                         fontWeight: FontWeight.bold,
-                                        color: appFontColor,
+                                        color: AppThemeColors.brandPrimary,
                                       ),
                                     ),
                                     Text(
@@ -192,7 +192,7 @@ class MyActionCard extends StatelessWidget {
                                   style: GoogleFonts.poppins(
                                     fontSize: 14.tsp,
                                     fontWeight: FontWeight.bold,
-                                    color: appFontColor,
+                                    color: AppThemeColors.brandPrimary,
                                   ),
                                   overflow: TextOverflow.visible,
                                   maxLines: 2,
@@ -246,37 +246,36 @@ class MyActionCard extends StatelessWidget {
     );
   }
 }
-                    // AnimatedAlign(
-                    //   alignment: isExpanded ? Alignment.centerLeft : Alignment.centerRight,
-                    //   duration: const Duration(milliseconds: 900),
-                    //   curve: Curves.easeInOut,
-                    //   child: Container(
-                    //     margin: EdgeInsets.symmetric(horizontal: 10.tw),
-                    //     key: ValueKey(isExpanded),
-                    //     width: 50.tw,
-                    //     height: 50.tw,
-                    //     decoration: BoxDecoration(
-                    //       shape: BoxShape.circle,
-                    //       border: Border.all(color: Colors.white, width: 2),
-                    //     ),
-                    //     child: ClipOval(
-                    //       child: (item["image_emp"] != null &&
-                    //               item["image_emp"] is String &&
-                    //               (item["image_emp"] as String).isNotEmpty &&
-                    //               (item["image_emp"] as String).toLowerCase() != "false")
-                    //           ? Image.memory(
-                    //               base64Decode(item["image_emp"] as String),
-                    //               fit: BoxFit.cover,
-                    //               width: double.infinity,
-                    //               height: double.infinity,
-                    //             )
-                    //           : Image.asset(
-                    //               'assets/png/profile_1.png',
-                    //               fit: BoxFit.cover,
-                    //               width: double.infinity,
-                    //               height: double.infinity,
-                    //             ),
-                    //     ),
-                    //   ),
-                    // ),
-           
+// AnimatedAlign(
+//   alignment: isExpanded ? Alignment.centerLeft : Alignment.centerRight,
+//   duration: const Duration(milliseconds: 900),
+//   curve: Curves.easeInOut,
+//   child: Container(
+//     margin: EdgeInsets.symmetric(horizontal: 10.tw),
+//     key: ValueKey(isExpanded),
+//     width: 50.tw,
+//     height: 50.tw,
+//     decoration: BoxDecoration(
+//       shape: BoxShape.circle,
+//       border: Border.all(color: Colors.white, width: 2),
+//     ),
+//     child: ClipOval(
+//       child: (item["image_emp"] != null &&
+//               item["image_emp"] is String &&
+//               (item["image_emp"] as String).isNotEmpty &&
+//               (item["image_emp"] as String).toLowerCase() != "false")
+//           ? Image.memory(
+//               base64Decode(item["image_emp"] as String),
+//               fit: BoxFit.cover,
+//               width: double.infinity,
+//               height: double.infinity,
+//             )
+//           : Image.asset(
+//               'assets/png/profile_1.png',
+//               fit: BoxFit.cover,
+//               width: double.infinity,
+//               height: double.infinity,
+//             ),
+//     ),
+//   ),
+// ),

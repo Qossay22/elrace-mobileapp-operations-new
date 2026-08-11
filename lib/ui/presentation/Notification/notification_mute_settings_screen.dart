@@ -9,7 +9,7 @@ import 'package:el_race/ui/presentation/Notification/model/notification_category
 import 'package:el_race/ui/presentation/home_screen/bloc/home_bloc.dart';
 import 'package:el_race/ui/widgets/glass_sub_app_screen_header.dart';
 import 'package:el_race/ui/widgets/global_search_theme.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/utils/safe_insets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -485,7 +485,7 @@ class _NotificationMuteSettingsScreenState
 
     return RefreshIndicator(
       onRefresh: () => _loadSettings(forceRefresh: true),
-      color: appFontColor,
+      color: AppThemeColors.brandPrimary,
       child: ListView(
         padding: EdgeInsets.fromLTRB(
           14.tw,

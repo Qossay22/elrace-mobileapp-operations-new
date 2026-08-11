@@ -1,4 +1,4 @@
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -55,7 +55,7 @@ class _UserModeStatusWidgetState extends State<UserModeStatusWidget> {
             width: 60.w,
             height: 20.w,
             decoration: BoxDecoration(
-              color: isOnline ? red : Colors.grey[300],
+              color: isOnline ? AppThemeColors.legacyRed : Colors.grey[300],
               borderRadius: BorderRadius.circular(12),
             ),
             child: Stack(
@@ -83,7 +83,7 @@ class _UserModeStatusWidgetState extends State<UserModeStatusWidget> {
                     child: Icon(
                       Icons.circle,
                       size: 14.w,
-                      color: red,
+                      color: AppThemeColors.legacyRed,
                     ),
                   ),
                 ),

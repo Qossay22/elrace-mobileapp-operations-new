@@ -1,7 +1,7 @@
 import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/report_module/data/models/company_model.dart';
 import 'package:flutter/material.dart';
-import '../../../../../core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import '../../../../../core/constants/text_styles.dart';
 import '../../../../../data/repositories/company_repository.dart';
 import '../../../../widgets/bottom_appbar.dart';
@@ -40,19 +40,19 @@ class _CompanyInfoScreenState extends State<CompanyInfoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: CustomColors.white,
+      backgroundColor: AppThemeColors.surface,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         surfaceTintColor: Colors.transparent,
-        backgroundColor: CustomColors.white,
+        backgroundColor: AppThemeColors.surface,
         centerTitle: true,
         leadingWidth: 60,
         leading: Align(
           alignment: Alignment.centerRight,
           child: SquareButton(
             icon: Icons.keyboard_backspace,
-            color: CustomColors.white,
-            borderColor: CustomColors.black,
+            color: AppThemeColors.surface,
+            borderColor: AppThemeColors.pureBlack,
             onPressed: () {
               Navigator.pop(context);
             },
@@ -86,11 +86,11 @@ class _CompanyInfoScreenState extends State<CompanyInfoScreen> {
                       width: 100,
                       decoration: BoxDecoration(
                           border: Border.all(
-                              color: CustomColors.maroon,
+                              color: AppThemeColors.reportMaroon,
                               width: CompanyRepository.selectedCompany == 1
                                   ? 2
                                   : 0),
-                          color: CustomColors.containerColor,
+                          color: AppThemeColors.reportContainer,
                           borderRadius: BorderRadius.circular(12)),
                       child: Image.asset("assets/newapp/logo.png"),
                     ),
@@ -108,11 +108,11 @@ class _CompanyInfoScreenState extends State<CompanyInfoScreen> {
                       width: 100,
                       decoration: BoxDecoration(
                           border: Border.all(
-                              color: CustomColors.maroon,
+                              color: AppThemeColors.reportMaroon,
                               width: CompanyRepository.selectedCompany == 2
                                   ? 2
                                   : 0),
-                          color: CustomColors.containerColor,
+                          color: AppThemeColors.reportContainer,
                           borderRadius: BorderRadius.circular(12)),
                       child: Image.asset("assets/newapp/logo2.png"),
                     ),
@@ -174,13 +174,13 @@ class _CompanyInfoScreenState extends State<CompanyInfoScreen> {
                   Navigator.pop(context);
                 },
                 height: 44,
-                color: CustomColors.maroon,
+                color: AppThemeColors.reportMaroon,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15)),
                 child: Text(
                   "Save",
                   style: CustomTextStyle.reportTitle.copyWith(
-                    color: CustomColors.white,
+                    color: AppThemeColors.surface,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

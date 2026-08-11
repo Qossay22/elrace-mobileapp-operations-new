@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:el_race/data/models/announcement_details_model.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -38,7 +38,11 @@ class AnnouncementBanner extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: bannerBorderRadius,
           gradient: LinearGradient(
-            colors: [buttonLight, Colors.white, buttonDark],
+            colors: [
+              AppThemeColors.buttonLight,
+              Colors.white,
+              AppThemeColors.buttonDark
+            ],
           ),
         ),
         child: Stack(
@@ -74,10 +78,10 @@ class AnnouncementBanner extends StatelessWidget {
         imageUrl: announcement.attachmentUrl!,
         fit: BoxFit.cover,
         placeholder: (context, url) => Container(
-          color: lightGrey,
+          color: AppThemeColors.lightGrey,
           child: Center(
             child: CircularProgressIndicator(
-              color: buttonDark,
+              color: AppThemeColors.buttonDark,
               strokeWidth: 2,
             ),
           ),
@@ -99,7 +103,7 @@ class AnnouncementBanner extends StatelessWidget {
           colors: [
             const Color(0xFF1A1A53),
             const Color(0xFF2D2D7A),
-            buttonDark,
+            AppThemeColors.buttonDark,
           ],
         ),
       ),
@@ -179,7 +183,7 @@ class AnnouncementBanner extends StatelessWidget {
             Text(
               announcement.announcementText,
               style: TextStyle(
-                color: appFontColor,
+                color: AppThemeColors.brandPrimary,
                 fontSize: 9.sp,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.5,

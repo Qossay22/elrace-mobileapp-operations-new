@@ -1,5 +1,5 @@
 import 'package:el_race/ui/presentation/home_screen/widgets/card_tile.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../../../utils/orientation_helper.dart';
@@ -56,12 +56,12 @@ class _AnimatedListViewState extends State<AnimatedListView>
                   children: [
                     Icon(
                       CupertinoIcons.floppy_disk,
-                      color: shadowBlueDark,
+                      color: AppThemeColors.shadowBlueDark,
                     ),
                     SizedBox(width: 5),
                     Text(
                       'Save',
-                      style: TextStyle(color: shadowBlueDark),
+                      style: TextStyle(color: AppThemeColors.shadowBlueDark),
                     ),
                   ],
                 ),
@@ -81,9 +81,9 @@ class _AnimatedListViewState extends State<AnimatedListView>
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
                               gradient: const LinearGradient(colors: [
-                                buttonLight,
+                                AppThemeColors.buttonLight,
                                 Colors.white,
-                                buttonDark
+                                AppThemeColors.buttonDark
                               ])),
                           child: Stack(
                             children: [
@@ -101,9 +101,10 @@ class _AnimatedListViewState extends State<AnimatedListView>
                                             begin: Alignment.topCenter,
                                             end: Alignment.bottomCenter,
                                             colors: [
-                                              buttonLight,
-                                              buttonDark.withAlpha(
-                                                  (0.2 * 255).toInt())
+                                              AppThemeColors.buttonLight,
+                                              AppThemeColors.buttonDark
+                                                  .withAlpha(
+                                                      (0.2 * 255).toInt())
                                             ])),
                                     child: const SizedBox(
                                       height: 160,
@@ -118,9 +119,10 @@ class _AnimatedListViewState extends State<AnimatedListView>
                                         gradient: LinearGradient(
                                             begin: Alignment.topCenter,
                                             colors: [
-                                              buttonLight,
-                                              buttonDark.withAlpha(
-                                                  (0.2 * 255).toInt())
+                                              AppThemeColors.buttonLight,
+                                              AppThemeColors.buttonDark
+                                                  .withAlpha(
+                                                      (0.2 * 255).toInt())
                                             ])),
                                     child: const SizedBox(
                                       height: 160,
@@ -136,7 +138,7 @@ class _AnimatedListViewState extends State<AnimatedListView>
                                     child: Icon(
                                       size: SizeConfig().getTextSize(90),
                                       CupertinoIcons.add_circled,
-                                      color: shadowBlueDark,
+                                      color: AppThemeColors.shadowBlueDark,
                                     ),
                                   )),
                             ],

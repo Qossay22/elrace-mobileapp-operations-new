@@ -1,5 +1,5 @@
-import 'package:el_race/core/constants/colors.dart';
 import 'package:el_race/core/constants/text_styles.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -23,7 +23,7 @@ class CoverPageTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            color: CustomColors.containerColor),
+            color: AppThemeColors.reportContainer),
         child: Stack(
           children: [
             Column(
@@ -37,7 +37,7 @@ class CoverPageTile extends StatelessWidget {
                       child: Text(
                         data['title'],
                         style: CustomTextStyle.heading
-                            .copyWith(color: CustomColors.black),
+                            .copyWith(color: AppThemeColors.pureBlack),
                       ),
                     ),
                     const SizedBox(
@@ -59,17 +59,18 @@ class CoverPageTile extends StatelessWidget {
                     child: Text(
                       data['description'],
                       style: CustomTextStyle.reportHeader
-                          .copyWith(color: CustomColors.black),
+                          .copyWith(color: AppThemeColors.pureBlack),
                     ),
                   ),
 
                 const SizedBox(height: 8),
                 Container(
                   decoration: BoxDecoration(
-                    color: CustomColors.blue,
+                    color: AppThemeColors.reportBlue,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 12),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 2, horizontal: 12),
                   child: Text(
                     "Cover Page",
                     style: CustomTextStyle.smallWhite,
@@ -81,7 +82,8 @@ class CoverPageTile extends StatelessWidget {
                 right: 0,
                 top: 0,
                 child: InkWell(
-                    onTap: onMoreClicked, child: const Icon(Icons.more_vert_rounded)))
+                    onTap: onMoreClicked,
+                    child: const Icon(Icons.more_vert_rounded)))
           ],
         ),
       ),

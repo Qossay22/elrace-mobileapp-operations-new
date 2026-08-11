@@ -5,7 +5,7 @@ import 'package:el_race/ui/presentation/my_projects/presentation/bloc/project_li
 import 'package:el_race/ui/presentation/my_projects/presentation/bloc/project_list_event.dart';
 import 'package:el_race/ui/presentation/my_projects/presentation/bloc/project_list_state.dart';
 import 'package:el_race/ui/presentation/my_projects/presentation/widgets/projects_glass_chrome.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -59,68 +59,111 @@ class _AttachmentListScreenState extends State<AttachmentListScreen> {
       body: ProjectsGlassShell(
         title: 'Attachments',
         body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          // Header Section (Scrollable)
-          SliverToBoxAdapter(
-            child: Column(
-              children: [
-                const SizedBox(height: 10),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.tw),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        'assets/newapp/attachment.png',
-                        height: 24.tw,
-                        width: 24.tw,
-                      ),
-                      SizedBox(width: 4.tw),
-                      Text(
-                        'ATTACHMENTS',
-                        style: GoogleFonts.poppins(
-                          fontSize: 22.tsp,
-                          fontWeight: FontWeight.w500,
-                          color: appFontColor,
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            // Header Section (Scrollable)
+            SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.tw),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          'assets/newapp/attachment.png',
+                          height: 24.tw,
+                          width: 24.tw,
+                        ),
+                        SizedBox(width: 4.tw),
+                        Text(
+                          'ATTACHMENTS',
+                          style: GoogleFonts.poppins(
+                            fontSize: 22.tsp,
+                            fontWeight: FontWeight.w500,
+                            color: AppThemeColors.brandPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+              ),
+            ),
+
+            // Content
+            BlocProvider.value(
+              value: widget.bloc,
+              child: BlocBuilder<ProjectListBloc, ProjectListState>(
+                builder: (ctx, state) {
+                  if (state is ProjectAttachmentsLoading) {
+                    return const SliverFillRemaining(
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  } else if (state is ProjectAttachmentsLoaded) {
+                    final list = widget.bloc.projectAttacmentList;
+                    if (list.isEmpty) {
+                      return SliverFillRemaining(
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.attach_file,
+                                size: 48.tw,
+                                color: Colors.grey,
+                              ),
+                              SizedBox(height: 12.th),
+                              Text(
+                                'No attachments',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16.tsp,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    return SliverPadding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 20.tw, vertical: 20.th),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final attachment = list[index];
+                            return Padding(
+                              padding: EdgeInsets.only(bottom: 14.th),
+                              child: _buildAttachmentRowCard(attachment),
+                            );
+                          },
+                          childCount: list.length,
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 10),
-              ],
-            ),
-          ),
-
-          // Content
-          BlocProvider.value(
-            value: widget.bloc,
-            child: BlocBuilder<ProjectListBloc, ProjectListState>(
-              builder: (ctx, state) {
-                if (state is ProjectAttachmentsLoading) {
-                  return const SliverFillRemaining(
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-                } else if (state is ProjectAttachmentsLoaded) {
-                  final list = widget.bloc.projectAttacmentList;
-                  if (list.isEmpty) {
+                    );
+                  } else if (state is ProjectAttachmentsError) {
                     return SliverFillRemaining(
                       child: Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.attach_file,
-                              size: 48.tw,
-                              color: Colors.grey,
-                            ),
-                            SizedBox(height: 12.th),
                             Text(
-                              'No attachments',
+                              'Error loading attachments',
                               style: GoogleFonts.poppins(
                                 fontSize: 16.tsp,
-                                fontWeight: FontWeight.w600,
+                                color: Colors.red,
+                              ),
+                            ),
+                            SizedBox(height: 8.th),
+                            Text(
+                              state.message,
+                              style: GoogleFonts.poppins(
+                                fontSize: 12.tsp,
                                 color: Colors.grey,
                               ),
                             ),
@@ -128,59 +171,16 @@ class _AttachmentListScreenState extends State<AttachmentListScreen> {
                         ),
                       ),
                     );
+                  } else {
+                    return const SliverFillRemaining(
+                      child: Center(child: Text('No data available')),
+                    );
                   }
-
-                  return SliverPadding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 20.tw, vertical: 20.th),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          final attachment = list[index];
-                          return Padding(
-                            padding: EdgeInsets.only(bottom: 14.th),
-                            child: _buildAttachmentRowCard(attachment),
-                          );
-                        },
-                        childCount: list.length,
-                      ),
-                    ),
-                  );
-                } else if (state is ProjectAttachmentsError) {
-                  return SliverFillRemaining(
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Error loading attachments',
-                            style: GoogleFonts.poppins(
-                              fontSize: 16.tsp,
-                              color: Colors.red,
-                            ),
-                          ),
-                          SizedBox(height: 8.th),
-                          Text(
-                            state.message,
-                            style: GoogleFonts.poppins(
-                              fontSize: 12.tsp,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                } else {
-                  return const SliverFillRemaining(
-                    child: Center(child: Text('No data available')),
-                  );
-                }
-              },
+                },
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }
@@ -249,7 +249,8 @@ class _AttachmentListScreenState extends State<AttachmentListScreen> {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 14.tw, vertical: 12.th),
+                padding:
+                    EdgeInsets.symmetric(horizontal: 14.tw, vertical: 12.th),
                 child: Row(
                   children: [
                     SizedBox(

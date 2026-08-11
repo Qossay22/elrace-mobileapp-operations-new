@@ -1,4 +1,4 @@
-import 'package:el_race/report_module/core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/report_module/core/constants/text_styles.dart';
 import 'package:el_race/report_module/data/models/cover_page_model.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +24,7 @@ class CoverPageTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            color: CustomColors.containerColor),
+            color: AppThemeColors.reportContainer),
         child: Stack(
           children: [
             Column(
@@ -38,7 +38,7 @@ class CoverPageTile extends StatelessWidget {
                       child: Text(
                         data.title,
                         style: CustomTextStyle.heading
-                            .copyWith(color: CustomColors.black),
+                            .copyWith(color: AppThemeColors.pureBlack),
                       ),
                     ),
                     const SizedBox(
@@ -60,14 +60,14 @@ class CoverPageTile extends StatelessWidget {
                     child: Text(
                       data.description!,
                       style: CustomTextStyle.reportHeader
-                          .copyWith(color: CustomColors.black),
+                          .copyWith(color: AppThemeColors.pureBlack),
                     ),
                   ),
 
                 const SizedBox(height: 8),
                 Container(
                   decoration: BoxDecoration(
-                    color: CustomColors.blue,
+                    color: AppThemeColors.reportBlue,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   padding:

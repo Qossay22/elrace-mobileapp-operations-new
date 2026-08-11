@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/ui/presentation/my_projects/presentation/utils/projects_dashboard_access.dart';
 import 'package:el_race/ui/widgets/header_widget.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/utils/di.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -233,7 +233,8 @@ class _MediaListScreenState extends State<MediaListScreen> {
     List<MediaModel>? playlist,
   }) {
     final preloaded = MediaVideoPreloader.take(media.id);
-    Navigator.of(context).push(
+    Navigator.of(context)
+        .push(
       MaterialPageRoute(
         builder: (context) => YoYoVideoPlayerScreen(
           media: media,
@@ -241,7 +242,8 @@ class _MediaListScreenState extends State<MediaListScreen> {
           preloadedController: preloaded,
         ),
       ),
-    ).then((_) {
+    )
+        .then((_) {
       if (preloaded != null && preloaded.value.isInitialized) {
         MediaVideoPreloader.release(media.id, preloaded);
       }
@@ -338,9 +340,7 @@ class _MediaListScreenState extends State<MediaListScreen> {
       return _buildDarkErrorState(state.message);
     }
 
-    final contents = state is ContentsLoaded
-        ? state.contents
-        : _cachedContents;
+    final contents = state is ContentsLoaded ? state.contents : _cachedContents;
 
     if (contents == null) {
       context.read<MediaBloc>().add(const FetchContents());
@@ -350,8 +350,7 @@ class _MediaListScreenState extends State<MediaListScreen> {
     }
 
     final is360 = _activeTab == _MediaFilterTab.view360;
-    final items =
-        is360 ? _filtered360(contents) : _filteredPhotos(contents);
+    final items = is360 ? _filtered360(contents) : _filteredPhotos(contents);
 
     return MediaContentLandingScreen(
       items: items,
@@ -579,7 +578,7 @@ class _MediaListScreenState extends State<MediaListScreen> {
                 style: GoogleFonts.poppins(
                   fontSize: 22.sp,
                   fontWeight: FontWeight.w400,
-                  color: appFontColor,
+                  color: AppThemeColors.brandPrimary,
                   letterSpacing: 1.5,
                 ),
                 overflow: TextOverflow.visible,
@@ -717,15 +716,17 @@ class _MediaListScreenState extends State<MediaListScreen> {
           hintText: 'Find media',
           hintStyle: GoogleFonts.poppins(
             fontSize: 12.sp,
-            color: appFontColor,
+            color: AppThemeColors.brandPrimary,
           ),
           prefixIcon: const Padding(
             padding: EdgeInsets.all(8.0),
-            child: Icon(Icons.menu, size: 18, color: appFontColor),
+            child:
+                Icon(Icons.menu, size: 18, color: AppThemeColors.brandPrimary),
           ),
           suffixIcon: const Padding(
             padding: EdgeInsets.all(8.0),
-            child: Icon(Icons.search, size: 18, color: appFontColor),
+            child: Icon(Icons.search,
+                size: 18, color: AppThemeColors.brandPrimary),
           ),
           border: InputBorder.none,
           contentPadding:
@@ -759,11 +760,12 @@ class _MediaListScreenState extends State<MediaListScreen> {
           hintText: 'Find media',
           hintStyle: GoogleFonts.poppins(
             fontSize: 12.sp,
-            color: appFontColor,
+            color: AppThemeColors.brandPrimary,
           ),
           prefixIcon: const Padding(
             padding: EdgeInsets.all(8.0),
-            child: Icon(Icons.search, size: 18, color: appFontColor),
+            child: Icon(Icons.search,
+                size: 18, color: AppThemeColors.brandPrimary),
           ),
           border: InputBorder.none,
           contentPadding:
@@ -799,7 +801,7 @@ class _MediaListScreenState extends State<MediaListScreen> {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: appFontColor,
+        backgroundColor: AppThemeColors.brandPrimary,
         foregroundColor: Colors.white,
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
         shape: RoundedRectangleBorder(
@@ -946,33 +948,34 @@ class _MediaListScreenState extends State<MediaListScreen> {
                             ),
                           )
                         : Image.network(
-                      _safeImageUrl(content.displayImageUrl),
-                      headers: _imageHeaders,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return _buildPhotoLoadingPlaceholder(
-                          context,
-                          loadingProgress,
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        _logPhotoLoadError(
-                          source: 'single-card',
-                          rawUrl: content.displayImageUrl,
-                          error: error,
-                        );
-                        return Container(
-                          color: Colors.white.withOpacity(0.45),
-                          alignment: Alignment.center,
-                          child: Icon(
-                            Icons.image_outlined,
-                            color: appFontColor.withOpacity(0.6),
-                            size: 28.sp,
+                            _safeImageUrl(content.displayImageUrl),
+                            headers: _imageHeaders,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return _buildPhotoLoadingPlaceholder(
+                                context,
+                                loadingProgress,
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              _logPhotoLoadError(
+                                source: 'single-card',
+                                rawUrl: content.displayImageUrl,
+                                error: error,
+                              );
+                              return Container(
+                                color: Colors.white.withOpacity(0.45),
+                                alignment: Alignment.center,
+                                child: Icon(
+                                  Icons.image_outlined,
+                                  color: AppThemeColors.brandPrimary
+                                      .withOpacity(0.6),
+                                  size: 28.sp,
+                                ),
+                              );
+                            },
                           ),
-                        );
-                      },
-                    ),
                   ),
                 ),
               ),
@@ -1071,7 +1074,8 @@ class _MediaListScreenState extends State<MediaListScreen> {
   bool _isPdfContent(ContentModel content) => content.isPdf;
 
   /// Checks URL content-type via HEAD request, then opens PDF viewer or photo preview.
-  Future<void> _openPhotoOrPdf(BuildContext context, ContentModel content) async {
+  Future<void> _openPhotoOrPdf(
+      BuildContext context, ContentModel content) async {
     // First check static indicators (filename / known fileType)
     if (_isPdfContent(content)) {
       if (!context.mounted) return;
@@ -1090,8 +1094,8 @@ class _MediaListScreenState extends State<MediaListScreen> {
     // For URLs without extension (e.g. /my/public/file/12345),
     // do a HEAD request to detect the actual content-type.
     final rawUrl = content.previewUrl.trim();
-    final hasNoExtension = !rawUrl.contains('?') &&
-        !rawUrl.split('/').last.contains('.');
+    final hasNoExtension =
+        !rawUrl.contains('?') && !rawUrl.split('/').last.contains('.');
     if (hasNoExtension && rawUrl.isNotEmpty) {
       try {
         final token = SharedPref.getLoginData().result?.token ?? '';
@@ -1255,7 +1259,7 @@ class _MediaListScreenState extends State<MediaListScreen> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: appFontColor,
+                backgroundColor: AppThemeColors.brandPrimary,
                 foregroundColor: Colors.white,
               ),
               child: Text(

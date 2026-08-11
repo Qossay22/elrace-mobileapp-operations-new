@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../utils/color_utils.dart';
-
 class FooterWidget extends StatelessWidget {
   const FooterWidget({super.key});
 
@@ -13,7 +11,7 @@ class FooterWidget extends StatelessWidget {
       children: [
         Transform(
           alignment: Alignment.center,
-          transform: Matrix4.identity()..scale(-1.0, 1.0), // Flip horizontally
+          transform: Matrix4.diagonal3Values(-1.0, 1.0, 1.0),
           child: Image.asset('assets/png/bottom.png'),
         ),
         const SizedBox.shrink(),

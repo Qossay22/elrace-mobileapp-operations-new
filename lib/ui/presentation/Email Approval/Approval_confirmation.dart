@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -439,7 +439,7 @@ class _ApprovalConfirmationScreenState
                         bottom: widget.type.toUpperCase() == 'HR' ? 60.tw : 0),
                     padding: EdgeInsets.all(3.tw),
                     decoration: const BoxDecoration(
-                      color: red,
+                      color: AppThemeColors.legacyRed,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.close, color: Colors.white),
@@ -469,7 +469,8 @@ class _ApprovalConfirmationScreenState
                             Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                border: Border.all(color: greyText),
+                                border: Border.all(
+                                    color: AppThemeColors.legacyGreyText),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Column(
@@ -594,7 +595,6 @@ class _ApprovalConfirmationScreenState
                             const SizedBox(height: 10),
                             Center(
                               child: ElevatedButton.icon(
-                                
                                 onPressed: () async {
                                   if (attachmentIds.isEmpty) {
                                     Fluttertoast.showToast(
@@ -792,7 +792,8 @@ class _ApprovalConfirmationScreenState
                                         buttonColor: borderColor,
                                         onPressed: () async {
                                           print('🟢 VIEW button pressed!');
-                                          print('🟢 attachmentIds: $attachmentIds');
+                                          print(
+                                              '🟢 attachmentIds: $attachmentIds');
                                           if (attachmentIds.isEmpty) {
                                             Fluttertoast.showToast(
                                               msg: 'No attachment found.',
@@ -850,7 +851,7 @@ class _ApprovalConfirmationScreenState
               child: Container(
                 padding: EdgeInsets.all(5.tw),
                 decoration: const BoxDecoration(
-                  color: red,
+                  color: AppThemeColors.legacyRed,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.close, color: Colors.white, size: 22.tw),
@@ -935,7 +936,8 @@ class _ApprovalConfirmationScreenState
     );
   }
 
-  Widget _buildPettyCashPillRow({required String label, required String value}) {
+  Widget _buildPettyCashPillRow(
+      {required String label, required String value}) {
     const bullet = '●';
     final display = value.isEmpty ? '' : value;
 
@@ -1244,9 +1246,8 @@ class _ApprovalConfirmationScreenState
                               shape: BoxShape.circle,
                               color: Colors.grey.shade300,
                               border: Border.all(
-                                color: active
-                                    ? borderColor
-                                    : Colors.transparent,
+                                color:
+                                    active ? borderColor : Colors.transparent,
                                 width: active ? 2 : 0,
                               ),
                             ),
@@ -1378,8 +1379,7 @@ class _ApprovalConfirmationScreenState
                                   decoration: BoxDecoration(
                                     border: Border.all(
                                         color: borderColor, width: 2),
-                                    borderRadius:
-                                        BorderRadius.circular(18.tr),
+                                    borderRadius: BorderRadius.circular(18.tr),
                                   ),
                                   child: Column(
                                     children: [
@@ -1444,8 +1444,8 @@ class _ApprovalConfirmationScreenState
                                               .toString() ??
                                           ''
                                     ],
-                                    variant: ApprovalActionButtonsVariant
-                                        .rectangle,
+                                    variant:
+                                        ApprovalActionButtonsVariant.rectangle,
                                   ),
                                 ),
                               ],
@@ -1464,7 +1464,7 @@ class _ApprovalConfirmationScreenState
               child: Container(
                 padding: EdgeInsets.all(5.tw),
                 decoration: const BoxDecoration(
-                  color: red,
+                  color: AppThemeColors.legacyRed,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.close, color: Colors.white, size: 22.tw),
@@ -1564,9 +1564,11 @@ class _ApprovalConfirmationScreenState
               onTap: enabled ? onPressed : null,
               borderRadius: BorderRadius.circular(22.tr),
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.tw, vertical: 8.tw),
+                padding:
+                    EdgeInsets.symmetric(horizontal: 12.tw, vertical: 8.tw),
                 decoration: BoxDecoration(
-                  color: enabled ? const Color(0xFF1A1A53) : Colors.grey.shade400,
+                  color:
+                      enabled ? const Color(0xFF1A1A53) : Colors.grey.shade400,
                   borderRadius: BorderRadius.circular(22.tr),
                 ),
                 child: Text(
@@ -1598,9 +1600,8 @@ class _ApprovalConfirmationScreenState
       return s;
     }
 
-    final rows = tableView
-        .where((e) => e is Map)
-        .map<Map<String, String>>((dynamic e) {
+    final rows =
+        tableView.where((e) => e is Map).map<Map<String, String>>((dynamic e) {
       final m = e as Map;
       String pick(List<dynamic> candidates) {
         for (final c in candidates) {
@@ -1735,9 +1736,9 @@ class _ApprovalConfirmationScreenState
     }
 
     // حساب الارتفاع المناسب بناءً على عدد الصفوف
-    final dynamicTableHeight = rows.isEmpty 
+    final dynamicTableHeight = rows.isEmpty
         ? 120.tw // ارتفاع صغير للجدول الفارغ
-        : (rows.length == 1 
+        : (rows.length == 1
             ? 140.tw // ارتفاع أصغر لصف واحد
             : tableHeight); // الارتفاع الكامل للصفوف المتعددة
 
@@ -1764,8 +1765,7 @@ class _ApprovalConfirmationScreenState
                           decoration: BoxDecoration(
                             color: const Color(0xFF8A8A8A),
                             border: const Border(
-                              bottom:
-                                  BorderSide(color: Colors.white, width: 1),
+                              bottom: BorderSide(color: Colors.white, width: 1),
                             ),
                           ),
                           child: Row(
@@ -1821,10 +1821,10 @@ class _ApprovalConfirmationScreenState
                                             ),
                                             child: Row(
                                               children: [
-                                                bodyCell(item['invoice_date'] ??
-                                                    ''),
-                                                bodyCell(item['vendor_name'] ??
-                                                    ''),
+                                                bodyCell(
+                                                    item['invoice_date'] ?? ''),
+                                                bodyCell(
+                                                    item['vendor_name'] ?? ''),
                                                 bodyCell(item['lpo_no'] ?? ''),
                                                 bodyCell(item['wo_name'] ?? ''),
                                                 bodyCell(
@@ -1873,8 +1873,7 @@ class _ApprovalConfirmationScreenState
                       height: 12.tw,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color:
-                            active ? borderColor : const Color(0xFFCFCFCF),
+                        color: active ? borderColor : const Color(0xFFCFCFCF),
                       ),
                     );
                   }),
@@ -1974,8 +1973,7 @@ class _ApprovalConfirmationScreenState
                                   decoration: BoxDecoration(
                                     border: Border.all(
                                         color: borderColor, width: 2),
-                                    borderRadius:
-                                        BorderRadius.circular(18.tr),
+                                    borderRadius: BorderRadius.circular(18.tr),
                                   ),
                                   child: Column(
                                     children: [
@@ -2040,8 +2038,7 @@ class _ApprovalConfirmationScreenState
                                               .toString() ??
                                           ''
                                     ],
-                                    variant:
-                                        ApprovalActionButtonsVariant.pill,
+                                    variant: ApprovalActionButtonsVariant.pill,
                                   ),
                                 ),
                               ],
@@ -2060,7 +2057,7 @@ class _ApprovalConfirmationScreenState
               child: Container(
                 padding: EdgeInsets.all(5.tw),
                 decoration: const BoxDecoration(
-                  color: red,
+                  color: AppThemeColors.legacyRed,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.close, color: Colors.white, size: 22.tw),
@@ -2094,9 +2091,10 @@ class _ApprovalConfirmationScreenState
         safeValue(formData?['request_date']),
       ];
       return candidates.firstWhere(
-        (e) => (e ?? '').trim().isNotEmpty,
-        orElse: () => '',
-      ) ?? '';
+            (e) => (e ?? '').trim().isNotEmpty,
+            orElse: () => '',
+          ) ??
+          '';
     }
 
     String resolvePettyCashType(Map<String, String> item) {
@@ -2107,9 +2105,10 @@ class _ApprovalConfirmationScreenState
         safeValue(formData?['request_type']),
       ];
       return candidates.firstWhere(
-        (e) => (e ?? '').trim().isNotEmpty,
-        orElse: () => '',
-      ) ?? '';
+            (e) => (e ?? '').trim().isNotEmpty,
+            orElse: () => '',
+          ) ??
+          '';
     }
 
     String resolveTotalAmount(Map<String, String> item) {
@@ -2119,9 +2118,10 @@ class _ApprovalConfirmationScreenState
         safeValue(formData?['amount_total']),
       ];
       final value = candidates.firstWhere(
-        (e) => (e ?? '').trim().isNotEmpty,
-        orElse: () => '',
-      ) ?? '';
+            (e) => (e ?? '').trim().isNotEmpty,
+            orElse: () => '',
+          ) ??
+          '';
       if (value.isEmpty) return '';
       return '$value AED';
     }
@@ -2193,8 +2193,7 @@ class _ApprovalConfirmationScreenState
                                           return _buildTableRow(
                                             invoiceDate:
                                                 resolveInvoiceDate(item),
-                                            projectName:
-                                                item['product'] ?? '',
+                                            projectName: item['product'] ?? '',
                                             pettyCashType:
                                                 resolvePettyCashType(item),
                                             totalAmount:
@@ -2456,12 +2455,12 @@ class _ApprovalConfirmationScreenState
               onTap: enabled ? onPressed : null,
               borderRadius: BorderRadius.circular(22.tr),
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.tw, vertical: 8.tw),
+                padding:
+                    EdgeInsets.symmetric(horizontal: 12.tw, vertical: 8.tw),
                 decoration: BoxDecoration(
                   color: enabled ? const Color(0xFFE1E1E1) : Colors.grey[300],
                   borderRadius: BorderRadius.circular(22.tr),
-                  border:
-                      Border.all(color: const Color(0xFF4A4A4A), width: 1),
+                  border: Border.all(color: const Color(0xFF4A4A4A), width: 1),
                 ),
                 child: Text(
                   'View',
@@ -2483,8 +2482,7 @@ class _ApprovalConfirmationScreenState
 
   Widget _buildHrDialog(BuildContext context) {
     final employeeName =
-        (formData?['employee_name'] ?? formData?['requester'] ?? '')
-            .toString();
+        (formData?['employee_name'] ?? formData?['requester'] ?? '').toString();
 
     String safeValue(dynamic v) {
       if (v == null) return '';
@@ -2545,8 +2543,8 @@ class _ApprovalConfirmationScreenState
                               height: 44.tw,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                border: Border.all(
-                                    color: Colors.white, width: 2),
+                                border:
+                                    Border.all(color: Colors.white, width: 2),
                               ),
                               child: ClipOval(
                                 child: isLoading
@@ -2602,16 +2600,12 @@ class _ApprovalConfirmationScreenState
                       ),
                       child: Column(
                         children: [
-                          _buildHrPillRow(
-                              label: 'REQ NO', value: reqNo),
-                          _buildHrPillRow(
-                              label: 'REQ TYPE', value: reqType),
-                          _buildHrPillRow(
-                              label: 'REQ DATE', value: reqDate),
+                          _buildHrPillRow(label: 'REQ NO', value: reqNo),
+                          _buildHrPillRow(label: 'REQ TYPE', value: reqType),
+                          _buildHrPillRow(label: 'REQ DATE', value: reqDate),
                           _buildHrPillRow(
                               label: 'START DATE', value: startDate),
-                          _buildHrPillRow(
-                              label: 'DURATION', value: duration),
+                          _buildHrPillRow(label: 'DURATION', value: duration),
                           _buildHrPillRow(
                               label: 'BALANCE LEAVE', value: balanceLeave),
                           _buildHrAttachmentRow(
@@ -2664,7 +2658,7 @@ class _ApprovalConfirmationScreenState
               child: Container(
                 padding: EdgeInsets.all(5.tw),
                 decoration: const BoxDecoration(
-                  color: red,
+                  color: AppThemeColors.legacyRed,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.close, color: Colors.white, size: 22.tw),
@@ -2812,7 +2806,8 @@ class _ApprovalConfirmationScreenState
               flex: 2,
               child: Container(
                 width: 150.tw,
-                padding: EdgeInsets.symmetric(horizontal: 10.tw, vertical: 5.tw),
+                padding:
+                    EdgeInsets.symmetric(horizontal: 10.tw, vertical: 5.tw),
                 decoration: BoxDecoration(
                   color: AppColors.separatorColor,
                   borderRadius: BorderRadius.circular(10),
@@ -2950,7 +2945,7 @@ class _ApprovalConfirmationScreenState
   _viewAttachement() async {
     print('🔵 _viewAttachement called');
     print('🔵 attachmentIds: $attachmentIds');
-    
+
     if (attachmentIds.isEmpty) {
       print('🔴 No attachments found');
       Fluttertoast.showToast(
@@ -2962,11 +2957,11 @@ class _ApprovalConfirmationScreenState
       );
       return;
     }
-    
+
     final attachmentId =
         attachmentIds.first['attachment_id'] ?? attachmentIds.first;
     print('🔵 attachmentId: $attachmentId');
-    
+
     final token = SharedPref.getLoginData().result?.token;
     final headers = {
       "Content-Type": "application/json",

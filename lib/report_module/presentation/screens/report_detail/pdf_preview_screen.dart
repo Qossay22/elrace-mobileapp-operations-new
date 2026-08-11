@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:el_race/report_module/core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/report_module/data/repositories/company_repository.dart';
 import 'package:el_race/report_module/presentation/widgets/square_button.dart';
 import 'package:flutter/material.dart';
@@ -78,34 +78,36 @@ class _PdfDisplayScreenState extends State<PdfDisplayScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: CustomColors.containerColor,
+      backgroundColor: AppThemeColors.reportContainer,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         surfaceTintColor: Colors.transparent,
-        backgroundColor: CustomColors.white,
+        backgroundColor: AppThemeColors.surface,
         centerTitle: true,
         leadingWidth: 60,
         leading: Align(
           alignment: Alignment.centerRight,
           child: SquareButton(
             icon: Icons.keyboard_backspace,
-            color: CustomColors.white,
-            borderColor: CustomColors.black,
+            color: AppThemeColors.surface,
+            borderColor: AppThemeColors.pureBlack,
             onPressed: _goBack,
           ),
         ),
         title: Image.asset(
-          _companyLogo ?? CompanyRepository.company?.logo ?? 'assets/logo/logo.png',
+          _companyLogo ??
+              CompanyRepository.company?.logo ??
+              'assets/logo/logo.png',
           height: 60,
         ),
         actions: [
           SquareButton(
             icon: Icons.share_outlined,
-            color: loading ? CustomColors.black : CustomColors.maroon,
-            borderColor: CustomColors.white,
-            onPressed: loading
-                ? null
-                : () => _shareReport(),
+            color: loading
+                ? AppThemeColors.pureBlack
+                : AppThemeColors.reportModuleMaroon,
+            borderColor: AppThemeColors.surface,
+            onPressed: loading ? null : () => _shareReport(),
           ),
           const SizedBox(width: 10),
         ],

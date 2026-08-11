@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:el_race/core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/ui/widgets/square_button.dart';
 import 'package:el_race/utils/safe_insets.dart';
 import 'package:flutter/foundation.dart';
@@ -107,8 +107,8 @@ class _ImageEditingScreenState extends State<ImageEditingScreen> {
                     alignment: Alignment.centerRight,
                     child: SquareButton(
                       icon: Icons.keyboard_backspace,
-                      color: CustomColors.white,
-                      borderColor: CustomColors.black,
+                      color: AppThemeColors.surface,
+                      borderColor: AppThemeColors.pureBlack,
                       onPressed: () {
                         Navigator.pop(context);
                       },
@@ -134,15 +134,15 @@ class _ImageEditingScreenState extends State<ImageEditingScreen> {
                   actions: [
                     SquareButton(
                       icon: Icons.text_fields_outlined,
-                      color: CustomColors.blue,
-                      borderColor: CustomColors.white,
+                      color: AppThemeColors.reportBlue,
+                      borderColor: AppThemeColors.surface,
                       onPressed: addText,
                     ),
                     const SizedBox(width: 4),
                     SquareButton(
                       icon: Icons.check,
-                      color: CustomColors.maroon,
-                      borderColor: CustomColors.white,
+                      color: AppThemeColors.reportMaroon,
+                      borderColor: AppThemeColors.surface,
                       onPressed: () {
                         if (textFocusNode.hasFocus) {
                           textFocusNode.unfocus();
@@ -363,7 +363,7 @@ class _ImageEditingScreenState extends State<ImageEditingScreen> {
                   icon: Icon(
                     PhosphorIcons.scribbleLoop(),
                     color: controller.freeStyleMode == FreeStyleMode.draw
-                        ? CustomColors.maroon
+                        ? AppThemeColors.reportMaroon
                         : null,
                   ),
                   onPressed: toggleFreeStyleDraw,
@@ -376,8 +376,8 @@ class _ImageEditingScreenState extends State<ImageEditingScreen> {
                   OvalFactory(): "Oval",
                 }.entries.map((e) => IconButton(
                       color: selectedShape == e.value
-                          ? CustomColors.maroon
-                          : CustomColors.blue,
+                          ? AppThemeColors.reportMaroon
+                          : AppThemeColors.reportBlue,
                       icon: Icon(
                         getShapeIcon(e.key),
                       ),

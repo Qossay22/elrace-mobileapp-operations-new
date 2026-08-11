@@ -1,4 +1,4 @@
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class IconShow extends StatelessWidget {
@@ -21,10 +21,13 @@ class IconShow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
       child: Container(
         decoration: BoxDecoration(
-            color: lightGrey,
+            color: AppThemeColors.lightGrey,
             borderRadius: BorderRadius.circular(15),
             boxShadow: const [
-              BoxShadow(color: darkGrey, offset: Offset(2, 4), blurRadius: 12)
+              BoxShadow(
+                  color: AppThemeColors.darkGrey,
+                  offset: Offset(2, 4),
+                  blurRadius: 12)
             ]),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -35,7 +38,7 @@ class IconShow extends StatelessWidget {
                 children: [
                   Icon(
                     icon,
-                    color: blue,
+                    color: AppThemeColors.brandBlue,
                   ),
                   const SizedBox(
                     width: 10,
@@ -43,7 +46,8 @@ class IconShow extends StatelessWidget {
                   Text(
                     title,
                     style: const TextStyle(
-                        color: blue, fontWeight: FontWeight.w500),
+                        color: AppThemeColors.brandBlue,
+                        fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
@@ -63,11 +67,14 @@ class IconShow extends StatelessWidget {
                             width: 80,
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(8),
-                                color: show ? white : Colors.transparent,
+                                color: show
+                                    ? AppThemeColors.softWhite
+                                    : Colors.transparent,
                                 boxShadow: [
                                   BoxShadow(
-                                      color:
-                                          show ? darkGrey : Colors.transparent,
+                                      color: show
+                                          ? AppThemeColors.darkGrey
+                                          : Colors.transparent,
                                       offset: const Offset(2, 4),
                                       blurRadius: 12)
                                 ]),

@@ -2,7 +2,7 @@ import 'package:el_race/data/models/announcement_model.dart';
 import 'package:el_race/data/models/announcement_details_model.dart';
 import 'package:el_race/data/services/announcements_api_service.dart';
 import 'package:el_race/ui/widgets/header_widget.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_translate/flutter_translate.dart';
@@ -103,7 +103,7 @@ class _NewsDetailScreenAPIState extends State<NewsDetailScreenAPI> {
                     errorBuilder: (_, __, ___) => Icon(
                       Icons.article,
                       size: 20.w,
-                      color: appFontColor,
+                      color: AppThemeColors.brandPrimary,
                     ),
                   ),
                   SizedBox(width: 6.w),
@@ -112,7 +112,7 @@ class _NewsDetailScreenAPIState extends State<NewsDetailScreenAPI> {
                     style: GoogleFonts.poppins(
                       fontSize: 24.sp,
                       fontWeight: FontWeight.w400,
-                      color: appFontColor,
+                      color: AppThemeColors.brandPrimary,
                     ),
                   ),
                 ],
@@ -151,7 +151,7 @@ class _NewsDetailScreenAPIState extends State<NewsDetailScreenAPI> {
                   _title.toUpperCase(),
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
-                    color: appFontColor,
+                    color: AppThemeColors.brandPrimary,
                     fontWeight: FontWeight.w400,
                     fontSize: 24.sp,
                   ),

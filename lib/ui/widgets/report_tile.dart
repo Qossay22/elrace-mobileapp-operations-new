@@ -1,4 +1,4 @@
-import 'package:el_race/core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/core/constants/text_styles.dart';
 import 'package:el_race/ui/presentation/My_task/screens/report_detail/report_detail.dart';
 import 'package:el_race/ui/presentation/My_task/screens/report_listing/folder_reports_screen.dart';
@@ -33,7 +33,7 @@ class ReportTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            color: CustomColors.containerColor),
+            color: AppThemeColors.reportContainer),
         child: Stack(
           children: [
             Column(
@@ -73,7 +73,7 @@ class ReportTile extends StatelessWidget {
                 const SizedBox(height: 8),
                 Container(
                   decoration: BoxDecoration(
-                    color: CustomColors.blue,
+                    color: AppThemeColors.reportBlue,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   padding:

@@ -6,11 +6,10 @@ import 'package:el_race/ui/presentation/todo_list/services/team_members_api_serv
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../widgets/header_widget.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/ui/presentation/task_sheet/task_sheet_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:el_race/resources/app_colors.dart';
-
 
 class EmployeeShiftRequestPage extends StatefulWidget {
   final LoginResponseModel loginResponseModel;
@@ -18,11 +17,16 @@ class EmployeeShiftRequestPage extends StatefulWidget {
   final int project_id;
   final DateTime selectedDate;
 
-
-  const EmployeeShiftRequestPage({super.key, required this.loginResponseModel,required this.taskId, required this.project_id,required this.selectedDate});
+  const EmployeeShiftRequestPage(
+      {super.key,
+      required this.loginResponseModel,
+      required this.taskId,
+      required this.project_id,
+      required this.selectedDate});
 
   @override
-  State<EmployeeShiftRequestPage> createState() => _EmployeeShiftRequestPageState();
+  State<EmployeeShiftRequestPage> createState() =>
+      _EmployeeShiftRequestPageState();
 }
 
 class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
@@ -35,7 +39,8 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
   bool isLoading = true;
 // State variables
 // In your State:
-  final TextEditingController _employeeSearchController = TextEditingController();
+  final TextEditingController _employeeSearchController =
+      TextEditingController();
   Map<String, dynamic>? _selectedEmployee;
   bool isLeaveSelected = false;
 
@@ -56,7 +61,6 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
     return "$hh:$mm";
   }
 
-
   final List<String> leaveTypes = [
     'Pilgrimage/Umrah Leave',
     'Bereavement Leave',
@@ -65,9 +69,6 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
   ];
 
   String? selectedLeaveType;
-
-
-
 
   int _getLeaveTypeId(String leaveType) {
     switch (leaveType) {
@@ -83,7 +84,6 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
         return 0; // You can return 0 or handle differently
     }
   }
-
 
 // Sample employees
   @override
@@ -113,7 +113,6 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
   }
 
   Future<bool> _submitTimesheetWithFeedback() async {
-
     if (_selectedEmployee == null) {
       _showDialogMessage("Please select an employee.");
       return false;
@@ -125,12 +124,17 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
         "project_id": widget.project_id,
         "task_id": widget.taskId,
         "name": _selectedEmployee!['name'],
-        "break_time": breakDuration.inHours, // Sending break in hours (example: 1)
-        "leave_type_id": selectedLeaveType != null ? _getLeaveTypeId(selectedLeaveType!) : false,
+        "break_time":
+            breakDuration.inHours, // Sending break in hours (example: 1)
+        "leave_type_id": selectedLeaveType != null
+            ? _getLeaveTypeId(selectedLeaveType!)
+            : false,
         "employee_ids": [_selectedEmployee!['id']],
         "date": DateFormat('yyyy-MM-dd').format(startDateTime!), // Picked date
-        "date_time": DateFormat('yyyy-MM-dd HH:mm:ss').format(startDateTime!), // Start datetime
-        "date_time_end": DateFormat('yyyy-MM-dd HH:mm:ss').format(endDateTime!), // End datetime
+        "date_time": DateFormat('yyyy-MM-dd HH:mm:ss')
+            .format(startDateTime!), // Start datetime
+        "date_time_end": DateFormat('yyyy-MM-dd HH:mm:ss')
+            .format(endDateTime!), // End datetime
       }
     };
 
@@ -163,7 +167,8 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           title: const Text("Error"),
           content: Text(message),
           actions: [
@@ -176,7 +181,6 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
       },
     );
   }
-
 
   Future<void> _fetchEmployees() async {
     if (!mounted) return;
@@ -200,7 +204,6 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -211,25 +214,25 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Padding(
-            padding: const EdgeInsets.only(bottom: 20), // Extra space at the bottom
+            padding:
+                const EdgeInsets.only(bottom: 20), // Extra space at the bottom
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 10),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Center(
-                    child: Text(
-                      'TIME SHEET',
-                      style: GoogleFonts.poppins(
-                        fontSize: 19,
-                        fontWeight: FontWeight.w300,
-                        letterSpacing: 1.0,
-                        color: Colors.black,
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Center(
+                      child: Text(
+                        'TIME SHEET',
+                        style: GoogleFonts.poppins(
+                          fontSize: 19,
+                          fontWeight: FontWeight.w300,
+                          letterSpacing: 1.0,
+                          color: Colors.black,
+                        ),
                       ),
-                    ),
-                  )
-                ),
+                    )),
                 const SizedBox(height: 10),
 
                 // ✅ Employee picker (dropdown-like)
@@ -248,10 +251,10 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
                       ),
                       const SizedBox(height: 10),
                       DropdownButtonFormField<String>(
-
                         value: selectedEmployeeId,
                         isExpanded: true,
-                        icon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
+                        icon: const Icon(Icons.arrow_drop_down,
+                            color: Colors.grey),
                         decoration: InputDecoration(
                           hintText: 'Select an Employee',
                           hintStyle: TextStyle(
@@ -266,7 +269,8 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
                             borderRadius: BorderRadius.circular(25),
                             borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
                           isDense: true,
                         ),
                         items: employees.map((emp) {
@@ -296,7 +300,8 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
 
                 // ✅ Action Buttons
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0), // 👈 padding added here
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0), // 👈 padding added here
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -320,10 +325,13 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
                 const SizedBox(height: 20),
 
                 if (!isLeaveSelected) ...[
-                  _buildTimeRow("Starts", startDateTime, (picked) => setState(() => startDateTime = picked)),
-                  _buildTimeRow("Ends", endDateTime, (picked) => setState(() => endDateTime = picked)),
+                  _buildTimeRow("Starts", startDateTime,
+                      (picked) => setState(() => startDateTime = picked)),
+                  _buildTimeRow("Ends", endDateTime,
+                      (picked) => setState(() => endDateTime = picked)),
                   _buildBreakRow("Break Time", breakDuration),
-                  _buildInfoRow("Working Hours", "", getWorkingHours(), highlight: true),
+                  _buildInfoRow("Working Hours", "", getWorkingHours(),
+                      highlight: true),
                 ],
 
                 const SizedBox(height: 20),
@@ -331,17 +339,20 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
                 // ✅ Leave Type Dropdown
                 if (isLeaveSelected)
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20.0, vertical: 10.0),
                     child: DropdownButtonFormField<String>(
                       initialValue: selectedLeaveType,
                       decoration: InputDecoration(
                         labelText: 'Choose leave type',
-                        labelStyle: const TextStyle(fontSize: 13, color: Colors.black),
+                        labelStyle:
+                            const TextStyle(fontSize: 13, color: Colors.black),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: const BorderSide(color: Colors.grey),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
                       ),
                       icon: const Icon(Icons.arrow_drop_down),
                       dropdownColor: Colors.white,
@@ -349,7 +360,8 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
                       items: leaveTypes.map((type) {
                         return DropdownMenuItem<String>(
                           value: type,
-                          child: Text(type, style: const TextStyle(fontSize: 13)),
+                          child:
+                              Text(type, style: const TextStyle(fontSize: 13)),
                         );
                       }).toList(),
                       onChanged: (value) {
@@ -359,7 +371,6 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
                       },
                     ),
                   ),
-
 
                 const SizedBox(height: 20),
 
@@ -374,7 +385,10 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
                 const Center(
                   child: Text(
                     "All requests will be sent for a manager’s approval",
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.black87),
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -387,10 +401,13 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildBottomButton("Cancel", red, Colors.white, () {
+                      _buildBottomButton(
+                          "Cancel", AppThemeColors.legacyRed, Colors.white, () {
                         Navigator.pop(context);
                       }),
-                      _buildBottomButton("Send for approval", AppColors.green, Colors.white, () {
+                      _buildBottomButton(
+                          "Send for approval", AppColors.green, Colors.white,
+                          () {
                         _showApprovalPopup(context);
                       }),
                     ],
@@ -404,11 +421,11 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
     );
   }
 
-  Widget _buildTimeRow(String label, DateTime? dateTime, Function(DateTime) onDateTimePicked) {
+  Widget _buildTimeRow(
+      String label, DateTime? dateTime, Function(DateTime) onDateTimePicked) {
     return Column(
       children: [
         Divider(color: Colors.grey.shade300, height: 1, thickness: 1),
-
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15),
           child: InkWell(
@@ -436,7 +453,11 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.black)),
+                Text(label,
+                    style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black)),
                 _buildDateTimeValue(dateTime),
               ],
             ),
@@ -473,14 +494,18 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
         return StatefulBuilder(
           builder: (context, setModalState) {
             final firstDay = DateTime(visibleMonth.year, visibleMonth.month, 1);
-            final daysInMonth = DateUtils.getDaysInMonth(visibleMonth.year, visibleMonth.month);
+            final daysInMonth =
+                DateUtils.getDaysInMonth(visibleMonth.year, visibleMonth.month);
             final leading = firstDay.weekday % 7;
-            final prevMonth = DateTime(visibleMonth.year, visibleMonth.month - 1, 1);
-            final daysInPrevMonth = DateUtils.getDaysInMonth(prevMonth.year, prevMonth.month);
+            final prevMonth =
+                DateTime(visibleMonth.year, visibleMonth.month - 1, 1);
+            final daysInPrevMonth =
+                DateUtils.getDaysInMonth(prevMonth.year, prevMonth.month);
 
             return Dialog(
               insetPadding: const EdgeInsets.symmetric(horizontal: 22),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
               child: Container(
                 padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
                 decoration: BoxDecoration(
@@ -493,10 +518,12 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
                     Row(
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.chevron_left, color: Colors.black, size: 22),
+                          icon: const Icon(Icons.chevron_left,
+                              color: Colors.black, size: 22),
                           onPressed: () {
                             setModalState(() {
-                              visibleMonth = DateTime(visibleMonth.year, visibleMonth.month - 1, 1);
+                              visibleMonth = DateTime(
+                                  visibleMonth.year, visibleMonth.month - 1, 1);
                             });
                           },
                         ),
@@ -506,10 +533,12 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
                               Expanded(
                                 child: Container(
                                   height: 36,
-                                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(11),
-                                    border: Border.all(color: const Color(0xFFD7D7D7)),
+                                    border: Border.all(
+                                        color: const Color(0xFFD7D7D7)),
                                   ),
                                   child: DropdownButtonHideUnderline(
                                     child: DropdownButton<int>(
@@ -519,13 +548,16 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
                                         final m = index + 1;
                                         return DropdownMenuItem<int>(
                                           value: m,
-                                          child: Text(months[index], style: const TextStyle(fontSize: 16)),
+                                          child: Text(months[index],
+                                              style: const TextStyle(
+                                                  fontSize: 16)),
                                         );
                                       }),
                                       onChanged: (value) {
                                         if (value == null) return;
                                         setModalState(() {
-                                          visibleMonth = DateTime(visibleMonth.year, value, 1);
+                                          visibleMonth = DateTime(
+                                              visibleMonth.year, value, 1);
                                         });
                                       },
                                     ),
@@ -536,26 +568,32 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
                               Expanded(
                                 child: Container(
                                   height: 36,
-                                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(11),
-                                    border: Border.all(color: const Color(0xFFD7D7D7)),
+                                    border: Border.all(
+                                        color: const Color(0xFFD7D7D7)),
                                   ),
                                   child: DropdownButtonHideUnderline(
                                     child: DropdownButton<int>(
                                       value: visibleMonth.year,
                                       isExpanded: true,
                                       items: List.generate(31, (index) {
-                                        final y = DateTime.now().year - 10 + index;
+                                        final y =
+                                            DateTime.now().year - 10 + index;
                                         return DropdownMenuItem<int>(
                                           value: y,
-                                          child: Text('$y', style: const TextStyle(fontSize: 16)),
+                                          child: Text('$y',
+                                              style: const TextStyle(
+                                                  fontSize: 16)),
                                         );
                                       }),
                                       onChanged: (value) {
                                         if (value == null) return;
                                         setModalState(() {
-                                          visibleMonth = DateTime(value, visibleMonth.month, 1);
+                                          visibleMonth = DateTime(
+                                              value, visibleMonth.month, 1);
                                         });
                                       },
                                     ),
@@ -566,10 +604,12 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.chevron_right, color: Colors.black, size: 22),
+                          icon: const Icon(Icons.chevron_right,
+                              color: Colors.black, size: 22),
                           onPressed: () {
                             setModalState(() {
-                              visibleMonth = DateTime(visibleMonth.year, visibleMonth.month + 1, 1);
+                              visibleMonth = DateTime(
+                                  visibleMonth.year, visibleMonth.month + 1, 1);
                             });
                           },
                         ),
@@ -600,18 +640,21 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
                       child: GridView.builder(
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: 42,
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 7,
                           mainAxisSpacing: 8,
                           crossAxisSpacing: 8,
                         ),
                         itemBuilder: (context, index) {
                           final dayNumber = index - leading + 1;
-                          final isCurrentMonth = dayNumber > 0 && dayNumber <= daysInMonth;
+                          final isCurrentMonth =
+                              dayNumber > 0 && dayNumber <= daysInMonth;
 
                           DateTime cellDate;
                           if (isCurrentMonth) {
-                            cellDate = DateTime(visibleMonth.year, visibleMonth.month, dayNumber);
+                            cellDate = DateTime(visibleMonth.year,
+                                visibleMonth.month, dayNumber);
                           } else if (dayNumber <= 0) {
                             cellDate = DateTime(
                               prevMonth.year,
@@ -626,7 +669,8 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
                             );
                           }
 
-                          final selected = DateUtils.isSameDay(cellDate, selectedDate);
+                          final selected =
+                              DateUtils.isSameDay(cellDate, selectedDate);
 
                           return InkWell(
                             borderRadius: BorderRadius.circular(10),
@@ -642,7 +686,8 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
                                   ? BoxDecoration(
                                       color: const Color(0xFFBFEBD6),
                                       borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(color: const Color(0xFF8DB6A6)),
+                                      border: Border.all(
+                                          color: const Color(0xFF8DB6A6)),
                                     )
                                   : null,
                               alignment: Alignment.center,
@@ -650,7 +695,9 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
                                 '${cellDate.day}',
                                 style: TextStyle(
                                   fontSize: 16,
-                                  color: isCurrentMonth ? Colors.black : const Color(0xFFBEBEBE),
+                                  color: isCurrentMonth
+                                      ? Colors.black
+                                      : const Color(0xFFBEBEBE),
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -668,7 +715,7 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
                           width: 110,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: red,
+                              backgroundColor: AppThemeColors.legacyRed,
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(22),
@@ -677,7 +724,8 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
                             onPressed: () => Navigator.pop(dialogContext),
                             child: const Text(
                               'Cancel',
-                              style: TextStyle(color: Colors.white, fontSize: 24 / 2),
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 24 / 2),
                             ),
                           ),
                         ),
@@ -693,10 +741,12 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
                                 borderRadius: BorderRadius.circular(22),
                               ),
                             ),
-                            onPressed: () => Navigator.pop(dialogContext, selectedDate),
+                            onPressed: () =>
+                                Navigator.pop(dialogContext, selectedDate),
                             child: const Text(
                               'Done',
-                              style: TextStyle(color: Colors.white, fontSize: 24 / 2),
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 24 / 2),
                             ),
                           ),
                         ),
@@ -714,7 +764,8 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
 
   Widget _buildDateTimeValue(DateTime? dateTime) {
     final dateText = dateTime == null ? '--' : _formatDateOnly(dateTime);
-    final timeText = dateTime == null ? '--:--' : DateFormat('HH:mm').format(dateTime);
+    final timeText =
+        dateTime == null ? '--:--' : DateFormat('HH:mm').format(dateTime);
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -751,8 +802,18 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
 
   String _getMonthShortName(int month) {
     const monthNames = [
-      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
     ];
     return monthNames[month - 1];
   }
@@ -760,28 +821,37 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
   String _getDaySuffix(int day) {
     if (day >= 11 && day <= 13) return "th";
     switch (day % 10) {
-      case 1: return "st";
-      case 2: return "nd";
-      case 3: return "rd";
-      default: return "th";
+      case 1:
+        return "st";
+      case 2:
+        return "nd";
+      case 3:
+        return "rd";
+      default:
+        return "th";
     }
   }
-
 
   Widget _buildBreakRow(String label, Duration breakDuration) {
     return Column(
       children: [
         Divider(color: Colors.grey.shade300, height: 1, thickness: 1),
-
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black)),
+              Text(label,
+                  style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black)),
               Text(
                 "${breakDuration.inHours.toString().padLeft(2, '0')}:00",
-                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 12),
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    fontSize: 12),
               ),
             ],
           ),
@@ -790,12 +860,13 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
     );
   }
 
-
   // ✅ Build Action Buttons (Add Shift / Add Leave)
   Widget _buildActionButton(String text, {required bool isSelected}) {
     return Container(
       decoration: BoxDecoration(
-        color: isSelected ? greyText2 : greyText3,
+        color: isSelected
+            ? AppThemeColors.legacyGreyText2
+            : AppThemeColors.legacyGreyText3,
         borderRadius: BorderRadius.circular(20),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 7),
@@ -810,21 +881,21 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
     );
   }
 
-
   // ✅ Build Time Detail Rows
-  Widget _buildInfoRow(String label, String time, String hours, {bool highlight = false}) {
+  Widget _buildInfoRow(String label, String time, String hours,
+      {bool highlight = false}) {
     return Container(
       decoration: highlight
           ? BoxDecoration(
-        color: const Color(0xFFE6E6E6),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha((0.15 * 255).toInt()),
-            offset: const Offset(0, 2),
-            blurRadius: 4,
-          ),
-        ],
-      )
+              color: const Color(0xFFE6E6E6),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha((0.15 * 255).toInt()),
+                  offset: const Offset(0, 2),
+                  blurRadius: 4,
+                ),
+              ],
+            )
           : null,
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12),
       child: Row(
@@ -872,11 +943,20 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
                 ),
               ),
               const Spacer(),
-              _buildMiniImageButton('assets/png/paragraphIcon.png', tooltip: 'Paragraph', isActive: _listMode == 'none', onPressed: _insertParagraph),
+              _buildMiniImageButton('assets/png/paragraphIcon.png',
+                  tooltip: 'Paragraph',
+                  isActive: _listMode == 'none',
+                  onPressed: _insertParagraph),
               const SizedBox(width: 6),
-              _buildMiniIconButton(Icons.format_list_numbered, tooltip: 'Numbered list', isActive: _listMode == 'numbered', onPressed: _insertNumberedList),
+              _buildMiniIconButton(Icons.format_list_numbered,
+                  tooltip: 'Numbered list',
+                  isActive: _listMode == 'numbered',
+                  onPressed: _insertNumberedList),
               const SizedBox(width: 6),
-              _buildMiniIconButton(Icons.format_list_bulleted, tooltip: 'Bulleted list', isActive: _listMode == 'bullet', onPressed: _insertBulletList),
+              _buildMiniIconButton(Icons.format_list_bulleted,
+                  tooltip: 'Bulleted list',
+                  isActive: _listMode == 'bullet',
+                  onPressed: _insertBulletList),
             ],
           ),
           const SizedBox(height: 8),
@@ -891,7 +971,8 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
               minLines: 3,
               maxLines: 6,
               keyboardType: TextInputType.multiline,
-              style: const TextStyle(fontSize: 12, color: Colors.black87, height: 1.3),
+              style: const TextStyle(
+                  fontSize: 12, color: Colors.black87, height: 1.3),
               decoration: const InputDecoration(
                 isDense: true,
                 border: InputBorder.none,
@@ -1002,7 +1083,8 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
     _insertAtCursor('• ');
   }
 
-  Widget _buildMiniImageButton(String assetPath, {String? tooltip, bool isActive = false, VoidCallback? onPressed}) {
+  Widget _buildMiniImageButton(String assetPath,
+      {String? tooltip, bool isActive = false, VoidCallback? onPressed}) {
     return SizedBox(
       width: 34,
       height: 28,
@@ -1029,7 +1111,8 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
     );
   }
 
-  Widget _buildMiniIconButton(IconData icon, {String? tooltip, bool isActive = false, VoidCallback? onPressed}) {
+  Widget _buildMiniIconButton(IconData icon,
+      {String? tooltip, bool isActive = false, VoidCallback? onPressed}) {
     return SizedBox(
       width: 34,
       height: 28,
@@ -1041,7 +1124,8 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
           child: InkWell(
             onTap: onPressed,
             borderRadius: BorderRadius.circular(6),
-            child: Icon(icon, size: 16, color: isActive ? Colors.white : Colors.black87),
+            child: Icon(icon,
+                size: 16, color: isActive ? Colors.white : Colors.black87),
           ),
         ),
       ),
@@ -1101,7 +1185,8 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(color: Colors.grey.shade300),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -1110,25 +1195,32 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
                       child: ListView.separated(
                         shrinkWrap: true,
                         itemCount: filtered.length,
-                        separatorBuilder: (_, __) => Divider(height: 1, color: Colors.grey.shade200),
+                        separatorBuilder: (_, __) =>
+                            Divider(height: 1, color: Colors.grey.shade200),
                         itemBuilder: (context, index) {
                           final employee = filtered[index];
-                          final isSelected = _selectedEmployee != null && employee['id'] == _selectedEmployee!['id'];
+                          final isSelected = _selectedEmployee != null &&
+                              employee['id'] == _selectedEmployee!['id'];
                           return ListTile(
                             dense: true,
                             title: Text(
                               (employee['name'] ?? '').toString(),
                               style: TextStyle(
                                 fontSize: 13,
-                                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                                fontWeight: isSelected
+                                    ? FontWeight.w700
+                                    : FontWeight.w500,
                               ),
                             ),
-                            trailing: isSelected ? const Icon(Icons.check, color: Colors.black) : null,
+                            trailing: isSelected
+                                ? const Icon(Icons.check, color: Colors.black)
+                                : null,
                             onTap: () {
                               setState(() {
                                 _selectedEmployee = employee;
                                 selectedEmployeeId = employee['id'].toString();
-                                _employeeSearchController.text = employee['name'].toString();
+                                _employeeSearchController.text =
+                                    employee['name'].toString();
                               });
                               Navigator.pop(context);
                             },
@@ -1146,10 +1238,9 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
     );
   }
 
-
-
   // ✅ Build Bottom Buttons (Cancel / Send for Approval)
-  Widget _buildBottomButton(String text, Color bgColor, Color textColor, VoidCallback onPressed) {
+  Widget _buildBottomButton(
+      String text, Color bgColor, Color textColor, VoidCallback onPressed) {
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -1164,7 +1255,8 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
           onPressed: onPressed, // Calls the function when clicked
           child: Text(
             text,
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: textColor),
+            style: TextStyle(
+                fontSize: 12, fontWeight: FontWeight.bold, color: textColor),
           ),
         ),
       ),
@@ -1211,7 +1303,7 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
                     Expanded(
                       child: _buildPopupActionButton(
                         label: 'Cancel',
-                        color: red,
+                        color: AppThemeColors.legacyRed,
                         icon: Icons.close,
                         onTap: () => Navigator.pop(context),
                       ),
@@ -1279,5 +1371,4 @@ class _EmployeeShiftRequestPageState extends State<EmployeeShiftRequestPage> {
       ),
     );
   }
-
 }

@@ -1,4 +1,4 @@
-import 'package:el_race/report_module/core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/report_module/core/constants/text_styles.dart';
 import 'package:flutter/material.dart';
 
@@ -24,9 +24,9 @@ class SectionBar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         height: 33,
         decoration: BoxDecoration(
-            color: CustomColors.maroon,
-            border:
-                Border(bottom: BorderSide(color: CustomColors.containerColor))),
+            color: AppThemeColors.reportModuleMaroon,
+            border: Border(
+                bottom: BorderSide(color: AppThemeColors.reportContainer))),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -36,7 +36,7 @@ class SectionBar extends StatelessWidget {
                   quarterTurns: active ? 1 : 0,
                   child: Icon(
                     Icons.play_arrow,
-                    color: CustomColors.white,
+                    color: AppThemeColors.surface,
                   ),
                 ),
                 const SizedBox(width: 4),
@@ -50,7 +50,7 @@ class SectionBar extends StatelessWidget {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: CustomColors.blue,
+                    color: AppThemeColors.reportBlue,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   padding:
@@ -65,7 +65,7 @@ class SectionBar extends StatelessWidget {
                   onTap: onMoreClick,
                   child: Icon(
                     Icons.more_vert_rounded,
-                    color: CustomColors.white,
+                    color: AppThemeColors.surface,
                   ),
                 ),
               ],

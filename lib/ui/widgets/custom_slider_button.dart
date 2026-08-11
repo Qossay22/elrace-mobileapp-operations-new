@@ -1,7 +1,6 @@
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/core/utils/responsive_breakpoints.dart';
-import 'package:el_race/utils/color_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CustomSliderButton extends StatefulWidget {
@@ -76,7 +75,8 @@ class CustomSliderButtonState extends State<CustomSliderButton> {
                 width: _isCompleted ? 3 : 2,
                 color: _isCompleted
                     ? (widget.completedBorderColor ?? Colors.green.shade900)
-                    : (widget.idleBorderColor ?? Colors.grey.withOpacity(0.25)),
+                    : (widget.idleBorderColor ??
+                        Colors.grey.withValues(alpha: 0.25)),
               ),
               gradient: _isCompleted
                   ? (widget.completedGradient ??
@@ -88,8 +88,8 @@ class CustomSliderButtonState extends State<CustomSliderButton> {
                   : (widget.idleGradient ??
                       LinearGradient(
                         colors: [
-                          dynamicColor.withOpacity(0.95),
-                          dynamicColor.withOpacity(0.8)
+                          dynamicColor.withValues(alpha: 0.95),
+                          dynamicColor.withValues(alpha: 0.8),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -97,7 +97,7 @@ class CustomSliderButtonState extends State<CustomSliderButton> {
               boxShadow: [
                 BoxShadow(
                   color: _isCompleted
-                      ? Colors.green.withOpacity(0.25)
+                      ? Colors.green.withValues(alpha: 0.25)
                       : Colors.grey.withAlpha((0.5 * 255).toInt()),
                   blurRadius: _isCompleted ? 8 : 0,
                   offset:
@@ -149,7 +149,7 @@ class CustomSliderButtonState extends State<CustomSliderButton> {
                   boxShadow: [
                     if (_isCompleted)
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.12),
+                        color: Colors.black.withValues(alpha: 0.12),
                         blurRadius: 6,
                         offset: const Offset(0, 3),
                       ),
@@ -184,7 +184,7 @@ class CustomSliderButtonState extends State<CustomSliderButton> {
                   fontWeight: FontWeight.w500,
                   color: _isCompleted
                       ? (widget.completedLabelColor ?? Colors.indigo.shade900)
-                      : (widget.idleLabelColor ?? appFontColor),
+                      : (widget.idleLabelColor ?? AppThemeColors.brandPrimary),
                   letterSpacing: 2.2,
                 ),
               ),

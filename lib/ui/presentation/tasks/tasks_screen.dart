@@ -10,7 +10,7 @@ import 'package:el_race/ui/presentation/productivity/widgets/productivity_sober_
 import 'package:el_race/ui/presentation/tasks/data/task_model.dart';
 import 'package:el_race/ui/presentation/tasks/logic/tasks_provider.dart';
 import 'package:el_race/ui/presentation/tasks/task_details_screen.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -107,7 +107,7 @@ class _TasksScreenState extends State<TasksScreen> {
                     Row(
                       children: [
                         Icon(Icons.confirmation_number_outlined,
-                            color: appFontColor, size: 24),
+                            color: AppThemeColors.brandPrimary, size: 24),
                         const SizedBox(width: 10),
                         const Expanded(
                           child: Text(
@@ -200,12 +200,10 @@ class _TasksScreenState extends State<TasksScreen> {
                               ),
                             ),
                             items: const [
-                              DropdownMenuItem(
-                                  value: '1', child: Text('High')),
+                              DropdownMenuItem(value: '1', child: Text('High')),
                               DropdownMenuItem(
                                   value: '2', child: Text('Medium')),
-                              DropdownMenuItem(
-                                  value: '3', child: Text('Low')),
+                              DropdownMenuItem(value: '3', child: Text('Low')),
                             ],
                             onChanged: (val) {
                               if (val != null) {
@@ -595,8 +593,7 @@ class _TasksScreenState extends State<TasksScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) =>
-                                      TaskDetailsScreen(task: task),
+                                  builder: (_) => TaskDetailsScreen(task: task),
                                 ),
                               ).then((_) {
                                 if (context.mounted) {
@@ -710,31 +707,30 @@ class _TicketSoberCard extends StatelessWidget {
         : null;
 
     return ProductivitySoberCard(
-          title: task.name ?? 'Untitled Ticket',
-          statusLabel: statusLabel,
-          statusBackground: statusBg,
-          leadingAvatar:
-              assignee.isNotEmpty ? _initialAvatar(assignee) : null,
-          subtitle: assignee.isNotEmpty ? assignee : 'Unassigned',
-          dateText: dateText,
-          onTap: onTap,
-          titleTrailing: PopupMenuButton<String>(
-            tooltip: 'Ticket actions',
-            padding: EdgeInsets.zero,
-            onSelected: onAction,
-            itemBuilder: (context) => [
-              if (!task.isCompleted)
-                const PopupMenuItem(value: 'link', child: Text('Link report')),
-              if (!task.isCompleted)
-                const PopupMenuItem(value: 'complete', child: Text('Complete')),
-              const PopupMenuItem(value: 'delete', child: Text('Delete')),
-            ],
-            child: const Icon(
-              Icons.more_horiz,
-              color: ProductivityLightTheme.inkSoft,
-            ),
-          ),
-        );
+      title: task.name ?? 'Untitled Ticket',
+      statusLabel: statusLabel,
+      statusBackground: statusBg,
+      leadingAvatar: assignee.isNotEmpty ? _initialAvatar(assignee) : null,
+      subtitle: assignee.isNotEmpty ? assignee : 'Unassigned',
+      dateText: dateText,
+      onTap: onTap,
+      titleTrailing: PopupMenuButton<String>(
+        tooltip: 'Ticket actions',
+        padding: EdgeInsets.zero,
+        onSelected: onAction,
+        itemBuilder: (context) => [
+          if (!task.isCompleted)
+            const PopupMenuItem(value: 'link', child: Text('Link report')),
+          if (!task.isCompleted)
+            const PopupMenuItem(value: 'complete', child: Text('Complete')),
+          const PopupMenuItem(value: 'delete', child: Text('Delete')),
+        ],
+        child: const Icon(
+          Icons.more_horiz,
+          color: ProductivityLightTheme.inkSoft,
+        ),
+      ),
+    );
   }
 }
 

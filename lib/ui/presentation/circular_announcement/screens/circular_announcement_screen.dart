@@ -3,7 +3,7 @@ import 'package:el_race/ui/presentation/circular_announcement/data/circular_anno
 import 'package:el_race/ui/presentation/circular_announcement/widgets/circular_announcement_file_viewer.dart';
 import 'package:el_race/ui/presentation/home_screen/screens/main_screens.dart';
 import 'package:el_race/ui/widgets/header_widget.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/utils/safe_insets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -243,7 +243,7 @@ class _CircularAnnouncementScreenState extends State<CircularAnnouncementScreen>
               ? const LinearGradient(
                   colors: [
                     Color.fromARGB(255, 27, 27, 27),
-                    appFontColor,
+                    AppThemeColors.brandPrimary,
                   ],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
@@ -292,13 +292,16 @@ class _CircularAnnouncementScreenState extends State<CircularAnnouncementScreen>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: isSelected ? Colors.white : appFontColor,
+                    color:
+                        isSelected ? Colors.white : AppThemeColors.brandPrimary,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
                     count.toString(),
                     style: TextStyle(
-                      color: isSelected ? appFontColor : Colors.white,
+                      color: isSelected
+                          ? AppThemeColors.brandPrimary
+                          : Colors.white,
                       fontSize: 10.sp,
                       fontWeight: FontWeight.bold,
                     ),
@@ -346,7 +349,7 @@ class _CircularAnnouncementScreenState extends State<CircularAnnouncementScreen>
               icon: const Icon(Icons.refresh),
               label: Text(translate('common.retry')),
               style: ElevatedButton.styleFrom(
-                backgroundColor: appFontColor,
+                backgroundColor: AppThemeColors.brandPrimary,
                 foregroundColor: Colors.white,
               ),
             ),
@@ -436,12 +439,13 @@ class _CircularAnnouncementScreenState extends State<CircularAnnouncementScreen>
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: appFontColor.withAlpha((0.1 * 255).toInt()),
+                color:
+                    AppThemeColors.brandPrimary.withAlpha((0.1 * 255).toInt()),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 item.isCircular ? Icons.assignment : Icons.campaign,
-                color: appFontColor,
+                color: AppThemeColors.brandPrimary,
                 size: 24,
               ),
             ),
@@ -496,7 +500,7 @@ class _CircularAnnouncementScreenState extends State<CircularAnnouncementScreen>
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: appFontColor,
+                  color: AppThemeColors.brandPrimary,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(

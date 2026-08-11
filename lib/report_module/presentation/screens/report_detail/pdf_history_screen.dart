@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
-import 'package:el_race/report_module/core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/report_module/core/constants/text_styles.dart';
 import 'package:el_race/report_module/core/utils/flush_bar.dart';
 import 'package:el_race/report_module/data/models/report_detail_model.dart';
@@ -70,26 +70,28 @@ class _PdfCreationScreenState extends State<PdfCreationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: CustomColors.white,
+      backgroundColor: AppThemeColors.surface,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         surfaceTintColor: Colors.transparent,
-        backgroundColor: CustomColors.white,
+        backgroundColor: AppThemeColors.surface,
         centerTitle: true,
         leadingWidth: 60,
         leading: Align(
           alignment: Alignment.centerRight,
           child: SquareButton(
             icon: Icons.keyboard_backspace,
-            color: CustomColors.white,
-            borderColor: CustomColors.black,
+            color: AppThemeColors.surface,
+            borderColor: AppThemeColors.pureBlack,
             onPressed: () {
               Navigator.pop(context);
             },
           ),
         ),
         title: Image.asset(
-          _companyLogo ?? CompanyRepository.company?.logo ?? 'assets/logo/logo.png',
+          _companyLogo ??
+              CompanyRepository.company?.logo ??
+              'assets/logo/logo.png',
           height: 60,
         ),
         bottom: getBottomAppBar(context,
@@ -126,20 +128,20 @@ class _PdfCreationScreenState extends State<PdfCreationScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
-              color: CustomColors.maroon,
+              color: AppThemeColors.reportModuleMaroon,
               child: _generating
                   ? SizedBox(
                       height: 20,
                       width: 20,
                       child: CircularProgressIndicator(
-                        color: CustomColors.white,
+                        color: AppThemeColors.surface,
                         strokeWidth: 2,
                       ),
                     )
                   : Text(
                       "Generate Report",
                       style: CustomTextStyle.reportTitle
-                          .copyWith(color: CustomColors.white),
+                          .copyWith(color: AppThemeColors.surface),
                     ),
             ),
           ),
@@ -151,7 +153,7 @@ class _PdfCreationScreenState extends State<PdfCreationScreen> {
                 children: [
                   LinearProgressIndicator(
                     value: (_generationProgress.clamp(0, 100)) / 100,
-                    color: CustomColors.maroon,
+                    color: AppThemeColors.reportModuleMaroon,
                     backgroundColor: Colors.black12,
                     minHeight: 6,
                   ),
@@ -201,11 +203,13 @@ class _PdfCreationScreenState extends State<PdfCreationScreen> {
                               final name = pdf.fileName.isEmpty
                                   ? 'report.pdf'
                                   : pdf.fileName;
-                              final fileName = name.endsWith('.pdf') ? name : '$name.pdf';
+                              final fileName =
+                                  name.endsWith('.pdf') ? name : '$name.pdf';
                               final dir = await getTemporaryDirectory();
                               final file = File('${dir.path}/$fileName');
                               await file.writeAsBytes(response.bodyBytes);
-                              final box = context.findRenderObject() as RenderBox?;
+                              final box =
+                                  context.findRenderObject() as RenderBox?;
                               await Share.shareXFiles(
                                 [XFile(file.path, mimeType: 'application/pdf')],
                                 sharePositionOrigin: box != null

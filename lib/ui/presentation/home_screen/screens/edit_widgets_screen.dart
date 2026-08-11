@@ -9,7 +9,7 @@ import 'package:el_race/ui/presentation/home_screen/widgets/custom_bullet_point.
 import 'package:el_race/ui/presentation/home_screen/widgets/tilting_card.dart';
 import 'package:el_race/ui/widgets/header_widget.dart';
 import 'package:el_race/utils/Util.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/utils/orientation_helper.dart';
 import 'package:el_race/utils/safe_insets.dart';
 import 'package:flutter/material.dart';
@@ -127,7 +127,7 @@ class _EditWidgetsScreenState extends State<EditWidgetsScreen> {
         if (didPop) return;
       },
       child: Scaffold(
-        backgroundColor: lightGrey,
+        backgroundColor: AppThemeColors.lightGrey,
         appBar: const HeaderWidget(),
         extendBody: false,
         bottomNavigationBar: const CustomBottomNavBar(
@@ -173,7 +173,7 @@ class _EditWidgetsScreenState extends State<EditWidgetsScreen> {
                                     style: GoogleFonts.poppins(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w400,
-                                      color: appFontColor,
+                                      color: AppThemeColors.brandPrimary,
                                     ),
                                   ),
                                   GestureDetector(
@@ -193,7 +193,7 @@ class _EditWidgetsScreenState extends State<EditWidgetsScreen> {
                                           style: GoogleFonts.poppins(
                                             fontSize: 15.sp,
                                             fontWeight: FontWeight.w600,
-                                            color: black,
+                                            color: AppThemeColors.legacyInk,
                                           ),
                                         ),
                                       ],
@@ -224,7 +224,7 @@ class _EditWidgetsScreenState extends State<EditWidgetsScreen> {
                                   //         width: 50,
                                   //         height: 50,
                                   //         decoration: BoxDecoration(
-                                  //           color: white.withAlpha((0.9 * 255).toInt()),
+                                  //           color: AppThemeColors.softWhite.withAlpha((0.9 * 255).toInt()),
                                   //           borderRadius: BorderRadius.circular(25),
                                   //         ),
                                   //         child: Icon(
@@ -239,7 +239,7 @@ class _EditWidgetsScreenState extends State<EditWidgetsScreen> {
                                   //         style: GoogleFonts.poppins(
                                   //           fontSize: 16.sp,
                                   //           fontWeight: FontWeight.w600,
-                                  //           color: white,
+                                  //           color: AppThemeColors.softWhite,
                                   //         ),
                                   //       ),
                                   //     ],
@@ -324,7 +324,8 @@ class _EditWidgetsScreenState extends State<EditWidgetsScreen> {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: black.withAlpha((0.3 * 255).toInt()),
+                      color: AppThemeColors.legacyInk
+                          .withAlpha((0.3 * 255).toInt()),
                       spreadRadius: 2,
                       blurRadius: 6,
                     ),
@@ -332,7 +333,7 @@ class _EditWidgetsScreenState extends State<EditWidgetsScreen> {
                 ),
                 child: Icon(
                   Icons.remove,
-                  color: white,
+                  color: AppThemeColors.softWhite,
                   size: 16.sp,
                 ),
               ),
@@ -743,5 +744,4 @@ class _EditWidgetsScreenState extends State<EditWidgetsScreen> {
       ],
     );
   }
-
 }

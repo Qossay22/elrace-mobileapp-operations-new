@@ -1,5 +1,5 @@
-import 'package:el_race/core/constants/colors.dart';
 import 'package:el_race/core/constants/text_styles.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class SectionBar extends StatelessWidget {
@@ -23,10 +23,10 @@ class SectionBar extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         height: 33,
-        decoration: BoxDecoration(
-            color: CustomColors.maroon,
-            border:
-                Border(bottom: BorderSide(color: CustomColors.containerColor))),
+        decoration: const BoxDecoration(
+            color: AppThemeColors.reportMaroon,
+            border: Border(
+                bottom: BorderSide(color: AppThemeColors.reportContainer))),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -34,9 +34,9 @@ class SectionBar extends StatelessWidget {
               children: [
                 RotatedBox(
                   quarterTurns: active ? 1 : 0,
-                  child: Icon(
+                  child: const Icon(
                     Icons.play_arrow,
-                    color: CustomColors.white,
+                    color: AppThemeColors.surface,
                   ),
                 ),
                 const SizedBox(width: 4),
@@ -50,10 +50,11 @@ class SectionBar extends StatelessWidget {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: CustomColors.blue,
+                    color: AppThemeColors.reportBlue,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 12),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 2, horizontal: 12),
                   child: Text(
                     "Items : $count",
                     style: CustomTextStyle.smallWhite,
@@ -62,9 +63,9 @@ class SectionBar extends StatelessWidget {
                 InkWell(
                   // padding: EdgeInsets.zero,
                   onTap: onMoreClick,
-                  child: Icon(
+                  child: const Icon(
                     Icons.more_vert_rounded,
-                    color: CustomColors.white,
+                    color: AppThemeColors.surface,
                   ),
                 ),
               ],

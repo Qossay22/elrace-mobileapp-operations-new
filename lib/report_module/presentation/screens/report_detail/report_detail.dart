@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:el_race/report_module/core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/report_module/core/constants/text_styles.dart';
 import 'package:el_race/report_module/core/utils/directory_operation.dart';
 import 'package:el_race/report_module/data/models/report_item_model.dart';
@@ -21,7 +21,6 @@ import 'package:el_race/report_module/presentation/widgets/report_item.dart';
 import 'package:el_race/report_module/presentation/widgets/square_button.dart';
 import 'package:el_race/ui/presentation/tasks/data/task_model.dart';
 import 'package:el_race/ui/presentation/tasks/logic/tasks_provider.dart';
-import 'package:el_race/utils/color_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -122,17 +121,17 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: CustomColors.white,
+      backgroundColor: AppThemeColors.surface,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         surfaceTintColor: Colors.transparent,
-        backgroundColor: CustomColors.white,
+        backgroundColor: AppThemeColors.surface,
         centerTitle: true,
         leadingWidth: 70,
         leading: SquareButton(
           icon: Icons.keyboard_backspace,
-          color: CustomColors.white,
-          borderColor: CustomColors.black,
+          color: AppThemeColors.surface,
+          borderColor: AppThemeColors.pureBlack,
           onPressed: () => Navigator.pop(context),
         ),
         title: CompanyRepository.company?.logo != null
@@ -153,23 +152,25 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: CustomColors.maroon.withOpacity(0.1),
+                    color: AppThemeColors.reportModuleMaroon
+                        .withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: CustomColors.maroon, width: 1.5),
+                    border: Border.all(
+                        color: AppThemeColors.reportModuleMaroon, width: 1.5),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         Icons.task_alt,
-                        color: CustomColors.maroon,
+                        color: AppThemeColors.reportModuleMaroon,
                         size: 16,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         '$_linkedTasksCount',
                         style: TextStyle(
-                          color: CustomColors.maroon,
+                          color: AppThemeColors.reportModuleMaroon,
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
                         ),
@@ -181,8 +182,8 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
             ),
           SquareButton(
             icon: Icons.share_outlined,
-            color: CustomColors.maroon,
-            borderColor: CustomColors.white,
+            color: AppThemeColors.reportModuleMaroon,
+            borderColor: AppThemeColors.surface,
             onPressed: () async {
               await Navigator.push(
                   context,
@@ -302,8 +303,9 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                         children: [
                           Text(
                             "Add item to report",
-                            style:
-                                CustomTextStyle.heading.copyWith(color: black),
+                            style: CustomTextStyle.heading.copyWith(
+                              color: AppThemeColors.legacyInk,
+                            ),
                           ),
                           Image.asset("assets/png/icons/add_image.png")
                         ],
@@ -315,7 +317,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                     child: Container(
                       margin: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                          color: CustomColors.maroon,
+                          color: AppThemeColors.reportModuleMaroon,
                           borderRadius: BorderRadius.circular(8)),
                       height: 80,
                       child: Column(
@@ -325,7 +327,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                             value: _loadingProgress > 0
                                 ? (_loadingProgress.clamp(0, 100)) / 100
                                 : null,
-                            color: CustomColors.blue,
+                            color: AppThemeColors.reportBlue,
                           ),
                           Text(
                             loadingText,
@@ -335,7 +337,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                             value: _loadingProgress > 0
                                 ? (_loadingProgress.clamp(0, 100)) / 100
                                 : null,
-                            color: CustomColors.blue,
+                            color: AppThemeColors.reportBlue,
                           ),
                         ],
                       ),

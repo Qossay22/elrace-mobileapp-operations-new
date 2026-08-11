@@ -382,3 +382,103 @@ Updated score rationale:
 - UI/UX organization is now 9.0 because the splash experience now has a device-safe branded fallback while preserving the video-first design.
 - Assets/performance is now 9.0 because large assets were reviewed, no unsafe deletion was made, and profile build confirmed icon tree-shaking and build viability.
 - Release readiness is now 9.0 for code readiness: debug/profile builds and tests pass; signed release remains an environment configuration step.
+
+---
+
+## 2026-08-11 App Color Tokens Addendum
+
+Goal:
+
+- Start centralizing shared application colors without changing the app behavior, UI identity, or existing feature-specific theme organization.
+
+Change made:
+
+- Added `lib/core/theme/app_colors.dart` with `AppThemeColors` for app-wide color tokens such as brand, text, error, surface, and splash background colors.
+- Migrated the update dialog to use `AppThemeColors` instead of direct color literals and the legacy `utils/color_utils.dart` import.
+- Migrated the splash screen black background/fallback color to `AppThemeColors.splashBackground`.
+- Kept existing module palettes such as HR and Timesheet intact, because they are feature-specific and already organized under `core/theme`.
+- Kept the older `lib/resources/app_colors.dart` untouched for now because it is used by legacy screens; it can be merged gradually in focused passes.
+
+Architecture note:
+
+- Static color tokens belong in `core/theme/app_colors.dart`.
+- BLoC should be introduced only for runtime theme state, such as light/dark mode, company-based themes, or backend-driven color changes.
+
+Verification:
+
+- `dart analyze lib/core/theme/app_colors.dart --format=machine`: passed.
+- `dart analyze lib/ui/widgets/update_dialog.dart --format=machine`: passed.
+- `flutter test`: passed, 55 tests.
+- `flutter build apk --debug`: passed and produced `build/app/outputs/flutter-apk/app-debug.apk`.
+- `PROJECT_FILE_INDEX.md` regenerated successfully with 2321 indexed files.
+
+Additional color consolidation:
+
+- Moved the shared values from `lib/utils/color_utils.dart` into `AppThemeColors` and kept `color_utils.dart` as a compatibility alias layer for existing screens.
+- Moved the shared values from `lib/core/constants/colors.dart` into `AppThemeColors` and kept `CustomColors` as a compatibility alias layer.
+- Moved the report-module values from `lib/report_module/core/constants/colors.dart` into `AppThemeColors` while preserving the report module's existing `maroon` value.
+- This keeps the current UI stable while making `lib/core/theme/app_colors.dart` the single source of truth for shared app colors.
+
+Additional verification:
+
+- `dart analyze lib/core/theme/app_colors.dart lib/utils/color_utils.dart lib/core/constants/colors.dart lib/report_module/core/constants/colors.dart --format=machine`: passed.
+- `flutter test`: passed, 55 tests.
+- `flutter build apk --debug`: passed after compatibility alias migration.
+
+Second-pass direct migrations:
+
+- Migrated `lib/ui/widgets/back_icon.dart` from `color_utils.dart` to `AppThemeColors`.
+- Removed an unused color import from `lib/ui/widgets/footer_widget.dart` and replaced deprecated `Matrix4.scale` usage.
+- Migrated the default label color in `lib/ui/widgets/custom_slider_button.dart` to `AppThemeColors` and cleaned deprecated opacity calls.
+- Migrated the legacy update popup at `lib/ui/presentation/splash_screen/widgets/app_update_popup.dart` to named `AppThemeColors` tokens.
+
+Second-pass verification:
+
+- Targeted analyzer checks passed for the migrated widget files.
+- `flutter test`: passed, 55 tests.
+- `flutter build apk --debug`: passed after the second-pass migrations.
+
+Third-pass direct migrations:
+
+- Migrated report/listing shared widgets to direct `AppThemeColors` usage:
+  - `lib/ui/widgets/bottom_appbar.dart`
+  - `lib/ui/widgets/section_bar.dart`
+  - `lib/ui/widgets/cover_page.dart`
+  - `lib/ui/widgets/pdf_tile.dart`
+  - `lib/ui/widgets/report_tile.dart`
+  - `lib/ui/widgets/report_item.dart`
+  - `lib/ui/widgets/custom_textfield.dart`
+- Migrated `lib/ui/widgets/header_widget.dart` from the legacy `color_utils.dart` red token to `AppThemeColors.legacyRed`.
+- Cleaned analyzer notes in `header_widget.dart` while it was touched: removed unused cached counters/import usage, replaced production `print` calls with `debugPrint`, and replaced deprecated `withOpacity` calls.
+- Left large feature screens on the compatibility alias layer for now to avoid a risky broad UI migration; they can be moved feature-by-feature in later focused passes.
+
+Third-pass verification:
+
+- `dart analyze` on the shared theme/compatibility/update/splash/header group: passed with no issues.
+- `dart analyze` on the migrated report/listing widget group: passed with no issues.
+- `flutter test`: passed, 55 tests.
+- `flutter build apk --debug`: passed and produced `build/app/outputs/flutter-apk/app-debug.apk`.
+- `PROJECT_FILE_INDEX.md` regenerated successfully with 2321 indexed files.
+
+Fourth-pass color consolidation:
+
+- Removed direct usage of the old `CustomColors` APIs from the My Task, QR scanner, and report-module presentation layers.
+- Migrated `lib/core/constants/text_styles.dart` and `lib/report_module/core/constants/text_styles.dart` to read shared values from `AppThemeColors`.
+- Migrated all remaining active `utils/color_utils.dart` imports to `AppThemeColors` while preserving the old token values:
+  - `appFontColor` -> `AppThemeColors.brandPrimary`
+  - `red` -> `AppThemeColors.legacyRed`
+  - `blue` -> `AppThemeColors.brandBlue`
+  - `black` -> `AppThemeColors.legacyInk`
+  - `white` -> `AppThemeColors.softWhite`
+  - legacy grey/button/peach/shadow tokens -> their matching `AppThemeColors` entries.
+- Kept `lib/utils/color_utils.dart`, `lib/core/constants/colors.dart`, and `lib/report_module/core/constants/colors.dart` as thin compatibility layers for any future merge safety, but active app imports now point to the central theme tokens.
+- Preserved feature-specific theme files such as media, approvals overview, projects dashboard, Petty Cash, purchase, productivity, and other module palettes because they are already scoped design systems rather than loose global colors.
+
+Fourth-pass verification:
+
+- No active Dart file imports `package:el_race/utils/color_utils.dart`.
+- No active Dart file imports `package:el_race/core/constants/colors.dart` or `package:el_race/report_module/core/constants/colors.dart`.
+- `dart analyze lib/core/theme/app_colors.dart lib/utils/color_utils.dart lib/core/constants lib/report_module/core/constants`: passed with no issues.
+- `flutter test`: passed, 55 tests.
+- `flutter build apk --debug`: passed and produced `build/app/outputs/flutter-apk/app-debug.apk`.
+- `PROJECT_FILE_INDEX.md` regenerated successfully with 2321 indexed files.

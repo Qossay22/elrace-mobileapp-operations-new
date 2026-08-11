@@ -4,7 +4,7 @@ import 'dart:developer';
 import 'package:el_race/ui/presentation/Attendace_list/attendance_widgets/colleasped_card.dart';
 import 'package:el_race/ui/presentation/Attendace_list/model/attendance_model.dart';
 import 'package:el_race/ui/presentation/Attendace_list/repository/attendance_repository.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -219,7 +219,7 @@ class _AttendancePageState extends State<AttendancePage> {
     }
     if (type.isEmpty) {
       if (computedStatus == 'ABSENT' || computedStatus.contains('LATE')) {
-        return const Color(0xFFBA1719); // red
+        return const Color(0xFFBA1719); // AppThemeColors.legacyRed
       }
     }
     return Colors.transparent;
@@ -400,7 +400,8 @@ class _AttendancePageState extends State<AttendancePage> {
     }
 
     final hasFlatData = attendanceData?.data?.isNotEmpty ?? false;
-    final hasMonthlyData = attendanceData?.monthlyEmployees?.isNotEmpty ?? false;
+    final hasMonthlyData =
+        attendanceData?.monthlyEmployees?.isNotEmpty ?? false;
     final hasGroupedData = attendanceData?.mode == "grouped" &&
         (attendanceData?.records?.isNotEmpty ?? false);
 
@@ -424,7 +425,7 @@ class _AttendancePageState extends State<AttendancePage> {
               style: GoogleFonts.koulen(
                 fontSize: 20,
                 fontWeight: FontWeight.w400,
-                color: appFontColor,
+                color: AppThemeColors.brandPrimary,
                 letterSpacing: 1.9,
               ),
             ),
@@ -505,7 +506,8 @@ class _AttendancePageState extends State<AttendancePage> {
             ),
           )
         else if (hasMonthlyData)
-          _buildMonthlyEmployeeList(_filterMonthlyEmployeesLocally(attendanceData.monthlyEmployees!))
+          _buildMonthlyEmployeeList(
+              _filterMonthlyEmployeesLocally(attendanceData.monthlyEmployees!))
         else if (hasFlatData)
           _buildFlatEmployeeList(_filterEmployeesLocally(attendanceData.data!))
         else if (attendanceData.mode == "grouped" &&
@@ -762,7 +764,8 @@ class _AttendancePageState extends State<AttendancePage> {
     }).toList();
   }
 
-  Future<void> _toggleMonthlyEmployee(EmployeeMonthlyAttendance employee) async {
+  Future<void> _toggleMonthlyEmployee(
+      EmployeeMonthlyAttendance employee) async {
     final empKey = employee.employeeId.toString();
     final wasExpanded = expandedRecords.contains(empKey);
     setState(() {
@@ -854,17 +857,16 @@ class _AttendancePageState extends State<AttendancePage> {
           final records =
               _managerEmployeeRecords[empKey] ?? const <AttendanceRecord>[];
 
-            final monthDays = _daysInMonth(
+          final monthDays = _daysInMonth(
             employee.year > 0 ? employee.year : selectedYear,
             employee.month > 0
-              ? employee.month
-              : selectedMonth ?? DateTime.now().month,
-            );
-            final absentDays =
+                ? employee.month
+                : selectedMonth ?? DateTime.now().month,
+          );
+          final absentDays =
               (monthDays - employee.totalPresentDays).clamp(0, monthDays);
-            final attendanceRatio = monthDays > 0
-              ? employee.totalPresentDays / monthDays
-              : 0.0;
+          final attendanceRatio =
+              monthDays > 0 ? employee.totalPresentDays / monthDays : 0.0;
           final ratioColor = attendanceRatio >= 0.8
               ? const Color(0xFF009859)
               : attendanceRatio >= 0.6
@@ -964,8 +966,8 @@ class _AttendancePageState extends State<AttendancePage> {
                           recordAttendanceType == 'weekend') {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 8),
-                          child: _buildWeekendCard(
-                              DateTime.tryParse(record.date)),
+                          child:
+                              _buildWeekendCard(DateTime.tryParse(record.date)),
                         );
                       }
 
@@ -975,8 +977,7 @@ class _AttendancePageState extends State<AttendancePage> {
                       } catch (_) {}
 
                       DateTime? checkOutTime;
-                      if (record.checkOut != null &&
-                          record.checkOut != false) {
+                      if (record.checkOut != null && record.checkOut != false) {
                         try {
                           checkOutTime =
                               DateTime.parse(record.checkOut.toString());
@@ -988,12 +989,8 @@ class _AttendancePageState extends State<AttendancePage> {
                       String status = 'ONTIME';
                       if (checkOutTime == null) {
                         status = 'ABSENT';
-                      } else if (checkInTime.isAfter(DateTime(
-                          checkInTime.year,
-                          checkInTime.month,
-                          checkInTime.day,
-                          8,
-                          15))) {
+                      } else if (checkInTime.isAfter(DateTime(checkInTime.year,
+                          checkInTime.month, checkInTime.day, 8, 15))) {
                         final lateMinutes = checkInTime
                             .difference(DateTime(checkInTime.year,
                                 checkInTime.month, checkInTime.day, 8, 15))
@@ -1023,13 +1020,11 @@ class _AttendancePageState extends State<AttendancePage> {
             ),
           );
         }),
-
         if (_isLoadingMore && hasMore)
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 16),
             child: Center(child: CircularProgressIndicator()),
           ),
-
         Padding(
           padding: const EdgeInsets.only(top: 12, bottom: 8),
           child: Text(
@@ -1073,7 +1068,7 @@ class _AttendancePageState extends State<AttendancePage> {
               style: GoogleFonts.koulen(
                 fontSize: 20,
                 fontWeight: FontWeight.w400,
-                color: appFontColor,
+                color: AppThemeColors.brandPrimary,
                 letterSpacing: 1.9,
               ),
             ),
@@ -1284,7 +1279,7 @@ class _AttendancePageState extends State<AttendancePage> {
                   style: GoogleFonts.inter(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: appFontColor,
+                    color: AppThemeColors.brandPrimary,
                   ),
                 ),
               ),
@@ -1302,7 +1297,7 @@ class _AttendancePageState extends State<AttendancePage> {
                       fontSize: 22,
                       fontStyle: FontStyle.italic,
                       fontWeight: FontWeight.w600,
-                      color: appFontColor,
+                      color: AppThemeColors.brandPrimary,
                       letterSpacing: 1.5,
                     ),
                   ),
@@ -1480,7 +1475,7 @@ class _MonthChip extends StatelessWidget {
               style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: appFontColor,
+                color: AppThemeColors.brandPrimary,
               ),
             ),
             const SizedBox(width: 6),

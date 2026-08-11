@@ -1,4 +1,4 @@
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -35,7 +35,7 @@ class AppUpdatePopup extends StatelessWidget {
       context: context,
       barrierLabel: 'app_update_popup',
       barrierDismissible: !isMandatory,
-      barrierColor: Colors.black.withValues(alpha: 0.52),
+      barrierColor: AppThemeColors.pureBlack.withValues(alpha: 0.52),
       transitionDuration: const Duration(milliseconds: 280),
       pageBuilder: (context, animation, secondaryAnimation) {
         return SafeArea(
@@ -73,14 +73,14 @@ class AppUpdatePopup extends StatelessWidget {
     final titleStyle = GoogleFonts.poppins(
       fontSize: 21.sp,
       fontWeight: FontWeight.w800,
-      color: const Color(0xFF141430),
+      color: AppThemeColors.updateTitle,
       height: 1.15,
     );
 
     final bodyStyle = GoogleFonts.poppins(
       fontSize: 12.5.sp,
       fontWeight: FontWeight.w500,
-      color: const Color(0xFF4E4E62),
+      color: AppThemeColors.updateBody,
       height: 1.45,
     );
 
@@ -96,24 +96,24 @@ class AppUpdatePopup extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color(0xFFFFFFFF),
-                Color(0xFFF8F9FF),
+                AppThemeColors.surface,
+                AppThemeColors.updateSurfaceTint,
               ],
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.14),
+                color: AppThemeColors.pureBlack.withValues(alpha: 0.14),
                 blurRadius: 30,
                 offset: const Offset(0, 14),
               ),
               BoxShadow(
-                color: appFontColor.withValues(alpha: 0.09),
+                color: AppThemeColors.brandPrimary.withValues(alpha: 0.09),
                 blurRadius: 40,
                 offset: const Offset(0, 6),
               ),
             ],
             border: Border.all(
-              color: const Color(0xFFE8EBFF),
+              color: AppThemeColors.updateDialogBorder,
               width: 1.2,
             ),
           ),
@@ -131,8 +131,8 @@ class AppUpdatePopup extends StatelessWidget {
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          Color(0x44BA1719),
-                          Color(0x00BA1719),
+                          AppThemeColors.updateErrorGlow,
+                          AppThemeColors.transparentError,
                         ],
                       ),
                     ),
@@ -148,8 +148,8 @@ class AppUpdatePopup extends StatelessWidget {
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          Color(0x241A1A53),
-                          Color(0x001A1A53),
+                          AppThemeColors.updateBrandGlow,
+                          AppThemeColors.transparentBrand,
                         ],
                       ),
                     ),
@@ -172,13 +172,13 @@ class AppUpdatePopup extends StatelessWidget {
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                                 colors: [
-                                  Color(0xFFBA1719),
-                                  Color(0xFFD43A3C),
+                                  AppThemeColors.brandAccent,
+                                  AppThemeColors.updateAccent,
                                 ],
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFFBA1719)
+                                  color: AppThemeColors.brandAccent
                                       .withValues(alpha: 0.34),
                                   blurRadius: 18,
                                   offset: const Offset(0, 8),
@@ -187,7 +187,7 @@ class AppUpdatePopup extends StatelessWidget {
                             ),
                             child: Icon(
                               Icons.system_update_alt_rounded,
-                              color: Colors.white,
+                              color: AppThemeColors.onBrand,
                               size: 28.sp,
                             ),
                           ),
@@ -236,7 +236,7 @@ class AppUpdatePopup extends StatelessWidget {
                               }
                             },
                             style: TextButton.styleFrom(
-                              foregroundColor: const Color(0xFF4F4F63),
+                              foregroundColor: AppThemeColors.updateLater,
                               padding: EdgeInsets.symmetric(
                                 horizontal: 16.w,
                                 vertical: 10.h,
@@ -278,13 +278,13 @@ class _VersionStrip extends StatelessWidget {
     final tagStyle = GoogleFonts.poppins(
       fontSize: 11.5.sp,
       fontWeight: FontWeight.w700,
-      color: const Color(0xFF24243D),
+      color: AppThemeColors.updateTitle,
     );
 
     final versionStyle = GoogleFonts.poppins(
       fontSize: 12.5.sp,
       fontWeight: FontWeight.w800,
-      color: const Color(0xFF121228),
+      color: AppThemeColors.updateTitleStrong,
     );
 
     return Container(
@@ -292,8 +292,8 @@ class _VersionStrip extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14.r),
-        color: const Color(0xFFF2F4FF),
-        border: Border.all(color: const Color(0xFFDFE5FF)),
+        color: AppThemeColors.updatePanel,
+        border: Border.all(color: AppThemeColors.updatePanelBorder),
       ),
       child: Row(
         children: [
@@ -302,22 +302,22 @@ class _VersionStrip extends StatelessWidget {
             value: currentVersion ?? '-',
             tagStyle: tagStyle,
             versionStyle: versionStyle,
-            tagBackground: const Color(0xFFE9ECFF),
+            tagBackground: AppThemeColors.updatePanelTag,
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 8.w),
             child: Icon(
               Icons.arrow_forward_rounded,
-              color: const Color(0xFF7A80A7),
+              color: AppThemeColors.updateArrow,
               size: 20.sp,
             ),
           ),
           _VersionChip(
             label: 'Latest',
             value: latestVersion,
-            tagStyle: tagStyle.copyWith(color: Colors.white),
-            versionStyle: versionStyle.copyWith(color: Colors.white),
-            tagBackground: const Color(0xFFBA1719),
+            tagStyle: tagStyle.copyWith(color: AppThemeColors.onBrand),
+            versionStyle: versionStyle.copyWith(color: AppThemeColors.onBrand),
+            tagBackground: AppThemeColors.brandAccent,
           ),
         ],
       ),
@@ -379,8 +379,8 @@ class _HighlightsCard extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 11.h),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14.r),
-        color: Colors.white,
-        border: Border.all(color: const Color(0xFFEAEAEA)),
+        color: AppThemeColors.surface,
+        border: Border.all(color: AppThemeColors.updateCardBorder),
       ),
       child: Column(
         children: [
@@ -425,7 +425,7 @@ class _UpdatePoint extends StatelessWidget {
             height: 7.w,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              color: Color(0xFFBA1719),
+              color: AppThemeColors.brandAccent,
             ),
           ),
         ),
@@ -457,13 +457,13 @@ class _PrimaryActionButton extends StatelessWidget {
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
               colors: [
-                Color(0xFFBA1719),
-                Color(0xFFD43A3C),
+                AppThemeColors.brandAccent,
+                AppThemeColors.updateAccent,
               ],
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFBA1719).withValues(alpha: 0.34),
+                color: AppThemeColors.brandAccent.withValues(alpha: 0.34),
                 blurRadius: 16,
                 offset: const Offset(0, 8),
               ),
@@ -476,7 +476,7 @@ class _PrimaryActionButton extends StatelessWidget {
               children: [
                 Icon(
                   Icons.download_rounded,
-                  color: Colors.white,
+                  color: AppThemeColors.onBrand,
                   size: 22.sp,
                 ),
                 SizedBox(width: 8.w),
@@ -485,7 +485,7 @@ class _PrimaryActionButton extends StatelessWidget {
                   style: GoogleFonts.poppins(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w800,
-                    color: Colors.white,
+                    color: AppThemeColors.onBrand,
                     letterSpacing: 0.1,
                   ),
                 ),

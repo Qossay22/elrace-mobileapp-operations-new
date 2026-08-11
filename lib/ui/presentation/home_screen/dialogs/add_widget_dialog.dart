@@ -4,7 +4,7 @@ import 'package:el_race/ui/presentation/home_screen/widgets/card_tile.dart';
 import 'package:el_race/ui/presentation/home_screen/widgets/custom_bullet_point.dart';
 import 'package:el_race/ui/presentation/home_screen/widgets/home_productivity_navigation.dart';
 import 'package:el_race/ui/presentation/home_screen/widgets/tilting_card.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/utils/orientation_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -477,11 +477,12 @@ class _AddWidgetDialogState extends State<AddWidgetDialog> {
             width: double.infinity,
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: white,
+              color: AppThemeColors.softWhite,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: black.withAlpha((0.1 * 255).toInt()),
+                  color:
+                      AppThemeColors.legacyInk.withAlpha((0.1 * 255).toInt()),
                   spreadRadius: 2,
                   blurRadius: 10,
                 ),
@@ -534,7 +535,7 @@ class _AddWidgetDialogState extends State<AddWidgetDialog> {
                                         shape: BoxShape.circle,
                                         boxShadow: [
                                           BoxShadow(
-                                            color: black
+                                            color: AppThemeColors.legacyInk
                                                 .withAlpha((0.3 * 255).toInt()),
                                             spreadRadius: 2,
                                             blurRadius: 6,
@@ -543,7 +544,7 @@ class _AddWidgetDialogState extends State<AddWidgetDialog> {
                                       ),
                                       child: Icon(
                                         Icons.add,
-                                        color: white,
+                                        color: AppThemeColors.softWhite,
                                         size: 16.sp,
                                       ),
                                     ),
@@ -567,7 +568,7 @@ class _AddWidgetDialogState extends State<AddWidgetDialog> {
               child: Container(
                 padding: EdgeInsets.all(3.w),
                 decoration: const BoxDecoration(
-                  color: red,
+                  color: AppThemeColors.legacyRed,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(

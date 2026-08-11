@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import '../../widgets/custom_slider_button.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 
@@ -298,7 +298,7 @@ class _RequestDetailsPageState extends State<RequestDetailsPage> {
                                       style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
-                                          color: appFontColor)),
+                                          color: AppThemeColors.brandPrimary)),
                                   const SizedBox(width: 15),
                                   AbsorbPointer(
                                     child: _buildInfoRow(
@@ -323,7 +323,7 @@ class _RequestDetailsPageState extends State<RequestDetailsPage> {
                                     style: GoogleFonts.poppins(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
-                                      color: appFontColor,
+                                      color: AppThemeColors.brandPrimary,
                                       letterSpacing: 2.2, // Adjust as needed
                                     ),
                                   ),
@@ -374,7 +374,7 @@ class _RequestDetailsPageState extends State<RequestDetailsPage> {
                                 style: GoogleFonts.poppins(
                                   fontSize: 16, // You can adjust size as needed
                                   fontWeight: FontWeight.w500,
-                                  color: appFontColor,
+                                  color: AppThemeColors.brandPrimary,
                                   letterSpacing: 2.2, // Optional for styling
                                 ),
                               ),
@@ -491,7 +491,7 @@ class _RequestDetailsPageState extends State<RequestDetailsPage> {
                                       style: GoogleFonts.poppins(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w500,
-                                        color: appFontColor,
+                                        color: AppThemeColors.brandPrimary,
                                         letterSpacing: 2.2,
                                       ),
                                     ),
@@ -641,16 +641,18 @@ class _RequestDetailsPageState extends State<RequestDetailsPage> {
       height: 80, // Fixed height
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       decoration: BoxDecoration(
-        color: isSelected ? appFontColor : Colors.white,
+        color: isSelected ? AppThemeColors.brandPrimary : Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isSelected ? appFontColor : Colors.grey.shade300,
+          color:
+              isSelected ? AppThemeColors.brandPrimary : Colors.grey.shade300,
           width: isSelected ? 3 : 1,
         ),
         boxShadow: isSelected
             ? [
                 BoxShadow(
-                  color: appFontColor.withAlpha((0.4 * 255).toInt()),
+                  color: AppThemeColors.brandPrimary
+                      .withAlpha((0.4 * 255).toInt()),
                   blurRadius: 10,
                   spreadRadius: 1,
                   offset: const Offset(0, 4),
@@ -666,7 +668,7 @@ class _RequestDetailsPageState extends State<RequestDetailsPage> {
             style: GoogleFonts.poppins(
               fontSize: 13,
               fontWeight: FontWeight.bold,
-              color: isSelected ? Colors.white : appFontColor,
+              color: isSelected ? Colors.white : AppThemeColors.brandPrimary,
               letterSpacing: 2.2, // Adjust as needed
             ),
           ),
@@ -675,7 +677,7 @@ class _RequestDetailsPageState extends State<RequestDetailsPage> {
             style: GoogleFonts.poppins(
               fontSize: 10,
               fontWeight: FontWeight.bold,
-              color: isSelected ? Colors.white : appFontColor,
+              color: isSelected ? Colors.white : AppThemeColors.brandPrimary,
               letterSpacing: 1.0, // Adjust as needed
             ),
           ),
@@ -685,5 +687,7 @@ class _RequestDetailsPageState extends State<RequestDetailsPage> {
   }
 
   TextStyle _infoTextStyle() => const TextStyle(
-      fontSize: 15, fontWeight: FontWeight.bold, color: appFontColor);
+      fontSize: 15,
+      fontWeight: FontWeight.bold,
+      color: AppThemeColors.brandPrimary);
 }

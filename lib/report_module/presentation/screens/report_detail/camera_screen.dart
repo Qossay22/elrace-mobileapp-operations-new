@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:camera/camera.dart';
-import 'package:el_race/report_module/core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/report_module/core/constants/text_styles.dart';
 import 'package:el_race/utils/safe_insets.dart';
 import 'package:el_race/report_module/data/repositories/company_repository.dart';
@@ -50,9 +50,8 @@ class _CustomCameraScreenState extends State<CustomCameraScreen> {
         _cameras.first,
         ResolutionPreset.ultraHigh,
         enableAudio: false,
-        imageFormatGroup: Platform.isIOS
-            ? ImageFormatGroup.bgra8888
-            : ImageFormatGroup.jpeg,
+        imageFormatGroup:
+            Platform.isIOS ? ImageFormatGroup.bgra8888 : ImageFormatGroup.jpeg,
       );
       controller = cameraController;
       await cameraController.initialize();
@@ -121,15 +120,15 @@ class _CustomCameraScreenState extends State<CustomCameraScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         surfaceTintColor: Colors.transparent,
-        backgroundColor: CustomColors.white,
+        backgroundColor: AppThemeColors.surface,
         centerTitle: true,
         leadingWidth: 60,
         leading: Align(
           alignment: Alignment.centerRight,
           child: SquareButton(
             icon: Icons.keyboard_backspace,
-            color: CustomColors.white,
-            borderColor: CustomColors.black,
+            color: AppThemeColors.surface,
+            borderColor: AppThemeColors.pureBlack,
             onPressed: () {
               // Navigator.pop(context);
               Navigator.pop(context, _images);
@@ -143,8 +142,8 @@ class _CustomCameraScreenState extends State<CustomCameraScreen> {
         actions: const [
           // SquareButton(
           //   icon: Icons.check,
-          //   color: CustomColors.blue,
-          //   borderColor: CustomColors.white,
+          //   color: AppThemeColors.reportBlue,
+          //   borderColor: AppThemeColors.surface,
           //   onPressed: () {
           //     Navigator.pop(context, _images);
           //   },
@@ -156,8 +155,8 @@ class _CustomCameraScreenState extends State<CustomCameraScreen> {
           ? Center(
               child: Text(
                 "Please Go to Settings and enable camera permission",
-                style:
-                    CustomTextStyle.heading.copyWith(color: CustomColors.black),
+                style: CustomTextStyle.heading
+                    .copyWith(color: AppThemeColors.pureBlack),
               ),
             )
           : _cameraInitilaized
@@ -183,7 +182,7 @@ class _CustomCameraScreenState extends State<CustomCameraScreen> {
                                 child: SliderTheme(
                                   data: SliderTheme.of(context).copyWith(
                                     thumbColor: Colors.white, // knob color
-                                    activeTrackColor: CustomColors.blue,
+                                    activeTrackColor: AppThemeColors.reportBlue,
                                     inactiveTrackColor: Colors.white
                                       ..withValues(alpha: 0.3),
                                     overlayColor: Colors.white
@@ -224,8 +223,8 @@ class _CustomCameraScreenState extends State<CustomCameraScreen> {
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 12),
                               decoration: BoxDecoration(
-                                  color:
-                                      CustomColors.blue.withValues(alpha: .5),
+                                  color: AppThemeColors.reportBlue
+                                      .withValues(alpha: .5),
                                   borderRadius: BorderRadius.circular(16)),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -257,12 +256,14 @@ class _CustomCameraScreenState extends State<CustomCameraScreen> {
                                 width: 70,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: (widget.onePicture &&
-                                          _images.length == 1)
-                                      ? CustomColors.white.withValues(alpha: .3)
-                                      : CustomColors.white,
+                                  color:
+                                      (widget.onePicture && _images.length == 1)
+                                          ? AppThemeColors.surface
+                                              .withValues(alpha: .3)
+                                          : AppThemeColors.surface,
                                   border: Border.all(
-                                      color: CustomColors.blue, width: 2),
+                                      color: AppThemeColors.reportBlue,
+                                      width: 2),
                                 ),
                               ),
                             ),
@@ -274,7 +275,7 @@ class _CustomCameraScreenState extends State<CustomCameraScreen> {
                 })
               : Center(
                   child: CircularProgressIndicator(
-                    color: CustomColors.blue,
+                    color: AppThemeColors.reportBlue,
                   ),
                 ),
     );

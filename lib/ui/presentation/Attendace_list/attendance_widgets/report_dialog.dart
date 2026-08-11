@@ -1,6 +1,6 @@
 import 'package:el_race/ui/presentation/Attendace_list/attendance_widgets/report_item.dart';
 import 'package:el_race/ui/presentation/Attendace_list/repository/attendance_repository.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -35,7 +35,7 @@ class AttendanceDialogs {
                       fontSize: 16,
                       fontWeight: FontWeight.w300,
                       letterSpacing: 1.5, // Adjust as needed
-                      color: appFontColor,
+                      color: AppThemeColors.brandPrimary,
                     ),
                   ),
                   Text(
@@ -43,7 +43,7 @@ class AttendanceDialogs {
                     style: GoogleFonts.poppins(
                       fontSize: 14,
                       fontWeight: FontWeight.w300,
-                      color: appFontColor,
+                      color: AppThemeColors.brandPrimary,
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -77,7 +77,9 @@ class AttendanceDialogs {
                     child: TextButton(
                       onPressed: () => Navigator.pop(context),
                       child: const Text("Close",
-                          style: TextStyle(color: appFontColor, fontSize: 12)),
+                          style: TextStyle(
+                              color: AppThemeColors.brandPrimary,
+                              fontSize: 12)),
                     ),
                   ),
                 ],

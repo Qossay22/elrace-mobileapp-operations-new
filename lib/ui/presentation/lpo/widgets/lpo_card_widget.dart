@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:el_race/core/utils/shared_pref.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -245,7 +245,7 @@ class LpoCardWidget extends StatelessWidget {
                               style: GoogleFonts.poppins(
                                 fontSize: 11.5.sp,
                                 fontWeight: FontWeight.w700,
-                                color: greyText,
+                                color: AppThemeColors.legacyGreyText,
                                 height: 1.1,
                               ),
                             ),
@@ -268,7 +268,7 @@ class LpoCardWidget extends StatelessWidget {
                             style: GoogleFonts.poppins(
                               fontSize: 10.5.sp,
                               fontWeight: FontWeight.w600,
-                              color: greyText,
+                              color: AppThemeColors.legacyGreyText,
                             ),
                           ),
                         ),
@@ -343,7 +343,7 @@ class LpoCardWidget extends StatelessWidget {
       style: GoogleFonts.poppins(
         fontSize: 22.sp,
         fontWeight: FontWeight.w700,
-        color: appFontColor,
+        color: AppThemeColors.brandPrimary,
       ),
     );
   }

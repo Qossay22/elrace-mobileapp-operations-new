@@ -1,7 +1,7 @@
 import 'package:el_race/ui/presentation/landing_screen/bloc/location_bloc/location_bloc.dart';
 import 'package:el_race/ui/presentation/signin/data/model.dart';
 import 'package:el_race/ui/presentation/signin/data/repository.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 import '../../widgets/custom_navbar.dart';
@@ -53,7 +53,7 @@ class _LandingScreenState extends State<LandingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: lightGrey,
+      backgroundColor: AppThemeColors.lightGrey,
       bottomNavigationBar: CustomBottomNavbar(
         currentIndex: _selectedIndex,
         onItemTapped: _onItemTapped,

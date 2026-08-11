@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/ui/presentation/task_sheet/task_sheet_screen.dart';
 import 'package:el_race/ui/presentation/todo_list/services/team_members_api_service.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -281,26 +281,24 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                                             fontSize: 11,
                                             fontWeight: FontWeight.w600),
                                       ),
-                                      deleteIcon: const Icon(
-                                          Icons.close, size: 14),
+                                      deleteIcon:
+                                          const Icon(Icons.close, size: 14),
                                       onDeleted: () {
                                         setState(() {
                                           _selectedEmployees.removeWhere(
                                               (e) => e['id'] == emp['id']);
                                           _selectedEmployeeIdsNotifier.value =
                                               _selectedEmployees
-                                                  .map((e) =>
-                                                      e['id'].toString())
+                                                  .map(
+                                                      (e) => e['id'].toString())
                                                   .toList();
                                         });
                                       },
-                                      backgroundColor:
-                                          const Color(0xFFE8F5E9),
+                                      backgroundColor: const Color(0xFFE8F5E9),
                                       side: const BorderSide(
                                           color: Color(0xFFB2DFDB)),
                                       shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(20),
+                                        borderRadius: BorderRadius.circular(20),
                                       ),
                                       materialTapTargetSize:
                                           MaterialTapTargetSize.shrinkWrap,
@@ -346,13 +344,11 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                         },
                         child: Container(
                           height: 50,
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 16),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(25),
-                            border:
-                                Border.all(color: Colors.grey.shade300),
+                            border: Border.all(color: Colors.grey.shade300),
                           ),
                           child: Row(
                             children: [
@@ -387,8 +383,7 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                                color: const Color(0xFFEEEEEE)),
+                            border: Border.all(color: const Color(0xFFEEEEEE)),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withOpacity(0.06),
@@ -402,40 +397,34 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                             children: [
                               // Search field
                               Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                    12, 10, 12, 6),
+                                padding:
+                                    const EdgeInsets.fromLTRB(12, 10, 12, 6),
                                 child: TextField(
                                   controller: _searchController,
-                                  onChanged: (v) => setState(
-                                      () => _dropdownSearchQuery = v),
+                                  onChanged: (v) =>
+                                      setState(() => _dropdownSearchQuery = v),
                                   decoration: InputDecoration(
                                     hintText: 'Search employee...',
                                     hintStyle: TextStyle(
                                         fontSize: 12,
                                         color: Colors.grey.shade400),
                                     prefixIcon: Icon(Icons.search,
-                                        size: 18,
-                                        color: Colors.grey.shade400),
+                                        size: 18, color: Colors.grey.shade400),
                                     isDense: true,
-                                    contentPadding:
-                                        const EdgeInsets.symmetric(
-                                            horizontal: 10,
-                                            vertical: 8),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 8),
                                     border: OutlineInputBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(12),
                                       borderSide: BorderSide(
                                           color: Colors.grey.shade300),
                                     ),
                                     enabledBorder: OutlineInputBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(12),
                                       borderSide: BorderSide(
                                           color: Colors.grey.shade300),
                                     ),
                                     focusedBorder: OutlineInputBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(12),
                                       borderSide: const BorderSide(
                                           color: Color(0xFF27AE60)),
                                     ),
@@ -448,30 +437,26 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                                     const BoxConstraints(maxHeight: 220),
                                 child: Builder(
                                   builder: (context) {
-                                    final filtered =
-                                        employees.where((emp) {
+                                    final filtered = employees.where((emp) {
                                       final name = (emp['name'] ?? '')
                                           .toString()
                                           .toLowerCase();
                                       final id = (emp['id'] ?? '')
                                           .toString()
                                           .toLowerCase();
-                                      final q = _dropdownSearchQuery
-                                          .toLowerCase();
-                                      return name.contains(q) ||
-                                          id.contains(q);
+                                      final q =
+                                          _dropdownSearchQuery.toLowerCase();
+                                      return name.contains(q) || id.contains(q);
                                     }).toList();
 
                                     if (filtered.isEmpty) {
                                       return Padding(
-                                        padding:
-                                            const EdgeInsets.all(16),
+                                        padding: const EdgeInsets.all(16),
                                         child: Text(
                                           'No employees found',
                                           style: TextStyle(
                                               fontSize: 12,
-                                              color:
-                                                  Colors.grey.shade500),
+                                              color: Colors.grey.shade500),
                                         ),
                                       );
                                     }
@@ -480,28 +465,22 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                                       shrinkWrap: true,
                                       padding: EdgeInsets.zero,
                                       itemCount: filtered.length,
-                                      separatorBuilder: (_, __) =>
-                                          Divider(
-                                              height: 1,
-                                              color:
-                                                  Colors.grey.shade200),
+                                      separatorBuilder: (_, __) => Divider(
+                                          height: 1,
+                                          color: Colors.grey.shade200),
                                       itemBuilder: (context, index) {
-                                        final employee =
-                                            filtered[index];
+                                        final employee = filtered[index];
                                         final isSelected =
-                                            _selectedEmployees.any(
-                                                (e) =>
-                                                    e['id'] ==
-                                                    employee['id']);
+                                            _selectedEmployees.any((e) =>
+                                                e['id'] == employee['id']);
                                         return InkWell(
                                           onTap: () {
                                             setState(() {
                                               if (isSelected) {
-                                                _selectedEmployees
-                                                    .removeWhere((e) =>
+                                                _selectedEmployees.removeWhere(
+                                                    (e) =>
                                                         e['id'] ==
-                                                        employee[
-                                                            'id']);
+                                                        employee['id']);
                                               } else {
                                                 _selectedEmployees
                                                     .add(employee);
@@ -509,18 +488,14 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                                               _selectedEmployeeIdsNotifier
                                                       .value =
                                                   _selectedEmployees
-                                                      .map((e) => e[
-                                                              'id']
-                                                          .toString())
+                                                      .map((e) =>
+                                                          e['id'].toString())
                                                       .toList();
                                             });
                                           },
                                           child: Padding(
-                                            padding:
-                                                const EdgeInsets
-                                                    .symmetric(
-                                                    horizontal: 8,
-                                                    vertical: 6),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 8, vertical: 6),
                                             child: Row(
                                               children: [
                                                 SizedBox(
@@ -530,25 +505,20 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                                                     value: isSelected,
                                                     onChanged: null,
                                                     activeColor:
-                                                        const Color(
-                                                            0xFF27AE60),
+                                                        const Color(0xFF27AE60),
                                                     materialTapTargetSize:
                                                         MaterialTapTargetSize
                                                             .shrinkWrap,
                                                   ),
                                                 ),
-                                                const SizedBox(
-                                                    width: 8),
+                                                const SizedBox(width: 8),
                                                 Expanded(
                                                   child: Text(
                                                     employee['name'],
-                                                    style:
-                                                        const TextStyle(
-                                                            fontSize:
-                                                                13),
+                                                    style: const TextStyle(
+                                                        fontSize: 13),
                                                     overflow:
-                                                        TextOverflow
-                                                            .ellipsis,
+                                                        TextOverflow.ellipsis,
                                                   ),
                                                 ),
                                               ],
@@ -677,11 +647,13 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildBottomButton("Cancel", red, Colors.white, () {
+                      _buildBottomButton(
+                          "Cancel", AppThemeColors.legacyRed, Colors.white, () {
                         Navigator.pop(context);
                       }),
                       _buildBottomButton(
-                          "Send for approval", AppColors.green, Colors.white, () {
+                          "Send for approval", AppColors.green, Colors.white,
+                          () {
                         _showApprovalPopup(context);
                       }),
                     ],
@@ -768,14 +740,18 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
         return StatefulBuilder(
           builder: (context, setModalState) {
             final firstDay = DateTime(visibleMonth.year, visibleMonth.month, 1);
-            final daysInMonth = DateUtils.getDaysInMonth(visibleMonth.year, visibleMonth.month);
+            final daysInMonth =
+                DateUtils.getDaysInMonth(visibleMonth.year, visibleMonth.month);
             final leading = firstDay.weekday % 7;
-            final prevMonth = DateTime(visibleMonth.year, visibleMonth.month - 1, 1);
-            final daysInPrevMonth = DateUtils.getDaysInMonth(prevMonth.year, prevMonth.month);
+            final prevMonth =
+                DateTime(visibleMonth.year, visibleMonth.month - 1, 1);
+            final daysInPrevMonth =
+                DateUtils.getDaysInMonth(prevMonth.year, prevMonth.month);
 
             return Dialog(
               insetPadding: const EdgeInsets.symmetric(horizontal: 22),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
               child: Container(
                 padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
                 decoration: BoxDecoration(
@@ -788,10 +764,12 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                     Row(
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.chevron_left, color: Colors.black, size: 22),
+                          icon: const Icon(Icons.chevron_left,
+                              color: Colors.black, size: 22),
                           onPressed: () {
                             setModalState(() {
-                              visibleMonth = DateTime(visibleMonth.year, visibleMonth.month - 1, 1);
+                              visibleMonth = DateTime(
+                                  visibleMonth.year, visibleMonth.month - 1, 1);
                             });
                           },
                         ),
@@ -801,10 +779,12 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                               Expanded(
                                 child: Container(
                                   height: 36,
-                                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(11),
-                                    border: Border.all(color: const Color(0xFFD7D7D7)),
+                                    border: Border.all(
+                                        color: const Color(0xFFD7D7D7)),
                                   ),
                                   child: DropdownButtonHideUnderline(
                                     child: DropdownButton<int>(
@@ -814,13 +794,16 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                                         final m = index + 1;
                                         return DropdownMenuItem<int>(
                                           value: m,
-                                          child: Text(months[index], style: const TextStyle(fontSize: 16)),
+                                          child: Text(months[index],
+                                              style: const TextStyle(
+                                                  fontSize: 16)),
                                         );
                                       }),
                                       onChanged: (value) {
                                         if (value == null) return;
                                         setModalState(() {
-                                          visibleMonth = DateTime(visibleMonth.year, value, 1);
+                                          visibleMonth = DateTime(
+                                              visibleMonth.year, value, 1);
                                         });
                                       },
                                     ),
@@ -831,26 +814,32 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                               Expanded(
                                 child: Container(
                                   height: 36,
-                                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(11),
-                                    border: Border.all(color: const Color(0xFFD7D7D7)),
+                                    border: Border.all(
+                                        color: const Color(0xFFD7D7D7)),
                                   ),
                                   child: DropdownButtonHideUnderline(
                                     child: DropdownButton<int>(
                                       value: visibleMonth.year,
                                       isExpanded: true,
                                       items: List.generate(31, (index) {
-                                        final y = DateTime.now().year - 10 + index;
+                                        final y =
+                                            DateTime.now().year - 10 + index;
                                         return DropdownMenuItem<int>(
                                           value: y,
-                                          child: Text('$y', style: const TextStyle(fontSize: 16)),
+                                          child: Text('$y',
+                                              style: const TextStyle(
+                                                  fontSize: 16)),
                                         );
                                       }),
                                       onChanged: (value) {
                                         if (value == null) return;
                                         setModalState(() {
-                                          visibleMonth = DateTime(value, visibleMonth.month, 1);
+                                          visibleMonth = DateTime(
+                                              value, visibleMonth.month, 1);
                                         });
                                       },
                                     ),
@@ -861,10 +850,12 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.chevron_right, color: Colors.black, size: 22),
+                          icon: const Icon(Icons.chevron_right,
+                              color: Colors.black, size: 22),
                           onPressed: () {
                             setModalState(() {
-                              visibleMonth = DateTime(visibleMonth.year, visibleMonth.month + 1, 1);
+                              visibleMonth = DateTime(
+                                  visibleMonth.year, visibleMonth.month + 1, 1);
                             });
                           },
                         ),
@@ -895,18 +886,21 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                       child: GridView.builder(
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: 42,
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 7,
                           mainAxisSpacing: 8,
                           crossAxisSpacing: 8,
                         ),
                         itemBuilder: (context, index) {
                           final dayNumber = index - leading + 1;
-                          final isCurrentMonth = dayNumber > 0 && dayNumber <= daysInMonth;
+                          final isCurrentMonth =
+                              dayNumber > 0 && dayNumber <= daysInMonth;
 
                           DateTime cellDate;
                           if (isCurrentMonth) {
-                            cellDate = DateTime(visibleMonth.year, visibleMonth.month, dayNumber);
+                            cellDate = DateTime(visibleMonth.year,
+                                visibleMonth.month, dayNumber);
                           } else if (dayNumber <= 0) {
                             cellDate = DateTime(
                               prevMonth.year,
@@ -921,7 +915,8 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                             );
                           }
 
-                          final selected = DateUtils.isSameDay(cellDate, selectedDate);
+                          final selected =
+                              DateUtils.isSameDay(cellDate, selectedDate);
 
                           return InkWell(
                             borderRadius: BorderRadius.circular(10),
@@ -937,7 +932,8 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                                   ? BoxDecoration(
                                       color: const Color(0xFFBFEBD6),
                                       borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(color: const Color(0xFF8DB6A6)),
+                                      border: Border.all(
+                                          color: const Color(0xFF8DB6A6)),
                                     )
                                   : null,
                               alignment: Alignment.center,
@@ -945,7 +941,9 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                                 '${cellDate.day}',
                                 style: TextStyle(
                                   fontSize: 16,
-                                  color: isCurrentMonth ? Colors.black : const Color(0xFFBEBEBE),
+                                  color: isCurrentMonth
+                                      ? Colors.black
+                                      : const Color(0xFFBEBEBE),
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -963,7 +961,7 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                           width: 110,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: red,
+                              backgroundColor: AppThemeColors.legacyRed,
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(22),
@@ -972,7 +970,8 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                             onPressed: () => Navigator.pop(dialogContext),
                             child: const Text(
                               'Cancel',
-                              style: TextStyle(color: Colors.white, fontSize: 24 / 2),
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 24 / 2),
                             ),
                           ),
                         ),
@@ -988,10 +987,12 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                                 borderRadius: BorderRadius.circular(22),
                               ),
                             ),
-                            onPressed: () => Navigator.pop(dialogContext, selectedDate),
+                            onPressed: () =>
+                                Navigator.pop(dialogContext, selectedDate),
                             child: const Text(
                               'Done',
-                              style: TextStyle(color: Colors.white, fontSize: 24 / 2),
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 24 / 2),
                             ),
                           ),
                         ),
@@ -1009,7 +1010,8 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
 
   Widget _buildDateTimeValue(DateTime? dateTime) {
     final dateText = dateTime == null ? '--' : _formatDateOnly(dateTime);
-    final timeText = dateTime == null ? '--:--' : DateFormat('HH:mm').format(dateTime);
+    final timeText =
+        dateTime == null ? '--:--' : DateFormat('HH:mm').format(dateTime);
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -1108,7 +1110,9 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
   Widget _buildActionButton(String text, {required bool isSelected}) {
     return Container(
       decoration: BoxDecoration(
-        color: isSelected ? greyText2 : greyText3,
+        color: isSelected
+            ? AppThemeColors.legacyGreyText2
+            : AppThemeColors.legacyGreyText3,
         borderRadius: BorderRadius.circular(20),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 7),
@@ -1185,11 +1189,14 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                 ),
               ),
               const Spacer(),
-              _buildMiniImageButton('assets/png/paragraphIcon.png', tooltip: 'Paragraph', onPressed: _insertParagraph),
+              _buildMiniImageButton('assets/png/paragraphIcon.png',
+                  tooltip: 'Paragraph', onPressed: _insertParagraph),
               const SizedBox(width: 6),
-              _buildMiniIconButton(Icons.format_list_numbered, tooltip: 'Numbered list', onPressed: _insertNumberedList),
+              _buildMiniIconButton(Icons.format_list_numbered,
+                  tooltip: 'Numbered list', onPressed: _insertNumberedList),
               const SizedBox(width: 6),
-              _buildMiniIconButton(Icons.format_list_bulleted, tooltip: 'Bulleted list', onPressed: _insertBulletList),
+              _buildMiniIconButton(Icons.format_list_bulleted,
+                  tooltip: 'Bulleted list', onPressed: _insertBulletList),
             ],
           ),
           const SizedBox(height: 8),
@@ -1204,7 +1211,8 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
               minLines: 3,
               maxLines: 6,
               keyboardType: TextInputType.multiline,
-              style: const TextStyle(fontSize: 12, color: Colors.black87, height: 1.3),
+              style: const TextStyle(
+                  fontSize: 12, color: Colors.black87, height: 1.3),
               decoration: const InputDecoration(
                 isDense: true,
                 border: InputBorder.none,
@@ -1249,7 +1257,8 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
     _insertAtCursor('• ');
   }
 
-  Widget _buildMiniImageButton(String assetPath, {String? tooltip, VoidCallback? onPressed}) {
+  Widget _buildMiniImageButton(String assetPath,
+      {String? tooltip, VoidCallback? onPressed}) {
     return SizedBox(
       width: 34,
       height: 28,
@@ -1271,7 +1280,8 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
     );
   }
 
-  Widget _buildMiniIconButton(IconData icon, {String? tooltip, VoidCallback? onPressed}) {
+  Widget _buildMiniIconButton(IconData icon,
+      {String? tooltip, VoidCallback? onPressed}) {
     return SizedBox(
       width: 34,
       height: 28,
@@ -1303,7 +1313,8 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
       if (employees.isEmpty) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No employees found. Please try again.')),
+            const SnackBar(
+                content: Text('No employees found. Please try again.')),
           );
         }
         return;
@@ -1360,7 +1371,8 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(color: Colors.grey.shade300),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -1369,35 +1381,43 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                       child: ListView.separated(
                         shrinkWrap: true,
                         itemCount: filtered.length,
-                        separatorBuilder: (_, __) => Divider(height: 1, color: Colors.grey.shade200),
+                        separatorBuilder: (_, __) =>
+                            Divider(height: 1, color: Colors.grey.shade200),
                         itemBuilder: (context, index) {
                           final employee = filtered[index];
-                          final isSelected = _selectedEmployees.any((e) => e['id'] == employee['id']);
+                          final isSelected = _selectedEmployees
+                              .any((e) => e['id'] == employee['id']);
                           return ListTile(
                             dense: true,
                             leading: Checkbox(
                               value: isSelected,
                               onChanged: null,
                               activeColor: const Color(0xFF27AE60),
-                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
                             ),
                             title: Text(
                               '${employee['id']} ${(employee['name'] ?? '').toString()}',
                               style: TextStyle(
                                 fontSize: 13,
-                                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                                fontWeight: isSelected
+                                    ? FontWeight.w700
+                                    : FontWeight.w500,
                               ),
                             ),
                             trailing: null,
                             onTap: () {
                               setState(() {
                                 if (isSelected) {
-                                  _selectedEmployees.removeWhere((e) => e['id'] == employee['id']);
+                                  _selectedEmployees.removeWhere(
+                                      (e) => e['id'] == employee['id']);
                                 } else {
                                   _selectedEmployees.add(employee);
                                 }
                                 _selectedEmployeeIdsNotifier.value =
-                                    _selectedEmployees.map((e) => e['id'].toString()).toList();
+                                    _selectedEmployees
+                                        .map((e) => e['id'].toString())
+                                        .toList();
                               });
                               setModalState(() {});
                             },
@@ -1501,7 +1521,7 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
                     Expanded(
                       child: _buildPopupActionButton(
                         label: 'Cancel',
-                        color: red,
+                        color: AppThemeColors.legacyRed,
                         icon: Icons.close,
                         onTap: () => Navigator.pop(context),
                       ),

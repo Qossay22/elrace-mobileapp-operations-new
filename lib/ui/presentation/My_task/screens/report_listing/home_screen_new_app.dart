@@ -9,7 +9,7 @@ import 'package:el_race/ui/presentation/My_task/screens/company/company_screen.d
 import 'package:el_race/ui/widgets/report_tile.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../../core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import '../../../../../core/constants/text_styles.dart';
 
 import '../../../../../data/repositories/company_repository.dart';
@@ -45,11 +45,11 @@ class _HomeScreenAppState extends State<HomeScreenApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: CustomColors.white,
+      backgroundColor: AppThemeColors.surface,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         surfaceTintColor: Colors.transparent,
-        backgroundColor: CustomColors.white,
+        backgroundColor: AppThemeColors.surface,
         centerTitle: true,
         leadingWidth: 60,
         title: Image.asset(
@@ -61,8 +61,8 @@ class _HomeScreenAppState extends State<HomeScreenApp> {
             padding: const EdgeInsets.only(right: 16),
             child: SquareButton(
               icon: Icons.add,
-              color: CustomColors.blue,
-              borderColor: CustomColors.white,
+              color: AppThemeColors.reportBlue,
+              borderColor: AppThemeColors.surface,
               onPressed: () async {
                 int selectedOptionStatus = await showEditOptions(context,
                     options: ['Add Report', 'Add Project']);
@@ -108,8 +108,8 @@ class _HomeScreenAppState extends State<HomeScreenApp> {
           ? Center(
               child: Text(
                 "No Report Added Yet",
-                style:
-                    CustomTextStyle.heading.copyWith(color: CustomColors.black),
+                style: CustomTextStyle.heading
+                    .copyWith(color: AppThemeColors.pureBlack),
               ),
             )
           : ListView.builder(

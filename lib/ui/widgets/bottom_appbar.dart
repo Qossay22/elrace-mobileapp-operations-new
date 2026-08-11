@@ -1,5 +1,5 @@
-import 'package:el_race/core/constants/colors.dart';
 import 'package:el_race/core/constants/text_styles.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/data/models/report_model.dart';
 import 'package:el_race/data/repositories/company_repository.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +13,7 @@ PreferredSize getBottomAppBar(context,
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             height: 33,
-            color: CustomColors.maroon,
+            color: AppThemeColors.reportMaroon,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -25,9 +25,9 @@ PreferredSize getBottomAppBar(context,
                   InkWell(
                     // padding: EdgeInsets.zero,
                     onTap: onClick!,
-                    child: Icon(
+                    child: const Icon(
                       Icons.edit_note_rounded,
-                      color: CustomColors.white,
+                      color: AppThemeColors.surface,
                     ),
                   )
               ],
@@ -37,7 +37,7 @@ PreferredSize getBottomAppBar(context,
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               height: 20,
-              color: CustomColors.blue,
+              color: AppThemeColors.reportBlue,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

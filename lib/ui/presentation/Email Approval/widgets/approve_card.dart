@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:el_race/ui/presentation/Email%20Approval/Approval_confirmation.dart';
 import 'package:el_race/utils/Util.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -116,7 +116,7 @@ class ApproveCard extends StatelessWidget {
                             style: GoogleFonts.poppins(
                               fontSize: 20,
                               fontWeight: FontWeight.w500,
-                              color: appFontColor,
+                              color: AppThemeColors.brandPrimary,
                               letterSpacing: 1.2,
                             ),
                           ),
@@ -124,7 +124,8 @@ class ApproveCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const Icon(Icons.more_horiz, size: 20, color: appFontColor),
+                  const Icon(Icons.more_horiz,
+                      size: 20, color: AppThemeColors.brandPrimary),
                 ],
               ),
               const SizedBox(height: 10),
@@ -180,7 +181,7 @@ class ApproveCard extends StatelessWidget {
                     location,
                     style: GoogleFonts.poppins(
                       fontSize: 12,
-                      color: appFontColor,
+                      color: AppThemeColors.brandPrimary,
                       letterSpacing: 1.0,
                     ),
                   ),
@@ -206,7 +207,7 @@ class ApproveCard extends StatelessWidget {
                         approver,
                         style: GoogleFonts.poppins(
                           fontSize: 12,
-                          color: appFontColor,
+                          color: AppThemeColors.brandPrimary,
                           letterSpacing: 1.0,
                         ),
                         overflow: TextOverflow.visible,

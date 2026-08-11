@@ -1,4 +1,4 @@
-import 'package:el_race/core/constants/colors.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/core/constants/text_styles.dart';
 import 'package:el_race/core/utils/directory_operation.dart';
 import 'package:el_race/data/models/report_detail_item.dart';
@@ -21,7 +21,7 @@ Future<ReportDetailModel?> addNewSection(BuildContext context,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15), // Rounded border
         ),
-        backgroundColor: CustomColors.white, // White background
+        backgroundColor: AppThemeColors.surface, // White background
         child: Container(
           width: MediaQuery.sizeOf(context).width * 1,
           padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 20),
@@ -45,13 +45,13 @@ Future<ReportDetailModel?> addNewSection(BuildContext context,
                       Navigator.pop(context);
                     },
                     height: 44,
-                    color: CustomColors.containerColor,
+                    color: AppThemeColors.reportContainer,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15)),
                     child: Text(
                       "Cancel",
                       style: CustomTextStyle.reportTitle.copyWith(
-                        color: CustomColors.maroon,
+                        color: AppThemeColors.reportMaroon,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -90,13 +90,13 @@ Future<ReportDetailModel?> addNewSection(BuildContext context,
                         Navigator.pop(context);
                       },
                       height: 44,
-                      color: CustomColors.maroon,
+                      color: AppThemeColors.reportMaroon,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15)),
                       child: Text(
                         "Save",
                         style: CustomTextStyle.reportTitle.copyWith(
-                          color: CustomColors.white,
+                          color: AppThemeColors.surface,
                           fontWeight: FontWeight.w500,
                         ),
                       ),

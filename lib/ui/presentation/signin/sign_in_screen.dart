@@ -10,7 +10,7 @@ import 'package:el_race/chat/services/chat_credential_storage.dart';
 import 'package:el_race/ui/presentation/home_screen/bloc/home_bloc.dart';
 import 'package:el_race/ui/presentation/signin/bloc/sign_in_bloc.dart';
 import 'package:el_race/utils/Util.dart';
-import 'package:el_race/utils/color_utils.dart';
+import 'package:el_race/core/theme/app_colors.dart';
 import 'package:el_race/utils/orientation_helper.dart';
 import 'package:el_race/utils/string_utils.dart';
 import 'package:flutter/material.dart';
@@ -313,7 +313,7 @@ class _SignInScreenState extends State<SignInScreen> {
       height: SizeConfig().getHeight(55),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(52),
-        color: white,
+        color: AppThemeColors.softWhite,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha((0.2 * 255).toInt()),
@@ -399,7 +399,7 @@ Widget textForms(
     height: SizeConfig().getHeight(55),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(52),
-      color: white,
+      color: AppThemeColors.softWhite,
       boxShadow: [
         BoxShadow(
           // spreadRadius: 4,
