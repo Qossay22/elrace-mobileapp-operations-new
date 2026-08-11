@@ -47,11 +47,13 @@ class AppUpdateState extends Equatable {
         isChecking,
         hasChecked,
         isStartingUpdate,
-        result.updateAvailable,
-        result.immediateUpdateAllowed,
-        result.availableVersionCode,
-        result.packageName,
+        result.forceUpdate,
+        result.optionalUpdate,
+        result.latestVersion,
+        result.minVersion,
         result.updateUrl,
+        result.updateMessageEn,
+        result.updateMessageAr,
         errorMessage,
       ];
 }

@@ -15,6 +15,26 @@ const db = getFirestore();
 const messaging = getMessaging();
 const storage = getStorage();
 
+// My Notes — Whisper transcription on audio upload
+const { onNotesAudioUploaded } = require("./notes_transcribe");
+exports.onNotesAudioUploaded = onNotesAudioUploaded;
+
+// My Notes — GPT summarize / bullets / actions / tags / translate
+const { processNoteAi } = require("./notes_ai");
+exports.processNoteAi = processNoteAi;
+
+// Delete audio older than 24h (notes / chat / task voice)
+const { cleanupExpiredAudio } = require("./audio_vacuum");
+exports.cleanupExpiredAudio = cleanupExpiredAudio;
+
+// Signature docs — sync personal library + notify requester when signing completes
+const { onSignableDocumentUpdated } = require("./sign_document_sync");
+exports.onSignableDocumentUpdated = onSignableDocumentUpdated;
+
+// My Notes — notify recipient when a note is shared with them
+const { onNoteShared } = require("./notes_share_notify");
+exports.onNoteShared = onNoteShared;
+
 /** AWS Rekognition region for timesheet face mocks (liveness callables live in functions-liveness/). */
 const AWS_REKOGNITION_REGION = "ap-south-1";
 
@@ -87,16 +107,54 @@ exports.onNewChatMessage = onDocumentCreated(
       case "video":
         body = "🎬 Video";
         break;
+      case "signable_doc":
+        body = "📝 Document for signing";
+        break;
       default:
         body = "New message";
     }
 
-    // Collect FCM tokens for all members except sender
+    // Collect FCM tokens for members except sender / muted recipients.
+    // Mute lives on userChats/{uid}/chats/{chatId}.muted (Flutter path).
+    // Global mute: users/{uid}.chat_notifications_muted === true
     const tokens = [];
+    let skippedMuted = 0;
     for (const memberId of memberIds) {
       if (memberId === senderId) continue; // Don't notify sender
 
       try {
+        const userDoc = await db.collection("users").doc(memberId).get();
+        if (userDoc.exists && userDoc.data()?.chat_notifications_muted === true) {
+          skippedMuted++;
+          console.log(`Skip ${memberId}: global chat notifications muted`);
+          continue;
+        }
+
+        const userChatDoc = await db
+          .collection("userChats")
+          .doc(memberId)
+          .collection("chats")
+          .doc(chatId)
+          .get();
+        if (userChatDoc.exists && userChatDoc.data()?.muted === true) {
+          skippedMuted++;
+          console.log(`Skip ${memberId}: chat ${chatId} muted`);
+          continue;
+        }
+
+        // Also honor members/{uid}.muted when present
+        const memberDoc = await db
+          .collection("chats")
+          .doc(chatId)
+          .collection("members")
+          .doc(memberId)
+          .get();
+        if (memberDoc.exists && memberDoc.data()?.muted === true) {
+          skippedMuted++;
+          console.log(`Skip ${memberId}: member muted`);
+          continue;
+        }
+
         const tokensSnap = await db
           .collection("users")
           .doc(memberId)
@@ -115,11 +173,15 @@ exports.onNewChatMessage = onDocumentCreated(
     }
 
     if (tokens.length === 0) {
-      console.log("No FCM tokens found for recipients");
+      console.log(
+        `No FCM tokens for recipients (skippedMuted=${skippedMuted})`
+      );
       return;
     }
 
-    console.log(`Sending to ${tokens.length} token(s) for chat ${chatId}`);
+    console.log(
+      `Sending to ${tokens.length} token(s) for chat ${chatId} (skippedMuted=${skippedMuted})`
+    );
 
     // Build the chat title for the recipient
     // For DM, the title should be the sender's name
@@ -140,6 +202,7 @@ exports.onNewChatMessage = onDocumentCreated(
         chat_type: chatType,
         sender_id: senderId,
         sender_name: senderName,
+        message_id: event.params.messageId || "",
         message_type: messageData.type || "text",
         click_action: "FLUTTER_NOTIFICATION_CLICK",
       },
@@ -164,7 +227,6 @@ exports.onNewChatMessage = onDocumentCreated(
               title: title,
               body: body,
             },
-            badge: 0,
             sound: "default",
             "mutable-content": 1,
             "content-available": 1,
@@ -215,14 +277,17 @@ exports.onNewChatMessage = onDocumentCreated(
     );
 
     // ── Update all members' userChats timestamps ──────────────
-    // This ensures the chat bubbles to the top of every member's chat list
-    // when a new message is sent (especially important for group/role chats).
+    // Correct path: userChats/{uid}/chats/{chatId} (same as Flutter)
     try {
       const tsBatch = db.batch();
       for (const memberId of memberIds) {
         if (memberId === senderId) continue; // Sender already updated client-side
         tsBatch.set(
-          db.collection("users").doc(memberId).collection("user_chats").doc(chatId),
+          db
+            .collection("userChats")
+            .doc(memberId)
+            .collection("chats")
+            .doc(chatId),
           {
             updated_at: require("firebase-admin/firestore").FieldValue.serverTimestamp(),
             has_messages: true,

@@ -63,11 +63,11 @@ class CheckInReminderNotificationService {
       // print('📱 Notification permission: ${notificationStatus.isGranted}');
 
       if (Platform.isAndroid) {
-        // طلب إيقاف تحسين البطارية (مهم جداً لـ Samsung)
+        // فحص حالة تحسين البطارية بدون فتح إعدادات Android تلقائياً.
         // Samsung One UI يوقف الإشعارات المجدولة بسبب "Sleeping apps"
-        await _requestBatteryOptimizationExemption();
+        await _readBatteryOptimizationStatusForDiagnostics();
 
-        // طلب صلاحية الإشعارات الدقيقة (Exact Alarms)
+        // فحص صلاحية الإشعارات الدقيقة (Exact Alarms) بدون فتح شاشة Settings.
         // على Android 12 (API 31) وما فوق
         try {
           final alarmStatus = await Permission.scheduleExactAlarm.status;
@@ -90,16 +90,15 @@ class CheckInReminderNotificationService {
     }
   }
 
-  /// طلب إيقاف تحسين البطارية - مهم جداً لأجهزة Samsung
+  /// فحص إيقاف تحسين البطارية - مهم جداً لأجهزة Samsung
   /// Samsung One UI يضع التطبيقات في "Sleeping apps" مما يمنع الإشعارات المجدولة
-  Future<void> _requestBatteryOptimizationExemption() async {
+  Future<void> _readBatteryOptimizationStatusForDiagnostics() async {
     try {
       final status = await Permission.ignoreBatteryOptimizations.status;
       // print('🔋 Battery optimization status: ${status.isGranted ? "EXEMPT" : "NOT EXEMPT"}');
 
       if (!status.isGranted) {
-        // print('🔋 Requesting battery optimization exemption (important for Samsung)...');
-        final result = await Permission.ignoreBatteryOptimizations.request();
+        final result = await Permission.ignoreBatteryOptimizations.status;
         // print('🔋 Battery optimization exemption result: ${result.isGranted ? "GRANTED" : "DENIED"}');
 
         if (!result.isGranted) {

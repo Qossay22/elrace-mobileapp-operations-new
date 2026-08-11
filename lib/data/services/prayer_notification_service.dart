@@ -15,6 +15,7 @@ class PrayerNotificationService {
   final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
   bool _initialized = false;
+  bool _canScheduleExactAlarms = false;
 
   Future<void> initialize() async {
     if (_initialized) return;
@@ -61,6 +62,8 @@ class PrayerNotificationService {
       );
 
       await androidImpl.requestNotificationsPermission();
+      _canScheduleExactAlarms =
+          await androidImpl.canScheduleExactNotifications() ?? false;
     }
 
     _initialized = true;
@@ -154,7 +157,9 @@ class PrayerNotificationService {
           interruptionLevel: InterruptionLevel.timeSensitive,
         ),
       ),
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      androidScheduleMode: _canScheduleExactAlarms
+          ? AndroidScheduleMode.exactAllowWhileIdle
+          : AndroidScheduleMode.inexactAllowWhileIdle,
       payload: 'prayer:$prayerName:${scheduledTime.millisecondsSinceEpoch}',
     );
   }
@@ -163,6 +168,18 @@ class PrayerNotificationService {
     await initialize();
     final id = _buildId(prayerName, DateTime.fromMillisecondsSinceEpoch(ms));
     await _notificationsPlugin.cancel(id);
+  }
+
+  /// Payload from a cold-start notification tap, if any.
+  Future<String?> getLaunchNotificationPayload() async {
+    try {
+      final details =
+          await _notificationsPlugin.getNotificationAppLaunchDetails();
+      if (details?.didNotificationLaunchApp != true) return null;
+      return details!.notificationResponse?.payload;
+    } catch (_) {
+      return null;
+    }
   }
 
   /// إلغاء جميع إشعارات الأذان المعلقة (يُستدعى عند كتم صوت الأذان).

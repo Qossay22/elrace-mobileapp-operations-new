@@ -37,7 +37,7 @@ class AppUpdateBloc extends Bloc<AppUpdateEvent, AppUpdateState> {
     AppRequiredUpdateStarted event,
     Emitter<AppUpdateState> emit,
   ) async {
-    if (!state.forceUpdateRequired || state.isStartingUpdate) return;
+    if (!state.result.updateAvailable || state.isStartingUpdate) return;
 
     emit(state.copyWith(isStartingUpdate: true, clearError: true));
 

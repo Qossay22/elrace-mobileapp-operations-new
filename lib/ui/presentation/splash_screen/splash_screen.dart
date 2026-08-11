@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:el_race/core/services/android_play_update_service.dart';
 import 'package:el_race/core/app_globals.dart' show appInitCompleter;
 import 'package:el_race/core/session/force_logout_guard.dart';
 import 'package:el_race/core/update/bloc/app_update_bloc.dart';
@@ -10,7 +11,6 @@ import 'package:el_race/ui/presentation/signin/sign_in_screen.dart';
 import 'package:el_race/ui/widgets/update_dialog.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:el_race/ui/presentation/home_screen/screens/home_screen.dart';
 import 'package:el_race/utils/Util.dart';
 import 'package:el_race/core/services/app_config_service.dart';
@@ -120,7 +120,7 @@ class _SplashScreenState extends State<SplashScreen> {
       print('🔒 Starting security check...');
       final result = await DeviceSecurityService.instance
           .performSecurityCheck()
-          .timeout(Duration(seconds: kDebugMode ? 2 : 6));
+          .timeout(const Duration(seconds: kDebugMode ? 2 : 6));
 
       if (mounted) {
         setState(() {
@@ -179,7 +179,7 @@ class _SplashScreenState extends State<SplashScreen> {
         },
       ),
       _securityCheckCompleter.future.timeout(
-        Duration(seconds: kDebugMode ? 2 : 6),
+        const Duration(seconds: kDebugMode ? 2 : 6),
         onTimeout: () {
           print('Security check timeout in splash - continuing anyway');
         },
@@ -252,6 +252,14 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
 
     try {
+      final playUpdateStarted = await AndroidPlayUpdateService.instance
+          .startImmediateUpdateIfAvailable()
+          .timeout(const Duration(seconds: 5));
+      if (playUpdateStarted) {
+        _logGateTiming('android-play-immediate-update-started');
+        return;
+      }
+
       // Started back in initState, in parallel with init/video/security —
       // this just waits for whatever's left of its own 10s timeout.
       final updateResult = await _updateCheckFuture;
@@ -391,6 +399,8 @@ class _SplashLoadingPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ColoredBox(color: Colors.black);
+    return const SizedBox.expand(
+      child: ColoredBox(color: Colors.black),
+    );
   }
 }

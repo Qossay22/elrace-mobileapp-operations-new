@@ -268,3 +268,52 @@ Source commits synced through:
 Local safety branch:
 
 - `backup/before-source-main-sync-20260730`
+
+---
+
+## 2026-08-11 Source Main Sync Addendum
+
+Source branch synced:
+
+- Remote: `source/main` from `https://github.com/97jaw/Elrace-mobileapp-operations.git`
+- Previous synced source point: `8decf8a`
+- Latest source point pulled in this pass: `b038fd2`
+- Local integration branch: `main`
+
+Major source updates now integrated:
+
+- Native Android Play Core immediate update support through `MainActivity.kt` and `lib/core/services/android_play_update_service.dart`.
+- Backend-aware app update configuration through `UpdateService`, including force update, optional update, minimum version, latest version, store URL, and Arabic/English update messages.
+- My Notes Release 1/2 updates: Firebase-backed notes, voice recording/playback, Whisper transcription Cloud Functions, AI composer, note detail view, cache/image/audio helpers, and updated notes widgets/theme.
+- Shared documents and RFQ fixes: API-backed file counts, base64 PDF handling, folder counter preservation, and in-app RFQ attachment PDF merge.
+- Prayer notification/audio fix to prevent duplicate azan playback when opening from a prayer notification.
+- Chat user/session sync updates and Firebase script support for Odoo chat users.
+- Firebase Functions, Firestore rules, Storage rules, and package updates required by the new notes/document/chat paths.
+- iOS version/build metadata updated to `1.0.17+89`.
+
+Local conflict resolutions and project principles preserved:
+
+- Kept the local BLoC-owned update flow by retaining `AppUpdateBloc` as the startup update owner.
+- Combined source backend update parsing with the local required-update dialog flow.
+- Added optional-update support without changing force-update behavior: force updates still block app navigation, optional updates do not.
+- Kept the native Android in-app update attempt before the BLoC/backend dialog on splash startup.
+- Kept the splash screen black placeholder and video-completion gate to avoid the long white screen regression and preserve the previously approved startup behavior.
+- Kept prayer scheduling conservative: exact alarm scheduling is used only when Android already allows exact notifications; otherwise inexact scheduling is used.
+- Removed the unused Dart `in_app_update` dependency because the merged source now uses native Play Core instead.
+- Preserved the lightweight widget smoke test instead of constructing the production `MyApp` in a brittle test environment.
+
+Verification from this pass:
+
+- `rg "^(<<<<<<<|=======|>>>>>>>)"`: no merge conflict markers remain.
+- `git diff --check`: passed.
+- `flutter test`: passed, 53 tests.
+- Targeted `dart analyze` for manually resolved files: passed after removing one unused splash import.
+- Full `dart analyze --format=machine`: timed out after 5 minutes in this workspace, so the full analyzer inventory still needs a separate long-running pass.
+- `flutter build apk --debug`: passed and produced `build/app/outputs/flutter-apk/app-debug.apk`.
+- `PROJECT_FILE_INDEX.md` regenerated successfully with 2320 indexed files.
+
+Current risk note:
+
+- The merge is build- and test-clean for the integrated Android/debug path.
+- Full analyzer timeout remains the only unresolved verification limitation from this pass.
+- Production validation should still include one real Android device smoke test for forced update, optional update, splash video, My Notes voice notes/transcription, shared-document PDFs, RFQ PDF merge, chat sync, and prayer notification handoff.

@@ -6,6 +6,7 @@ import 'package:el_race/core/app_globals.dart';
 import 'package:el_race/core/services/attendance_status_sync_service.dart';
 import 'package:el_race/core/services/notification_storage_service.dart';
 import 'package:el_race/core/utils/shared_pref.dart';
+import 'package:el_race/data/services/prayer_audio_service.dart';
 import 'package:el_race/ui/chat/chat_screen.dart';
 import 'package:el_race/ui/presentation/tasks/tasks_screen.dart';
 import 'package:el_race/ui/presentation/tasks_dashboard/screens/task_details.dart'
@@ -177,6 +178,19 @@ class FirebaseService {
       if (muted) {
         print(
             '🔇 Foreground notification suppressed by mute settings: category=$category');
+        return;
+      }
+
+      // Chat messages: ChatNotificationService already shows a local banner
+      // (with active-chat + per-chat mute). Skip FCM local to avoid doubles.
+      final isChatMessage = category == 'chat_message' ||
+          category == 'chat' ||
+          message.data.containsKey('chat_id') ||
+          message.data.containsKey('chatId');
+      if (isChatMessage) {
+        print(
+            '💬 Foreground chat FCM skipped (ChatNotificationService owns UI)');
+        await _saveNotificationToStorage(message);
         return;
       }
 
@@ -725,6 +739,13 @@ class FirebaseService {
   static void _handleNotificationTap(String? payload) {
     print('\n🔔 [HANDLE TAP] Notification tapped');
     print('   - Payload: $payload');
+
+    // Azan local notification: OS already played sound — never replay in-app.
+    if (payload != null && payload.startsWith('prayer:')) {
+      unawaited(PrayerAudioService.acknowledgeOsPrayerFromPayload(payload));
+      print('   - Prayer/azan tap acknowledged (no in-app replay).');
+      return;
+    }
 
     final payloadData = _parseNotificationPayload(payload);
     final category = (payloadData['category'] ?? payloadData['type'] ?? '')

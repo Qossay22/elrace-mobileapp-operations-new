@@ -35,6 +35,7 @@ class _ShareDocumentsTabState extends State<ShareDocumentsTab> {
   bool _isLoadingFolderContents = false;
   bool _isCreatingFolder = false;
   bool _isAddingUser = false;
+  bool _isRemovingUser = false;
   bool _isAddingAttachments = false;
   bool _isCreateDialogOpen = false;
   bool _isAddUserDialogOpen = false;
@@ -42,6 +43,9 @@ class _ShareDocumentsTabState extends State<ShareDocumentsTab> {
   String? _folderOpenError;
 
   List<Map<String, dynamic>> _folders = <Map<String, dynamic>>[];
+
+  /// Survives list-API refreshes that omit / zero `file_count`.
+  final Map<String, int> _knownFileCounts = <String, int>{};
 
   Map<String, dynamic>? _selectedFolder;
   List<_SharedAttachment> _selectedFolderAttachments = const [];
@@ -273,6 +277,11 @@ class _ShareDocumentsTabState extends State<ShareDocumentsTab> {
         throw Exception('Invalid shared folders response format');
       }
 
+      final previousById = <String, Map<String, dynamic>>{
+        for (final f in _folders)
+          _folderIdFrom(f).toString(): Map<String, dynamic>.from(f),
+      };
+
       final folders = _toMapList(rawData)
           .map((folder) {
             final mapped = Map<String, dynamic>.from(folder);
@@ -280,6 +289,27 @@ class _ShareDocumentsTabState extends State<ShareDocumentsTab> {
             mapped['name'] = _folderNameFrom(folder);
             mapped['allowed_users'] = _toMapList(folder['allowed_users']);
             mapped['activities'] = _toMapList(folder['activities']);
+
+            final idKey = mapped['id']?.toString() ?? '';
+            final prev = previousById[idKey];
+            final listCount = _folderFileCountFromPayload(mapped);
+            final prevCount = prev == null ? 0 : _folderFileCountFromPayload(prev);
+            final cached = _knownFileCounts[idKey] ?? 0;
+
+            // Prefer any positive signal; never let a stale API zero wipe a
+            // count we already learned from opening the folder.
+            final best = [listCount, prevCount, cached]
+                .fold<int>(0, (a, b) => a > b ? a : b);
+            if (best > 0) {
+              mapped['file_count'] = best;
+              mapped['attachment_count'] = best;
+              _rememberFileCount(idKey, best);
+              if (_toMapList(mapped['attachments']).isEmpty &&
+                  prev != null &&
+                  _toMapList(prev['attachments']).isNotEmpty) {
+                mapped['attachments'] = prev['attachments'];
+              }
+            }
             return mapped;
           })
           .where((folder) => folder['id'] != null)
@@ -496,6 +526,24 @@ class _ShareDocumentsTabState extends State<ShareDocumentsTab> {
       'activities': _toMapList(envelope['activities']),
     };
 
+    final attachmentsLen =
+        _toMapList(detailedFolder['attachments']).length;
+    final totalHint = _readPositiveInt(
+          envelope['total'] ??
+              envelope['total_count'] ??
+              envelope['attachment_count'] ??
+              envelope['file_count'] ??
+              folderPayload['file_count'] ??
+              folderPayload['attachment_count'] ??
+              folderPayload['total_files'] ??
+              folderPayload['document_count'],
+        ) ??
+        attachmentsLen;
+    if (totalHint > 0) {
+      detailedFolder['file_count'] = totalHint;
+      detailedFolder['attachment_count'] = totalHint;
+    }
+
     debugPrint(
       '[SharedDocuments] Folder details loaded: '
       'attachments=${_toMapList(detailedFolder['attachments']).length}, '
@@ -538,8 +586,17 @@ class _ShareDocumentsTabState extends State<ShareDocumentsTab> {
       );
 
       final extracted = _extractAttachments(detailedFolder);
+      final detailsCount = _folderFileCountFromPayload(detailedFolder);
+      final count = detailsCount > extracted.length
+          ? detailsCount
+          : extracted.length;
+
       setState(() {
-        _selectedFolder = detailedFolder;
+        _selectedFolder = {
+          ...detailedFolder,
+          'file_count': count,
+          'attachment_count': count,
+        };
         _selectedFolderAttachments = extracted;
         _folderOpenError = null;
       });
@@ -549,12 +606,19 @@ class _ShareDocumentsTabState extends State<ShareDocumentsTab> {
       );
       if (selectedIndex >= 0) {
         final detailsUsers = _toMapList(detailedFolder['allowed_users']);
+        final previousCount = _folderFileCount(_folders[selectedIndex]);
+        final stableCount = count > previousCount ? count : previousCount;
+        _rememberFileCount(folderId, stableCount);
         _folders[selectedIndex] = {
           ..._folders[selectedIndex],
           // Never overwrite list avatars with an empty details payload.
           if (detailsUsers.isNotEmpty) 'allowed_users': detailsUsers,
           'attachments': _toMapList(detailedFolder['attachments']),
+          'file_count': stableCount,
+          'attachment_count': stableCount,
         };
+      } else {
+        _rememberFileCount(folderId, count);
       }
 
       debugPrint(
@@ -589,8 +653,9 @@ class _ShareDocumentsTabState extends State<ShareDocumentsTab> {
     });
     _notifyDrill();
     _notifyChromeTrailing();
-    // Keep folder-list avatars fresh after member changes inside a folder.
-    _fetchSharedFolders();
+    // Do not refetch list on back — shared_folders often returns file_count=0
+    // and was wiping counters learned while inside the folder. Member changes
+    // already refresh via their own success paths.
   }
 
   Future<void> _openAttachment(_SharedAttachment attachment) async {
@@ -992,6 +1057,20 @@ class _ShareDocumentsTabState extends State<ShareDocumentsTab> {
             ? 'Attachment uploaded successfully'
             : '${picked.length} attachments uploaded successfully',
       );
+      // Optimistic bump so folder tiles stay correct even if details are paged.
+      final current = _folderFileCount(folder);
+      _rememberFileCount(folderId, current + picked.length);
+      final idx = _folders.indexWhere(
+        (f) => _folderIdFrom(f).toString() == folderId.toString(),
+      );
+      if (idx >= 0) {
+        final next = current + picked.length;
+        _folders[idx] = {
+          ..._folders[idx],
+          'file_count': next,
+          'attachment_count': next,
+        };
+      }
       await _openFolder(folder);
     } catch (e) {
       _showSnackMessage(e.toString());
@@ -1013,8 +1092,7 @@ class _ShareDocumentsTabState extends State<ShareDocumentsTab> {
     try {
       final members = await TeamMembersApiService.instance.getTeamMembers();
       final existingIds = _currentAllowedUsers
-          .map((u) => int.tryParse(
-              (u['employee_id'] ?? u['emp_id'] ?? u['id']).toString()))
+          .map(_employeeIdFromUser)
           .whereType<int>()
           .toSet();
 
@@ -1414,6 +1492,152 @@ class _ShareDocumentsTabState extends State<ShareDocumentsTab> {
     }
   }
 
+  int? _employeeIdFromUser(Map<String, dynamic> user) {
+    final raw = user['employee_id'] ?? user['emp_id'];
+    if (raw == null) return null;
+    return int.tryParse(raw.toString());
+  }
+
+  int? _userIdFromUser(Map<String, dynamic> user) {
+    final raw = user['id'] ?? user['user_id'];
+    if (raw == null) return null;
+    return int.tryParse(raw.toString());
+  }
+
+  Future<void> _confirmRemoveUser(Map<String, dynamic> user) async {
+    if (_isRemovingUser || _isAddingUser) return;
+
+    final name = _userNameFrom(user);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      useRootNavigator: true,
+      builder: (ctx) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18.tr),
+          ),
+          title: Text(
+            'Remove access',
+            style: GoogleFonts.poppins(
+              fontSize: 16.tsp,
+              fontWeight: FontWeight.w700,
+              color: SharedDocumentsTheme.textPrimary,
+            ),
+          ),
+          content: Text(
+            'Remove $name from this shared folder?',
+            style: GoogleFonts.poppins(
+              fontSize: 13.tsp,
+              color: SharedDocumentsTheme.textSecondary,
+              height: 1.35,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                  color: SharedDocumentsTheme.textMuted,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(
+                'Remove',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w700,
+                  color: SharedDocumentsTheme.danger,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true || !mounted) return;
+    await _removeUserFromFolder(user);
+  }
+
+  Future<void> _removeUserFromFolder(Map<String, dynamic> user) async {
+    final folder = _activeFolder;
+    final folderId = folder == null ? null : _folderIdFrom(folder);
+    if (folderId == null || !mounted) return;
+
+    final employeeId = _employeeIdFromUser(user);
+    final userId = _userIdFromUser(user);
+    if (employeeId == null && userId == null) {
+      _showSnackMessage('Could not identify this member');
+      return;
+    }
+
+    setState(() {
+      _isRemovingUser = true;
+    });
+
+    try {
+      final token = SharedPref.getLoginData().result?.token ?? '';
+      if (token.isEmpty) {
+        throw Exception('Session expired. Please login again.');
+      }
+
+      final url =
+          Uri.parse('https://erp.elrace.com/api/cloud/folder/remove_user');
+      final headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+
+      final params = <String, dynamic>{
+        'folder_id': folderId,
+        if (employeeId != null) 'employee_id': employeeId,
+        if (userId != null) 'user_id': userId,
+      };
+
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: jsonEncode({
+          'jsonrpc': '2.0',
+          'params': params,
+        }),
+      );
+      if (response.statusCode != 200) {
+        throw Exception(
+          'Failed to remove user (HTTP ${response.statusCode})',
+        );
+      }
+
+      final decoded = jsonDecode(response.body);
+      final envelope = _extractResultEnvelope(decoded);
+      if (!_isSuccessEnvelope(envelope)) {
+        throw Exception(
+          envelope['message']?.toString() ??
+              (decoded is Map ? decoded['error']?.toString() : null) ??
+              'Failed to remove user',
+        );
+      }
+
+      _showSnackMessage('Access removed');
+      await _fetchSharedFolders(focusFolderId: folderId);
+      if (_selectedFolder != null) {
+        await _openFolder(_selectedFolder!);
+      }
+    } catch (e) {
+      _showSnackMessage(e.toString());
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isRemovingUser = false;
+        });
+      }
+    }
+  }
+
   String _userNameFrom(Map<String, dynamic> user) {
     final raw = (user['name'] ??
             user['employee_name'] ??
@@ -1444,14 +1668,56 @@ class _ShareDocumentsTabState extends State<ShareDocumentsTab> {
     return trimmed.substring(0, 1).toUpperCase();
   }
 
+  int? _readPositiveInt(dynamic raw) {
+    if (raw == null) return null;
+    final value = raw is int ? raw : int.tryParse(raw.toString());
+    if (value == null || value <= 0) return null;
+    return value;
+  }
+
+  void _rememberFileCount(dynamic folderId, int count) {
+    if (folderId == null || count <= 0) return;
+    final key = folderId.toString();
+    final existing = _knownFileCounts[key] ?? 0;
+    if (count >= existing) {
+      _knownFileCounts[key] = count;
+    }
+  }
+
+  /// Count from folder payload only (no cache) — used while merging list API.
+  int _folderFileCountFromPayload(Map<String, dynamic> folder) {
+    var fromLists = 0;
+    for (final key in const [
+      'attachments',
+      'files',
+      'documents',
+      'folder_attachments',
+    ]) {
+      final list = _toMapList(folder[key]);
+      if (list.length > fromLists) fromLists = list.length;
+    }
+    final scalar = _readPositiveInt(
+          folder['file_count'] ??
+              folder['attachment_count'] ??
+              folder['files_count'] ??
+              folder['total_files'] ??
+              folder['document_count'] ??
+              folder['total_count'],
+        ) ??
+        0;
+    // Prefer API scalar totals over a paginated attachment page length.
+    return scalar > fromLists ? scalar : fromLists;
+  }
+
   int _folderFileCount(Map<String, dynamic> folder) {
-    final attachments = _toMapList(folder['attachments']);
-    if (attachments.isNotEmpty) return attachments.length;
-    final raw = folder['file_count'] ??
-        folder['attachment_count'] ??
-        folder['files_count'];
-    if (raw is int) return raw;
-    return int.tryParse(raw?.toString() ?? '') ?? 0;
+    final idKey = _folderIdFrom(folder)?.toString();
+    final cached = idKey == null ? 0 : (_knownFileCounts[idKey] ?? 0);
+    final fromPayload = _folderFileCountFromPayload(folder);
+    if (cached > fromPayload) return cached;
+    if (fromPayload > 0 && idKey != null) {
+      _rememberFileCount(idKey, fromPayload);
+    }
+    return fromPayload > cached ? fromPayload : cached;
   }
 
   Widget _buildEmptyState({
@@ -1599,7 +1865,7 @@ class _ShareDocumentsTabState extends State<ShareDocumentsTab> {
     final users = _currentAllowedUsers;
 
     return SizedBox(
-      height: 72.th,
+      height: 78.th,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: users.length + 1,
@@ -1607,7 +1873,9 @@ class _ShareDocumentsTabState extends State<ShareDocumentsTab> {
         itemBuilder: (context, index) {
           if (index == 0) {
             return InkWell(
-              onTap: _isAddingUser ? null : _showAddUserDialog,
+              onTap: (_isAddingUser || _isRemovingUser)
+                  ? null
+                  : _showAddUserDialog,
               borderRadius: BorderRadius.circular(28.tr),
               child: SizedBox(
                 width: 52.tw,
@@ -1641,21 +1909,62 @@ class _ShareDocumentsTabState extends State<ShareDocumentsTab> {
           final name = _userNameFrom(user);
           final avatarUrl = _userAvatarUrlFrom(user);
 
-          return CircleAvatar(
-            radius: 26.tr,
-            backgroundColor: SharedDocumentsTheme.border,
-            backgroundImage:
-                avatarUrl != null ? NetworkImage(avatarUrl) : null,
-            child: avatarUrl == null
-                ? Text(
-                    _userInitial(name),
-                    style: GoogleFonts.poppins(
-                      fontSize: 14.tsp,
-                      fontWeight: FontWeight.w700,
-                      color: SharedDocumentsTheme.textPrimary,
+          return Tooltip(
+            message: 'Tap to remove $name',
+            child: InkWell(
+              onTap: (_isRemovingUser || _isAddingUser)
+                  ? null
+                  : () => _confirmRemoveUser(user),
+              borderRadius: BorderRadius.circular(28.tr),
+              child: SizedBox(
+                width: 56.tw,
+                height: 62.th,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Positioned(
+                      top: 4.th,
+                      left: 2.tw,
+                      child: CircleAvatar(
+                        radius: 26.tr,
+                        backgroundColor: SharedDocumentsTheme.border,
+                        backgroundImage: avatarUrl != null
+                            ? NetworkImage(avatarUrl)
+                            : null,
+                        child: avatarUrl == null
+                            ? Text(
+                                _userInitial(name),
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14.tsp,
+                                  fontWeight: FontWeight.w700,
+                                  color: SharedDocumentsTheme.textPrimary,
+                                ),
+                              )
+                            : null,
+                      ),
                     ),
-                  )
-                : null,
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: Container(
+                        width: 20.tw,
+                        height: 20.tw,
+                        decoration: BoxDecoration(
+                          color: SharedDocumentsTheme.danger,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 1.5),
+                        ),
+                        child: Icon(
+                          Icons.close_rounded,
+                          size: 12.tsp,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           );
         },
       ),
