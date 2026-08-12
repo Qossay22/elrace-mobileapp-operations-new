@@ -482,3 +482,35 @@ Fourth-pass verification:
 - `flutter test`: passed, 55 tests.
 - `flutter build apk --debug`: passed and produced `build/app/outputs/flutter-apk/app-debug.apk`.
 - `PROJECT_FILE_INDEX.md` regenerated successfully with 2321 indexed files.
+
+---
+
+## 2026-08-12 Source Main Sync Addendum
+
+Source updates reviewed:
+
+- Pulled latest `source/main` from `https://github.com/97jaw/Elrace-mobileapp-operations.git`.
+- New upstream commits reviewed:
+  - `6e66637 Add Firebase worker for Odoo circular/announcement publish jobs.`
+  - `0568745 Deploy announcement push worker in us-central1.`
+
+Changes integrated:
+
+- Added `functions/odoo_announcement_push.js`.
+- Updated `functions/index.js` to export `onOdooAnnouncementPushJob`.
+- The new worker listens for `odoo_push_jobs/{jobId}` Firestore documents, fetches target staff FCM tokens from Odoo, sends batched announcement/circular push notifications, and writes job status back to Firestore.
+- Kept the worker in `us-central1` as provided upstream because the source commit notes that `me-central-1` returns 403 for this project.
+
+Merge discipline:
+
+- Only the two new Firebase Functions changes were applied from upstream.
+- Upstream did not include this project's local documentation, update-flow, splash, and color-token organization work, so those local architecture improvements were preserved.
+- No generated documentation or Gradle/script deletions from upstream were applied.
+
+Verification:
+
+- `node --check functions/index.js`: passed.
+- `node --check functions/odoo_announcement_push.js`: passed.
+- `flutter test`: passed, 55 tests.
+- `flutter build apk --debug`: passed and produced `build/app/outputs/flutter-apk/app-debug.apk`.
+- `PROJECT_FILE_INDEX.md` regenerated successfully with 2320 indexed files.

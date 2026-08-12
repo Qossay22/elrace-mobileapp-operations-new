@@ -2,9 +2,9 @@
 
 Quick reference for the project files: path, size, category, and a short responsibility note.
 
-- Generated at: 2026-08-11 11:58:17 +04:00
+- Generated at: 2026-08-12 11:16:10 +04:00
 - Root: C:\Users\Qossay\Desktop\project\Elrace-mobileapp-operations-qossay_update
-- Indexed files: 2321
+- Indexed files: 2320
 - Indexed total size: 105.50 MB
 - Skipped generated/heavy folders: .git, .dart_tool, .idea, .vscode, build, dist, coverage, node_modules, Pods, .gradle, DerivedData
 
@@ -20,12 +20,12 @@ Quick reference for the project files: path, size, category, and a short respons
 - **Configuration examples**: 2 files, 1.10 KB
 - **Developer/automation scripts**: 5 files, 14.81 KB
 - **Face liveness backend functions**: 3 files, 134.70 KB
-- **Firebase Cloud Functions**: 11 files, 202.46 KB
+- **Firebase Cloud Functions**: 12 files, 208.82 KB
 - **Flutter app code**: 1302 files, 10.64 MB
-- **iOS native project**: 69 files, 2.24 MB
+- **iOS native project**: 67 files, 2.24 MB
 - **Local package/plugin**: 240 files, 523.33 KB
 - **Project documentation**: 54 files, 1.08 MB
-- **Project root/configuration**: 26 files, 709.27 KB
+- **Project root/configuration**: 26 files, 711.05 KB
 
 ## Files
 
@@ -67,7 +67,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | android/gradlew.bat | 2.35 KB | Android native project | Project file; use its path and extension to locate its role. |
 | android/hs_err_pid25728.log | 465.50 KB | Android native project | Project file; use its path and extension to locate its role. |
 | android/key.properties.example | 473 B | Android native project | Project file; use its path and extension to locate its role. |
-| android/local.properties | 168 B | Android native project | Project file; use its path and extension to locate its role. |
+| android/local.properties | 177 B | Android native project | Project file; use its path and extension to locate its role. |
 | android/settings.gradle | 797 B | Android native project | Gradle build configuration for Android. |
 | ASSET_USAGE_REPORT.md | 3.18 KB | Project root/configuration | Markdown documentation file. |
 | AssetManifest.json | 119 B | Project root/configuration | JSON data or configuration file. |
@@ -666,11 +666,12 @@ Quick reference for the project files: path, size, category, and a short respons
 | flutter_01.log | 5.20 KB | Project root/configuration | Project file; use its path and extension to locate its role. |
 | flutter_01.png | 0 B | Project root/configuration | PNG image asset. |
 | functions/audio_vacuum.js | 7.00 KB | Firebase Cloud Functions | Firebase Cloud Functions JavaScript backend code. |
-| functions/index.js | 14.54 KB | Firebase Cloud Functions | Firebase Cloud Functions JavaScript backend code. |
+| functions/index.js | 14.76 KB | Firebase Cloud Functions | Firebase Cloud Functions JavaScript backend code. |
 | functions/notes_ai.js | 9.36 KB | Firebase Cloud Functions | Firebase Cloud Functions JavaScript backend code. |
 | functions/notes_share_notify.js | 3.15 KB | Firebase Cloud Functions | Firebase Cloud Functions JavaScript backend code. |
 | functions/notes_transcribe.js | 4.17 KB | Firebase Cloud Functions | Firebase Cloud Functions JavaScript backend code. |
 | functions/notes_whisper.js | 2.92 KB | Firebase Cloud Functions | Firebase Cloud Functions JavaScript backend code. |
+| functions/odoo_announcement_push.js | 6.15 KB | Firebase Cloud Functions | Firebase Cloud Functions JavaScript backend code. |
 | functions/package.json | 970 B | Firebase Cloud Functions | JSON data or configuration file. |
 | functions/package-lock.json | 130.84 KB | Firebase Cloud Functions | JSON data or configuration file. |
 | functions/scripts/README_SYNC_CHAT_USERS.md | 4.05 KB | Firebase Cloud Functions | Markdown documentation file. |
@@ -687,8 +688,6 @@ Quick reference for the project files: path, size, category, and a short respons
 | ios/Flutter/Debug.xcconfig | 243 B | iOS native project | Project file; use its path and extension to locate its role. |
 | ios/Flutter/ephemeral/flutter_lldb_helper.py | 1.25 KB | iOS native project | Python automation script or API example. |
 | ios/Flutter/ephemeral/flutter_lldbinit | 108 B | iOS native project | Project file; use its path and extension to locate its role. |
-| ios/Flutter/ephemeral/Packages/.packages/FlutterFramework/Package.swift | 510 B | iOS native project | Native iOS Swift code. |
-| ios/Flutter/ephemeral/Packages/.packages/FlutterFramework/Sources/FlutterFramework/FlutterFramework.swift | 39 B | iOS native project | Native iOS Swift code. |
 | ios/Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage/Package.swift | 597 B | iOS native project | Native iOS Swift code. |
 | ios/Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage/Sources/FlutterGeneratedPluginSwiftPackage/FlutterGeneratedPluginSwiftPackage.swift | 39 B | iOS native project | Native iOS Swift code. |
 | ios/Flutter/flutter_export_environment.sh | 572 B | iOS native project | Project file; use its path and extension to locate its role. |
@@ -2295,7 +2294,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | packages/face_liveness_detector/test/rekognition_face_liveness_test.dart | 16 B | Local package/plugin | Dart file in the Flutter app; purpose follows its folder and name. |
 | proguard-rules.pro | 3.62 KB | Project root/configuration | Project file; use its path and extension to locate its role. |
 | PROJECT_FILE_INDEX.md | 317.73 KB | Project root/configuration | Markdown documentation file. |
-| PROJECT_FULL_AUDIT_REPORT.md | 26.67 KB | Project root/configuration | Markdown documentation file. |
+| PROJECT_FULL_AUDIT_REPORT.md | 28.44 KB | Project root/configuration | Markdown documentation file. |
 | PROJECT_FULL_AUDIT_REPORT_ELRACE_MOBILEAPP_OPERATIONS.md | 8.39 KB | Project root/configuration | Markdown documentation file. |
 | pubspec.lock | 85.20 KB | Project root/configuration | Pinned Dart/Flutter dependency versions. |
 | pubspec.yaml | 6.03 KB | Project root/configuration | Flutter project manifest for packages, assets, and fonts. |
