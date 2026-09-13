@@ -1,9 +1,29 @@
 {
   "firestore": {
-    "rules": "firestore.rules"
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
   },
   "storage": {
     "rules": "storage.rules"
+  },
+  "database": {
+    "rules": "database.rules.json"
+  },
+  "emulators": {
+    "firestore": {
+      "port": 8080
+    },
+    "database": {
+      "port": 9000
+    },
+    "storage": {
+      "port": 9199
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4000
+    },
+    "singleProjectMode": true
   },
   "functions": [
     {
@@ -34,7 +54,7 @@
       "ios": {
         "default": {
           "projectId": "elrace-new",
-          "appId": "1:392748487890:ios:58ff0286e360256a0f490b",
+          "appId": "1:392748487890:ios:09d22392947544630f490b",
           "uploadDebugSymbols": true,
           "fileOutput": "ios/Runner/GoogleService-Info.plist"
         }
@@ -43,7 +63,7 @@
         "lib/firebase_options.dart": {
           "projectId": "elrace-new",
           "configurations": {
-            "ios": "1:392748487890:ios:58ff0286e360256a0f490b"
+            "ios": "1:392748487890:ios:09d22392947544630f490b"
           }
         }
       }

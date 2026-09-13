@@ -36,12 +36,30 @@ import '../ui/presentation/recruitment/r1_recruitment_landing_screen.dart';
 import '../ui/presentation/performance/performance_evaluation_module_screen.dart';
 import '../ui/presentation/payslip/payslip_module_screen.dart';
 import '../ui/presentation/hr_management/hr_requests_module_screen.dart';
-import '../ui/presentation/hr_management/hr_asset_under_planning_screen.dart';
+import '../ui/presentation/hr_management/hr_car_allowance_request_screen.dart';
+import '../ui/presentation/hr_management/hr_car_rent_request_screen.dart';
+import '../ui/presentation/hr_management/hr_certificate_request_screen.dart';
+import '../ui/presentation/hr_management/hr_encashment_request_screen.dart';
+import '../ui/presentation/hr_management/hr_increment_request_screen.dart';
+import '../ui/presentation/hr_management/hr_loan_request_screen.dart';
+import '../ui/presentation/hr_management/hr_promotion_request_screen.dart';
+import '../ui/presentation/hr_management/hr_resignation_request_screen.dart';
+import '../ui/presentation/hr_management/hr_sim_card_request_screen.dart';
+import '../ui/presentation/hr_management/hr_termination_request_screen.dart';
 import '../ui/presentation/hr_management/hr_circular_announcements_screen.dart';
 import '../ui/presentation/hr_management/employees_profile_screen.dart';
 import '../ui/presentation/hr_management/company_documents_screen.dart';
 import '../core/hr_management/routing/hr_route_names.dart';
 import '../core/timesheet/routing/timesheet_route_names.dart';
+import '../core/drawing_studio/drawing_studio_route_names.dart';
+import '../core/drawing_studio/drawing_studio_project.dart';
+import '../ui/presentation/drawing_studio/screens/drawing_studio_authorize_screen.dart';
+import '../ui/presentation/drawing_studio/screens/drawing_studio_ai_creation_screen.dart';
+import '../ui/presentation/drawing_studio/screens/drawing_studio_form_screen.dart';
+import '../ui/presentation/drawing_studio/screens/drawing_studio_generation_status_screen.dart';
+import '../ui/presentation/drawing_studio/screens/drawing_studio_placeholder_screen.dart';
+import '../ui/presentation/drawing_studio/screens/drawing_studio_project_detail_screen.dart';
+import '../ui/presentation/drawing_studio/screens/drawing_studio_projects_list_screen.dart';
 import '../core/widgets/hr_management/hr_module_widgets_sandbox.dart';
 import '../core/widgets/timesheet/timesheet_widgets_sandbox.dart';
 import '../ui/presentation/timesheet/foreman/attendance/at1_capture_mode_sheet.dart';
@@ -75,6 +93,16 @@ import '../ui/presentation/timesheet/timesheet_route_args.dart';
 
 class OnGeneratedRoutes {
   Route<dynamic> generatedRoutes(RouteSettings settings) {
+    // iOS "Open in" / share can deliver a file path as the route name.
+    // Never show the "No route defined" error for those.
+    if (_isFilesystemRoute(settings.name)) {
+      return PageRouteBuilder(
+        settings: settings,
+        pageBuilder: (_, __, ___) => const SizedBox.shrink(),
+        transitionDuration: Duration.zero,
+      );
+    }
+
     final signInBloc = sl.get<SignInBloc>();
     final contactBloc = sl.get<ContactBloc>();
     switch (settings.name) {
@@ -156,16 +184,43 @@ class OnGeneratedRoutes {
             builder: (_) => const HrRequestsModuleScreen());
       case HrRouteNames.simRequest:
         return CupertinoPageRoute(
-          builder: (_) => const HrAssetUnderPlanningScreen(title: 'SIM Card Request'),
+          builder: (_) => const HrSimCardRequestScreen(),
         );
       case HrRouteNames.carRentRequest:
         return CupertinoPageRoute(
-          builder: (_) => const HrAssetUnderPlanningScreen(title: 'Car Rent Request'),
+          builder: (_) => const HrCarRentRequestScreen(),
         );
       case HrRouteNames.carAllowanceRequest:
         return CupertinoPageRoute(
-          builder: (_) =>
-              const HrAssetUnderPlanningScreen(title: 'Car Allowance Request'),
+          builder: (_) => const HrCarAllowanceRequestScreen(),
+        );
+      case HrRouteNames.incrementRequest:
+        return CupertinoPageRoute(
+          builder: (_) => const HrIncrementRequestScreen(),
+        );
+      case HrRouteNames.terminationRequest:
+        return CupertinoPageRoute(
+          builder: (_) => const HrTerminationRequestScreen(),
+        );
+      case HrRouteNames.promotionRequest:
+        return CupertinoPageRoute(
+          builder: (_) => const HrPromotionRequestScreen(),
+        );
+      case HrRouteNames.resignationRequest:
+        return CupertinoPageRoute(
+          builder: (_) => const HrResignationRequestScreen(),
+        );
+      case HrRouteNames.encashmentRequest:
+        return CupertinoPageRoute(
+          builder: (_) => const HrEncashmentRequestScreen(),
+        );
+      case HrRouteNames.certificateRequest:
+        return CupertinoPageRoute(
+          builder: (_) => const HrCertificateRequestScreen(),
+        );
+      case HrRouteNames.loanRequest:
+        return CupertinoPageRoute(
+          builder: (_) => const HrLoanRequestScreen(),
         );
       case HrRouteNames.widgetSandbox:
         return CupertinoPageRoute(
@@ -416,10 +471,84 @@ class OnGeneratedRoutes {
         return CupertinoPageRoute(
           builder: (_) => const TimesheetWidgetsSandbox(),
         );
+      case DrawingStudioRouteNames.authorize:
+        return CupertinoPageRoute(
+          builder: (_) => const DrawingStudioAuthorizeScreen(),
+        );
+      case DrawingStudioRouteNames.form:
+        return CupertinoPageRoute(
+          builder: (_) => const DrawingStudioFormScreen(),
+        );
+      case DrawingStudioRouteNames.aiCreation:
+        return CupertinoPageRoute(
+          builder: (_) => const DrawingStudioAiCreationScreen(),
+        );
+      case DrawingStudioRouteNames.imageUpload:
+        return CupertinoPageRoute(
+          builder: (_) => const DrawingStudioPlaceholderScreen(
+            title: '2D / Image upload',
+            subtitle: 'Coming soon — use the hub Coming soon dialog instead.',
+          ),
+        );
+      case DrawingStudioRouteNames.generationStatus:
+        final args = settings.arguments;
+        String projectId = '';
+        String? title;
+        DrawingStudioProgress? initialProgress;
+        if (args is Map) {
+          projectId = args['project_id']?.toString() ?? '';
+          title = args['title']?.toString();
+          final rawProgress = args['progress'];
+          if (rawProgress is DrawingStudioProgress) {
+            initialProgress = rawProgress;
+          } else if (rawProgress is Map) {
+            initialProgress = DrawingStudioProgress.tryParse(rawProgress);
+          }
+        }
+        if (projectId.isEmpty) {
+          return CupertinoPageRoute(
+            builder: (_) => const DrawingStudioPlaceholderScreen(
+              title: 'Generation',
+              subtitle: 'Missing project id.',
+            ),
+          );
+        }
+        return CupertinoPageRoute(
+          builder: (_) => DrawingStudioGenerationStatusScreen(
+            projectId: projectId,
+            title: title,
+            initialProgress: initialProgress,
+          ),
+        );
+      case DrawingStudioRouteNames.projectsList:
+        return CupertinoPageRoute(
+          builder: (_) => const DrawingStudioProjectsListScreen(),
+        );
+      case DrawingStudioRouteNames.projectDetail:
+        final project = settings.arguments;
+        if (project is! DrawingStudioProject) {
+          return CupertinoPageRoute(
+            builder: (_) => const DrawingStudioPlaceholderScreen(
+              title: 'Project',
+              subtitle: 'Missing project details.',
+            ),
+          );
+        }
+        return CupertinoPageRoute(
+          builder: (_) => DrawingStudioProjectDetailScreen(project: project),
+        );
     }
     return MaterialPageRoute(
         builder: (_) => Scaffold(
             body:
                 Center(child: Text('No route defined for ${settings.name}'))));
+  }
+
+  static bool _isFilesystemRoute(String? name) {
+    if (name == null || name.isEmpty) return false;
+    return name.startsWith('/private/') ||
+        name.startsWith('/var/') ||
+        name.contains('/Documents/Inbox/') ||
+        name.startsWith('file:');
   }
 }

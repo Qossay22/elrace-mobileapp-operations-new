@@ -9,6 +9,9 @@ import 'package:el_race/core/timesheet/services/capture_queue_service.dart';
 import 'package:el_race/core/utils/app_orientations.dart';
 import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/core/security/device_security_service.dart';
+import 'package:el_race/core/security/vpn_block_guard.dart';
+import 'package:el_race/core/security/vpn_security_monitor.dart';
+import 'package:el_race/core/services/incoming_share_service.dart';
 import 'package:el_race/core/services/resume_coordinator.dart';
 import 'package:el_race/core/update/bloc/app_update_bloc.dart';
 import 'package:el_race/core/update/bloc/app_update_event.dart';
@@ -291,7 +294,7 @@ void main() async {
   try {
     delegate = await LocalizationDelegate.create(
       fallbackLocale: 'en',
-      supportedLocales: ['en', 'ar'],
+      supportedLocales: ['en'],
       basePath: 'assets/i18n',
     ).timeout(const Duration(seconds: 10));
   } catch (error, stackTrace) {
@@ -300,10 +303,6 @@ void main() async {
     runApp(_StartupErrorApp(error: error));
     return;
   }
-  if (SharedPref().isArabic()) {
-    await delegate.changeLocale(const Locale('ar'));
-  }
-
   // Allow runtime Google Fonts fetch so missing font files don't crash app startup.
   // TODO: Set back to false only after bundling all used font TTFs in assets.
   GoogleFonts.config.allowRuntimeFetching = true;
@@ -749,6 +748,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     _appUpdateBloc.add(const AppUpdateCheckRequested());
     _enableAndroidImmersiveMode();
+    VpnSecurityMonitor.instance.start();
+    IncomingShareService.instance.start();
     // NOTE: Do NOT call FirebaseService.processPendingNotificationTap() here.
     // At this point the SplashScreen is still running. Notification taps
     // require the full app context (HomeBloc, providers, auth session) that is
@@ -758,6 +759,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    VpnSecurityMonitor.instance.stop();
     WidgetsBinding.instance.removeObserver(this);
     _appUpdateBloc.close();
     super.dispose();
@@ -770,6 +772,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       _enableAndroidImmersiveMode();
       // ignore: unawaited_futures
       _lockPortraitOrientation();
+      VpnSecurityMonitor.instance.start();
+      // Immediate VPN check when returning (Settings / Control Center toggle).
+      // ignore: unawaited_futures
+      VpnBlockGuard.instance.checkOnForeground(force: true);
 
       // Long-idle security re-verification runs silently in the background;
       // it only routes to splash if the device check actually fails.
@@ -834,6 +840,15 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       if (result.isSecure) {
         debugPrint(
             '⏱️ Silent security re-check passed — continuing without splash restart');
+        return;
+      }
+      // Prefer an in-place block dialog (esp. VPN) over tearing down to splash.
+      final ctx = navKey.currentContext;
+      if (ctx != null && ctx.mounted) {
+        debugPrint(
+          '⏱️ Silent security re-check FAILED — showing security dialog',
+        );
+        await DeviceSecurityService.showSecurityBlockDialog(ctx, result);
         return;
       }
       debugPrint('⏱️ Silent security re-check FAILED — restarting from splash');
@@ -1012,10 +1027,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                   GlobalWidgetsLocalizations.delegate,
                   GlobalCupertinoLocalizations.delegate,
                 ],
-                supportedLocales: localizationDelegate.supportedLocales,
-                locale: SharedPref().isArabic()
-                    ? localizationDelegate.supportedLocales.last
-                    : localizationDelegate.supportedLocales.first,
+                supportedLocales: const [Locale('en')],
+                locale: const Locale('en'),
                 onGenerateRoute: onGeneratedRoutes.generatedRoutes,
                 home: const SplashScreen(),
               ),
@@ -1095,6 +1108,13 @@ void _handleDeepLink(Uri uri, BuildContext context) async {
   print('🔗 Host: ${uri.host}');
   print('🔗 Path: ${uri.path}');
   print('🔗 Query Parameters: ${uri.queryParameters}');
+
+  // Shared files from WhatsApp / Files land as file:// — never treat as routes.
+  if (uri.scheme == 'file' || _looksLikeFilesystemPath(uri.path)) {
+    print('📎 Incoming shared file detected — routing to Chat/Sign chooser');
+    await IncomingShareService.instance.handleSharedFileUri(uri);
+    return;
+  }
 
   if (await UaepassLinkHandler.handle(uri)) {
     return;
@@ -1271,6 +1291,13 @@ void _handleDeepLink(Uri uri, BuildContext context) async {
     print('⚠️ Expected: https://elrace.com/RCC4/Requirements/qrcodeapp[.php]');
   }
   print('🔗 ==================== END DEEP LINK HANDLER ====================');
+}
+
+bool _looksLikeFilesystemPath(String path) {
+  return path.startsWith('/private/') ||
+      path.startsWith('/var/') ||
+      path.contains('/Documents/Inbox/') ||
+      path.contains('/tmp/');
 }
 
 /// Helper function to show error dialog

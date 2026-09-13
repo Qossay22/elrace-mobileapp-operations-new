@@ -67,11 +67,11 @@ class ChatModuleHelper {
       final session = ChatUserSession.fromLoginResponse(loginResponseJson);
       _currentSession = session;
 
-      // Log session info (without sensitive data)
-      _log('ChatModuleHelper: session parsed');
+      _log(
+          'ChatModuleHelper: session created; chat_available=${session.isChatAvailable}');
 
       if (!session.isChatAvailable) {
-        _log('ChatModuleHelper: chat is not available for this session');
+        _log('ChatModuleHelper: chat not available');
         _lastResult = ChatSetupResult.disabled(
           'Firebase custom token not provided by backend. '
           'Backend needs to add firebase_custom_token field to login response.',
@@ -89,6 +89,7 @@ class ChatModuleHelper {
 
         // Initialize lifecycle observer for presence
         ChatLifecycleObserver.instance.initialize();
+        ChatUnreadBadgeService.instance.ensureListening();
 
         // Request notification permissions (non-blocking)
         FirebaseChatAuthService.instance.requestNotificationPermissions();
@@ -101,7 +102,7 @@ class ChatModuleHelper {
       return _lastResult!;
     } catch (e, stack) {
       _log('ChatModuleHelper: error initializing chat: $e');
-      _log(stack.toString());
+      if (kDebugMode) debugPrintStack(stackTrace: stack);
       _lastResult = ChatSetupResult.failed(e.toString());
       return _lastResult!;
     }
@@ -133,6 +134,7 @@ class ChatModuleHelper {
         // If we have cached result and it's enabled, return it
         if (_isInitialized && _lastResult != null && _lastResult!.chatEnabled) {
           _log('ChatModuleHelper: returning cached chat session');
+          ChatUnreadBadgeService.instance.ensureListening();
           return _lastResult;
         }
 
@@ -148,6 +150,7 @@ class ChatModuleHelper {
             _isInitialized = true;
             chatEnabledNotifier.value = true;
             _lastResult = result;
+            ChatUnreadBadgeService.instance.ensureListening();
 
             // Restore session model from cached data
             final loginStamp =
@@ -199,6 +202,7 @@ class ChatModuleHelper {
         _log('ChatModuleHelper: already initialized; verifying setup');
         if (_lastResult != null && _lastResult!.chatEnabled) {
           _log('ChatModuleHelper: setup already complete');
+          ChatUnreadBadgeService.instance.ensureListening();
           return _lastResult;
         }
       }
@@ -219,7 +223,8 @@ class ChatModuleHelper {
           // Persist updated token
           try {
             await prefs.setString('loginResponse', jsonEncode(decoded));
-            _log('ChatModuleHelper: stored login response refreshed');
+            _log(
+                'ChatModuleHelper: updated stored login response with fresh token');
           } catch (_) {}
         }
       }
@@ -229,7 +234,8 @@ class ChatModuleHelper {
 
       // ── Step C: If still failed due to token issue, try one more time ──
       if (result.error != null && _isTokenError(result.error!)) {
-        _log('ChatModuleHelper: token error detected; attempting refresh');
+        _log(
+            'ChatModuleHelper: token error detected; attempting backend refresh');
 
         if (backendToken != null && backendToken.isNotEmpty) {
           final freshToken = await FirebaseChatAuthService.instance
@@ -301,6 +307,7 @@ class ChatModuleHelper {
 
       // Dispose lifecycle observer
       ChatLifecycleObserver.instance.dispose();
+      await ChatUnreadBadgeService.instance.stop();
 
       // Sign out from Firebase and cleanup (also clears secure cache)
       await FirebaseChatAuthService.instance.signOut();

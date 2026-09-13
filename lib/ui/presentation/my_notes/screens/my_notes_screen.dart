@@ -1,17 +1,12 @@
-import 'dart:async';
-
 import 'package:el_race/ui/presentation/my_notes/bloc/notes_bloc.dart';
 import 'package:el_race/ui/presentation/my_notes/data/note_model.dart';
-import 'package:el_race/ui/presentation/my_notes/repository/firebase_notes_repository.dart';
 import 'package:el_race/ui/presentation/my_notes/screens/add_note_screen.dart';
-import 'package:el_race/ui/presentation/my_notes/screens/audio_recording_screen.dart';
 import 'package:el_race/ui/presentation/my_notes/screens/note_detail_screen.dart';
+import 'package:el_race/ui/presentation/my_notes/screens/notes_all_list_screen.dart';
 import 'package:el_race/ui/presentation/my_notes/screens/notes_templates_stub_screen.dart';
 import 'package:el_race/ui/presentation/my_notes/theme/notes_theme.dart';
 import 'package:el_race/ui/presentation/my_notes/theme/notes_theme_controller.dart';
-import 'package:el_race/ui/presentation/my_notes/widgets/notes_bottom_nav_bar.dart';
 import 'package:el_race/ui/presentation/my_notes/widgets/notes_capture_grid.dart';
-import 'package:el_race/ui/presentation/my_notes/widgets/notes_glass_card.dart';
 import 'package:el_race/ui/presentation/my_notes/widgets/notes_list_section.dart';
 import 'package:el_race/ui/presentation/my_notes/widgets/notes_page_heading.dart';
 import 'package:el_race/ui/presentation/my_notes/widgets/notes_royal_bronze_background.dart';
@@ -21,7 +16,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// Uses the app-level [NotesBloc] from [MultiBlocProvider] so list + add/edit
 /// always share the same Firebase-backed instance.
@@ -56,25 +50,15 @@ class _MyNotesView extends StatefulWidget {
 }
 
 class _MyNotesViewState extends State<_MyNotesView> {
-  NotesBottomNavTab _bottomTab = NotesBottomNavTab.home;
-  final FirebaseNotesRepository _repo = FirebaseNotesRepository();
-  List<SharedNoteRef> _sharedRefs = [];
-  StreamSubscription<List<SharedNoteRef>>? _sharedSub;
-
   @override
   void initState() {
     super.initState();
     NotesThemeController.instance.ensureLoaded();
     NotesThemeController.instance.addListener(_onNotesThemeChanged);
-    _sharedSub = _repo.watchSharedWithMe().listen((refs) {
-      if (!mounted) return;
-      setState(() => _sharedRefs = refs);
-    });
   }
 
   void _onNotesThemeChanged() {
     if (!mounted) return;
-    // Rebuild header / system chrome / body that bake theme into ctor args.
     setState(() {});
     SystemChrome.setSystemUIOverlayStyle(NotesTheme.systemOverlay);
   }
@@ -82,11 +66,10 @@ class _MyNotesViewState extends State<_MyNotesView> {
   @override
   void dispose() {
     NotesThemeController.instance.removeListener(_onNotesThemeChanged);
-    _sharedSub?.cancel();
     super.dispose();
   }
 
-  void _onNewTextNote() {
+  void _onCreateNote() {
     final notesBloc = context.read<NotesBloc>();
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -98,14 +81,12 @@ class _MyNotesViewState extends State<_MyNotesView> {
     );
   }
 
-  void _onStartRecording() {
-    final notesBloc = context.read<NotesBloc>();
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => BlocProvider.value(
-          value: notesBloc,
-          child: const AudioRecordingScreen(),
-        ),
+  void _onScanNotes() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Coming soon'),
+        backgroundColor: NotesTheme.surface,
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
@@ -130,49 +111,18 @@ class _MyNotesViewState extends State<_MyNotesView> {
     );
   }
 
-  Future<void> _onSharedRefTap(SharedNoteRef ref) async {
+  Future<void> _onViewAllNotes() async {
     final notesBloc = context.read<NotesBloc>();
-    try {
-      final note = await _repo.getSharedNote(
-        ownerId: ref.ownerId,
-        noteId: ref.noteId,
-      );
-      if (!mounted || note == null) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Shared note not found'),
-            backgroundColor: NotesTheme.surface,
-          ),
-        );
-        return;
-      }
-      if (!mounted) return;
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => BlocProvider.value(
-            value: notesBloc,
-            child: NoteDetailScreen(note: note, readOnly: true),
-          ),
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => BlocProvider.value(
+          value: notesBloc,
+          child: const NotesAllListScreen(),
         ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Could not open shared note: $e'),
-          backgroundColor: NotesTheme.surface,
-        ),
-      );
-    }
-  }
-
-  void _onViewAllNotes() {
-    setState(() => _bottomTab = NotesBottomNavTab.list);
-  }
-
-  void _onCreateTap() {
-    _onNewTextNote();
+      ),
+    );
+    if (!mounted) return;
+    notesBloc.add(const ClearSearch());
   }
 
   NotesState _resolveDisplayState(NotesState state) {
@@ -206,56 +156,34 @@ class _MyNotesViewState extends State<_MyNotesView> {
                 titleColor: NotesTheme.textPrimary,
               ),
               Expanded(
-                child: Stack(
-                  children: [
-                    BlocConsumer<NotesBloc, NotesState>(
-                      listener: (context, state) {
-                        if (state is NotesError) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                state.message.contains('permission-denied')
-                                    ? 'Notes access denied. Deploy Firestore rules for /users/{uid}/notes.'
-                                    : state.message,
-                              ),
-                              backgroundColor: NotesTheme.surface,
-                              duration: const Duration(seconds: 5),
-                            ),
-                          );
-                        } else if (state is NoteActionError) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(state.message),
-                              backgroundColor: NotesTheme.surface,
-                              duration: const Duration(seconds: 5),
-                            ),
-                          );
-                        }
-                      },
-                      builder: (context, state) {
-                        final displayState = _resolveDisplayState(state);
-                        return AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 220),
-                          child: KeyedSubtree(
-                            key: ValueKey(_bottomTab),
-                            child: _buildTabBody(displayState, bottomPad),
+                child: BlocConsumer<NotesBloc, NotesState>(
+                  listener: (context, state) {
+                    if (state is NotesError) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            state.message.contains('permission-denied')
+                                ? 'Notes access denied. Deploy Firestore rules for /users/{uid}/notes.'
+                                : state.message,
                           ),
-                        );
-                      },
-                    ),
-                    Positioned(
-                      left: 20.w,
-                      right: 20.w,
-                      bottom: bottomPad + 12.h,
-                      child: NotesBottomNavBar(
-                        selected: _bottomTab,
-                        onSelected: (tab) {
-                          setState(() => _bottomTab = tab);
-                        },
-                        onCreateTap: _onCreateTap,
-                      ),
-                    ),
-                  ],
+                          backgroundColor: NotesTheme.surface,
+                          duration: const Duration(seconds: 5),
+                        ),
+                      );
+                    } else if (state is NoteActionError) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(state.message),
+                          backgroundColor: NotesTheme.surface,
+                          duration: const Duration(seconds: 5),
+                        ),
+                      );
+                    }
+                  },
+                  builder: (context, state) {
+                    final displayState = _resolveDisplayState(state);
+                    return _buildHome(displayState, bottomPad);
+                  },
                 ),
               ),
             ],
@@ -265,21 +193,10 @@ class _MyNotesViewState extends State<_MyNotesView> {
     );
   }
 
-  Widget _buildTabBody(NotesState displayState, double bottomPad) {
-    switch (_bottomTab) {
-      case NotesBottomNavTab.home:
-        return _buildHomeTab(displayState, bottomPad);
-      case NotesBottomNavTab.list:
-        return _buildListTab(displayState, bottomPad);
-      case NotesBottomNavTab.shared:
-        return _buildSharedTab(bottomPad);
-    }
-  }
-
-  Widget _buildHomeTab(NotesState displayState, double bottomPad) {
+  Widget _buildHome(NotesState displayState, double bottomPad) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(0, 8.h, 0, bottomPad + 96.h),
+      padding: EdgeInsets.fromLTRB(0, 8.h, 0, bottomPad + 24.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -288,144 +205,19 @@ class _MyNotesViewState extends State<_MyNotesView> {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20.w),
             child: NotesCaptureGrid(
-              onStartRecording: _onStartRecording,
-              onNewTextNote: _onNewTextNote,
+              onCreateNote: _onCreateNote,
+              onScanNotes: _onScanNotes,
               onImageNotes: _onImageNotes,
             ),
           ),
           SizedBox(height: 28.h),
-          _buildNotesSection(displayState, preview: true),
+          _buildNotesSection(displayState),
         ],
       ),
     );
   }
 
-  Widget _buildListTab(NotesState displayState, double bottomPad) {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(0, 8.h, 0, bottomPad + 96.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(20.w, 4.h, 20.w, 12.h),
-            child: Text(
-              'All notes',
-              style: GoogleFonts.poppins(
-                fontSize: 24.sp,
-                fontWeight: FontWeight.w700,
-                color: NotesTheme.textPrimary,
-              ),
-            ),
-          ),
-          _buildNotesSection(displayState, preview: false),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSharedTab(double bottomPad) {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, bottomPad + 96.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            'Shared with me',
-            style: GoogleFonts.poppins(
-              fontSize: 24.sp,
-              fontWeight: FontWeight.w700,
-              color: NotesTheme.textPrimary,
-            ),
-          ),
-          SizedBox(height: 6.h),
-          Text(
-            'Notes others shared with you · view only',
-            style: GoogleFonts.poppins(
-              fontSize: 12.sp,
-              color: NotesTheme.textPrimary.withValues(alpha: 0.5),
-            ),
-          ),
-          SizedBox(height: 16.h),
-          if (_sharedRefs.isEmpty)
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 48.h),
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.person_outline_rounded,
-                    size: 56.sp,
-                    color: NotesTheme.textPrimary.withValues(alpha: 0.3),
-                  ),
-                  SizedBox(height: 12.h),
-                  Text(
-                    'No shared notes yet',
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.poppins(
-                      fontSize: 14.sp,
-                      color: NotesTheme.textPrimary.withValues(alpha: 0.5),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          else
-            ..._sharedRefs.map((ref) {
-              return Padding(
-                padding: EdgeInsets.only(bottom: 8.h),
-                child: GestureDetector(
-                  onTap: () => _onSharedRefTap(ref),
-                  child: NotesGlassCard(
-                    padding: EdgeInsets.all(14.w),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.folder_shared_outlined,
-                          color: NotesTheme.bronze,
-                          size: 22.sp,
-                        ),
-                        SizedBox(width: 12.w),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                ref.title,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: NotesTheme.textPrimary,
-                                ),
-                              ),
-                              Text(
-                                'View only',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 11.sp,
-                                  color: NotesTheme.textPrimary
-                                      .withValues(alpha: 0.45),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Icon(
-                          Icons.chevron_right,
-                          color:
-                              NotesTheme.textPrimary.withValues(alpha: 0.4),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNotesSection(NotesState state, {required bool preview}) {
+  Widget _buildNotesSection(NotesState state) {
     if (state is NotesLoading) {
       return Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 40.h),
@@ -482,10 +274,10 @@ class _MyNotesViewState extends State<_MyNotesView> {
 
       return NotesListSection(
         notes: state.notes,
-        title: preview ? 'Recent' : 'All Notes',
-        showAll: !preview,
+        title: 'Recent',
+        showAll: false,
         maxItems: 5,
-        onViewAll: preview ? _onViewAllNotes : null,
+        onViewAll: _onViewAllNotes,
         onNoteTap: _onNoteTap,
       );
     }
@@ -506,7 +298,7 @@ class _MyNotesViewState extends State<_MyNotesView> {
             ),
             SizedBox(height: 16.h),
             Text(
-              'No notes yet\nTap + to create your first note',
+              'No notes yet\nTap Create your note to get started',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: NotesTheme.textPrimary.withValues(alpha: 0.5),

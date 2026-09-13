@@ -205,7 +205,7 @@ class CheckInReminderNotificationService {
     // Capture exact-alarm capability ONCE; never mutate the shared instance field
     // inside the loop — a single failure must not force ALL remaining notifications
     // into inexact mode for the rest of the app session.
-    final bool useExactAlarm = _exactAlarmGranted;
+    const bool useExactAlarm = false;
     for (var scheduledTime in reminderTimes) {
       // إذا كان الوقت قد مضى اليوم، جدول لليوم التالي
       var targetTime = scheduledTime;
@@ -238,9 +238,7 @@ class CheckInReminderNotificationService {
               presentSound: true,
             ),
           ),
-          androidScheduleMode: useExactAlarm
-              ? AndroidScheduleMode.exactAllowWhileIdle
-              : AndroidScheduleMode.inexactAllowWhileIdle,
+          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
           matchDateTimeComponents: DateTimeComponents.time, // يتكرر يومياً
         );
         scheduledCount++;
@@ -332,7 +330,7 @@ class CheckInReminderNotificationService {
     // Capture exact-alarm capability ONCE; never mutate the shared instance field
     // inside the loop — a single failure must not force ALL remaining notifications
     // into inexact mode for the rest of the app session.
-    final bool useExactAlarm = _exactAlarmGranted;
+    const bool useExactAlarm = false;
     for (var scheduledTime in reminderTimes) {
       // إذا كان الوقت قد مضى اليوم، جدول لليوم التالي
       var targetTime = scheduledTime;
@@ -365,9 +363,7 @@ class CheckInReminderNotificationService {
               presentSound: true,
             ),
           ),
-          androidScheduleMode: useExactAlarm
-              ? AndroidScheduleMode.exactAllowWhileIdle
-              : AndroidScheduleMode.inexactAllowWhileIdle,
+          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
           matchDateTimeComponents: DateTimeComponents.time, // يتكرر يومياً
         );
         scheduledCount++;

@@ -1,11 +1,10 @@
 import 'dart:async';
 
+import 'package:el_race/core/services/update_service.dart';
 import 'package:el_race/core/services/android_play_update_service.dart';
 import 'package:el_race/core/app_globals.dart' show appInitCompleter;
 import 'package:el_race/core/session/force_logout_guard.dart';
-import 'package:el_race/core/theme/app_colors.dart';
-import 'package:el_race/core/update/bloc/app_update_bloc.dart';
-import 'package:el_race/core/update/bloc/app_update_state.dart';
+import 'package:el_race/core/security/device_security_service.dart';
 import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/firebase_service.dart';
 import 'package:el_race/ui/presentation/signin/sign_in_screen.dart';
@@ -15,8 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:el_race/ui/presentation/home_screen/screens/home_screen.dart';
 import 'package:el_race/utils/Util.dart';
 import 'package:el_race/core/services/app_config_service.dart';
-import 'package:el_race/core/security/device_security_service.dart';
 import 'package:provider/provider.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:el_race/ui/presentation/qr_survey/providers/qr_survey_data_provider.dart';
 import 'package:video_player/video_player.dart';
 
@@ -32,10 +31,7 @@ class _SplashScreenState extends State<SplashScreen> {
   bool _isDeviceSecure = true;
   bool _didScheduleNavigation = false;
   late VideoPlayerController _videoController;
-  late final Future<void> _videoInitializeFuture;
-  late final Future<void> _minimumSplashFuture;
   bool _isVideoReady = false;
-  bool _didUseVideoFallback = false;
   final Completer<void> _videoCompletedCompleter = Completer<void>();
   // Phase 2: replaces the _waitForSecurityCheck() polling loop so the
   // security gate can be awaited alongside init/video instead of after them.
@@ -44,7 +40,7 @@ class _SplashScreenState extends State<SplashScreen> {
   // Phase 2: kicked off in initState alongside video/security since it has
   // no dependency on either — only awaited (with its existing 10s timeout)
   // right before _doNavigate() in _checkForUpdateThenNavigate().
-  late final Future<AppUpdateState> _updateCheckFuture;
+  late final Future<UpdateCheckResult> _updateCheckFuture;
 
   // Phase 0 instrumentation: measures elapsed time of each splash gate so we
   // have real numbers instead of guesses before attempting the structural
@@ -59,22 +55,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _debugLog(Object? message) {
-    if (kDebugMode) {
-      debugPrint(message?.toString());
-    }
-  }
-
-  Future<AppUpdateState> _waitForAppUpdateCheck(AppUpdateBloc bloc) {
-    if (bloc.state.hasChecked && !bloc.state.isChecking) {
-      return Future.value(bloc.state);
-    }
-
-    return bloc.stream.firstWhere((state) {
-      return state.hasChecked && !state.isChecking;
-    }).timeout(
-      const Duration(seconds: 10),
-      onTimeout: () => const AppUpdateState.initial(),
-    );
+    if (kDebugMode) debugPrint(message?.toString());
   }
 
   @override
@@ -95,27 +76,23 @@ class _SplashScreenState extends State<SplashScreen> {
     // serial chain. Attach a no-op error listener immediately so a failure
     // here doesn't surface as an unhandled zone exception before it's
     // actually awaited (and handled) in _checkForUpdateThenNavigate.
-    _updateCheckFuture = _waitForAppUpdateCheck(context.read<AppUpdateBloc>());
+    _updateCheckFuture = _startUpdateCheck();
     _logGateTiming('update-check-start');
-    _updateCheckFuture.catchError((_) => const AppUpdateState.initial());
-    _minimumSplashFuture = Future<void>.delayed(const Duration(seconds: 3));
+    _updateCheckFuture.catchError((_) => const UpdateCheckResult.noUpdate());
 
-    // Initialize video player (uses hardware decoder, not main thread).
-    _videoController = VideoPlayerController.asset('assets/mp4/splash.mp4');
-    _videoInitializeFuture = _videoController.initialize().then((_) {
-      _logGateTiming('video-ready');
-      if (mounted) {
-        setState(() => _isVideoReady = true);
-        _videoController.addListener(_onVideoProgress);
-        _videoController.play();
-      }
-    }).catchError((e) {
-      _debugLog('Video init error: $e');
-      if (mounted) {
-        setState(() => _didUseVideoFallback = true);
-      }
-      _completeVideoIfNeeded();
-    });
+    // Initialize video player (uses hardware decoder, not main thread)
+    _videoController = VideoPlayerController.asset('assets/mp4/splash.mp4')
+      ..initialize().then((_) {
+        _logGateTiming('video-ready');
+        if (mounted) {
+          setState(() => _isVideoReady = true);
+          _videoController.addListener(_onVideoProgress);
+          _videoController.play();
+        }
+      }).catchError((e) {
+        _debugLog('Video init error: $e');
+        _completeVideoIfNeeded();
+      });
 
     // Defer security check & QR clear to after the first frame so
     // the splash background paints immediately without any blocking work.
@@ -128,11 +105,28 @@ class _SplashScreenState extends State<SplashScreen> {
     });
   }
 
+  Future<UpdateCheckResult> _startUpdateCheck() async {
+    try {
+      final packageInfo =
+          await PackageInfo.fromPlatform().timeout(const Duration(seconds: 3));
+      final currentVersion = packageInfo.version.trim().isNotEmpty
+          ? packageInfo.version
+          : '${packageInfo.version}+${packageInfo.buildNumber}';
+      _debugLog('SplashScreen: app version resolved for update check');
+      return UpdateService.instance
+          .checkForUpdate(currentVersion)
+          .timeout(const Duration(seconds: 10));
+    } catch (e) {
+      _debugLog('Update check setup error (ignored): $e');
+      return const UpdateCheckResult.noUpdate();
+    }
+  }
+
   /// Perform security check before allowing app usage
   Future<void> _performSecurityCheck() async {
     _logGateTiming('security-check-start');
     try {
-      _debugLog('Starting security check...');
+      _debugLog('Starting security check');
       final result = await DeviceSecurityService.instance
           .performSecurityCheck()
           .timeout(const Duration(seconds: kDebugMode ? 2 : 6));
@@ -145,7 +139,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
         if (!result.isSecure) {
           _debugLog('Device security check failed');
-          // Show security warning dialog
           DeviceSecurityService.showSecurityBlockDialog(context, result);
         } else {
           _debugLog('Device security check passed');
@@ -199,41 +192,26 @@ class _SplashScreenState extends State<SplashScreen> {
           _debugLog('Security check timeout in splash - continuing anyway');
         },
       ),
-      _waitForVideoCompletion(),
-      _minimumSplashFuture,
     ]);
+    await _videoCompletedCompleter.future.timeout(
+      const Duration(seconds: 30),
+      onTimeout: () {
+        _debugLog('Video completion timeout in splash - continuing anyway');
+      },
+    );
     _logGateTiming('waitForInitAndNavigate-gate-resolved');
 
     if (!mounted) return;
 
+    // Check security — unchanged policy: only blocks if the check actually
+    // completed and found the device insecure. A timed-out/incomplete check
+    // (_isSecurityCheckComplete still false) fails open, same as before.
     if (!_isDeviceSecure && _isSecurityCheckComplete) {
       _debugLog('Navigation blocked - device not secure');
       return;
     }
 
     _navigateToNextScreen();
-  }
-
-  Future<void> _waitForVideoCompletion() async {
-    await _videoInitializeFuture.timeout(
-      const Duration(seconds: 8),
-      onTimeout: () {
-        _logGateTiming('video-init-timeout');
-        _completeVideoIfNeeded();
-      },
-    );
-
-    final duration = _videoController.value.duration;
-    final timeout = duration == Duration.zero
-        ? const Duration(seconds: 8)
-        : duration + const Duration(seconds: 2);
-
-    await _videoCompletedCompleter.future.timeout(
-      timeout,
-      onTimeout: () {
-        _logGateTiming('video-complete-timeout');
-      },
-    );
   }
 
   void _onVideoProgress() {
@@ -286,6 +264,7 @@ class _SplashScreenState extends State<SplashScreen> {
       final blocked = await UpdateDialog.showIfNeeded(
         context,
         updateResult,
+        isRtl: Directionality.of(context) == TextDirection.rtl,
       );
 
       // Force-update: block navigation until user updates the app
@@ -310,7 +289,7 @@ class _SplashScreenState extends State<SplashScreen> {
       // Check authentication first
       final isAuthenticated = SharedPref.isUserAuthenticated();
       _debugLog(
-        '🚀 SplashScreen: navigating to '
+        'SplashScreen: navigating to '
         '${isAuthenticated ? 'home' : 'sign-in'}',
       );
 
@@ -328,6 +307,10 @@ class _SplashScreenState extends State<SplashScreen> {
           );
           return;
         }
+
+        // Every splash → home (cold start / long-idle restart) must re-show
+        // the biometric gate; static session flags survive in-process restarts.
+        HomeScreenPage.resetAuthSession();
 
         // Check if face registration is in progress or pending
         final isRegistrationInProgress =
@@ -367,6 +350,7 @@ class _SplashScreenState extends State<SplashScreen> {
       // Fallback based on authentication status, not to login screen blindly
       if (mounted) {
         if (SharedPref.isUserAuthenticated()) {
+          HomeScreenPage.resetAuthSession();
           Util.pushPageAndRemoveRoutes(const HomeScreen(), context);
           FirebaseService.markHomeReady();
         } else {
@@ -379,14 +363,13 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppThemeColors.splashBackground,
       body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 120),
+        duration: const Duration(milliseconds: 350),
         child: _isVideoReady
             ? SizedBox.expand(
                 key: const ValueKey('splash-video'),
                 child: ColoredBox(
-                  color: AppThemeColors.splashBackground,
+                  color: Colors.black,
                   child: FittedBox(
                     fit: BoxFit.cover,
                     child: SizedBox(
@@ -397,10 +380,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
                 ),
               )
-            : _SplashLoadingPlaceholder(
-                key: const ValueKey('splash-loading'),
-                showBrandFallback: _didUseVideoFallback,
-              ),
+            : const _SplashLoadingPlaceholder(key: ValueKey('splash-loading')),
       ),
     );
   }
@@ -414,31 +394,12 @@ class _SplashScreenState extends State<SplashScreen> {
 }
 
 class _SplashLoadingPlaceholder extends StatelessWidget {
-  const _SplashLoadingPlaceholder({
-    super.key,
-    required this.showBrandFallback,
-  });
-
-  final bool showBrandFallback;
+  const _SplashLoadingPlaceholder({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.expand(
-      child: ColoredBox(
-        color: AppThemeColors.splashBackground,
-        child: AnimatedOpacity(
-          opacity: showBrandFallback ? 1 : 0,
-          duration: const Duration(milliseconds: 180),
-          child: Center(
-            child: Image.asset(
-              'assets/gif/el-race-logo.gif',
-              width: 170,
-              fit: BoxFit.contain,
-              gaplessPlayback: true,
-            ),
-          ),
-        ),
-      ),
+    return const SizedBox.expand(
+      child: ColoredBox(color: Colors.black),
     );
   }
 }

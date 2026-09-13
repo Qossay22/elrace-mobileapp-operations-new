@@ -1,8 +1,45 @@
 # Project Full Audit Report
 
-Generated at: 2026-07-30 12:22 +04:00
+Generated at: 2026-09-13 10:35 +04:00
 Project: `elrace-mobileapp-operations-new`
-Source sync target reviewed: `97jaw/Elrace-mobileapp-operations/main` at `8decf8a`
+Source sync target reviewed: `97jaw/Elrace-mobileapp-operations/main` at `c0950a7`
+
+## Source Main Sync Addendum - 2026-09-13
+
+Synced the latest `source/main` updates from `97jaw/Elrace-mobileapp-operations` into this project.
+
+- Updated source tracking from `0568745` to `c0950a7`.
+- Pulled 36 new source commits covering Hub Chat read receipts/deleted-message UI, Firebase rules/indexes/tests, Drawing Studio, documents hub/family documents refresh, HR request create screens, vendors dashboard expansion, incoming share flows, iOS share/deep-link fixes, VPN guard updates, notification copy/LPI scrubbing, invoice print menu work, notes audio transcription/formatting, app icon refresh, and backend worker/docs updates.
+- Resolved merge conflicts in chat initialization, device security, shared preferences, documents, project portfolio map, QR login, sign-in BLoC/UI, and splash screen.
+- Preserved the local security improvements: no full login/QR/chat payload logging, no hardcoded sign-in device id, safe stored-session handling, and chat credentials saved only when `Remember Password` is selected.
+- Preserved the first-launch notification fix: no automatic exact-alarm permission request, and prayer/check-in/check-out scheduling uses `AndroidScheduleMode.inexactAllowWhileIdle` to avoid opening Android Alarms & reminders settings.
+- Preserved the splash requirement: `SplashScreen` plays `assets/mp4/splash.mp4` and waits for video completion before navigation, while startup/security/update checks remain bounded.
+- Preserved asset/performance cleanup: `assets/mobilefacenet.tflite` and `assets/json/logo.json` remain absent; the app uses `assets/mobilefacenet_512.tflite`.
+- Regenerated `PROJECT_FILE_INDEX.md` after the sync.
+
+Verification for this sync:
+
+| Check | Result | Notes |
+|---|---:|---|
+| `git fetch source main --prune` | Pass | Updated `source/main` from `0568745` to `c0950a7`. |
+| Merge conflict resolution | Pass | All merge conflicts resolved and staged. |
+| Conflict marker scan | Pass | `rg "^(<<<<<<<|=======|>>>>>>>)"` found no merge conflict markers. |
+| `git diff --check` | Pass | No whitespace or conflict-marker errors after trimming source docs/helper whitespace. |
+| `flutter pub get` | Pass | Dependency graph resolves; lockfile updated by Flutter tooling. |
+| Exact-alarm request scan | Pass | No `requestExactAlarmsPermission`, `Permission.scheduleExactAlarm.request`, `ACTION_REQUEST_SCHEDULE_EXACT_ALARM`, or `AndroidScheduleMode.exactAllowWhileIdle` remains in `lib`, `android`, or `pubspec.yaml`. |
+| Asset duplication scan | Pass | No `assets/mobilefacenet.tflite` or `assets/json/logo.json`; `pubspec.yaml` references only `assets/mobilefacenet_512.tflite`. |
+| `flutter test` | Pass | `56/56` tests passed after the final notification scheduling adjustment. |
+| `flutter build apk --debug` | Pass | Built `build/app/outputs/flutter-apk/app-debug.apk`. |
+| `dart analyze` | Timeout | Stopped after ~3.5 minutes with no diagnostics emitted; this matches the analyzer reliability limitation already documented for this workspace. |
+
+Updated project inventory:
+
+- Indexed files: **2382**
+- Indexed total size: **106.81 MB**
+- App assets: **525 files, 89.49 MB**
+- Flutter app code: **1349 files, 11.12 MB**
+- Automated tests: **10 files, 41.71 KB**
+- Architecture/documentation notes: **11 files, 123.02 KB**
 
 ## Source Main Sync Addendum - 2026-08-05
 

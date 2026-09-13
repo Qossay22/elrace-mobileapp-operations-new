@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// Raw API payloads cached for home category widgets (5-minute TTL).
 class HomeWidgetSessionCache {
   HomeWidgetSessionCache._();
@@ -21,11 +23,32 @@ class HomeWidgetSessionCache {
   static Map<String, dynamic>? prayerTimesRaw;
   static DateTime? fetchedAt;
 
+  /// Bumped when clients/vendors cache changes so home cards can rebuild
+  /// (they are not Riverpod providers).
+  static final ValueNotifier<int> clientsVendorsRevision = ValueNotifier(0);
+
   static const ttl = Duration(minutes: 5);
+
+  /// Per-endpoint fetch times. A widget whose endpoint failed or was never
+  /// requested must stay stale so the next caller retries it, even when a
+  /// sibling endpoint succeeded in the same round.
+  static final Map<String, DateTime> _fetchedAtByPath = {};
 
   static bool get isFresh {
     if (fetchedAt == null) return false;
     return DateTime.now().difference(fetchedAt!) < ttl;
+  }
+
+  static bool isPathFresh(String path) {
+    final at = _fetchedAtByPath[path];
+    if (at == null) return false;
+    return DateTime.now().difference(at) < ttl;
+  }
+
+  static void markPathFetched(String path) {
+    final now = DateTime.now();
+    _fetchedAtByPath[path] = now;
+    fetchedAt = now;
   }
 
   static void markFetched() {
@@ -71,9 +94,11 @@ class HomeWidgetSessionCache {
     }
     if (clientsRaw != null) {
       HomeWidgetSessionCache.clientsRaw = clientsRaw;
+      clientsVendorsRevision.value++;
     }
     if (vendorsRaw != null) {
       HomeWidgetSessionCache.vendorsRaw = vendorsRaw;
+      clientsVendorsRevision.value++;
     }
     if (lpoRaw != null) {
       HomeWidgetSessionCache.lpoRaw = lpoRaw;
@@ -124,5 +149,11 @@ class HomeWidgetSessionCache {
     mediaRaw = null;
     prayerTimesRaw = null;
     fetchedAt = null;
+    _fetchedAtByPath.clear();
+    clientsVendorsRevision.value++;
+  }
+
+  static void notifyClientsVendorsChanged() {
+    clientsVendorsRevision.value++;
   }
 }

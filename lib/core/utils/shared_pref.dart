@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:el_race/ui/presentation/signin/data/model.dart';
-import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPref {
@@ -85,17 +84,21 @@ class SharedPref {
   }
 
   /// Set the app language code in SharedPreferences.
+  ///
+  /// The app ships English only, so any other code is coerced to `en`. Older
+  /// builds exposed an Arabic toggle, and a stored `ar` value would otherwise
+  /// survive an upgrade and render an Arabic UI the app no longer localizes.
   Future<void> setAppLanguage(String languageCode) async {
-    await sharedPreferences.setString('app_language', languageCode);
+    await sharedPreferences.setString('app_language', 'en');
   }
 
   /// Get the app language code from SharedPreferences.
   String getAppLanguage() {
-    return sharedPreferences.getString('app_language') ?? '';
+    return 'en';
   }
 
   bool isArabic() {
-    return getAppLanguage() == 'ar';
+    return false;
   }
 
   ////[helper_functions]
@@ -110,6 +113,18 @@ class SharedPref {
   static LoginResponseModel getLoginData() {
     final data = checkLoginAndRegistration();
     final loginData = data['loginResponse'] as LoginResponseModel?;
+
+    // Debug: Print all user data fields (silenced to reduce noise)
+    // if (loginData?.result?.data != null) {
+    //   print('\n🔐 ===== LOGIN DATA DEBUG =====');
+    //   print('uid: ${loginData!.result!.data!.uid}');
+    //   print('emp_id: ${loginData.result!.data!.emp_id}');
+    //   print('emp_profile_id: ${loginData.result!.data!.emp_profile_id}');
+    //   print('username: ${loginData.result!.data!.username}');
+    //   print('name: ${loginData.result!.data!.name}');
+    //   print('emp_name: ${loginData.result!.data!.emp_name}');
+    //   print('===============================\n');
+    // }
 
     // Return empty model if not authenticated (for guest mode)
     return loginData ?? LoginResponseModel();
@@ -160,6 +175,9 @@ class SharedPref {
   }
 
   /// Merge server role/profile fields into cached login `result.data`.
+  ///
+  /// Does **not** replace `default_widgets` with an empty/failed map — that
+  /// used to wipe a good login widget payload on session/refresh races.
   static Future<bool> mergeLoginRoleFields(
       Map<String, dynamic> roleData) async {
     final loginJson = sharedPreferences.getString('loginResponse') ??
@@ -177,8 +195,81 @@ class SharedPref {
       if (data is! Map<String, dynamic>) return false;
 
       for (final entry in roleData.entries) {
+        if (entry.key == 'default_widgets') {
+          final incoming = entry.value;
+          if (incoming is! Map) continue;
+          final incomingData = incoming['data'];
+          final hasWidgets = incomingData is Map && incomingData.isNotEmpty;
+          if (!hasWidgets) continue;
+        }
         data[entry.key] = entry.value;
       }
+
+      await sharedPreferences.setString('loginResponse', jsonEncode(decoded));
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Merge `/api/widgets/config` `is_disabled` flags into cached
+  /// `result.data.default_widgets.data` without dropping `record_to_show`.
+  ///
+  /// Needed after bundle/app upgrades: the restored login session can carry
+  /// stale visibility flags until the next full re-login.
+  static Future<bool> mergeDefaultWidgetDisabledFlags(
+    Map<String, dynamic> widgetFlags,
+  ) async {
+    if (widgetFlags.isEmpty) return false;
+
+    final loginJson = sharedPreferences.getString('loginResponse') ??
+        sharedPreferences.getString('LOGIN_RESPONSE');
+    if (loginJson == null || loginJson.isEmpty) return false;
+
+    try {
+      final decoded = jsonDecode(loginJson);
+      if (decoded is! Map<String, dynamic>) return false;
+
+      final result = decoded['result'];
+      if (result is! Map<String, dynamic>) return false;
+
+      final data = result['data'];
+      if (data is! Map<String, dynamic>) return false;
+
+      final defaultWidgets = data['default_widgets'];
+      final defaultWidgetsMap = defaultWidgets is Map
+          ? Map<String, dynamic>.from(defaultWidgets)
+          : <String, dynamic>{'status': 'success', 'message': 'merged'};
+
+      final existingData = defaultWidgetsMap['data'];
+      final widgetsData = existingData is Map
+          ? Map<String, dynamic>.from(existingData)
+          : <String, dynamic>{};
+
+      for (final entry in widgetFlags.entries) {
+        final key = entry.key;
+        final flag = entry.value;
+        if (flag is! Map) continue;
+
+        final incoming = Map<String, dynamic>.from(flag);
+        final existing = widgetsData[key];
+        if (existing is Map) {
+          final merged = Map<String, dynamic>.from(existing);
+          if (incoming.containsKey('is_disabled')) {
+            merged['is_disabled'] = incoming['is_disabled'];
+          }
+          if (incoming.containsKey('widget_number') &&
+              merged['widget_number'] == null) {
+            merged['widget_number'] = incoming['widget_number'];
+          }
+          widgetsData[key] = merged;
+        } else {
+          widgetsData[key] = incoming;
+        }
+      }
+
+      defaultWidgetsMap['data'] = widgetsData;
+      data['default_widgets'] = defaultWidgetsMap;
 
       await sharedPreferences.setString('loginResponse', jsonEncode(decoded));
       return true;
@@ -215,16 +306,12 @@ class SharedPref {
 
   static int getSelectedCompany() {
     final id = sharedPreferences.getInt("selectedCompany") ?? 1;
-    if (kDebugMode) {
-      debugPrint('SharedPref.getSelectedCompany() -> $id');
-    }
+    print('🏢 SharedPref.getSelectedCompany() → $id');
     return id;
   }
 
   static Future<void> saveSelectedCompany(int id) async {
-    if (kDebugMode) {
-      debugPrint('SharedPref.saveSelectedCompany($id)');
-    }
+    print('🏢 SharedPref.saveSelectedCompany($id)');
     await sharedPreferences.setInt("selectedCompany", id);
   }
 

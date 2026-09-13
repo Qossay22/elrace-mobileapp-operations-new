@@ -1,3 +1,4 @@
+import 'package:el_race/core/drawing_studio/drawing_studio_access.dart';
 import 'package:el_race/core/home/home_widget_visibility.dart';
 import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/core/hr_management/routing/hr_route_names.dart';
@@ -331,7 +332,7 @@ class _ListViewWidgetsState extends State<ListViewWidgets> {
         return Stack(
           children: [
             GrayCardComponent(
-              cardTitle: "Task Managment",
+              cardTitle: "Task Management",
               titleColor: Colors.white,
               backgroundImagePath:
                   'assets/newapp/task_managment_widget_backdround.png',
@@ -1029,6 +1030,14 @@ class _ListViewWidgetsState extends State<ListViewWidgets> {
         children.addAll([
           _fullWidthCard(
             ProjectsCategoryMyProjectsCard(tabletCompact: tabletCompact),
+          ),
+          SizedBox(height: _isTabletPane ? 10 : 10.h),
+        ]);
+      }
+      if (DrawingStudioAccess.canShowWidget()) {
+        children.addAll([
+          _fullWidthCard(
+            ProjectsCategoryAiDrawingStudioCard(tabletCompact: tabletCompact),
           ),
           SizedBox(height: _isTabletPane ? 10 : 10.h),
         ]);

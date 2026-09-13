@@ -10,6 +10,7 @@ import 'package:el_race/ui/presentation/Email%20Approval/utils/invoice_approval_
 import 'package:el_race/ui/presentation/Email%20Approval/widgets/approval_action_buttons.dart';
 import 'package:el_race/ui/presentation/Email%20Approval/widgets/approval_rejected_banner.dart';
 import 'package:el_race/ui/widgets/contextual_glass_chrome_header.dart';
+import 'package:el_race/ui/presentation/purchase_management/widgets/invoice_print_menu_button.dart';
 import 'package:el_race/utils/Util.dart';
 import 'package:el_race/utils/safe_insets.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,9 @@ import 'package:intl/intl.dart';
 import 'dart:math' as math;
 
 class InvoiceDetailsScreen extends StatefulWidget {
+  /// Debug-only waiting-invoice form when no live approval is available.
+  static const String localFakeInvoiceRequestId = 'LOCAL_FAKE_INVOICE_001';
+
   final String requestId;
   final String type;
   final Map<String, dynamic>? initialData;
@@ -37,7 +41,6 @@ class InvoiceDetailsScreen extends StatefulWidget {
 }
 
 class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
-  static const String _localFakeInvoiceRequestId = 'LOCAL_FAKE_INVOICE_001';
   bool _isLoading = true;
   String _error = '';
   bool _rejectedLocked = false;
@@ -47,7 +50,7 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
   String _resolvedWoRefNo = '';
 
   bool get _isLocalFakeRequest =>
-      widget.requestId == _localFakeInvoiceRequestId;
+      widget.requestId == InvoiceDetailsScreen.localFakeInvoiceRequestId;
 
   Map<String, dynamic> _buildLocalFakeInvoiceData() {
     return {
@@ -85,6 +88,13 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
     super.initState();
     if (_isLocalFakeRequest) {
       final fake = _buildLocalFakeInvoiceData();
+      if (widget.initialData != null) {
+        final id = widget.initialData!['invoice_id'] ?? widget.initialData!['id'];
+        if (id != null && int.tryParse(id.toString()) != null) {
+          fake['invoice_id'] = int.parse(id.toString());
+          fake['id'] = int.parse(id.toString());
+        }
+      }
       _formData = fake;
       _isLoading = false;
       return;
@@ -940,6 +950,8 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
     required String requestDate,
     required String vendorName,
     required List<String> tags,
+    int? invoiceId,
+    String? invoiceTitle,
   }) {
     return _glassCard(
       child: Column(
@@ -948,6 +960,13 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
           _sectionTitle(
             title: 'Invoice Info',
             icon: Icons.description_outlined,
+            trailing: (invoiceId != null && invoiceId > 0)
+                ? InvoicePrintMenuButton(
+                    invoiceId: invoiceId,
+                    title: invoiceTitle,
+                    color: const Color(0xFF2F80ED),
+                  )
+                : null,
           ),
           SizedBox(height: 14.th),
           Row(
@@ -1459,6 +1478,14 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
                                         requestDate: requestDate,
                                         vendorName: vendorName,
                                         tags: tags,
+                                        invoiceId: _parsePositiveInt(
+                                              _formData['invoice_id'],
+                                            ) ??
+                                            _parsePositiveInt(
+                                              _formData['id'],
+                                            ) ??
+                                            _parsePositiveInt(widget.requestId),
+                                        invoiceTitle: requestNo,
                                       ),
                                       SizedBox(height: 10.th),
                                       _financialDetailsCard(

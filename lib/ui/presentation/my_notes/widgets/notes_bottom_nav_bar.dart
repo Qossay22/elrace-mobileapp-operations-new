@@ -3,29 +3,45 @@ import 'package:el_race/ui/presentation/my_notes/theme/notes_theme.dart';
 import 'package:el_race/ui/presentation/my_notes/theme/notes_theme_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-enum NotesBottomNavTab {
-  home,
-  list,
-  shared,
-}
-
-/// Floating pill bottom bar: Home · List · FAB create · Shared · Theme.
-class NotesBottomNavBar extends StatelessWidget {
-  const NotesBottomNavBar({
+/// Floating pill search field for the all-notes list screen.
+class NotesFloatingSearchBar extends StatefulWidget {
+  const NotesFloatingSearchBar({
     super.key,
-    required this.selected,
-    required this.onSelected,
-    required this.onCreateTap,
+    required this.onQueryChanged,
   });
 
-  final NotesBottomNavTab selected;
-  final ValueChanged<NotesBottomNavTab> onSelected;
-  final VoidCallback onCreateTap;
+  final ValueChanged<String> onQueryChanged;
+
+  @override
+  State<NotesFloatingSearchBar> createState() => _NotesFloatingSearchBarState();
+}
+
+class _NotesFloatingSearchBarState extends State<NotesFloatingSearchBar> {
+  final _controller = TextEditingController();
+  final _focus = FocusNode();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focus.dispose();
+    super.dispose();
+  }
+
+  void _onChanged(String value) {
+    widget.onQueryChanged(value);
+    setState(() {});
+  }
+
+  void _clear() {
+    _controller.clear();
+    widget.onQueryChanged('');
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Rebuild the whole bar (not only the icon) when Dark/Light flips.
     return ListenableBuilder(
       listenable: NotesThemeController.instance,
       builder: (context, _) {
@@ -41,7 +57,7 @@ class NotesBottomNavBar extends StatelessWidget {
             color: NotesTheme.bronze.withValues(alpha: 0.28),
           ),
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+            padding: EdgeInsets.fromLTRB(14.w, 8.h, 14.w, 8.h),
             decoration: BoxDecoration(
               borderRadius: radius,
               border: Border.all(
@@ -73,161 +89,56 @@ class NotesBottomNavBar extends StatelessWidget {
             ),
             child: Row(
               children: [
+                Icon(
+                  Icons.search_rounded,
+                  size: 22.sp,
+                  color: NotesTheme.textPrimary.withValues(alpha: 0.5),
+                ),
+                SizedBox(width: 8.w),
                 Expanded(
-                  child: _NavItem(
-                    icon: Icons.home_rounded,
-                    selected: selected == NotesBottomNavTab.home,
-                    onTap: () => onSelected(NotesBottomNavTab.home),
+                  child: TextField(
+                    controller: _controller,
+                    focusNode: _focus,
+                    onChanged: _onChanged,
+                    style: GoogleFonts.poppins(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: NotesTheme.textPrimary,
+                    ),
+                    cursorColor: NotesTheme.bronze,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      border: InputBorder.none,
+                      hintText: 'Search notes',
+                      hintStyle: GoogleFonts.poppins(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        color: NotesTheme.textPrimary.withValues(alpha: 0.4),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(vertical: 10.h),
+                    ),
                   ),
                 ),
-                Expanded(
-                  child: _NavItem(
-                    icon: Icons.notes_rounded,
-                    selected: selected == NotesBottomNavTab.list,
-                    onTap: () => onSelected(NotesBottomNavTab.list),
+                if (_controller.text.isNotEmpty)
+                  IconButton(
+                    onPressed: _clear,
+                    visualDensity: VisualDensity.compact,
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints.tightFor(
+                      width: 36.w,
+                      height: 36.w,
+                    ),
+                    icon: Icon(
+                      Icons.close_rounded,
+                      size: 18.sp,
+                      color: NotesTheme.textPrimary.withValues(alpha: 0.45),
+                    ),
                   ),
-                ),
-                Expanded(child: _CreateFab(onTap: onCreateTap)),
-                Expanded(
-                  child: _NavItem(
-                    icon: Icons.person_outline_rounded,
-                    selected: selected == NotesBottomNavTab.shared,
-                    onTap: () => onSelected(NotesBottomNavTab.shared),
-                  ),
-                ),
-                Expanded(
-                  child: _NavItem(
-                    icon: NotesTheme.isLight
-                        ? Icons.dark_mode_outlined
-                        : Icons.light_mode_outlined,
-                    selected: false,
-                    onTap: () => NotesThemeController.instance.toggle(),
-                  ),
-                ),
               ],
             ),
           ),
         );
       },
-    );
-  }
-}
-
-class _CreateFab extends StatelessWidget {
-  const _CreateFab({required this.onTap});
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          customBorder: const CircleBorder(),
-          child: Container(
-            width: 54.w,
-            height: 54.w,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  NotesTheme.bronze,
-                  NotesTheme.bronze.withValues(alpha: 0.75),
-                ],
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: NotesTheme.bronze.withValues(alpha: 0.4),
-                  blurRadius: 14,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Icon(
-              Icons.add_rounded,
-              size: 28.sp,
-              color: NotesTheme.isLight
-                  ? const Color(0xFF2C3E50)
-                  : NotesTheme.pureBlack,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _NavItem extends StatelessWidget {
-  const _NavItem({
-    required this.icon,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        customBorder: const CircleBorder(),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-          width: 44.w,
-          height: 44.w,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: selected
-                ? LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      NotesTheme.bronze,
-                      NotesTheme.bronze.withValues(alpha: 0.72),
-                      NotesTheme.charcoal,
-                    ],
-                  )
-                : null,
-            color: selected
-                ? null
-                : NotesTheme.textPrimary.withValues(alpha: 0.08),
-            border: Border.all(
-              color: selected
-                  ? NotesTheme.bronze.withValues(alpha: 0.55)
-                  : NotesTheme.textPrimary.withValues(alpha: 0.12),
-            ),
-            boxShadow: selected
-                ? [
-                    BoxShadow(
-                      color: NotesTheme.bronze.withValues(alpha: 0.35),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Icon(
-            icon,
-            size: 22.sp,
-            color: selected
-                ? (NotesTheme.isLight
-                    ? const Color(0xFF2C3E50)
-                    : NotesTheme.pureBlack)
-                : NotesTheme.textPrimary.withValues(alpha: 0.55),
-          ),
-        ),
-      ),
     );
   }
 }

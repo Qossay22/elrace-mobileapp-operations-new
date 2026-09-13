@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
 
+import 'package:flutter/foundation.dart';
+
 /// Utility class for logging API requests and responses
 class ApiLogger {
   static const bool _isEnabled = true;
@@ -43,14 +45,13 @@ class ApiLogger {
           log.writeln('║   $line');
         });
       } catch (e) {
-        log.writeln('║   $body');
+        log.writeln('║   <unprintable body>');
       }
     }
 
     log.writeln('╚═══════════════════════════════════════════════════════════');
 
-    developer.log(log.toString(), name: 'API');
-    print(log.toString());
+    _emit(log.toString());
   }
 
   /// Log API Response
@@ -85,13 +86,12 @@ class ApiLogger {
         log.writeln('║   $line');
       });
     } catch (e) {
-      log.writeln('║   $responseBody');
+      log.writeln('║   <unprintable response body>');
     }
 
     log.writeln('╚═══════════════════════════════════════════════════════════');
 
-    developer.log(log.toString(), name: 'API');
-    print(log.toString());
+    _emit(log.toString());
   }
 
   /// Log API Error
@@ -106,7 +106,7 @@ class ApiLogger {
     log.writeln('');
     log.writeln('╔═══════════════════════════════════════════════════════════');
     log.writeln('║ ❌ API ERROR');
-    log.writeln('╠═══════════════════════════════════════════════════════════');
+    log.writeln('╠───────────────────────────────────────────────────────────');
     log.writeln('║ Endpoint: $endpoint');
     log.writeln('║ Error: $error');
 
@@ -121,9 +121,46 @@ class ApiLogger {
 
     log.writeln('╚═══════════════════════════════════════════════════════════');
 
-    developer.log(log.toString(),
-        name: 'API', error: error, stackTrace: stackTrace);
-    print(log.toString());
+    _emit(log.toString(), error: error, stackTrace: stackTrace);
+  }
+
+  /// Strip U+FFFD / lone surrogates — Flutter debugPrint asserts on them.
+  static String _safeLogText(String input) {
+    final buf = StringBuffer();
+    for (final unit in input.runes) {
+      if (unit == 0xFFFD) {
+        buf.write('?');
+        continue;
+      }
+      // Lone UTF-16 surrogates (should not appear in rune iteration, but
+      // keep a belt-and-suspenders filter for malformed Dart strings).
+      if (unit >= 0xD800 && unit <= 0xDFFF) {
+        buf.write('?');
+        continue;
+      }
+      buf.writeCharCode(unit);
+    }
+    return buf.toString();
+  }
+
+  static void _emit(
+    String message, {
+    Object? error,
+    StackTrace? stackTrace,
+  }) {
+    final safe = _safeLogText(message);
+    if (error != null) {
+      developer.log(
+        safe,
+        name: 'API',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    } else {
+      developer.log(safe, name: 'API');
+    }
+    // Chunk to avoid platform log length limits; never use print().
+    debugPrint(safe, wrapWidth: 1000);
   }
 
   /// Format JSON string with indentation
@@ -154,7 +191,6 @@ class ApiLogger {
   /// Log simple message
   static void log(String message) {
     if (!_isEnabled) return;
-    developer.log(message, name: 'API');
-    print('🔹 $message');
+    _emit('🔹 $message');
   }
 }

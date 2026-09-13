@@ -14,6 +14,7 @@ import 'package:el_race/ui/presentation/home_screen/widgets/mid_section_scroll_l
 import 'package:el_race/ui/presentation/home_screen/widgets/my_actions_section.dart';
 import 'package:el_race/ui/presentation/home_screen/providers/home_widget_api_client.dart';
 import 'package:el_race/ui/presentation/home_screen/providers/home_widget_refresh_service.dart';
+import 'package:el_race/ui/presentation/home_screen/providers/home_widget_visibility_refresh.dart';
 import 'package:el_race/utils/Util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,21 +44,38 @@ class _MainHomeContentWidgetState extends State<MainHomeContentWidget> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       context.read<SliderProvider>().fetchAnnouncementsForBanner();
-      // Warm visible widgets once at entry so card providers mostly read cache.
-      HomeWidgetApiClient.refreshIfStale(
-        onlyCodes: HomeWidgetRefreshService.visibleCategoryCodes(),
-      );
-      // Not forced: cached city is fine on open; pull-to-refresh forces.
+      // Measure immediately so the widgets panel mounts — do not wait on
+      // network. Deferring this behind widget fetches hid the whole panel.
+      _measureHeaderAndInit();
+
+      // Refresh is_disabled from Odoo Effective Widgets (role template /
+      // custom override) so home matches admin config without requiring
+      // a full re-login after every template edit.
+      final visibilityChanged =
+          await HomeWidgetVisibilityRefresh.refresh();
+      if (!mounted) return;
+      if (visibilityChanged) {
+        final container = ProviderScope.containerOf(context);
+        HomeWidgetRefreshService.invalidateWidgetProviders(container);
+        setState(() {});
+      }
+      try {
+        await HomeWidgetApiClient.refreshIfStale(
+          onlyCodes: HomeWidgetRefreshService.visibleCategoryCodes(),
+        );
+      } catch (_) {
+        // Panel already visible; card-level loaders still retry.
+      }
+      if (mounted) setState(() {});
       HomeCityHelper.fetchCity().then((_) {
         if (mounted) setState(() {});
       });
-      // Roles/widget visibility are resolved from the login payload only and
-      // refresh on re-login — no session-refresh call here (product decision
-      // 2026-07-20; the endpoint was also measured at 15-20s per call).
-      _measureHeaderAndInit();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _measureHeaderAndInit();
+      });
     });
   }
 

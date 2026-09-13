@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:el_race/core/purchase/purchase_dev_role_provider.dart';
 import 'package:el_race/core/utils/shared_pref.dart';
@@ -10,6 +11,7 @@ import 'package:http/http.dart' as http;
 class PurchaseRepository {
   static const _base = 'https://erp.elrace.com/api';
   static const _timeout = Duration(seconds: 15);
+  static const _overviewTimeout = Duration(seconds: 45);
   static const _overviewClientCacheTtl = Duration(seconds: 90);
 
   PurchaseOverview? _cachedOverview;
@@ -42,8 +44,9 @@ class PurchaseRepository {
 
   Future<Map<String, dynamic>?> _post(
     String path,
-    Map<String, dynamic> params,
-  ) async {
+    Map<String, dynamic> params, {
+    Duration? timeout,
+  }) async {
     final url = Uri.parse('$_base$path');
     final body = _body(params);
     ApiLogger.logRequest(
@@ -56,23 +59,53 @@ class PurchaseRepository {
     try {
       final response = await http
           .post(url, headers: _headers, body: body)
-          .timeout(_timeout);
+          .timeout(timeout ?? _timeout);
       final duration = DateTime.now().difference(start);
-      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      // Decode as UTF-8 with malformation tolerance so bad attachment names
+      // (e.g. WhatsApp Scan…) never crash the isolate via response.body.
+      final rawText = utf8.decode(response.bodyBytes, allowMalformed: true);
+      final data = jsonDecode(rawText) as Map<String, dynamic>;
       ApiLogger.logResponse(
         endpoint: url.toString(),
         statusCode: response.statusCode,
-        responseBody: data,
+        responseBody: _sanitizeLogPayload(data),
         duration: duration,
       );
       if (response.statusCode != 200) return null;
+      final rpcError = data['error'];
+      if (rpcError != null) {
+        if (kDebugMode) {
+          debugPrint('purchase API RPC error on $path: $rpcError');
+        }
+        return null;
+      }
       final result = data['result'];
       if (result is Map<String, dynamic>) return result;
+      if (result is Map) return Map<String, dynamic>.from(result);
       return null;
     } catch (e, st) {
       ApiLogger.logError(endpoint: url.toString(), error: e, stackTrace: st);
       rethrow;
     }
+  }
+
+  /// Strip huge base64 blobs and U+FFFD before logging.
+  dynamic _sanitizeLogPayload(dynamic value) {
+    if (value is Map) {
+      return value.map((key, child) {
+        if (key == 'file_data' && child is String && child.length > 120) {
+          return MapEntry(key, '<base64 ${child.length} chars>');
+        }
+        return MapEntry(key, _sanitizeLogPayload(child));
+      });
+    }
+    if (value is List) {
+      return value.map(_sanitizeLogPayload).toList();
+    }
+    if (value is String && value.contains('\uFFFD')) {
+      return value.replaceAll('\uFFFD', '?');
+    }
+    return value;
   }
 
   Map<String, dynamic>? _unwrap(Map<String, dynamic>? result) {
@@ -131,17 +164,24 @@ class PurchaseRepository {
     bool refresh = false,
     bool mobile = true,
   }) async {
-    if (mobile &&
-        !refresh &&
+    if (refresh) {
+      _cachedOverview = null;
+      _cachedOverviewAt = null;
+      _cachedOverviewRole = null;
+    } else if (mobile &&
         _cachedOverview != null &&
         _cachedOverviewAt != null &&
         _cachedOverviewRole == testRole &&
         DateTime.now().difference(_cachedOverviewAt!) <
             _overviewClientCacheTtl) {
-      if (kDebugMode) {
-        debugPrint('purchase/overview client cache hit');
+      // Never keep serving an unauthorized/zero snapshot after a failed call.
+      if (_cachedOverview!.isAuthorized &&
+          _cachedOverview!.scope != 'none') {
+        if (kDebugMode) {
+          debugPrint('purchase/overview client cache hit');
+        }
+        return _cachedOverview!;
       }
-      return _cachedOverview!;
     }
 
     final result = await _post(
@@ -150,19 +190,19 @@ class PurchaseRepository {
         if (mobile) 'mobile': true,
         if (refresh) 'refresh': true,
       }, testRole),
+      timeout: _overviewTimeout,
     );
     final payload = _unwrap(result);
     if (payload == null) return PurchaseOverview.unauthorized();
     final overview = PurchaseOverview.fromJson(payload);
-    if (mobile) {
+    if (mobile && overview.isAuthorized && overview.scope != 'none') {
       _cachedOverview = overview;
       _cachedOverviewAt = DateTime.now();
       _cachedOverviewRole = testRole;
     }
 
-    if (kDebugMode && result?['meta'] is Map) {
-      final perf = (result!['meta'] as Map)['perf'];
-      if (perf != null) debugPrint('purchase/overview perf: $perf');
+    if (kDebugMode && result?['perf'] != null) {
+      debugPrint('purchase/overview perf: ${result!['perf']}');
     }
     return overview;
   }
@@ -476,12 +516,16 @@ class PurchaseRepository {
     int limit = 5,
     bool refresh = false,
   }) async {
-    if (!refresh &&
-        _cachedDraftPreview != null &&
+    if (refresh) {
+      _cachedDraftPreview = null;
+      _cachedDraftPreviewAt = null;
+      _cachedDraftPreviewRole = null;
+    } else if (_cachedDraftPreview != null &&
         _cachedDraftPreviewAt != null &&
         _cachedDraftPreviewRole == testRole &&
         DateTime.now().difference(_cachedDraftPreviewAt!) <
-            _overviewClientCacheTtl) {
+            _overviewClientCacheTtl &&
+        _cachedDraftPreview!.totalCount > 0) {
       return _cachedDraftPreview!;
     }
 
@@ -491,12 +535,15 @@ class PurchaseRepository {
         'limit': limit,
         if (refresh) 'refresh': true,
       }, testRole),
+      timeout: _overviewTimeout,
     );
     final payload = _unwrap(result);
     final preview = DraftInvoicesPreview.fromJson(payload);
-    _cachedDraftPreview = preview;
-    _cachedDraftPreviewAt = DateTime.now();
-    _cachedDraftPreviewRole = testRole;
+    if (preview.totalCount > 0 || preview.items.isNotEmpty) {
+      _cachedDraftPreview = preview;
+      _cachedDraftPreviewAt = DateTime.now();
+      _cachedDraftPreviewRole = testRole;
+    }
     return preview;
   }
 
@@ -555,7 +602,137 @@ class PurchaseRepository {
   Future<String?> fetchInvoiceReportUrl(int invoiceId) async {
     final result =
         await _post('/invoice/report_url', {'invoice_id': invoiceId});
-    return result?['report_url']?.toString();
+    if (result == null) return null;
+    final nested = result['data'];
+    if (nested is Map && nested['report_url'] != null) {
+      final url = nested['report_url']?.toString().trim() ?? '';
+      if (url.isNotEmpty) return url;
+    }
+    final url = result['report_url']?.toString().trim() ?? '';
+    return url.isEmpty ? null : url;
+  }
+
+  /// PDF bytes for invoice supporting documents via content API (base64).
+  /// Prefer this over public `/my/public/file/...` URLs — those often return
+  /// empty bodies when attachment metadata shows `file_size: 0`.
+  Future<List<Uint8List>> fetchInvoiceSupportingDocumentPdfBytes(
+    int invoiceId,
+  ) async {
+    final result = await _post(
+      '/invoice/supporting_documents',
+      {'invoice_id': invoiceId},
+      timeout: _overviewTimeout,
+    );
+    final payload = _unwrap(result) ?? result;
+    if (payload == null) return const [];
+
+    final raw = payload['supporting_documents'];
+    if (raw is! List) return const [];
+
+    final pdfIds = <int>[];
+    for (final item in raw) {
+      if (item is! Map) continue;
+      final map = Map<String, dynamic>.from(item);
+      final mimetype = (map['mimetype'] ?? '').toString().toLowerCase();
+      final isPdf = map['is_pdf'] == true || mimetype.contains('pdf');
+      if (!isPdf) continue;
+      final id = _parseMetaInt(map['attachment_id'] ?? map['id']);
+      if (id > 0) pdfIds.add(id);
+    }
+    if (pdfIds.isEmpty) return const [];
+
+    final parts = <Uint8List>[];
+    for (final attachmentId in pdfIds) {
+      try {
+        final bytes = await _fetchSupportingDocumentBytes(
+          invoiceId: invoiceId,
+          attachmentId: attachmentId,
+        );
+        if (bytes != null && bytes.length >= 4) parts.add(bytes);
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint(
+            'supporting doc $attachmentId failed: $e',
+          );
+        }
+      }
+    }
+    return parts;
+  }
+
+  Future<Uint8List?> _fetchSupportingDocumentBytes({
+    required int invoiceId,
+    required int attachmentId,
+  }) async {
+    final result = await _post(
+      '/invoice/supporting_documents/content',
+      {
+        'invoice_id': invoiceId,
+        'attachment_id': attachmentId,
+      },
+      timeout: _overviewTimeout,
+    );
+    final payload = _unwrap(result) ?? result;
+    if (payload == null) return null;
+
+    final encoded = payload['file_data']?.toString().trim() ?? '';
+    if (encoded.isEmpty) return null;
+
+    var clean = encoded;
+    if (clean.startsWith('data:') && clean.contains(',')) {
+      clean = clean.split(',').last;
+    }
+    clean = clean.replaceAll(RegExp(r'\s+'), '');
+    try {
+      final decoded = base64Decode(clean);
+      if (decoded.length >= 4 &&
+          decoded[0] == 0x25 &&
+          decoded[1] == 0x50 &&
+          decoded[2] == 0x44 &&
+          decoded[3] == 0x46) {
+        return decoded;
+      }
+      // Some stores wrap PDF as base64-of-base64 or UTF-8 text "%PDF".
+      final asText = utf8.decode(decoded, allowMalformed: true).trim();
+      if (asText.startsWith('%PDF')) {
+        return Uint8List.fromList(utf8.encode(asText));
+      }
+      if (asText.startsWith('JVBERi0')) {
+        return base64Decode(asText.replaceAll(RegExp(r'\s+'), ''));
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// PDF URLs for invoice supporting documents (legacy / fallback).
+  Future<List<String>> fetchInvoiceSupportingDocumentPdfUrls(
+    int invoiceId,
+  ) async {
+    final result = await _post(
+      '/invoice/supporting_documents',
+      {'invoice_id': invoiceId},
+    );
+    final payload = _unwrap(result) ?? result;
+    if (payload == null) return const [];
+
+    final raw = payload['supporting_documents'];
+    if (raw is! List) return const [];
+
+    final urls = <String>[];
+    for (final item in raw) {
+      if (item is! Map) continue;
+      final map = Map<String, dynamic>.from(item);
+      final mimetype = (map['mimetype'] ?? '').toString().toLowerCase();
+      final isPdf = map['is_pdf'] == true || mimetype.contains('pdf');
+      if (!isPdf) continue;
+      final url = (map['file_url'] ?? map['download_url'] ?? '')
+          .toString()
+          .trim();
+      if (url.isNotEmpty) urls.add(url);
+    }
+    return urls;
   }
 }
 

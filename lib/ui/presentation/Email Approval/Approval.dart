@@ -19,6 +19,7 @@ import 'package:el_race/ui/presentation/Email%20Approval/screens/rfq_details_scr
 import 'package:el_race/ui/presentation/Email%20Approval/widgets/all_approvals_overview.dart';
 import 'package:el_race/ui/presentation/Email%20Approval/widgets/hr_and_pettycash_card.dart';
 import 'package:el_race/ui/presentation/Email%20Approval/widgets/invoice_and_rfq_card.dart';
+import 'package:el_race/ui/presentation/purchase_management/data/purchase_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -71,6 +72,9 @@ class _ApprovalsScreenState extends State<ApprovalsScreen> {
   // Per-category loading/loaded/error state — no full-screen blocking loader
   final Map<String, bool> _categoryLoading = {};
   final Map<String, bool> _categoryLoaded = {};
+  /// Monotonic fetch id per category so overlapping force-refreshes cannot
+  /// apply a stale response after a newer approve/reject reload.
+  final Map<String, int> _categoryFetchGeneration = {};
   Map<String, String> categoryErrors = {};
 
   // Delayed requests count from API
@@ -366,8 +370,15 @@ class _ApprovalsScreenState extends State<ApprovalsScreen> {
       return;
     }
 
+    final generation =
+        (_categoryFetchGeneration[categoryKey] ?? 0) + (force ? 1 : 0);
+    if (force) {
+      _categoryFetchGeneration[categoryKey] = generation;
+    }
+    final fetchGeneration = _categoryFetchGeneration[categoryKey] ?? 0;
+
     debugPrint(
-        '🔄 [ApprovalsScreen] Loading category=$categoryKey force=$force');
+        '🔄 [ApprovalsScreen] Loading category=$categoryKey force=$force gen=$fetchGeneration');
     setState(() {
       _categoryLoading[categoryKey] = true;
       if (force) {
@@ -379,17 +390,36 @@ class _ApprovalsScreenState extends State<ApprovalsScreen> {
     try {
       final items = await _fetchCategoryData(categoryKey);
       if (!mounted) return;
+      // Drop stale responses from an older force-refresh that finished late.
+      if ((_categoryFetchGeneration[categoryKey] ?? 0) != fetchGeneration) {
+        debugPrint(
+          '⏭️ [ApprovalsScreen] Drop stale $categoryKey result gen=$fetchGeneration '
+          '(current=${_categoryFetchGeneration[categoryKey]})',
+        );
+        return;
+      }
       setState(() {
         switch (categoryKey) {
           case 'hr':
-            hrItems = _normalizeCategoryItems(items, categoryLabel: 'HR');
+            var normalizedHr =
+                _normalizeCategoryItems(items, categoryLabel: 'HR');
+            if (kDebugMode) {
+              normalizedHr = _ensureDebugWaitingHrRequests(normalizedHr);
+            }
+            hrItems = normalizedHr;
             _countCache.hr = hrItems.length;
           case 'rfq':
             rfqItems = _normalizeCategoryItems(items, categoryLabel: 'RFQ');
             _countCache.rfq = rfqItems.length;
           case 'invoice':
-            invoiceItems =
+            var normalizedInvoices =
                 _normalizeCategoryItems(items, categoryLabel: 'INVOICE');
+            if (kDebugMode) {
+              // Ensure at least one row so Print / Supporting Document can be tested.
+              normalizedInvoices =
+                  _ensureDebugWaitingInvoice(normalizedInvoices);
+            }
+            invoiceItems = normalizedInvoices;
             _countCache.invoice = invoiceItems.length;
           case 'petty_cash':
             pettyCashItems =
@@ -411,8 +441,17 @@ class _ApprovalsScreenState extends State<ApprovalsScreen> {
       );
       _syncApprovalBadgeCountIfReady();
       _warmCategoryPhotos(categoryKey, items);
+      if (kDebugMode && categoryKey == 'invoice') {
+        _upgradeDebugWaitingInvoiceIfNeeded();
+      }
     } catch (e) {
       if (!mounted) return;
+      if ((_categoryFetchGeneration[categoryKey] ?? 0) != fetchGeneration) {
+        debugPrint(
+          '⏭️ [ApprovalsScreen] Drop stale $categoryKey error gen=$fetchGeneration',
+        );
+        return;
+      }
       setState(() {
         categoryErrors[categoryKey] = e.toString();
         _categoryLoading[categoryKey] = false;
@@ -559,6 +598,189 @@ class _ApprovalsScreenState extends State<ApprovalsScreen> {
         builder: (context) => const _HrManagementTestCasesScreen(),
       ),
     );
+  }
+
+  /// Debug-only: open one waiting-invoice form to test Print / Supporting Document.
+  Future<void> _openInvoicePrintTest() async {
+    if (!kDebugMode) return;
+
+    Map<String, dynamic>? item;
+    if (invoiceItems.isNotEmpty && invoiceItems.first is Map) {
+      item = Map<String, dynamic>.from(invoiceItems.first as Map);
+    } else {
+      final seed = await _fetchDebugWaitingInvoiceSeed();
+      item = seed;
+      if (seed != null && mounted) {
+        setState(() {
+          invoiceItems = [seed, ...invoiceItems];
+          _countCache.invoice = invoiceItems.length;
+          allItems = [
+            ...hrItems,
+            ...rfqItems,
+            ...invoiceItems,
+            ...pettyCashItems,
+          ];
+          approvalItems = _getFilteredItems();
+          _categoryLoaded['invoice'] = true;
+        });
+      }
+    }
+
+    if (!mounted) return;
+    if (item == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'No invoice found for debug print test. Open Invoice tab after login.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    await _openCategoryRecordFromSheet(
+      context,
+      item,
+      _CategoryKeys.invoice,
+    );
+  }
+
+  /// When waiting invoices are empty in debug, seed one sample form row.
+  List<Map<String, dynamic>> _ensureDebugWaitingInvoice(
+    List<Map<String, dynamic>> items,
+  ) {
+    if (items.isNotEmpty) return items;
+    return [_debugLocalFakeInvoiceItem()];
+  }
+
+  /// Debug-only: prepend one local fake waiting HR card per request type.
+  List<Map<String, dynamic>> _ensureDebugWaitingHrRequests(
+    List<Map<String, dynamic>> items,
+  ) {
+    final dummies = _debugLocalFakeHrItems();
+    final existingIds = items.map((e) => e['id']?.toString()).toSet();
+    final toAdd = dummies
+        .where((d) => !existingIds.contains(d['id']?.toString()))
+        .toList(growable: false);
+    if (toAdd.isEmpty) return items;
+    return [...toAdd, ...items];
+  }
+
+  List<Map<String, dynamic>> _debugLocalFakeHrItems() {
+    const cases = <(String, String)>[
+      ('annual', 'Annual Leave'),
+      ('sick', 'Sick Leave'),
+      ('short', 'Short Leave'),
+      ('maternity', 'Maternity Leave'),
+      ('parental', 'Parental'),
+      ('death', 'Death Leave'),
+      ('compensation', 'Compensation Leave'),
+      ('emergency', 'Emergency Leave'),
+      ('unpaid', 'Unpaid Leave'),
+      ('job_mission', 'Job Mission'),
+      ('temporary_permission', 'Temporary Permission'),
+      ('clearance', 'Clearance'),
+      ('effective_date', 'Effective Date'),
+      ('salary_certificate', 'Salary Certificate'),
+      ('loan', 'Loan Request'),
+      ('increment', 'Salary Increment'),
+      ('promotion', 'Promotion'),
+      ('resignation', 'Resignation'),
+      ('termination', 'Termination'),
+      ('transfer', 'Transfer Request'),
+      ('passport', 'Passport'),
+      ('leave_encashment', 'Leave Encashment'),
+      ('car_rent', 'Car Rent Request'),
+      ('sim', 'Sim Card Request'),
+    ];
+
+    return [
+      for (final entry in cases)
+        {
+          'id': 'LOCAL_FAKE_HR_${entry.$1}',
+          'name': '[DEBUG] ${entry.$2}',
+          'request_no': 'REQ/DEBUG/${entry.$1.toUpperCase()}',
+          'request_name': entry.$2,
+          'request_type': entry.$2,
+          'request_type_code': entry.$1,
+          'type': 'HR',
+          'category': 'HR',
+          'employee_name': 'Adil Rasheed',
+          'emp_id': '524',
+          'comment': 'Debug review form — ${entry.$2}',
+        },
+    ];
+  }
+
+  Map<String, dynamic> _debugLocalFakeInvoiceItem() => {
+        'id': InvoiceDetailsScreen.localFakeInvoiceRequestId,
+        'name': '[DEBUG] Waiting Invoice (Print Test)',
+        'request_no': 'INV/DEBUG/PRINT',
+        'vendor': 'Debug Vendor — tap for form + print menu',
+        'type': 'INVOICE',
+        'category': 'INVOICE',
+        'amount': '1000000',
+        'total_amount': '1000000',
+        'invoice_date': '2026-08-13',
+      };
+
+  /// Prefer a live account.move id so Print / Supporting Document hit real APIs.
+  Future<void> _upgradeDebugWaitingInvoiceIfNeeded() async {
+    if (!kDebugMode || !mounted) return;
+    final onlyFake = invoiceItems.length == 1 &&
+        invoiceItems.first['id']?.toString() ==
+            InvoiceDetailsScreen.localFakeInvoiceRequestId;
+    if (!onlyFake) return;
+
+    final seed = await _fetchDebugWaitingInvoiceSeed();
+    if (!mounted || seed == null) return;
+    if (seed['id']?.toString() ==
+        InvoiceDetailsScreen.localFakeInvoiceRequestId) {
+      return;
+    }
+
+    setState(() {
+      invoiceItems = [seed];
+      _countCache.invoice = invoiceItems.length;
+      allItems = [
+        ...hrItems,
+        ...rfqItems,
+        ...invoiceItems,
+        ...pettyCashItems,
+      ];
+      approvalItems = _getFilteredItems();
+    });
+    _syncApprovalBadgeCountIfReady();
+  }
+
+  Future<Map<String, dynamic>?> _fetchDebugWaitingInvoiceSeed() async {
+    try {
+      final preview = await PurchaseRepository().fetchInvoicesPreview(
+        limit: 1,
+        refresh: true,
+      );
+      if (preview.items.isNotEmpty) {
+        final first = preview.items.first;
+        return {
+          'id': first.id,
+          'name': '[DEBUG] ${first.vendor}',
+          'request_no': first.invoiceId.isNotEmpty
+              ? first.invoiceId
+              : 'INV/${first.id}',
+          'vendor': first.vendor,
+          'type': 'INVOICE',
+          'category': 'INVOICE',
+          'amount': first.amount,
+          'total_amount': first.amount,
+          'formatted_amount': first.formattedAmount,
+          'invoice_date': first.invoiceDate,
+          'invoice_id': first.id,
+        };
+      }
+    } catch (e) {
+      debugPrint('debug invoice seed failed: $e');
+    }
+    return _debugLocalFakeInvoiceItem();
   }
 
   void _returnToOverview() {
@@ -813,6 +1035,7 @@ class _ApprovalsScreenState extends State<ApprovalsScreen> {
         onDelayedRecordTap: _openDelayedRecordFromSheet,
         onHrManagementTestCasesTap:
             kDebugMode ? _openHrManagementTestCases : null,
+        onInvoicePrintTestTap: kDebugMode ? _openInvoicePrintTest : null,
       );
     }
 
