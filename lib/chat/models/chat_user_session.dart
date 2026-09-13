@@ -78,19 +78,8 @@ class ChatUserSession {
   /// Create session from backend login response JSON.
   /// Call this when backend adds firebase_* fields to login response.
   factory ChatUserSession.fromLoginResponse(Map<String, dynamic> json) {
-    // DEBUG: Print the full structure to find firebase_custom_token
-    print('🔍 ChatUserSession: Parsing login response...');
-    print('🔍 Top-level keys: ${json.keys.toList()}');
-
     final result = json['result'];
-    if (result != null && result is Map) {
-      print('🔍 result keys: ${(result as Map).keys.toList()}');
-    }
-
     final data = _resolveLoginDataMap(json);
-    print(
-        '🔍 data keys: ${data.isNotEmpty ? data.keys.toList() : "empty"}');
-
     final resultMap = result is Map ? Map<String, dynamic>.from(result) : null;
 
     // Check for firebase_custom_token at different levels
@@ -98,31 +87,15 @@ class ChatUserSession {
     final tokenFromResult = json['result']?['firebase_custom_token'];
     final tokenFromRoot = json['firebase_custom_token'];
 
-    print('🔍 firebase_custom_token locations:');
-    print(
-        '   - In data: ${tokenFromData != null ? "FOUND (${tokenFromData.toString().length} chars)" : "NOT FOUND"}');
-    print(
-        '   - In result: ${tokenFromResult != null ? "FOUND (${tokenFromResult.toString().length} chars)" : "NOT FOUND"}');
-    print(
-        '   - In root: ${tokenFromRoot != null ? "FOUND (${tokenFromRoot.toString().length} chars)" : "NOT FOUND"}');
-
     // Use token from wherever it's found
     final String? firebaseToken = tokenFromData?.toString() ??
         tokenFromResult?.toString() ??
         tokenFromRoot?.toString();
 
-    print(
-        '🔍 Final firebase_custom_token: ${firebaseToken != null ? "FOUND (${firebaseToken.length} chars)" : "NOT FOUND ❌"}');
-
     // Check for firebase_uid at different levels
     final uidFromData = data['firebase_uid'];
     final uidFromResult = json['result']?['firebase_uid'];
     final uidFromRoot = json['firebase_uid'];
-
-    print('🔍 firebase_uid locations:');
-    print('   - In data: ${uidFromData ?? "NOT FOUND"}');
-    print('   - In result: ${uidFromResult ?? "NOT FOUND"}');
-    print('   - In root: ${uidFromRoot ?? "NOT FOUND"}');
 
     final token = json['result']?['token'] ?? json['token'] ?? '';
 
@@ -134,15 +107,11 @@ class ChatUserSession {
         _extractInt(resultMap?['uid']) ??
         0;
 
-    print('🔍 odoo_user_id: $odooUserId');
-
     // Firebase UID: use provided or generate from odoo_user_id
     final String firebaseUid = uidFromData?.toString() ??
         uidFromResult?.toString() ??
         uidFromRoot?.toString() ??
         'odoo_$odooUserId';
-
-    print('🔍 Final firebase_uid: $firebaseUid');
 
     // Role ID extraction - try multiple possible field names
     final int roleId = _extractInt(data['role_id']) ??
@@ -154,7 +123,6 @@ class ChatUserSession {
     String? roleName;
     if (roles != null && roles is List && roles.isNotEmpty) {
       roleName = roles.first?.toString();
-      print('🔍 Role name from roles list: $roleName');
     }
     roleName ??= _extractString(data, const ['role_name', 'role']);
 
@@ -164,19 +132,13 @@ class ChatUserSession {
         json['result']?['image_url'] ?? json['result']?['avatar_url'];
     final avatarFromRoot = json['image_url'] ?? json['avatar_url'];
 
-    print('🖼️ Avatar URL locations:');
-    print('   - In data: ${avatarFromData ?? "NOT FOUND"}');
-    print('   - In result: ${avatarFromResult ?? "NOT FOUND"}');
-    print('   - In root: ${avatarFromRoot ?? "NOT FOUND"}');
-
     final int? employeeId = _extractInt(data['employee_id']);
     // emp_id is a badge/code string — never treat it as hr.employee DB id.
     final String? empId = _extractString(data, const ['emp_id', 'emp_code']);
 
     final rawAvatarUrl = avatarFromData ?? avatarFromResult ?? avatarFromRoot;
-    final String? avatarUrl = _extractAvatarUrl(rawAvatarUrl) ??
-        _publicEmployeeImageUrl(employeeId);
-    print('🖼️ Final avatar URL: ${avatarUrl ?? "NONE"}');
+    final String? avatarUrl =
+        _extractAvatarUrl(rawAvatarUrl) ?? _publicEmployeeImageUrl(employeeId);
 
     // Branch ID: prefer default_operating_unit_id as per backend update
     final int? branchId = _extractInt(data['default_operating_unit_id']) ??
@@ -355,8 +317,9 @@ class ChatUserSession {
   }
 
   @override
-  String toString() =>
-      'ChatUserSession(uid: $firebaseUid, name: $name, roleId: $roleId)';
+  String toString() => 'ChatUserSession(hasUid: ${firebaseUid.isNotEmpty}, '
+      'hasName: ${name.isNotEmpty}, roleId: $roleId, '
+      'hasFirebaseToken: ${firebaseCustomToken?.isNotEmpty == true})';
 
   Map<String, dynamic> toJson() => {
         'backend_jwt': backendJwt,

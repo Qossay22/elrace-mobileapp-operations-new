@@ -51,17 +51,14 @@ class FirebaseTokenApiService {
   }) async {
     try {
       // Resolve token: explicit param → SharedPref
-      final token = backendToken ??
-          SharedPref.getLoginData().result?.token ??
-          '';
+      final token =
+          backendToken ?? SharedPref.getLoginData().result?.token ?? '';
 
       if (token.isEmpty) {
-        print('⚠️ FirebaseTokenApi: No backend token available');
         return null;
       }
 
       final url = '${UrlUtil.baseUrl}${UrlUtil.firebaseRefreshToken}';
-      print('🔄 FirebaseTokenApi: POST $url');
 
       final dio = await _getDio();
       final response = await dio.post(
@@ -74,9 +71,8 @@ class FirebaseTokenApiService {
       );
 
       if (response.data is Map<String, dynamic>) {
-        final parsed =
-            FirebaseRefreshTokenResponse.fromJson(response.data);
-        print('✅ FirebaseTokenApi: $parsed');
+        final parsed = FirebaseRefreshTokenResponse.fromJson(response.data);
+
         return parsed;
       }
 
@@ -85,20 +81,15 @@ class FirebaseTokenApiService {
         final decoded = jsonDecode(response.data as String);
         if (decoded is Map<String, dynamic>) {
           final parsed = FirebaseRefreshTokenResponse.fromJson(decoded);
-          print('✅ FirebaseTokenApi: $parsed');
+
           return parsed;
         }
       }
 
-      print('⚠️ FirebaseTokenApi: Unexpected response type: '
-          '${response.data.runtimeType}');
       return null;
-    } on DioException catch (e) {
-      print('⚠️ FirebaseTokenApi: DioException ${e.response?.statusCode} – '
-          '${e.message}');
+    } on DioException catch (_) {
       return null;
-    } catch (e) {
-      print('⚠️ FirebaseTokenApi: Error – $e');
+    } catch (_) {
       return null;
     }
   }
@@ -133,15 +124,14 @@ class FirebaseTokenApiService {
 
         // Also inject at result level for consumers that look there
         if (decoded['result'] is Map<String, dynamic>) {
-          (decoded['result']
-              as Map<String, dynamic>)['firebase_custom_token'] = freshToken;
+          (decoded['result'] as Map<String, dynamic>)['firebase_custom_token'] =
+              freshToken;
         }
 
         await prefs.setString('loginResponse', jsonEncode(decoded));
-        print('✅ FirebaseTokenApi: Persisted fresh token to loginResponse');
       }
-    } catch (e) {
-      print('⚠️ FirebaseTokenApi: Could not persist token: $e');
+    } catch (_) {
+      // Persisting the refreshed token is best-effort.
     }
 
     return freshToken;

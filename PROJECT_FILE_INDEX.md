@@ -2,10 +2,10 @@
 
 Quick reference for the project files: path, size, category, and a short responsibility note.
 
-- Generated at: 2026-09-13 11:12:29 +04:00
+- Generated at: 2026-09-13 16:04:37 +04:00
 - Root: C:\Users\Qossay\Desktop\project\Elrace-mobileapp-operations-qossay_update
-- Indexed files: 2381
-- Indexed total size: 99.03 MB
+- Indexed files: 2382
+- Indexed total size: 99.02 MB
 - Skipped generated/heavy folders: .git, .dart_tool, .idea, .vscode, build, dist, coverage, node_modules, Pods, .gradle, DerivedData
 
 > Note: descriptions are inferred from file path, name, and extension. Regenerate after major updates with: powershell -ExecutionPolicy Bypass -File .\scripts\generate_project_file_index.ps1
@@ -15,13 +15,13 @@ Quick reference for the project files: path, size, category, and a short respons
 - **Android native project**: 34 files, 1.08 MB
 - **App assets**: 522 files, 81.68 MB
 - **Architecture/documentation notes**: 11 files, 123.02 KB
-- **Automated tests**: 12 files, 45.48 KB
+- **Automated tests**: 13 files, 46.69 KB
 - **Code generation templates**: 35 files, 31.22 KB
 - **Configuration examples**: 2 files, 1.10 KB
 - **Developer/automation scripts**: 5 files, 14.81 KB
 - **Face liveness backend functions**: 3 files, 134.70 KB
 - **Firebase Cloud Functions**: 12 files, 209.36 KB
-- **Flutter app code**: 1349 files, 11.12 MB
+- **Flutter app code**: 1349 files, 11.11 MB
 - **iOS native project**: 70 files, 2.19 MB
 - **Local package/plugin**: 240 files, 523.33 KB
 - **Project documentation**: 54 files, 1.08 MB
@@ -770,7 +770,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/chat/models/chat.dart | 6.68 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/chat/models/chat_member.dart | 2.76 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/chat/models/chat_user.dart | 8.25 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/chat/models/chat_user_session.dart | 14.83 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/chat/models/chat_user_session.dart | 13.27 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/chat/models/firebase_refresh_token_response.dart | 2.81 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/chat/models/message.dart | 15.31 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/chat/models/models.dart | 229 B | Flutter app code | Data model and JSON/DTO mapping. |
@@ -783,8 +783,8 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/chat/services/chat_notification_service.dart | 9.86 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/chat/services/chat_session_storage.dart | 4.67 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/chat/services/chat_unread_badge_service.dart | 1.92 KB | Flutter app code | Service helper for business logic or integration. |
-| lib/chat/services/firebase_chat_auth_service.dart | 34.41 KB | Flutter app code | Service helper for business logic or integration. |
-| lib/chat/services/firebase_token_api_service.dart | 5.19 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/chat/services/firebase_chat_auth_service.dart | 27.33 KB | Flutter app code | Service helper for business logic or integration. |
+| lib/chat/services/firebase_token_api_service.dart | 4.59 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/chat/services/presence_service.dart | 9.82 KB | Flutter app code | Service helper for business logic or integration. |
 | lib/chat/services/services.dart | 351 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/chat/services/voice_recorder_service.dart | 6.35 KB | Flutter app code | Service helper for business logic or integration. |
@@ -2402,11 +2402,12 @@ Quick reference for the project files: path, size, category, and a short respons
 | templates/simple/state.tmpl | 833 B | Code generation templates | Code generation template. |
 | test/anti_spoof_test.dart | 15.78 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/api_logger_security_test.dart | 1.84 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
+| test/chat_auth_compile_test.dart | 693 B | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/home/home_widget_visibility_test.dart | 2.11 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/hr_management/hr_effective_view_test.dart | 3.12 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/minifasnet_preprocessor_test.dart | 1.15 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/my_projects_user_projects_test.dart | 3.02 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
-| test/project_compliance_test.dart | 1.92 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
+| test/project_compliance_test.dart | 2.46 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/projects_dashboard_aggregator_test.dart | 1.85 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/projects_group_manager_test.dart | 8.51 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/tasks_api_service_test.dart | 2.34 KB | Automated tests | Automated Flutter/Dart test for app behavior. |

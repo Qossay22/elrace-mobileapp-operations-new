@@ -38,8 +38,8 @@ class FirebaseChatAuthService {
 
   FirebaseChatAuthService._() {
     // Enable Firebase Auth persistence (automatic session storage)
-    _auth.setPersistence(Persistence.LOCAL).catchError((error) {
-      print('⚠️ FirebaseChatAuth: Could not set persistence: $error');
+    _auth.setPersistence(Persistence.LOCAL).catchError((_) {
+      // Non-fatal: Firebase falls back to its platform default persistence.
     });
   }
 
@@ -73,19 +73,15 @@ class FirebaseChatAuthService {
   /// ready immediately. This waits for the first auth state emission.
   Future<User?> waitForAuthReady() async {
     try {
-      print('⏳ FirebaseChatAuth: Waiting for Firebase Auth to hydrate...');
       final user = await _auth.authStateChanges().first.timeout(
         const Duration(seconds: 5),
         onTimeout: () {
-          print(
-              '⚠️ FirebaseChatAuth: Auth hydration timeout, currentUser=${_auth.currentUser?.uid}');
           return _auth.currentUser;
         },
       );
-      print('✅ FirebaseChatAuth: Auth ready, user=${user?.uid ?? "null"}');
+
       return user;
     } catch (e) {
-      print('⚠️ FirebaseChatAuth: Error waiting for auth: $e');
       return _auth.currentUser;
     }
   }
@@ -98,9 +94,6 @@ class FirebaseChatAuthService {
   /// 3. If all else fails, do a **silent re-login** with stored credentials.
   Future<String?> refreshFirebaseCustomToken(String backendToken) async {
     try {
-      print(
-          '🔄 FirebaseChatAuth: Requesting fresh Firebase token from backend...');
-
       // ── Attempt 1: Dedicated refresh endpoint via FirebaseTokenApiService ──
       final refreshResponse = await FirebaseTokenApiService.instance
           .refreshToken(backendToken: backendToken);
@@ -108,7 +101,6 @@ class FirebaseChatAuthService {
       if (refreshResponse != null && refreshResponse.isSuccess) {
         final token = refreshResponse.firebaseCustomToken;
         if (token != null) {
-          print('✅ FirebaseChatAuth: Got token from refresh endpoint');
           // Persist the fresh token into loginResponse
           await _persistFreshToken(token);
           return token;
@@ -129,8 +121,6 @@ class FirebaseChatAuthService {
           ..interceptors.add(CookieManager(cookieJar));
 
         final sessionUrl = '${UrlUtil.baseUrl}${UrlUtil.login}';
-        print(
-            '🔄 FirebaseChatAuth: Trying session-based refresh via $sessionUrl');
 
         final response = await dio.post(
           sessionUrl,
@@ -143,17 +133,14 @@ class FirebaseChatAuthService {
 
         final token = _extractFirebaseToken(response.data);
         if (token != null) return token;
-      } on DioException catch (e) {
-        print(
-            '⚠️ FirebaseChatAuth: Session-based refresh failed: ${e.response?.statusCode}');
+      } on DioException catch (_) {
+        // Session-cookie refresh is a fallback path; silent re-login can still run.
       }
 
       // ── Attempt 3: Silent re-login with stored credentials ──
       try {
         final creds = await ChatCredentialStorage.instance.load();
         if (creds != null) {
-          print('🔄 FirebaseChatAuth: Attempting silent re-login...');
-
           String fcmToken = '';
           try {
             final prefs = await SharedPreferences.getInstance();
@@ -189,40 +176,26 @@ class FirebaseChatAuthService {
             }),
           );
 
-          print(
-              '🔄 FirebaseChatAuth: Silent re-login response status: ${response.statusCode}');
-
           final data = response.data;
           if (data is Map<String, dynamic>) {
             final result = data['result'];
             if (result is Map<String, dynamic> && result['success'] == true) {
-              print('✅ FirebaseChatAuth: Silent re-login succeeded!');
-
               try {
                 final prefs = await SharedPreferences.getInstance();
                 await prefs.setString('loginResponse', jsonEncode(data));
-                print('✅ FirebaseChatAuth: Updated stored loginResponse');
               } catch (_) {}
 
               final token = _extractFirebaseToken(data);
               if (token != null) return token;
-            } else {
-              final msg = result?['message'] ?? 'unknown';
-              print('⚠️ FirebaseChatAuth: Silent re-login failed: $msg');
             }
           }
-        } else {
-          print(
-              '⚠️ FirebaseChatAuth: No stored credentials for silent re-login');
         }
-      } catch (e) {
-        print('⚠️ FirebaseChatAuth: Silent re-login error: $e');
+      } catch (_) {
+        // Silent re-login is best-effort and should not crash chat startup.
       }
 
-      print('⚠️ FirebaseChatAuth: All refresh attempts failed');
       return null;
-    } catch (e) {
-      print('⚠️ FirebaseChatAuth: Could not refresh Firebase token: $e');
+    } catch (_) {
       return null;
     }
   }
@@ -246,9 +219,8 @@ class FirebaseChatAuthService {
       }
 
       await prefs.setString('loginResponse', jsonEncode(decoded));
-      print('✅ FirebaseChatAuth: Persisted fresh Firebase token');
-    } catch (e) {
-      print('⚠️ FirebaseChatAuth: Could not persist token: $e');
+    } catch (_) {
+      // Keep refresh non-fatal; the caller can request another token later.
     }
   }
 
@@ -283,12 +255,10 @@ class FirebaseChatAuthService {
           token.isNotEmpty &&
           token != 'false' &&
           token != 'null') {
-        print(
-            '✅ FirebaseChatAuth: Got fresh Firebase token (${token.length} chars)');
         return token;
       }
-    } catch (e) {
-      print('⚠️ FirebaseChatAuth: Error extracting token: $e');
+    } catch (_) {
+      return null;
     }
     return null;
   }
@@ -305,8 +275,6 @@ class FirebaseChatAuthService {
 
     // Check if chat is available (has Firebase custom token)
     if (!session.isChatAvailable) {
-      print(
-          '⚠️ FirebaseChatAuth: Chat not available - no Firebase custom token');
       return ChatSetupResult.disabled(
           'Firebase custom token not provided by backend');
     }
@@ -314,24 +282,16 @@ class FirebaseChatAuthService {
     try {
       // Check if already signed in with correct UID
       final currentUser = _auth.currentUser;
-      if (currentUser != null && currentUser.uid == session.firebaseUid) {
-        print('✅ FirebaseChatAuth: Already signed in as ${currentUser.uid}');
-        print('⏭️ FirebaseChatAuth: Skipping sign-in, proceeding to setup...');
-      } else {
+      if (currentUser == null || currentUser.uid != session.firebaseUid) {
         // Step 1: Sign in to Firebase with custom token
-        print('🔐 FirebaseChatAuth: Signing in with custom token...');
 
         // Clean and fix token format issues
         String token = _cleanFirebaseToken(session.firebaseCustomToken!);
 
         // Debug: Log token info (first/last chars only for security)
-        print('🔐 FirebaseChatAuth: Token length: ${token.length}');
-        print(
-            '🔐 FirebaseChatAuth: Token preview: ${token.substring(0, min(20, token.length))}...${token.substring(max(0, token.length - 20))}');
 
         // Validate token format (should be JWT: xxx.yyy.zzz)
         if (!token.contains('.') || token.split('.').length != 3) {
-          print('❌ FirebaseChatAuth: Invalid token format - not a valid JWT');
           return ChatSetupResult.failed(
             'Invalid Firebase token format from backend. Please contact support.',
           );
@@ -345,28 +305,17 @@ class FirebaseChatAuthService {
               'Firebase sign-in succeeded but no UID returned');
         }
 
-        // Verify UID matches expected (log warning if mismatch)
-        if (firebaseUid != session.firebaseUid) {
-          print(
-              '⚠️ FirebaseChatAuth: UID mismatch! Expected: ${session.firebaseUid}, Got: $firebaseUid');
-          print(
-              '⚠️ FirebaseChatAuth: Using actual UID from Firebase: $firebaseUid');
-        }
-
-        print('✅ FirebaseChatAuth: Signed in as $firebaseUid');
+        // UID mismatches are tolerated because Firebase returns the authoritative UID.
       }
 
       final firebaseUid = _auth.currentUser!.uid;
 
       // Step 2: Create/update user profile in Firestore
-      print('📝 FirebaseChatAuth: Upserting user profile...');
-      print('   - display name: ${session.name}');
-      print('   - avatar_url: ${session.avatarUrl ?? "NONE"}');
-      print('   - employee_id: ${session.employeeId}');
+
       await UserRepository.instance.upsertUser(session);
 
       // Step 3: Ensure role chat membership
-      print('👥 FirebaseChatAuth: Ensuring role chat membership...');
+
       _currentRoleChatId =
           await ChatRepository.instance.ensureRoleChatMembership(
         uid: firebaseUid,
@@ -378,57 +327,48 @@ class FirebaseChatAuthService {
       );
 
       // Step 4: Subscribe to FCM topic for role group
-      print('📲 FirebaseChatAuth: Subscribing to FCM topics...');
+
       final topicName = session.getRoleTopicName(groupByBranch: groupByBranch);
       await UserRepository.instance.subscribeToRoleTopic(topicName);
 
       // Step 5: Setup presence
-      print('🟢 FirebaseChatAuth: Setting up presence...');
+
       await PresenceService.instance.initialize(firebaseUid);
 
       // Step 6: Store FCM token
-      print('🔔 FirebaseChatAuth: Storing FCM token...');
+
       await UserRepository.instance.storeFcmToken(firebaseUid);
 
       // Step 7: Initialize chat notifications
-      print('🔔 FirebaseChatAuth: Setting up chat notifications...');
+
       await ChatNotificationService.instance.initialize();
       await ChatNotificationService.instance.startListening();
       _wireChatNotificationTap();
 
       // Sync local global chat mute → Firestore for CF background mute.
       try {
-        final muted = await NotificationStorageService.isChannelMuted(
-            'chat_message');
+        final muted =
+            await NotificationStorageService.isChannelMuted('chat_message');
         await NotificationStorageService.syncChatNotificationsMutedToFirestore(
             muted);
-      } catch (e) {
-        print('⚠️ FirebaseChatAuth: mute sync skipped: $e');
+      } catch (_) {
+        // User mute sync is best-effort and should not block chat setup.
       }
 
       _isSetupComplete = true;
-      print('✅ FirebaseChatAuth: Setup complete!');
 
       // Start proactive token refresh listener
       _startAutoTokenRefresh();
 
       // Bulk-hydrate missing email/phone/job for all users (fire-and-forget)
-      UserRepository.instance.hydrateAllUsersFromDirectory().then((count) {
-        if (count > 0) {
-          print('✅ FirebaseChatAuth: Bulk hydrated $count user profiles');
-        }
-      }).catchError((e) {
-        print('⚠️ FirebaseChatAuth: Bulk hydration error (non-fatal): $e');
-      });
+      UserRepository.instance.hydrateAllUsersFromDirectory().then((_) {
+        // Intentionally silent; hydration is an optimization.
+      }).catchError((_) {});
 
       // Heal existing DM list titles/avatars from employee directory (fire-and-forget)
-      UserRepository.instance.healExistingDmPeerProfiles().then((count) {
-        if (count > 0) {
-          print('✅ FirebaseChatAuth: Healed $count existing DM titles');
-        }
-      }).catchError((e) {
-        print('⚠️ FirebaseChatAuth: DM peer heal error (non-fatal): $e');
-      });
+      UserRepository.instance.healExistingDmPeerProfiles().then((_) {
+        // Intentionally silent; profile healing is an optimization.
+      }).catchError((_) {});
 
       // Cache session securely for fast restore on next app open
       await ChatSessionStorage.instance.saveSession(
@@ -454,12 +394,9 @@ class FirebaseChatAuthService {
         roleChatId: _currentRoleChatId!,
       );
     } on FirebaseAuthException catch (e) {
-      print(
-          '❌ FirebaseChatAuth: Firebase Auth error: ${e.code} - ${e.message}');
       return ChatSetupResult.failed('Firebase auth failed: ${e.message}');
-    } catch (e) {
-      print('❌ FirebaseChatAuth: Setup error: $e');
-      return ChatSetupResult.failed('Chat setup failed: $e');
+    } catch (_) {
+      return ChatSetupResult.failed('Chat setup failed');
     }
   }
 
@@ -493,12 +430,8 @@ class FirebaseChatAuthService {
       _isRefreshing = true;
       _idTokenSub?.pause();
       try {
-        print(
-            '🔄 FirebaseChatAuth: ID token changed – refreshing custom token...');
-
         final backendToken = _currentSession?.backendJwt ?? '';
         if (backendToken.isEmpty) {
-          print('⚠️ FirebaseChatAuth: No backend JWT for auto-refresh');
           return;
         }
 
@@ -508,10 +441,9 @@ class FirebaseChatAuthService {
         if (freshToken != null) {
           await _auth.signInWithCustomToken(_cleanFirebaseToken(freshToken));
           await _persistFreshToken(freshToken);
-          print('✅ FirebaseChatAuth: Auto-refreshed Firebase token');
         }
-      } catch (e) {
-        print('⚠️ FirebaseChatAuth: Auto-refresh error (non-fatal): $e');
+      } catch (_) {
+        // Auto-refresh is best-effort; chat can recover on the next auth event.
       } finally {
         _isRefreshing = false;
         _idTokenSub?.resume();
@@ -529,14 +461,11 @@ class FirebaseChatAuthService {
     try {
       final currentUser = _auth.currentUser;
       if (currentUser == null) {
-        print('⚠️ FirebaseChatAuth: No Firebase user for cached restore');
         return ChatSetupResult.failed(
             'Firebase user not signed in for cached restore');
       }
 
       if (currentUser.uid != cached.firebaseUid) {
-        print(
-            '⚠️ FirebaseChatAuth: UID mismatch in cache. Current: ${currentUser.uid}, Cached: ${cached.firebaseUid}');
         // Clear stale cache
         await ChatSessionStorage.instance.clearSession();
         return ChatSetupResult.failed('Cached session UID mismatch');
@@ -544,9 +473,6 @@ class FirebaseChatAuthService {
 
       final firebaseUid = currentUser.uid;
       _currentRoleChatId = cached.roleChatId;
-
-      print(
-          '🔄 FirebaseChatAuth: Restoring from cached session for $firebaseUid...');
 
       // Heal Firestore profile from latest SharedPref login (emp_name + avatar).
       try {
@@ -563,7 +489,10 @@ class FirebaseChatAuthService {
             empId: session.empId ?? data.emp_id,
             name: session.name.isNotEmpty
                 ? session.name
-                : (data.emp_name ?? data.name ?? cached.sessionData['name'] ?? '')
+                : (data.emp_name ??
+                        data.name ??
+                        cached.sessionData['name'] ??
+                        '')
                     .toString(),
             email: session.email ?? data.email,
             roleId: session.roleId > 0 ? session.roleId : (data.role_id ?? 0),
@@ -582,43 +511,36 @@ class FirebaseChatAuthService {
             xStampUser: session.xStampUser || (data.xStampUser == true),
           );
           await UserRepository.instance.upsertUser(healed);
-          print('✅ FirebaseChatAuth: Profile re-synced on cache restore');
-          print('   - name=${healed.name}');
-          print('   - avatar=${healed.avatarUrl ?? "NONE"}');
+
           // ignore: unawaited_futures
           UserRepository.instance.healExistingDmPeerProfiles();
         }
-      } catch (e) {
-        print(
-            '⚠️ FirebaseChatAuth: Profile re-sync on restore failed (non-fatal): $e');
+      } catch (_) {
+        // Profile re-sync is non-fatal during cached restore.
       }
 
       // Lightweight setup: presence + notifications
       try {
-        print('🟢 FirebaseChatAuth: Setting up presence...');
         await PresenceService.instance.initialize(firebaseUid);
-      } catch (e) {
-        print('⚠️ FirebaseChatAuth: Presence setup failed (non-fatal): $e');
+      } catch (_) {
+        // Presence setup can recover later when chat opens.
       }
 
       try {
-        print('🔔 FirebaseChatAuth: Setting up chat notifications...');
         await ChatNotificationService.instance.initialize();
         await ChatNotificationService.instance.startListening();
         _wireChatNotificationTap();
-      } catch (e) {
-        print('⚠️ FirebaseChatAuth: Notification setup failed (non-fatal): $e');
+      } catch (_) {
+        // Notification setup can recover on the next app/session refresh.
       }
 
       _isSetupComplete = true;
-      print('✅ FirebaseChatAuth: Restored from cache successfully!');
 
       return ChatSetupResult.success(
         firebaseUid: firebaseUid,
         roleChatId: _currentRoleChatId!,
       );
     } catch (e) {
-      print('❌ FirebaseChatAuth: Cache restore error: $e');
       // Clear bad cache
       await ChatSessionStorage.instance.clearSession();
       return ChatSetupResult.failed('Cache restore failed: $e');
@@ -635,53 +557,32 @@ class FirebaseChatAuthService {
   /// for chat-module integrations that still observe tap events directly.
   void _wireChatNotificationTap() {
     ChatNotificationService.instance.onNotificationTap =
-        (chatId, chatTitle, chatType) {
-      print('🔔 FirebaseChatAuth: Chat notification tapped → $chatId');
-    };
+        (chatId, chatTitle, chatType) {};
   }
 
   Future<bool> reauthenticate() async {
     // Check if user is already signed in with correct UID
     if (_auth.currentUser != null && _currentSession != null) {
       if (_auth.currentUser!.uid == _currentSession!.firebaseUid) {
-        print(
-            '✅ FirebaseChatAuth: User already authenticated as ${_auth.currentUser!.uid}');
         return true;
-      } else {
-        print(
-            '⚠️ FirebaseChatAuth: UID mismatch. Current: ${_auth.currentUser!.uid}, Expected: ${_currentSession!.firebaseUid}');
       }
     }
 
     // Try to reauthenticate with stored token
     if (_currentSession == null || !_currentSession!.isChatAvailable) {
-      print(
-          '⚠️ FirebaseChatAuth: No session or token available for reauthentication');
       return false;
     }
 
     try {
-      print(
-          '🔄 FirebaseChatAuth: Attempting reauthentication with stored token...');
       final cleanToken =
           _cleanFirebaseToken(_currentSession!.firebaseCustomToken!);
       await _auth.signInWithCustomToken(cleanToken);
-      print('✅ FirebaseChatAuth: Reauthentication successful');
+
       return true;
-    } on FirebaseAuthException catch (e) {
-      print(
-          '❌ FirebaseChatAuth: Reauthentication failed - ${e.code}: ${e.message}');
-
-      // Token expired or invalid - need fresh token from backend
-      if (e.code == 'invalid-custom-token' ||
-          e.code == 'custom-token-expired') {
-        print(
-            '⚠️ FirebaseChatAuth: Token expired. Need fresh token from backend.');
-      }
-
+    } on FirebaseAuthException catch (_) {
+      // Token expired or invalid; a later refresh can request a fresh token.
       return false;
-    } catch (e) {
-      print('❌ FirebaseChatAuth: Reauthentication error: $e');
+    } catch (_) {
       return false;
     }
   }
@@ -699,9 +600,8 @@ class FirebaseChatAuthService {
       try {
         await user.getIdToken(true);
         return user;
-      } catch (e) {
-        print(
-            '⚠️ FirebaseChatAuth: ID token refresh failed, fetching custom token: $e');
+      } catch (_) {
+        // A forced refresh below can re-establish Firebase auth.
       }
     }
 
@@ -731,7 +631,7 @@ class FirebaseChatAuthService {
       throw Exception('Firebase sign-in failed after token refresh.');
     }
     await signedIn.getIdToken(true);
-    print('✅ FirebaseChatAuth: ensureAuthenticated OK uid=${signedIn.uid}');
+
     return signedIn;
   }
 
@@ -774,10 +674,8 @@ class FirebaseChatAuthService {
       _currentRoleChatId = null;
       _isSetupComplete = false;
       _isRefreshing = false;
-
-      print('✅ FirebaseChatAuth: Signed out successfully');
-    } catch (e) {
-      print('❌ FirebaseChatAuth: Sign out error: $e');
+    } catch (_) {
+      // Logout cleanup is best-effort; local state is reset on next setup.
     }
   }
 
@@ -795,11 +693,8 @@ class FirebaseChatAuthService {
           settings.authorizationStatus == AuthorizationStatus.authorized ||
               settings.authorizationStatus == AuthorizationStatus.provisional;
 
-      print(
-          '🔔 FirebaseChatAuth: Notification permission: ${settings.authorizationStatus}');
       return granted;
-    } catch (e) {
-      print('❌ FirebaseChatAuth: Error requesting notification permission: $e');
+    } catch (_) {
       return false;
     }
   }
@@ -817,43 +712,9 @@ class FirebaseChatAuthService {
   /// the decoded JSON header invalidates the signature.
   String _cleanFirebaseToken(String rawToken) {
     try {
-      print('🧹 Cleaning token...');
-
       // Only trim leading/trailing whitespace and newlines
-      String token = rawToken.trim();
-
-      print(
-          '🔍 Original length: ${rawToken.length}, Cleaned length: ${token.length}');
-
-      // Validate it has 3 JWT parts
-      final parts = token.split('.');
-      if (parts.length != 3) {
-        print(
-            '⚠️ Token does not have 3 parts (has ${parts.length}), returning as-is');
-        return token;
-      }
-
-      // Debug: decode header for logging only (do NOT modify)
-      try {
-        String headerPart = parts[0];
-        String padded = headerPart;
-        while (padded.length % 4 != 0) {
-          padded += '=';
-        }
-        final decoded = base64Url.decode(padded);
-        final headerJson = utf8.decode(decoded);
-        print('🔍 Token header: $headerJson');
-      } catch (e) {
-        print('⚠️ Could not decode header for logging: $e');
-      }
-
-      print('✅ Token ready: ${token.length} chars');
-      print(
-          '🔐 FirebaseChatAuth: Token preview: ${token.substring(0, 20)}...${token.substring(token.length - 20)}');
-
-      return token;
+      return rawToken.trim();
     } catch (e) {
-      print('❌ Error cleaning token: $e');
       return rawToken.trim();
     }
   }

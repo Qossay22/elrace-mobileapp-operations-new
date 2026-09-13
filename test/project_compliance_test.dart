@@ -35,15 +35,33 @@ void main() {
     });
 
     test('keeps removed duplicate/heavy assets out of the app bundle', () {
-      final duplicateModel = File('assets/mobilefacenet.tflite');
-      final unusedLogoJson = File('assets/json/logo.json');
       final pubspec = File('pubspec.yaml').readAsStringSync();
+      const removedAssets = [
+        'assets/mobilefacenet.tflite',
+        'assets/json/logo.json',
+        'assets/png/pettycash_new_bg_old2.png',
+        'assets/newapp/test_petty_cach_image.png',
+        'assets/newapp/company_document_tab_folder.svg',
+      ];
 
-      expect(duplicateModel.existsSync(), isFalse);
-      expect(unusedLogoJson.existsSync(), isFalse);
+      for (final asset in removedAssets) {
+        expect(File(asset).existsSync(), isFalse, reason: asset);
+        expect(pubspec, isNot(contains(asset)), reason: asset);
+      }
       expect(pubspec, contains('assets/mobilefacenet_512.tflite'));
-      expect(pubspec, isNot(contains('assets/mobilefacenet.tflite')));
-      expect(pubspec, isNot(contains('assets/json/logo.json')));
+    });
+
+    test('keeps sensitive chat auth/session files free of direct prints', () {
+      const sensitiveFiles = [
+        'lib/chat/models/chat_user_session.dart',
+        'lib/chat/services/firebase_token_api_service.dart',
+        'lib/chat/services/firebase_chat_auth_service.dart',
+      ];
+
+      for (final path in sensitiveFiles) {
+        final text = File(path).readAsStringSync();
+        expect(text, isNot(contains('print(')), reason: path);
+      }
     });
   });
 }
