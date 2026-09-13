@@ -261,9 +261,9 @@ class _AddWidgetDialogState extends State<AddWidgetDialog> {
               child: SizedBox(
                 width: SizeConfig().getWidth(190),
                 height: SizeConfig().getHeight(80),
-                child: const Column(
+                child: Column(
                   children: [
-                    CustomBulletPoint(
+                    const CustomBulletPoint(
                       //bulletColor: Color(0xFF009859),
                       text: 'In progress',
                       textColor: Colors.black,
@@ -271,7 +271,7 @@ class _AddWidgetDialogState extends State<AddWidgetDialog> {
                       count: '15',
                       containerColor: Colors.white,
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     CustomBulletPoint(
                       //bulletColor: Color(0xFFBA1719),
                       text: translate('home.Delay'),

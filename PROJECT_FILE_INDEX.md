@@ -2,10 +2,10 @@
 
 Quick reference for the project files: path, size, category, and a short responsibility note.
 
-- Generated at: 2026-09-13 10:35:35 +04:00
+- Generated at: 2026-09-13 10:43:20 +04:00
 - Root: C:\Users\Qossay\Desktop\project\Elrace-mobileapp-operations-qossay_update
 - Indexed files: 2382
-- Indexed total size: 106.81 MB
+- Indexed total size: 106.82 MB
 - Skipped generated/heavy folders: .git, .dart_tool, .idea, .vscode, build, dist, coverage, node_modules, Pods, .gradle, DerivedData
 
 > Note: descriptions are inferred from file path, name, and extension. Regenerate after major updates with: powershell -ExecutionPolicy Bypass -File .\scripts\generate_project_file_index.ps1
@@ -25,7 +25,7 @@ Quick reference for the project files: path, size, category, and a short respons
 - **iOS native project**: 70 files, 2.19 MB
 - **Local package/plugin**: 240 files, 523.33 KB
 - **Project documentation**: 54 files, 1.08 MB
-- **Project root/configuration**: 32 files, 826.83 KB
+- **Project root/configuration**: 32 files, 838.69 KB
 
 ## Files
 
@@ -1339,7 +1339,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/home_screen/data/carousal_model.dart | 2.00 KB | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/ui/presentation/home_screen/data/show_icon_model.dart | 778 B | Flutter app code | Data model and JSON/DTO mapping. |
 | lib/ui/presentation/home_screen/data/widget_model.dart | 3.38 KB | Flutter app code | Data model and JSON/DTO mapping. |
-| lib/ui/presentation/home_screen/dialogs/add_widget_dialog.dart | 18.83 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/ui/presentation/home_screen/dialogs/add_widget_dialog.dart | 18.84 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/dialogs/save_confirmation_dialog.dart | 3.56 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/provider/slider_provider.dart | 5.10 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/providers/home_attendance_widget_provider.dart | 4.15 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -1362,7 +1362,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/presentation/home_screen/repository/swipe_button_screen_repo.dart | 4.04 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/presentation/home_screen/screens/biometric_sign_in_gate_screen.dart | 2.79 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/home_screen/screens/custom_swipe_button.dart | 48.43 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/ui/presentation/home_screen/screens/edit_widgets_screen.dart | 26.39 KB | Flutter app code | Flutter screen or page UI. |
+| lib/ui/presentation/home_screen/screens/edit_widgets_screen.dart | 26.40 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/home_screen/screens/home_screen.dart | 13.01 KB | Flutter app code | Flutter screen or page UI. |
 | lib/ui/presentation/home_screen/screens/main_home_content_widget.dart | 10.96 KB | Flutter app code | Reusable Flutter UI widget. |
 | lib/ui/presentation/home_screen/screens/main_screens.dart | 13.15 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -2355,8 +2355,8 @@ Quick reference for the project files: path, size, category, and a short respons
 | packages/face_liveness_detector/README.md | 6.76 KB | Local package/plugin | Markdown documentation file. |
 | packages/face_liveness_detector/test/rekognition_face_liveness_test.dart | 16 B | Local package/plugin | Dart file in the Flutter app; purpose follows its folder and name. |
 | proguard-rules.pro | 3.62 KB | Project root/configuration | Project file; use its path and extension to locate its role. |
-| PROJECT_FILE_INDEX.md | 317.57 KB | Project root/configuration | Markdown documentation file. |
-| PROJECT_FULL_AUDIT_REPORT.md | 29.92 KB | Project root/configuration | Markdown documentation file. |
+| PROJECT_FILE_INDEX.md | 326.23 KB | Project root/configuration | Markdown documentation file. |
+| PROJECT_FULL_AUDIT_REPORT.md | 33.12 KB | Project root/configuration | Markdown documentation file. |
 | PROJECT_FULL_AUDIT_REPORT_ELRACE_MOBILEAPP_OPERATIONS.md | 8.39 KB | Project root/configuration | Markdown documentation file. |
 | pubspec.lock | 85.21 KB | Project root/configuration | Pinned Dart/Flutter dependency versions. |
 | pubspec.yaml | 6.07 KB | Project root/configuration | Flutter project manifest for packages, assets, and fonts. |

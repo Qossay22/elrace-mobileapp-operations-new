@@ -8,6 +8,11 @@ Source sync target reviewed: `97jaw/Elrace-mobileapp-operations/main` at `c0950a
 
 Synced the latest `source/main` updates from `97jaw/Elrace-mobileapp-operations` into this project.
 
+Follow-up home-screen fix:
+
+- Fixed two Dart compile errors in `lib/ui/presentation/home_screen/dialogs/add_widget_dialog.dart` and `lib/ui/presentation/home_screen/screens/edit_widgets_screen.dart` caused by calling `translate('home.Delay')` inside a `const Column`.
+- Re-ran `dart format`, regenerated `PROJECT_FILE_INDEX.md`, confirmed `flutter test` passes (`56/56`), and confirmed `flutter build apk --debug` succeeds after the fix.
+
 - Updated source tracking from `0568745` to `c0950a7`.
 - Pulled 36 new source commits covering Hub Chat read receipts/deleted-message UI, Firebase rules/indexes/tests, Drawing Studio, documents hub/family documents refresh, HR request create screens, vendors dashboard expansion, incoming share flows, iOS share/deep-link fixes, VPN guard updates, notification copy/LPI scrubbing, invoice print menu work, notes audio transcription/formatting, app icon refresh, and backend worker/docs updates.
 - Resolved merge conflicts in chat initialization, device security, shared preferences, documents, project portfolio map, QR login, sign-in BLoC/UI, and splash screen.
