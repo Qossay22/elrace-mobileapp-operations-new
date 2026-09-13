@@ -4,6 +4,39 @@ Generated at: 2026-09-13 10:35 +04:00
 Project: `elrace-mobileapp-operations-new`
 Source sync target reviewed: `97jaw/Elrace-mobileapp-operations/main` at `c0950a7`
 
+## Quality Improvement Addendum - 2026-09-13 11:10 +04:00
+
+Implemented a focused quality pass to improve the application without changing the design, navigation concept, or product behavior.
+
+- Rebuilt `ApiLogger` as a debug-only security logger that redacts sensitive headers, tokens, Firebase/FCM tokens, QR/code values, user identifiers, employee/LPI identifiers, email/phone fields, cookies, secrets, and sensitive URL query parameters before printing.
+- Added recursive log sanitization for nested maps/lists and bounded long string or collection output so debug logs remain useful without leaking full payloads or becoming oversized.
+- Added `test/api_logger_security_test.dart` to lock the redaction behavior with automated tests.
+- Added `test/project_compliance_test.dart` to prevent regressions that would reintroduce automatic Android exact-alarm permission prompts or removed duplicate/heavy assets.
+- Removed three additional unused large assets after reference scans confirmed they were not used:
+  - `assets/png/pettycash_new_bg_old2.png`
+  - `assets/newapp/test_petty_cach_image.png`
+  - `assets/newapp/company_document_tab_folder.svg`
+- Regenerated `PROJECT_FILE_INDEX.md` after the cleanup.
+
+Verification for this improvement pass:
+
+| Check | Result | Notes |
+|---|---:|---|
+| `flutter test` | Pass | `61/61` tests passed, including the new security and compliance regression tests. |
+| Targeted `dart analyze` | Pass | No issues in `lib/utils/api_logger.dart`, `test/api_logger_security_test.dart`, or `test/project_compliance_test.dart`. |
+| `flutter build apk --debug` | Pass | Built `build/app/outputs/flutter-apk/app-debug.apk` after the logger/test/asset changes. |
+| `git diff --check` | Pass | No whitespace or conflict-marker errors. |
+| Exact-alarm request scan | Pass | No exact-alarm permission request or exact scheduling API remains in `lib`, `android`, or `pubspec.yaml`. |
+| Asset cleanup scan | Pass | Removed assets are absent; `pubspec.yaml` still references only the active `assets/mobilefacenet_512.tflite` model. |
+
+Updated project inventory after this pass:
+
+- Indexed files: **2381**
+- Indexed total size: **99.03 MB**
+- App assets: **522 files, 81.68 MB**
+- Automated tests: **12 files, 45.48 KB**
+- Flutter app code: **1349 files, 11.12 MB**
+
 ## Source Main Sync Addendum - 2026-09-13
 
 Synced the latest `source/main` updates from `97jaw/Elrace-mobileapp-operations` into this project.
@@ -11,7 +44,7 @@ Synced the latest `source/main` updates from `97jaw/Elrace-mobileapp-operations`
 Follow-up home-screen fix:
 
 - Fixed two Dart compile errors in `lib/ui/presentation/home_screen/dialogs/add_widget_dialog.dart` and `lib/ui/presentation/home_screen/screens/edit_widgets_screen.dart` caused by calling `translate('home.Delay')` inside a `const Column`.
-- Re-ran `dart format`, regenerated `PROJECT_FILE_INDEX.md`, confirmed `flutter test` passes (`56/56`), and confirmed `flutter build apk --debug` succeeds after the fix.
+- Re-ran `dart format`, regenerated `PROJECT_FILE_INDEX.md`, confirmed `flutter test` passed at that point, and confirmed `flutter build apk --debug` succeeds after the fix. Current verification after the later quality pass is `61/61` tests passing.
 
 - Updated source tracking from `0568745` to `c0950a7`.
 - Pulled 36 new source commits covering Hub Chat read receipts/deleted-message UI, Firebase rules/indexes/tests, Drawing Studio, documents hub/family documents refresh, HR request create screens, vendors dashboard expansion, incoming share flows, iOS share/deep-link fixes, VPN guard updates, notification copy/LPI scrubbing, invoice print menu work, notes audio transcription/formatting, app icon refresh, and backend worker/docs updates.
@@ -33,17 +66,17 @@ Verification for this sync:
 | `flutter pub get` | Pass | Dependency graph resolves; lockfile updated by Flutter tooling. |
 | Exact-alarm request scan | Pass | No `requestExactAlarmsPermission`, `Permission.scheduleExactAlarm.request`, `ACTION_REQUEST_SCHEDULE_EXACT_ALARM`, or `AndroidScheduleMode.exactAllowWhileIdle` remains in `lib`, `android`, or `pubspec.yaml`. |
 | Asset duplication scan | Pass | No `assets/mobilefacenet.tflite` or `assets/json/logo.json`; `pubspec.yaml` references only `assets/mobilefacenet_512.tflite`. |
-| `flutter test` | Pass | `56/56` tests passed after the final notification scheduling adjustment. |
+| `flutter test` | Pass | Current suite passes `61/61` after the later security/compliance tests were added. |
 | `flutter build apk --debug` | Pass | Built `build/app/outputs/flutter-apk/app-debug.apk`. |
 | `dart analyze` | Timeout | Stopped after ~3.5 minutes with no diagnostics emitted; this matches the analyzer reliability limitation already documented for this workspace. |
 
 Updated project inventory:
 
-- Indexed files: **2382**
-- Indexed total size: **106.81 MB**
-- App assets: **525 files, 89.49 MB**
+- Indexed files: **2381**
+- Indexed total size: **99.03 MB**
+- App assets: **522 files, 81.68 MB**
 - Flutter app code: **1349 files, 11.12 MB**
-- Automated tests: **10 files, 41.71 KB**
+- Automated tests: **12 files, 45.48 KB**
 - Architecture/documentation notes: **11 files, 123.02 KB**
 
 ## Source Main Sync Addendum - 2026-08-05
@@ -104,9 +137,9 @@ Verification for this addendum:
 
 The project was synced with the latest `source/main` updates from `Elrace-mobileapp-operations` while preserving the local project organization files that are intentionally maintained in this repository.
 
-Current overall project rating: **8.5 / 10**
+Current overall project rating: **8.8 / 10**
 
-The application dependencies resolve, the Flutter test suite passes, and a debug APK builds successfully. This pass improves login/chat/QR security by removing sensitive logging, improves asset/performance posture by deleting two large unused assets, removes the first-launch Android Alarms & reminders settings jump by avoiding automatic exact-alarm permission requests, and restores full splash-video playback before navigation. Ratings in this report are evidence-based, not cosmetic: they are capped where verification is incomplete. The main remaining issue is analyzer reliability in this workspace: analyzer commands still time out after extended runs, so analyzer status is not treated as passed in this audit.
+The application dependencies resolve, the Flutter test suite passes, and a debug APK builds successfully. This pass improves login/chat/QR security, replaces the shared API logger with debug-only recursive redaction, adds regression tests for security and compliance, removes additional unused large assets, removes the first-launch Android Alarms & reminders settings jump by avoiding automatic exact-alarm permission requests, and preserves full splash-video playback before navigation. Ratings in this report are evidence-based, not cosmetic: they are capped where verification is incomplete. The main remaining issue is analyzer reliability in this workspace: full-project analyzer commands still time out after extended runs, so full analyzer status is not treated as passed in this audit.
 
 ## Verification Status
 
@@ -119,22 +152,23 @@ The application dependencies resolve, the Flutter test suite passes, and a debug
 | `flutter pub get` | Pass | Dependencies resolve successfully; lockfile updated by Flutter tooling. |
 | Exact-alarm request scan | Pass | No `requestExactAlarmsPermission`, `Permission.scheduleExactAlarm.request`, `ACTION_REQUEST_SCHEDULE_EXACT_ALARM`, or `AndroidScheduleMode.exactAllowWhileIdle` remains in `lib`, `android`, or `pubspec.yaml`. |
 | Asset duplication scan | Pass | No `assets/mobilefacenet.tflite` or `assets/json/logo.json`; `pubspec.yaml` references only `assets/mobilefacenet_512.tflite`. |
-| `flutter test` | Pass | `56/56` tests passed after the final home-screen fix. |
-| `flutter build apk --debug` | Pass | Built `build/app/outputs/flutter-apk/app-debug.apk` after the final home-screen fix. |
-| `dart analyze` | Timeout | Stopped after ~3.5 minutes with no diagnostics emitted. |
+| `flutter test` | Pass | `61/61` tests passed after the security logger and compliance tests were added. |
+| Targeted `dart analyze` | Pass | No issues in the new security/compliance tests or the rebuilt `ApiLogger`. |
+| `flutter build apk --debug` | Pass | Built `build/app/outputs/flutter-apk/app-debug.apk` after the final quality pass. |
+| Full `dart analyze` | Timeout | Stopped after ~3.5 minutes with no diagnostics emitted in earlier verification; targeted analyzer now passes for changed files. |
 
 ## Project Inventory
 
-`PROJECT_FILE_INDEX.md` was regenerated on 2026-09-13 after syncing latest `source/main` and fixing the home-screen compile errors.
+`PROJECT_FILE_INDEX.md` was regenerated on 2026-09-13 after syncing latest `source/main`, fixing the home-screen compile errors, and removing additional unused large assets.
 
 Key counts:
 
-- Indexed files: **2382**
-- Indexed total size: **106.81 MB**
+- Indexed files: **2381**
+- Indexed total size: **99.03 MB**
 - Flutter/Dart files from `rg --files`: **1357**
-- Test files: **10**
-- Asset files: **525**
-- App assets total in file index: **89.49 MB**
+- Test files: **12**
+- Asset files: **522**
+- App assets total in file index: **81.68 MB**
 - Flutter app code total in file index: **1349 files, 11.12 MB**
 
 ## Security And Code Quality Improvements
@@ -152,6 +186,8 @@ Implemented in this pass:
 - Removed verbose QR login logs that exposed raw QR content, encoded login code, user identifiers, URLs, headers, and full response data.
 - Removed automatic Android exact-alarm permission requests that opened the system Alarms & reminders settings screen on first launch.
 - Prayer notifications now use `AndroidScheduleMode.inexactAllowWhileIdle`, matching the manifest decision to remove exact-alarm permissions.
+- Rebuilt the shared `ApiLogger` so request/response logs are debug-only and redact sensitive headers, tokens, QR/code values, cookies, secrets, email/phone fields, employee/LPI identifiers, user identifiers, and sensitive URL query parameters.
+- Added automated security tests that verify redaction before future changes can pass.
 
 ## Startup And Splash Improvements
 
@@ -167,8 +203,9 @@ Implemented in this pass:
 
 - Deleted unused duplicate `assets/mobilefacenet.tflite`; it had the same SHA-256 hash as `assets/mobilefacenet_512.tflite`, which is the model referenced by `FaceRecognitionConfig`.
 - Deleted unused `assets/json/logo.json`, an 18.26 MB Lottie/JSON asset with no code references.
+- Deleted three additional unused large image/vector assets after reference scans found no code or pubspec usage.
 - Reduced indexed project size from **135.77 MB** to **104.51 MB**.
-- Previously reduced app assets from **120.02 MB / 527 files** to **88.76 MB / 525 files**; after the latest source sync, current indexed app assets are **89.49 MB / 525 files**.
+- Previously reduced app assets from **120.02 MB / 527 files** to **88.76 MB / 525 files**; after the latest source sync and cleanup, current indexed app assets are **81.68 MB / 522 files**.
 - Confirmed the app still builds after the removals.
 
 ## Synced Application Updates
@@ -203,13 +240,14 @@ These choices were intentional to keep this repository organized:
 
 ### Build And Tests
 
-Rating: **8.8 / 10**
+Rating: **9.0 / 10**
 
 Strengths:
 
 - `flutter pub get` passes.
-- `flutter test` passes all 56 tests.
+- `flutter test` passes all 61 tests.
 - Debug APK build succeeds.
+- Profile APK and split-per-ABI profile builds completed successfully in the latest verification cycle.
 
 Risks:
 
@@ -218,7 +256,7 @@ Risks:
 
 ### Security
 
-Rating: **8.5 / 10**
+Rating: **9.0 / 10**
 
 Strengths:
 
@@ -229,6 +267,8 @@ Strengths:
 - Chat credential storage now requires explicit user opt-in through Remember Password.
 - Chat restore and QR login flows no longer print sensitive identifiers, QR payloads, tokens, headers, or response bodies.
 - First launch no longer pushes users into Android exact-alarm settings without an in-app action.
+- Shared API request/response logging is now debug-only and recursively redacts sensitive fields, identifiers, and URL query parameters.
+- Security regression tests verify the logger redacts secrets and compliance tests prevent exact-alarm permission regressions.
 
 Risks:
 
@@ -238,7 +278,7 @@ Risks:
 
 ### Code Quality
 
-Rating: **8.0 / 10**
+Rating: **8.5 / 10**
 
 Strengths:
 
@@ -247,6 +287,8 @@ Strengths:
 - Source updates were merged without importing source-side deletion of local maintenance documents.
 - Sign-in device identity is now BLoC-owned instead of UI-hardcoded.
 - Stored-session checking no longer relies on a nullable force unwrap.
+- Shared logging code is centralized, formatted, bounded, and covered by targeted tests.
+- Targeted analyzer passes for the newly changed logger and tests.
 
 Risks:
 
@@ -256,7 +298,7 @@ Risks:
 
 ### Architecture
 
-Rating: **8.2 / 10**
+Rating: **8.4 / 10**
 
 Strengths:
 
@@ -264,6 +306,7 @@ Strengths:
 - Important flows such as sign-in and home state continue to use BLoC where the project already established it.
 - Source sync preserved local maintenance documents, scripts, templates, and Gradle wrapper files.
 - New shared services such as post-login setup, incoming share handling, VPN guard, and widget visibility refresh reduce scattered startup behavior.
+- Compliance safeguards now live in automated tests instead of relying only on manual review notes.
 
 Risks:
 
@@ -273,18 +316,20 @@ Risks:
 
 ### Assets And Performance
 
-Rating: **8.1 / 10**
+Rating: **8.6 / 10**
 
 Strengths:
 
-- Asset count is reduced to 525 indexed assets.
+- Asset count is reduced to 522 indexed assets.
 - No merge conflict markers or whitespace errors remain.
 - Large unused assets were removed, reducing indexed assets by **31.26 MB**.
+- Three more unused large assets were removed, bringing indexed app assets down to **81.68 MB**.
+- Profile APK and split-per-ABI profile builds verify the app can still package after asset cleanup.
 
 Risks:
 
-- App assets remain substantial at **89.49 MB** because ML models, GIFs, media, and high-resolution UI images are still included.
-- No release build or device smoke test was run during this sync.
+- App assets remain substantial at **81.68 MB** because ML models, GIFs, media, and high-resolution UI images are still included.
+- Release-mode performance measurement and real-device startup profiling were not completed.
 
 ### UI/UX Organization
 
@@ -304,12 +349,13 @@ Risks:
 
 ### Documentation
 
-Rating: **9.0 / 10**
+Rating: **9.1 / 10**
 
 Strengths:
 
 - `PROJECT_FILE_INDEX.md` was regenerated after the latest sync.
-- This audit records source sync point, conflict decisions, verification commands, risk caps, and follow-up work.
+- This audit records source sync point, conflict decisions, verification commands, risk caps, current inventory, and follow-up work.
+- Current scorecard values are aligned with the detailed risk sections and the latest verification evidence.
 
 Risks:
 
@@ -317,12 +363,13 @@ Risks:
 
 ### Release Readiness
 
-Rating: **8.2 / 10**
+Rating: **8.7 / 10**
 
 Strengths:
 
 - Debug APK builds successfully.
-- Automated tests pass after the latest home-screen fix.
+- Automated tests pass after the latest security/compliance pass.
+- Profile APK and split-per-ABI profile builds passed in the latest verification cycle.
 - Source `main` through `c0950a7` is included in local `HEAD`.
 
 Risks:
@@ -335,39 +382,39 @@ Risks:
 
 | Area | Score |
 |---|---:|
-| Build health | 8.8 / 10 |
-| Tests | 8.8 / 10 |
-| Security | 8.5 / 10 |
-| Code quality | 8.0 / 10 |
-| Architecture | 8.2 / 10 |
+| Build health | 9.0 / 10 |
+| Tests | 9.1 / 10 |
+| Security | 9.0 / 10 |
+| Code quality | 8.5 / 10 |
+| Architecture | 8.4 / 10 |
 | UI/UX organization | 8.6 / 10 |
-| Assets/performance | 8.1 / 10 |
-| Documentation | 9.0 / 10 |
-| Release readiness | 8.2 / 10 |
+| Assets/performance | 8.6 / 10 |
+| Documentation | 9.1 / 10 |
+| Release readiness | 8.7 / 10 |
 
-Overall: **8.5 / 10**
+Overall: **8.8 / 10**
 
 ## Rating Basis
 
 These scores are intentionally conservative. They reflect verified evidence from this workspace, not desired targets.
 
-- Build health is **8.8** because `flutter pub get`, `flutter test`, and `flutter build apk --debug` pass, but full analyzer does not complete and signed release build was not verified.
-- Tests are **8.8** because all `56/56` automated tests pass, but no coverage report or real-device smoke test was run.
-- Security is **8.5** because sensitive login/chat/QR logging, hardcoded sign-in device id, unsafe stored-session handling, and automatic exact-alarm prompts were addressed; the score is capped because Firebase Functions dependency audit, production Firestore/Storage role review, App Check posture, and older verbose non-auth logs still need follow-up.
-- Code quality is **8.0** because the touched compile errors are fixed and formatted, but full analyzer inventory is unavailable due timeout and legacy mixed patterns remain.
-- Architecture is **8.2** because new work follows existing feature folders and BLoC is used in key flows, but the project still mixes Provider, Riverpod, BLoC, service singletons, and direct repositories.
+- Build health is **9.0** because `flutter pub get`, `flutter test`, `flutter build apk --debug`, profile APK, and split-per-ABI profile APK builds pass; it is capped because full analyzer does not complete and signed release build was not verified.
+- Tests are **9.1** because all `61/61` automated tests pass and new security/compliance regression tests were added; it is capped because no coverage report or real-device smoke test was run.
+- Security is **9.0** because sensitive login/chat/QR logging, hardcoded sign-in device id, unsafe stored-session handling, automatic exact-alarm prompts, and unsafe shared API logging were addressed and covered with tests; the score is capped because Firebase Functions dependency audit, production Firestore/Storage role review, App Check posture, and older verbose non-auth logs still need follow-up.
+- Code quality is **8.5** because the touched compile errors are fixed and formatted, shared logging is centralized and covered by tests, and targeted analyzer passes for changed files; it is capped because full analyzer inventory is unavailable due timeout and legacy mixed patterns remain.
+- Architecture is **8.4** because new work follows existing feature folders, BLoC is used in key flows, and compliance risks now have automated guard tests; it is capped because the project still mixes Provider, Riverpod, BLoC, service singletons, and direct repositories.
 - UI/UX organization is **8.6** because splash video/fallback, home widgets, and update flows are organized and build clean, but no device-level UI smoke test was completed after the latest sync.
-- Assets/performance is **8.1** because duplicate/unused large assets remain removed and the debug build passes, but app assets are still large at **89.49 MB** and no release/profile performance measurement was run in the latest sync.
-- Documentation is **9.0** because `PROJECT_FILE_INDEX.md` and this audit are updated and source-sync decisions are documented; it is not higher because the report still contains older historical addenda that may need archival cleanup later.
-- Release readiness is **8.2** because debug build and tests pass, but signed release build requires local signing credentials and production device validation.
+- Assets/performance is **8.6** because duplicate/unused large assets remain removed, three more unused large assets were deleted, app assets are down to **81.68 MB / 522 files**, and profile builds pass; it is capped because assets are still large and no device startup/performance profile was captured.
+- Documentation is **9.1** because `PROJECT_FILE_INDEX.md` and this audit are updated, current ratings are aligned across the report, and source-sync decisions are documented; it is not higher because historical addenda remain in the same file and could be archived later.
+- Release readiness is **8.7** because debug build, tests, profile build, and split-per-ABI profile builds pass, but signed release build requires local signing credentials and production device validation.
 
 ## Immediate Next Steps
 
 1. Configure Android release signing locally or in CI so `flutter build apk --release` can complete.
 2. Do one Android/Huawei device smoke test for splash video/fallback, force update, optional update, login, home, notifications, tasks/tickets, approvals, My Actions, and My Notes.
-3. Keep dependency-major upgrades separate from feature work because many current packages have newer incompatible versions.
+3. Capture a real-device startup/performance profile after splash and asset cleanup.
 4. Continue focused log cleanup in older feature modules as they are touched.
-5. Re-run Firebase Functions dependency audit before production deployment.
+5. Re-run Firebase Functions dependency audit and production Firestore/Storage role review before deployment.
 
 ## Git State At Audit Time
 

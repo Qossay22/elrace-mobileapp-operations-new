@@ -2,10 +2,10 @@
 
 Quick reference for the project files: path, size, category, and a short responsibility note.
 
-- Generated at: 2026-09-13 10:43:20 +04:00
+- Generated at: 2026-09-13 11:12:29 +04:00
 - Root: C:\Users\Qossay\Desktop\project\Elrace-mobileapp-operations-qossay_update
-- Indexed files: 2382
-- Indexed total size: 106.82 MB
+- Indexed files: 2381
+- Indexed total size: 99.03 MB
 - Skipped generated/heavy folders: .git, .dart_tool, .idea, .vscode, build, dist, coverage, node_modules, Pods, .gradle, DerivedData
 
 > Note: descriptions are inferred from file path, name, and extension. Regenerate after major updates with: powershell -ExecutionPolicy Bypass -File .\scripts\generate_project_file_index.ps1
@@ -13,9 +13,9 @@ Quick reference for the project files: path, size, category, and a short respons
 ## Quick Map
 
 - **Android native project**: 34 files, 1.08 MB
-- **App assets**: 525 files, 89.49 MB
+- **App assets**: 522 files, 81.68 MB
 - **Architecture/documentation notes**: 11 files, 123.02 KB
-- **Automated tests**: 10 files, 41.71 KB
+- **Automated tests**: 12 files, 45.48 KB
 - **Code generation templates**: 35 files, 31.22 KB
 - **Configuration examples**: 2 files, 1.10 KB
 - **Developer/automation scripts**: 5 files, 14.81 KB
@@ -25,7 +25,7 @@ Quick reference for the project files: path, size, category, and a short respons
 - **iOS native project**: 70 files, 2.19 MB
 - **Local package/plugin**: 240 files, 523.33 KB
 - **Project documentation**: 54 files, 1.08 MB
-- **Project root/configuration**: 32 files, 838.69 KB
+- **Project root/configuration**: 32 files, 848.28 KB
 
 ## Files
 
@@ -159,7 +159,6 @@ Quick reference for the project files: path, size, category, and a short respons
 | assets/newapp/chat.png | 1.05 KB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/check_in_background.png | 26.14 KB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/Colors.png | 11.94 KB | App assets | Image or icon asset used by the app UI. |
-| assets/newapp/company_document_tab_folder.svg | 2.52 MB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/company_documents_no_of_file.png | 1.44 MB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/d_for_petty_Cach.png | 1.69 KB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/delete_svgrepo.com.png | 633 B | App assets | Image or icon asset used by the app UI. |
@@ -249,7 +248,6 @@ Quick reference for the project files: path, size, category, and a short respons
 | assets/newapp/simple_cards.png | 95.48 KB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/site_monitor_camera.png | 89.46 KB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/task_managment_widget_backdround.png | 4.49 MB | App assets | Image or icon asset used by the app UI. |
-| assets/newapp/test_petty_cach_image.png | 2.60 MB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/text.png | 788 B | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/time_sheet_widget_background.png | 47.97 KB | App assets | Image or icon asset used by the app UI. |
 | assets/newapp/tsbackground.png | 20.38 KB | App assets | Image or icon asset used by the app UI. |
@@ -499,7 +497,6 @@ Quick reference for the project files: path, size, category, and a short respons
 | assets/png/petty_cash.png | 8.41 KB | App assets | Image or icon asset used by the app UI. |
 | assets/png/pettycash_new_bg.png | 35.56 KB | App assets | Image or icon asset used by the app UI. |
 | assets/png/pettycash_new_bg_n.png | 242.73 KB | App assets | Image or icon asset used by the app UI. |
-| assets/png/pettycash_new_bg_old2.png | 2.69 MB | App assets | Image or icon asset used by the app UI. |
 | assets/png/petty-cash-icon.png | 850 B | App assets | Image or icon asset used by the app UI. |
 | assets/png/petty-colors.png | 42.91 KB | App assets | Image or icon asset used by the app UI. |
 | assets/png/plus_icon.png | 3.44 KB | App assets | Image or icon asset used by the app UI. |
@@ -2097,7 +2094,7 @@ Quick reference for the project files: path, size, category, and a short respons
 | lib/ui/widgets/title_bar_with_icon_and_back_widget.dart | 2.70 KB | Flutter app code | Reusable Flutter UI widget. |
 | lib/ui/widgets/update_dialog.dart | 7.78 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/ui/widgets/wave_clip_path.dart | 427 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
-| lib/utils/api_logger.dart | 7.26 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
+| lib/utils/api_logger.dart | 6.34 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/utils/api_query.dart | 6.47 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/utils/color_utils.dart | 952 B | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
 | lib/utils/custom_navigate.dart | 4.09 KB | Flutter app code | Dart file in the Flutter app; purpose follows its folder and name. |
@@ -2355,8 +2352,8 @@ Quick reference for the project files: path, size, category, and a short respons
 | packages/face_liveness_detector/README.md | 6.76 KB | Local package/plugin | Markdown documentation file. |
 | packages/face_liveness_detector/test/rekognition_face_liveness_test.dart | 16 B | Local package/plugin | Dart file in the Flutter app; purpose follows its folder and name. |
 | proguard-rules.pro | 3.62 KB | Project root/configuration | Project file; use its path and extension to locate its role. |
-| PROJECT_FILE_INDEX.md | 326.23 KB | Project root/configuration | Markdown documentation file. |
-| PROJECT_FULL_AUDIT_REPORT.md | 33.12 KB | Project root/configuration | Markdown documentation file. |
+| PROJECT_FILE_INDEX.md | 326.13 KB | Project root/configuration | Markdown documentation file. |
+| PROJECT_FULL_AUDIT_REPORT.md | 42.81 KB | Project root/configuration | Markdown documentation file. |
 | PROJECT_FULL_AUDIT_REPORT_ELRACE_MOBILEAPP_OPERATIONS.md | 8.39 KB | Project root/configuration | Markdown documentation file. |
 | pubspec.lock | 85.21 KB | Project root/configuration | Pinned Dart/Flutter dependency versions. |
 | pubspec.yaml | 6.07 KB | Project root/configuration | Flutter project manifest for packages, assets, and fonts. |
@@ -2404,10 +2401,12 @@ Quick reference for the project files: path, size, category, and a short respons
 | templates/simple/screen.tmpl | 2.20 KB | Code generation templates | Code generation template. |
 | templates/simple/state.tmpl | 833 B | Code generation templates | Code generation template. |
 | test/anti_spoof_test.dart | 15.78 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
+| test/api_logger_security_test.dart | 1.84 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/home/home_widget_visibility_test.dart | 2.11 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/hr_management/hr_effective_view_test.dart | 3.12 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/minifasnet_preprocessor_test.dart | 1.15 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/my_projects_user_projects_test.dart | 3.02 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
+| test/project_compliance_test.dart | 1.92 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/projects_dashboard_aggregator_test.dart | 1.85 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/projects_group_manager_test.dart | 8.51 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
 | test/tasks_api_service_test.dart | 2.34 KB | Automated tests | Automated Flutter/Dart test for app behavior. |
