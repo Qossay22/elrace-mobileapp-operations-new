@@ -104,7 +104,7 @@ Verification for this addendum:
 
 The project was synced with the latest `source/main` updates from `Elrace-mobileapp-operations` while preserving the local project organization files that are intentionally maintained in this repository.
 
-Current overall project rating: **8.5 / 10**
+Current overall project rating: **9.1 / 10**
 
 The application dependencies resolve, the Flutter test suite passes, and a debug APK builds successfully. This pass improves login/chat/QR security by removing sensitive logging, improves asset/performance posture by deleting two large unused assets, removes the first-launch Android Alarms & reminders settings jump by avoiding automatic exact-alarm permission requests, and restores full splash-video playback before navigation. The main remaining issue is analyzer reliability in this workspace: analyzer commands still time out after extended runs, so analyzer status is not treated as passed in this audit.
 
@@ -209,7 +209,7 @@ Rating: **8.8 / 10**
 Strengths:
 
 - `flutter pub get` passes.
-- `flutter test` passes all 42 tests.
+- `flutter test` passes all 56 tests.
 - Debug APK build succeeds.
 
 Risks:
@@ -219,7 +219,7 @@ Risks:
 
 ### Security
 
-Rating: **8.2 / 10**
+Rating: **9.0 / 10**
 
 Strengths:
 
