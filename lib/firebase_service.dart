@@ -517,8 +517,7 @@ class FirebaseService {
               return null;
             }
           } else {
-            print(
-                '✅ APNS token is available: ${apnsToken.substring(0, 20)}...');
+            print('✅ APNS token is available for this device');
           }
         } catch (apnsError) {
           print('❌ Error checking APNS token: $apnsError');
@@ -529,7 +528,7 @@ class FirebaseService {
       String? token = await _firebaseMessaging.getToken();
       if (token != null) {
         SharedPref().setPreferencesString(fcm_token, token);
-        print('📱 FCM Token obtained and stored: ${token.substring(0, 20)}...');
+        print('📱 FCM token obtained and stored');
         unawaited(syncFcmTokenToOdoo(token: token));
       } else {
         print('❌ Failed to get FCM token - Firebase may not be initialized');
@@ -548,7 +547,7 @@ class FirebaseService {
     try {
       String? token = await ensureFCMToken();
       if (token != null) {
-        print('✅ FCM Token test successful: ${token.substring(0, 20)}...');
+        print('✅ FCM token test successful');
       } else {
         print('❌ FCM Token test failed - no token generated');
         print('🔄 Trying alternative method...');
@@ -566,7 +565,7 @@ class FirebaseService {
       // Try to get token directly without APNS check
       String? token = await _firebaseMessaging.getToken();
       if (token != null) {
-        print('✅ Alternative method successful: ${token.substring(0, 20)}...');
+        print('✅ Alternative method successful');
         SharedPref().setPreferencesString(fcm_token, token);
         return token;
       } else {

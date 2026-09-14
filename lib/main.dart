@@ -562,7 +562,7 @@ Future<void> _initPrayerAndCheckoutServices() async {
 Future<void> _logFcmToken() async {
   if (!kDebugMode) return;
   try {
-    String? fcmToken = await FirebaseMessaging.instance.getToken().timeout(
+    final fcmToken = await FirebaseMessaging.instance.getToken().timeout(
       const Duration(seconds: 10),
       onTimeout: () {
         print('⚠️ FCM token timeout');
@@ -570,13 +570,7 @@ Future<void> _logFcmToken() async {
       },
     );
     if (fcmToken != null) {
-      print('');
-      print('═══════════════════════════════════════════════════════════');
-      print('🔥 FCM TOKEN :');
-      print('═══════════════════════════════════════════════════════════');
-      print(fcmToken);
-      print('═══════════════════════════════════════════════════════════');
-      print('');
+      print('✅ FCM token available for this device');
     }
   } catch (e) {
     print('❌ FCM token error: $e');

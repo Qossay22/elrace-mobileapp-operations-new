@@ -211,8 +211,7 @@ class GradientSliderState extends State<GradientSliderWidget> {
       final loginResponse = widget.loginResponseModel;
       final token = loginResponse.result.token;
 
-      debugPrint(
-          '🔍 Fetching projects with token: ${token.substring(0, 20)}...');
+      debugPrint('🔍 Fetching projects with authenticated request');
 
       // Headers
       Map<String, String> headers = {

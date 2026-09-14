@@ -63,6 +63,22 @@ void main() {
         expect(text, isNot(contains('print(')), reason: path);
       }
     });
+
+    test('does not print push tokens or cached chat identifiers', () {
+      final main = File('lib/main.dart').readAsStringSync();
+      final firebaseService =
+          File('lib/firebase_service.dart').readAsStringSync();
+      final chatSessionStorage =
+          File('lib/chat/services/chat_session_storage.dart')
+              .readAsStringSync();
+
+      expect(main, isNot(contains('print(fcmToken)')));
+      expect(main, isNot(contains('FCM TOKEN')));
+      expect(firebaseService, isNot(contains('token.substring(0, 20)')));
+      expect(firebaseService, isNot(contains('apnsToken.substring(0, 20)')));
+      expect(chatSessionStorage, isNot(contains('Firebase UID:')));
+      expect(chatSessionStorage, isNot(contains('Role Chat ID:')));
+    });
   });
 }
 

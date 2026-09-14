@@ -36,11 +36,9 @@ class ChatSessionStorage {
       await Future.wait([
         _storage.write(key: _keyFirebaseUid, value: firebaseUid),
         _storage.write(key: _keyRoleChatId, value: roleChatId),
+        _storage.write(key: _keySessionData, value: jsonEncode(sessionData)),
         _storage.write(
-            key: _keySessionData, value: jsonEncode(sessionData)),
-        _storage.write(
-            key: _keySetupTimestamp,
-            value: DateTime.now().toIso8601String()),
+            key: _keySetupTimestamp, value: DateTime.now().toIso8601String()),
         _storage.write(key: _keyIsSetupComplete, value: 'true'),
       ]);
       print('✅ ChatSessionStorage: Session saved securely');
@@ -71,21 +69,24 @@ class ChatSessionStorage {
       final sessionDataJson = results[2];
       final timestampStr = results[3];
 
-      if (firebaseUid == null || roleChatId == null || sessionDataJson == null) {
+      if (firebaseUid == null ||
+          roleChatId == null ||
+          sessionDataJson == null) {
         print('⚠️ ChatSessionStorage: Incomplete cached session');
         return null;
       }
 
-      final sessionData =
-          jsonDecode(sessionDataJson) as Map<String, dynamic>;
-      final timestamp = timestampStr != null
-          ? DateTime.tryParse(timestampStr)
-          : null;
+      final sessionData = jsonDecode(sessionDataJson) as Map<String, dynamic>;
+      final timestamp =
+          timestampStr != null ? DateTime.tryParse(timestampStr) : null;
 
       print('✅ ChatSessionStorage: Loaded cached session');
-      print('   - Firebase UID: $firebaseUid');
-      print('   - Role Chat ID: $roleChatId');
-      print('   - Cached at: $timestamp');
+      print(
+        '   - Cached session metadata: '
+        'hasFirebaseUid=${firebaseUid.isNotEmpty}, '
+        'hasRoleChatId=${roleChatId.isNotEmpty}, '
+        'hasTimestamp=${timestamp != null}',
+      );
 
       return CachedChatSession(
         firebaseUid: firebaseUid,

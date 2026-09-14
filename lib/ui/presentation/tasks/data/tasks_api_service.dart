@@ -275,7 +275,7 @@ class TasksApiService {
     print('🔵 SUBMIT TASK API CALL');
     print('═══════════════════════════════════════════════════');
     print('📍 URL: $uri');
-    print('🔑 Token: ${token.substring(0, 20)}...');
+    print('🔑 Token: <redacted>');
     print('📦 Body: $body');
     print('📋 Task ID: $taskId');
     print('═══════════════════════════════════════════════════');

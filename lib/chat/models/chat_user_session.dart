@@ -107,7 +107,7 @@ class ChatUserSession {
         _extractInt(resultMap?['uid']) ??
         0;
 
-    // Firebase UID: use provided or generate from odoo_user_id
+    // Firebase user identifier: use provided or generate from odoo_user_id
     final String firebaseUid = uidFromData?.toString() ??
         uidFromResult?.toString() ??
         uidFromRoot?.toString() ??

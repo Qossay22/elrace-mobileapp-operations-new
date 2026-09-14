@@ -4,6 +4,53 @@ Generated at: 2026-09-13 10:35 +04:00
 Project: `elrace-mobileapp-operations-new`
 Source sync target reviewed: `97jaw/Elrace-mobileapp-operations/main` at `c0950a7`
 
+## Sensitive Logging Hardening Addendum - 2026-09-14 10:39 +04:00
+
+Implemented an additional low-risk security/code-quality pass without
+changing app screens, navigation, or product behavior.
+
+- Removed full FCM token printing from `lib/main.dart`.
+- Removed FCM/APNS token previews from `lib/firebase_service.dart`.
+- Removed token preview logging from project/task/announcement request paths:
+  - `lib/ui/widgets/horizontal_slider_widget.dart`
+  - `lib/ui/presentation/tasks/data/tasks_api_service.dart`
+  - `lib/data/services/announcements_api_service.dart`
+- Removed cached Firebase UID / role chat ID value logging from
+  `lib/chat/services/chat_session_storage.dart`; logs now report safe metadata
+  booleans instead.
+- Added a regression guard in `test/project_compliance_test.dart` to prevent
+  reintroducing push-token previews or cached chat identifier logs.
+
+Verification for this hardening pass:
+
+| Check | Result | Notes |
+|---|---:|---|
+| Sensitive log scan | Pass | No FCM/APNS token preview patterns or cached chat ID labels remain in `lib`. |
+| Focused Flutter tests | Pass | `flutter test test/project_compliance_test.dart test/chat_auth_compile_test.dart test/api_logger_security_test.dart` passed `8/8`. |
+| Full Flutter tests | Pass | `flutter test` passed `64/64` after adding the sensitive-log regression guard. |
+| `flutter build apk --debug` | Pass | Built `build/app/outputs/flutter-apk/app-debug.apk` after the logging cleanup. |
+
+## Biometric Fallback Ordering Addendum - 2026-09-14 10:28 +04:00
+
+Adjusted the post-splash biometric flow without changing the Home design or
+the manual biometric fallback screen.
+
+- Updated `lib/ui/presentation/home_screen/screens/home_screen.dart` so the
+  OS biometric prompt starts automatically after the first Home frame when a
+  logged-in session still needs biometric verification.
+- Kept the existing `BiometricSignInGateScreen` UI unchanged.
+- The manual `Authentication required` screen now remains a fallback for
+  cancelled/skipped/failed biometric attempts instead of appearing before the
+  first biometric prompt.
+
+Verification for this focused UI-flow fix:
+
+| Check | Result | Notes |
+|---|---:|---|
+| Focused Flutter tests | Pass | `flutter test test/project_compliance_test.dart test/chat_auth_compile_test.dart test/api_logger_security_test.dart` passed `7/7`. |
+| `flutter build apk --debug` | Pass | Built `build/app/outputs/flutter-apk/app-debug.apk` after the one-file Home change. |
+| `git diff --check` | Pass | No whitespace or conflict-marker errors. |
+
 ## BLoC Dependency Update Addendum - 2026-09-14 08:39 +04:00
 
 Updated the BLoC dependency set requested by the workspace extension warning.

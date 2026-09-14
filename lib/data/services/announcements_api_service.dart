@@ -66,7 +66,7 @@ class AnnouncementsApiService {
 
       // print('📤 API Request to $url');
       // print('📋 Request body: $requestBody');
-      // print('🔑 Token: ${token.substring(0, 20)}...');
+      // Token intentionally not logged.
 
       // Make API call
       final response = await _dio.post(
