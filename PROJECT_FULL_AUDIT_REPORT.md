@@ -4,6 +4,26 @@ Generated at: 2026-09-13 10:35 +04:00
 Project: `elrace-mobileapp-operations-new`
 Source sync target reviewed: `97jaw/Elrace-mobileapp-operations/main` at `c0950a7`
 
+## BLoC Dependency Update Addendum - 2026-09-14 08:39 +04:00
+
+Updated the BLoC dependency set requested by the workspace extension warning.
+
+- Updated `bloc` from `8.1.4` to `9.2.1`.
+- Updated `flutter_bloc` from `8.1.6` to `9.1.1`.
+- Updated `equatable` from `2.0.8` to `2.1.0`.
+- Replaced unconstrained `flutter_bloc: null` and `equatable: null` entries with explicit compatible version constraints in `pubspec.yaml`.
+- Ran `flutter clean` to remove stale generated Flutter/iOS ephemeral files after the first `pub get` hit a temporary `.packages` deletion issue.
+- Regenerated `PROJECT_FILE_INDEX.md` after dependency resolution.
+
+Verification for this dependency update:
+
+| Check | Result | Notes |
+|---|---:|---|
+| `flutter pub get` | Pass | Dependencies resolve with `bloc 9.2.1`, `flutter_bloc 9.1.1`, and `equatable 2.1.0`. |
+| `flutter test` | Pass | `63/63` tests passed after the BLoC updates. |
+| `flutter build apk --debug` | Pass | Built `build/app/outputs/flutter-apk/app-debug.apk`; first build after `flutter clean` took about 699 seconds. |
+| `git diff --check` | Pass | No whitespace or conflict-marker errors. |
+
 ## Chat Security And Quality Addendum - 2026-09-13 16:04 +04:00
 
 Implemented a second focused cleanup pass without changing app design or user-facing behavior.

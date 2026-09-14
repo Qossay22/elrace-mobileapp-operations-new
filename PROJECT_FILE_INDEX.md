@@ -2,7 +2,7 @@
 
 Quick reference for the project files: path, size, category, and a short responsibility note.
 
-- Generated at: 2026-09-13 16:04:37 +04:00
+- Generated at: 2026-09-14 08:39:02 +04:00
 - Root: C:\Users\Qossay\Desktop\project\Elrace-mobileapp-operations-qossay_update
 - Indexed files: 2382
 - Indexed total size: 99.02 MB
@@ -25,7 +25,7 @@ Quick reference for the project files: path, size, category, and a short respons
 - **iOS native project**: 70 files, 2.19 MB
 - **Local package/plugin**: 240 files, 523.33 KB
 - **Project documentation**: 54 files, 1.08 MB
-- **Project root/configuration**: 32 files, 848.28 KB
+- **Project root/configuration**: 32 files, 850.95 KB
 
 ## Files
 
@@ -2352,8 +2352,8 @@ Quick reference for the project files: path, size, category, and a short respons
 | packages/face_liveness_detector/README.md | 6.76 KB | Local package/plugin | Markdown documentation file. |
 | packages/face_liveness_detector/test/rekognition_face_liveness_test.dart | 16 B | Local package/plugin | Dart file in the Flutter app; purpose follows its folder and name. |
 | proguard-rules.pro | 3.62 KB | Project root/configuration | Project file; use its path and extension to locate its role. |
-| PROJECT_FILE_INDEX.md | 326.13 KB | Project root/configuration | Markdown documentation file. |
-| PROJECT_FULL_AUDIT_REPORT.md | 42.81 KB | Project root/configuration | Markdown documentation file. |
+| PROJECT_FILE_INDEX.md | 326.24 KB | Project root/configuration | Markdown documentation file. |
+| PROJECT_FULL_AUDIT_REPORT.md | 45.38 KB | Project root/configuration | Markdown documentation file. |
 | PROJECT_FULL_AUDIT_REPORT_ELRACE_MOBILEAPP_OPERATIONS.md | 8.39 KB | Project root/configuration | Markdown documentation file. |
 | pubspec.lock | 85.21 KB | Project root/configuration | Pinned Dart/Flutter dependency versions. |
 | pubspec.yaml | 6.07 KB | Project root/configuration | Flutter project manifest for packages, assets, and fonts. |
