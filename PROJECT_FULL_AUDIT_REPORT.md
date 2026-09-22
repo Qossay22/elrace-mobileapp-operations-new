@@ -4,6 +4,71 @@ Generated at: 2026-09-13 10:35 +04:00
 Project: `elrace-mobileapp-operations-new`
 Source sync target reviewed: `97jaw/Elrace-mobileapp-operations/qossay_update` at `aec5018`
 
+## Developer Tooling Performance Addendum - 2026-09-22 +04:00
+
+Investigated the high CPU usage and long analysis time without changing any
+application UI, business flow, runtime feature, or state-management behavior.
+
+Measured causes:
+
+- Two VS Code Dart language servers were initially present while command-line
+  analysis was also running, causing duplicate analysis work.
+- VS Code was monitoring a 16,873-file workspace that included generated
+  Android/Flutter output such as 3,583 DEX files, 3,446 class files, and 861
+  JAR files.
+- The workspace fell back to an older nested Flutter SDK at
+  `~/flutter/flutter` (Flutter 3.38.9), while terminal builds used
+  `~/flutter` (Flutter 3.41.6).
+- The active application contains 1,358 Dart files under `lib`; a full analyzer
+  pass is inherently expensive and should not be duplicated by the IDE and a
+  terminal process during normal editing.
+
+Changes made:
+
+- Added tracked `.vscode/settings.json` performance settings that:
+  - pin this workspace to the same `~/flutter` SDK used by the terminal;
+  - exclude generated build, Gradle, Node, Pods, and DerivedData folders from
+    file watching/search;
+  - exclude generated/unused nested projects from Dart project detection;
+  - disable dependency symbols in the workspace-wide symbol index while
+    preserving diagnostics, navigation, completion, and all app source checks.
+- Expanded `analysis_options.yaml` exclusions only for generated trees, the
+  unused vendored scanner copy (the app resolves its hosted pub package), and
+  the face-liveness example app. Active `lib`, `test`, and face-liveness plugin
+  library code remain analyzable.
+- Added `scripts/analyze_changed.ps1`. Its default mode analyzes only currently
+  changed Dart files with `--no-pub` and below-normal process priority. `-Full`
+  remains available for an explicit full-project pass.
+- Updated the file-index generator so tracked `.vscode/settings.json` is
+  documented while generated `.log` files remain excluded.
+
+Measured results:
+
+| Check | Result | Evidence |
+|---|---:|---|
+| SDK consistency | Pass | VS Code and terminal now use Flutter 3.41.6 / Dart 3.11.4 from `~/flutter`. |
+| Connected device | Pass | `flutter devices` still detects `SM A366B` (`RFCY326B4DV`). |
+| Clean IDE indexing | Pass | Initial re-index completed in about 50 seconds; idle CPU then measured 0.266 CPU-seconds over 5 seconds. |
+| IDE analyzer memory | Observed, not capped | Working set varied from about 334 MB after a clean re-index to 1.56 GB after retaining the full workspace cache, versus a 1.84 GB measured peak. No unsafe heap cap was added. |
+| One-file analysis | Pass | `analyze_changed.ps1 -TargetPath lib/core/firebase/firebase_error_message.dart` completed in 15.2 seconds with no issues. |
+| Full analyzer inventory | Pass with backlog | Completed in 381.8 seconds with no analyzer errors and 2,024 existing warning/info diagnostics. |
+| Full Flutter tests | Pass | `flutter test --no-pub` passed `77/77`; no app behavior changed. |
+| Project file index | Pass | Regenerated with 2,396 indexed files, including the shared VS Code settings and analysis helper. |
+
+Operational guidance:
+
+- Use `powershell -ExecutionPolicy Bypass -File .\scripts\analyze_changed.ps1`
+  during normal development.
+- Use `-Full` only for deliberate repository-wide checks, preferably with
+  extra Flutter VS Code windows closed so the same 1,358 files are not analyzed
+  concurrently.
+- One Dart language server per open Flutter VS Code window is expected. Idle
+  CPU returned to zero in the final sample; retained analyzer memory is cache
+  and may remain high until the language server/window is restarted.
+- The 2,024 analyzer diagnostics are a real legacy quality backlog. They were
+  not suppressed or relabeled by this performance work and should be reduced
+  incrementally by feature rather than through a risky application-wide edit.
+
 ## Qossay Update Branch Sync Addendum - 2026-09-22 +04:00
 
 Merged the complete `source/qossay_update` branch through commit `aec5018`
@@ -539,7 +604,7 @@ Strengths:
 Risks:
 
 - Signed release build was not verified because local signing credentials are not configured.
-- Full analyzer does not complete in this workspace.
+- Full analyzer completes but remains slow (381.8 seconds in the latest measured run) and reports 2,024 existing warning/info diagnostics.
 - Production readiness still needs a real-device smoke test and Firebase/security deployment review.
 
 ## Scorecard
@@ -562,10 +627,10 @@ Overall: **8.9 / 10**
 
 These scores are intentionally conservative. They reflect verified evidence from this workspace, not desired targets.
 
-- Build health is **9.0** because `flutter pub get`, `flutter test`, `flutter build apk --debug`, profile APK, and split-per-ABI profile APK builds pass; it is capped because full analyzer does not complete and signed release build was not verified.
+- Build health is **9.0** because `flutter pub get`, `flutter test`, `flutter build apk --debug`, profile APK, split-per-ABI profile APK, and a full no-error analyzer pass complete; it is capped because the analyzer remains slow with a 2,024-diagnostic warning/info backlog and signed release build was not verified.
 - Tests are **9.3** because all `77/77` automated tests pass, including new Timesheet acting-session, Home widget session-merge, prayer-location, security, and compliance coverage; it is capped because no coverage report or real-device smoke test was run.
 - Security is **9.3** because sensitive login/chat/QR logging, hardcoded sign-in device id, unsafe stored-session handling, automatic exact-alarm prompts, unsafe shared API logging, sensitive chat auth/session direct prints, and unsafe `ChatUserSession.toString()` output were addressed; Firebase rules now pass `49/49` emulator tests and the rules-test harness reports zero dependency vulnerabilities. The score is capped because Firebase Functions dependency audit, production role deployment review, App Check posture, and older verbose non-auth logs still need follow-up.
-- Code quality is **8.8** because the merge is formatted, build/test clean, duplicate navigation is guarded, Firebase recovery is centralized, and focused tests cover the new behavior; it is capped because full analyzer inventory is unavailable and legacy mixed patterns remain.
+- Code quality is **8.8** because the merge is formatted, build/test clean, duplicate navigation is guarded, Firebase recovery is centralized, focused tests cover the new behavior, and the analyzer inventory is now measurable; it is capped because 2,024 existing warning/info diagnostics and legacy mixed patterns remain.
 - Architecture is **8.6** because the sync adds explicit Firebase session boundaries, shared project-module dependency construction, and scoped Timesheet acting-session providers/guards while retaining BLoC in key flows; it is capped because the project still mixes Provider, Riverpod, BLoC, service singletons, and direct repositories.
 - UI/UX organization is **8.7** because splash rendering, biometric fallback order, project navigation, map overflow behavior, family-document flow, and Timesheet acting-state presentation are organized and build clean; it is capped because no device-level UI smoke test was completed after this sync.
 - Assets/performance is **8.6** because duplicate/unused large assets remain removed, three more unused large assets were deleted, app assets are down to **81.68 MB / 522 files**, and profile builds pass; it is capped because assets are still large and no device startup/performance profile was captured.

@@ -8,7 +8,6 @@ $excludedDirs = @(
   ".git",
   ".dart_tool",
   ".idea",
-  ".vscode",
   "build",
   "dist",
   "coverage",
@@ -70,6 +69,7 @@ function Get-Purpose([string]$path, [string]$extension) {
     '^pubspec\.yaml$' { return "Flutter project manifest for packages, assets, and fonts." }
     '^pubspec\.lock$' { return "Pinned Dart/Flutter dependency versions." }
     '^analysis_options\.yaml$' { return "Dart analyzer and lint configuration." }
+    '^\.vscode/settings\.json$' { return "Shared VS Code workspace performance and tooling settings." }
     '^firebase\.json$' { return "Firebase project configuration." }
     '^firestore\.rules$' { return "Firestore security rules." }
     '^android/.+AndroidManifest\.xml$' { return "Android app manifest, permissions, and components." }
@@ -85,6 +85,7 @@ function Get-Purpose([string]$path, [string]$extension) {
     '^doc/.+\.md$' { return "Feature documentation, requirements, plan, or task notes." }
     '^docs/.+\.txt$' { return "Text notes or audit output." }
     '^templates/.+\.tmpl$' { return "Code generation template." }
+    '^scripts/analyze_changed\.ps1$' { return "Fast changed-file Dart analysis with reduced CPU priority." }
     '^scripts/.+\.ps1$' { return "PowerShell automation script for project maintenance." }
     '^scripts/.+\.sh$' { return "Shell automation script for project maintenance." }
   }

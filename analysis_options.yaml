@@ -12,6 +12,15 @@ include: package:flutter_lints/flutter.yaml
 analyzer:
   exclude:
     - lib/core/biometric/face_recognition/QUICK_START_EXAMPLE.dart
+    # Generated dependency/build trees are not application source.
+    - "**/.dart_tool/**"
+    - "**/build/**"
+    - "**/node_modules/**"
+    # This vendored scanner copy is not the dependency used by pubspec; the
+    # application resolves cunning_document_scanner from the pub cache.
+    - packages/cunning_document_scanner/**
+    # Keep the active plugin library analyzed while skipping its demo app.
+    - packages/face_liveness_detector/example/**
 
 linter:
   rules:

@@ -1,0 +1,34 @@
+{
+    "dart.flutterSdkPath": "~/flutter",
+    "dart.sdkPath": "~/flutter/bin/cache/dart-sdk",
+    "dart.analysisExcludedFolders": [
+        ".dart_tool",
+        "build",
+        "firebase/rules-tests/node_modules",
+        "functions/node_modules",
+        "functions-liveness/node_modules",
+        "packages/cunning_document_scanner",
+        "packages/face_liveness_detector/example"
+    ],
+    "dart.includeDependenciesInWorkspaceSymbols": false,
+    "files.watcherExclude": {
+        "**/.dart_tool/**": true,
+        "**/.gradle/**": true,
+        "**/build/**": true,
+        "**/DerivedData/**": true,
+        "**/node_modules/**": true,
+        "**/Pods/**": true
+    },
+    "search.exclude": {
+        "**/.dart_tool": true,
+        "**/.gradle": true,
+        "**/build": true,
+        "**/DerivedData": true,
+        "**/node_modules": true,
+        "**/Pods": true
+    },
+    "gradle.autoDetect": "off",
+    "gradle.nestedProjects": false,
+    "java.gradle.buildServer.enabled": "off",
+    "java.gradle.buildServer.openBuildOutput": "neverOpen"
+}

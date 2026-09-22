@@ -2,11 +2,11 @@
 
 Quick reference for the project files: path, size, category, and a short responsibility note.
 
-- Generated at: 2026-09-22 09:19:44 +04:00
+- Generated at: 2026-09-22 09:57:10 +04:00
 - Root: C:\Users\Qossay\Desktop\project\Elrace-mobileapp-operations-qossay_update
-- Indexed files: 2394
-- Indexed total size: 99.59 MB
-- Skipped generated/heavy folders: .git, .dart_tool, .idea, .vscode, build, dist, coverage, node_modules, Pods, .gradle, DerivedData
+- Indexed files: 2396
+- Indexed total size: 99.60 MB
+- Skipped generated/heavy folders: .git, .dart_tool, .idea, build, dist, coverage, node_modules, Pods, .gradle, DerivedData
 - Skipped generated file extensions: .log
 
 > Note: descriptions are inferred from file path, name, and extension. Regenerate after major updates with: powershell -ExecutionPolicy Bypass -File .\scripts\generate_project_file_index.ps1
@@ -19,14 +19,14 @@ Quick reference for the project files: path, size, category, and a short respons
 - **Automated tests**: 16 files, 56.88 KB
 - **Code generation templates**: 35 files, 31.22 KB
 - **Configuration examples**: 2 files, 1.10 KB
-- **Developer/automation scripts**: 5 files, 15.02 KB
+- **Developer/automation scripts**: 6 files, 17.93 KB
 - **Face liveness backend functions**: 3 files, 134.69 KB
 - **Firebase Cloud Functions**: 12 files, 209.73 KB
 - **Flutter app code**: 1360 files, 11.19 MB
 - **iOS native project**: 70 files, 2.19 MB
 - **Local package/plugin**: 240 files, 523.33 KB
 - **Project documentation**: 54 files, 1.08 MB
-- **Project root/configuration**: 29 files, 845.36 KB
+- **Project root/configuration**: 30 files, 851.11 KB
 
 ## Files
 
@@ -34,8 +34,9 @@ Quick reference for the project files: path, size, category, and a short respons
 |---|---:|---|---|
 | .cursor/rules/gitflow-branching.mdc | 2.10 KB | Project root/configuration | Project file; use its path and extension to locate its role. |
 | .flutter-plugins-dependencies | 59.10 KB | Project root/configuration | Project file; use its path and extension to locate its role. |
-| .gitignore | 1.19 KB | Project root/configuration | Project file; use its path and extension to locate its role. |
-| analysis_options.yaml | 1.60 KB | Project root/configuration | Dart analyzer and lint configuration. |
+| .gitignore | 1.21 KB | Project root/configuration | Project file; use its path and extension to locate its role. |
+| .vscode/settings.json | 1.04 KB | Project root/configuration | Shared VS Code workspace performance and tooling settings. |
+| analysis_options.yaml | 2.04 KB | Project root/configuration | Dart analyzer and lint configuration. |
 | android/.gitignore | 298 B | Android native project | Project file; use its path and extension to locate its role. |
 | android/app/build.gradle | 6.07 KB | Android native project | Gradle build configuration for Android. |
 | android/app/google-services.json | 1.17 KB | Android native project | JSON data or configuration file. |
@@ -2362,16 +2363,17 @@ Quick reference for the project files: path, size, category, and a short respons
 | packages/face_liveness_detector/README.md | 6.76 KB | Local package/plugin | Markdown documentation file. |
 | packages/face_liveness_detector/test/rekognition_face_liveness_test.dart | 16 B | Local package/plugin | Dart file in the Flutter app; purpose follows its folder and name. |
 | proguard-rules.pro | 3.62 KB | Project root/configuration | Project file; use its path and extension to locate its role. |
-| PROJECT_FILE_INDEX.md | 328.03 KB | Project root/configuration | Markdown documentation file. |
-| PROJECT_FULL_AUDIT_REPORT.md | 53.82 KB | Project root/configuration | Markdown documentation file. |
+| PROJECT_FILE_INDEX.md | 328.27 KB | Project root/configuration | Markdown documentation file. |
+| PROJECT_FULL_AUDIT_REPORT.md | 57.82 KB | Project root/configuration | Markdown documentation file. |
 | PROJECT_FULL_AUDIT_REPORT_ELRACE_MOBILEAPP_OPERATIONS.md | 8.39 KB | Project root/configuration | Markdown documentation file. |
 | pubspec.lock | 85.21 KB | Project root/configuration | Pinned Dart/Flutter dependency versions. |
 | pubspec.yaml | 6.07 KB | Project root/configuration | Flutter project manifest for packages, assets, and fonts. |
 | qrcodeapp.php | 7.28 KB | Project root/configuration | PHP helper/page related to QR or web integration. |
+| scripts/analyze_changed.ps1 | 2.72 KB | Developer/automation scripts | Fast changed-file Dart analysis with reduced CPU priority. |
 | scripts/convert_minifasnet_to_tflite.py | 2.87 KB | Developer/automation scripts | Python automation script or API example. |
 | scripts/copy_amplify_liveness_config.sh | 1.55 KB | Developer/automation scripts | Shell automation script for project maintenance. |
 | scripts/fix_ios_native_assets.sh | 532 B | Developer/automation scripts | Shell automation script for project maintenance. |
-| scripts/generate_project_file_index.ps1 | 8.59 KB | Developer/automation scripts | PowerShell automation script for project maintenance. |
+| scripts/generate_project_file_index.ps1 | 8.79 KB | Developer/automation scripts | PowerShell automation script for project maintenance. |
 | scripts/state_management_audit.ps1 | 1.49 KB | Developer/automation scripts | PowerShell automation script for project maintenance. |
 | startup_check.png | 29.68 KB | Project root/configuration | PNG image asset. |
 | storage.rules | 4.94 KB | Project root/configuration | Project file; use its path and extension to locate its role. |
