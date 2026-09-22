@@ -109,6 +109,7 @@ class _HomeScreenState extends State<HomeScreenPage>
         !HomeScreenPage._didAuthenticateThisSession) {
       _isBiometricLocked = true;
       HomeScreenPage._sessionUiLocked = true;
+      _showBiometricGateScreen = false;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         _authenticateAfterLogin();

@@ -2,7 +2,70 @@
 
 Generated at: 2026-09-13 10:35 +04:00
 Project: `elrace-mobileapp-operations-new`
-Source sync target reviewed: `97jaw/Elrace-mobileapp-operations/main` at `c0950a7`
+Source sync target reviewed: `97jaw/Elrace-mobileapp-operations/qossay_update` at `aec5018`
+
+## Qossay Update Branch Sync Addendum - 2026-09-22 +04:00
+
+Merged the complete `source/qossay_update` branch through commit `aec5018`
+into the local `main` branch. The source portion contains 48 commits and
+changes 100 tracked files (4,786 insertions and 2,398 deletions), before the
+local audit/index and rules-test dependency hardening updates documented below.
+
+Material updates integrated:
+
+- Added the Timesheet acting-as-foreman flow, including scoped providers,
+  acting-session guards, read-only protections, UI banner/sheet, capture flow
+  integration, and focused regression tests.
+- Added centralized Firebase session recovery/error handling and stopped the
+  custom-token refresh loop caused by signing in again from an ID-token-change
+  listener.
+- Added the family insurance request wizard support, attachment screen, draft
+  persistence/reset behavior, and HRMS review handling.
+- Updated My Projects data loading, shared module dependency injection,
+  dashboard grouping/counts, agreement dates, map marker sizing, and guarded
+  navigation to prevent duplicate module opens.
+- Improved My Notes audio/image/transcription behavior and clarified Firebase
+  billing/storage errors.
+- Added UAE-aware prayer-location handling and improved persistent adhan
+  scheduling/background behavior.
+- Updated app icons/assets and Android manifest integration supplied by the
+  source branch.
+- Pinned the Firebase rules test harness to patched `js-yaml 4.3.2`; its
+  dependency audit now reports zero known vulnerabilities.
+- Preserved local security hardening: sensitive auth/token values remain absent
+  from direct logs and the compliance regression tests still pass.
+- Preserved the approved biometric order: the OS prompt opens first and the
+  manual authentication screen appears only after cancellation/failure.
+- Integrated the Android platform-view splash-video improvement while retaining
+  the local requirement to wait for full video completion; a 30-second safety
+  timeout prevents a permanent startup block if playback never completes.
+
+Merge resolution:
+
+- Five content conflicts were resolved in Firebase chat auth, Home biometric
+  flow, project portfolio map, project navigation, and splash playback.
+- No conflict markers remain and `git diff --check` passes.
+
+Verification for this sync:
+
+| Check | Result | Notes |
+|---|---:|---|
+| `flutter pub get` | Pass | Dependency graph resolved successfully. |
+| Focused tests | Pass | New sync tests plus security/compliance tests passed `21/21`. |
+| Full Flutter tests | Pass | `flutter test` passed `77/77`. |
+| Firebase rules emulator tests | Pass | Firestore, Realtime Database, and Storage rules passed `49/49`. |
+| Firebase rules test dependency audit | Pass | `npm audit` reports 0 vulnerabilities across 161 packages after the `js-yaml` override. |
+| `flutter build apk --debug` | Pass | Built `build/app/outputs/flutter-apk/app-debug.apk` in 264.4 seconds. |
+| Project file index | Pass | Regenerated with 2,394 indexed files, including 1,360 Flutter files and 16 test files; generated `.log` files are excluded. |
+| Conflict marker scan | Pass | No unresolved Git conflict markers remain. |
+| Flutter analyzer | Inconclusive | Full and five-file targeted runs were stopped after extended execution with no diagnostics emitted; concurrent Dart analyzer processes from the editor were consuming CPU. |
+
+Score impact is intentionally conservative: expanded passing tests, verified
+Firebase rules, a clean rules-test dependency audit, and clearer
+Firebase/Timesheet/project boundaries support small improvements to Tests,
+Security, Code quality, Architecture, UI/UX organization, and Release
+readiness. Assets/performance remains unchanged because this sync did not
+include a measured device performance profile.
 
 ## Sensitive Logging Hardening Addendum - 2026-09-14 10:39 +04:00
 
@@ -471,7 +534,7 @@ Strengths:
 - Debug APK builds successfully.
 - Automated tests pass after the latest chat security/compliance pass.
 - Profile APK and split-per-ABI profile builds passed in the latest verification cycle.
-- Source `main` through `c0950a7` is included in local `HEAD`.
+- Source `qossay_update` through `aec5018` is included in the current integration.
 
 Risks:
 
@@ -484,14 +547,14 @@ Risks:
 | Area | Score |
 |---|---:|
 | Build health | 9.0 / 10 |
-| Tests | 9.2 / 10 |
-| Security | 9.2 / 10 |
-| Code quality | 8.7 / 10 |
-| Architecture | 8.4 / 10 |
-| UI/UX organization | 8.6 / 10 |
+| Tests | 9.3 / 10 |
+| Security | 9.3 / 10 |
+| Code quality | 8.8 / 10 |
+| Architecture | 8.6 / 10 |
+| UI/UX organization | 8.7 / 10 |
 | Assets/performance | 8.6 / 10 |
 | Documentation | 9.2 / 10 |
-| Release readiness | 8.7 / 10 |
+| Release readiness | 8.8 / 10 |
 
 Overall: **8.9 / 10**
 
@@ -500,14 +563,14 @@ Overall: **8.9 / 10**
 These scores are intentionally conservative. They reflect verified evidence from this workspace, not desired targets.
 
 - Build health is **9.0** because `flutter pub get`, `flutter test`, `flutter build apk --debug`, profile APK, and split-per-ABI profile APK builds pass; it is capped because full analyzer does not complete and signed release build was not verified.
-- Tests are **9.2** because all `63/63` automated tests pass and new security/compliance regression tests were added; it is capped because no coverage report or real-device smoke test was run.
-- Security is **9.2** because sensitive login/chat/QR logging, hardcoded sign-in device id, unsafe stored-session handling, automatic exact-alarm prompts, unsafe shared API logging, sensitive chat auth/session direct prints, and unsafe `ChatUserSession.toString()` output were addressed and covered with tests; the score is capped because Firebase Functions dependency audit, production Firestore/Storage role review, App Check posture, and older verbose non-auth logs still need follow-up.
-- Code quality is **8.7** because the touched compile errors are fixed and formatted, shared logging is centralized and covered by tests, sensitive chat auth/session code has fewer debug-only branches and no direct prints, and focused test coverage now guards the cleanup; it is capped because full analyzer inventory is unavailable due timeout and legacy mixed patterns remain.
-- Architecture is **8.4** because new work follows existing feature folders, BLoC is used in key flows, and compliance risks now have automated guard tests; it is capped because the project still mixes Provider, Riverpod, BLoC, service singletons, and direct repositories.
-- UI/UX organization is **8.6** because splash video/fallback, home widgets, and update flows are organized and build clean, but no device-level UI smoke test was completed after the latest sync.
+- Tests are **9.3** because all `77/77` automated tests pass, including new Timesheet acting-session, Home widget session-merge, prayer-location, security, and compliance coverage; it is capped because no coverage report or real-device smoke test was run.
+- Security is **9.3** because sensitive login/chat/QR logging, hardcoded sign-in device id, unsafe stored-session handling, automatic exact-alarm prompts, unsafe shared API logging, sensitive chat auth/session direct prints, and unsafe `ChatUserSession.toString()` output were addressed; Firebase rules now pass `49/49` emulator tests and the rules-test harness reports zero dependency vulnerabilities. The score is capped because Firebase Functions dependency audit, production role deployment review, App Check posture, and older verbose non-auth logs still need follow-up.
+- Code quality is **8.8** because the merge is formatted, build/test clean, duplicate navigation is guarded, Firebase recovery is centralized, and focused tests cover the new behavior; it is capped because full analyzer inventory is unavailable and legacy mixed patterns remain.
+- Architecture is **8.6** because the sync adds explicit Firebase session boundaries, shared project-module dependency construction, and scoped Timesheet acting-session providers/guards while retaining BLoC in key flows; it is capped because the project still mixes Provider, Riverpod, BLoC, service singletons, and direct repositories.
+- UI/UX organization is **8.7** because splash rendering, biometric fallback order, project navigation, map overflow behavior, family-document flow, and Timesheet acting-state presentation are organized and build clean; it is capped because no device-level UI smoke test was completed after this sync.
 - Assets/performance is **8.6** because duplicate/unused large assets remain removed, three more unused large assets were deleted, app assets are down to **81.68 MB / 522 files**, and profile builds pass; it is capped because assets are still large and no device startup/performance profile was captured.
 - Documentation is **9.2** because `PROJECT_FILE_INDEX.md` and this audit are updated, current ratings are aligned across the report, and source-sync/security-cleanup decisions are documented; it is not higher because historical addenda remain in the same file and could be archived later.
-- Release readiness is **8.7** because debug build, tests, profile build, and split-per-ABI profile builds pass, but signed release build requires local signing credentials and production device validation.
+- Release readiness is **8.8** because the current debug build and all `77/77` tests pass in addition to previously verified profile/split builds; it is capped because signed release credentials and production device validation are still outstanding.
 
 ## Immediate Next Steps
 
@@ -521,6 +584,10 @@ These scores are intentionally conservative. They reflect verified evidence from
 
 Source commits synced through:
 
+- `aec5018` - fix: keep adhan schedules accurate and persistent (`qossay_update`)
+- `9e676d8` - chore: bump iOS build number to 95
+- `495b453` - feat(documents): family request wizard, draft reset, and HRMS View Review
+- `7c54190` - feat(timesheet): let PM/HR open the module as one of their foremen
 - `c0950a7` - feat(auth): gate UAE PASS button behind SHOW_UAEPASS_BUTTON
 - `9e06513` - feat: documents hub, family docs, and Waiting list refresh after approve
 - `7962c38` - fix(ios): skip Android-only share EventChannel on iOS

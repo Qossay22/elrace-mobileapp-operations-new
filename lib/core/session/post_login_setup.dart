@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:el_race/chat/chat.dart';
+import 'package:el_race/core/firebase/firebase_session.dart';
 import 'package:el_race/core/hr_management/providers/hr_management_providers.dart';
 import 'package:el_race/core/services/attendance_status_sync_service.dart';
 import 'package:el_race/core/services/mobile_device_id_service.dart';
@@ -10,6 +11,9 @@ import 'package:el_race/data/services/hive_service.dart';
 import 'package:el_race/firebase_service.dart';
 import 'package:el_race/ui/presentation/attendance_reports/attendance_reports_session.dart';
 import 'package:el_race/ui/presentation/home_screen/bloc/home_bloc.dart';
+import 'package:el_race/ui/presentation/home_screen/providers/home_widget_refresh_service.dart';
+import 'package:el_race/ui/presentation/home_screen/providers/home_widget_session_cache.dart';
+import 'package:el_race/ui/presentation/my_projects/presentation/utils/projects_group_list_cache.dart';
 import 'package:el_race/ui/presentation/signin/data/model.dart';
 import 'package:el_race/ui/presentation/signin/data/repository.dart';
 import 'package:el_race/utils/Util.dart';
@@ -52,9 +56,13 @@ class PostLoginSetup {
       await FirebaseService.syncFcmTokenToOdoo(force: true);
     } catch (_) {}
 
-    ChatModuleHelper.instance
+    // Firebase sign-in stays off the login critical path, but the future is
+    // registered so any feature that needs Firebase first can await it instead
+    // of racing it and falling back to a stale custom token.
+    final firebaseBootstrap = ChatModuleHelper.instance
         .initializeFromLoginResponse(normalized)
-        .catchError((_) {});
+        .catchError((_) => ChatSetupResult.failed('Chat setup failed'));
+    FirebaseSession.instance.trackBootstrap(firebaseBootstrap);
 
     return loginResponse;
   }
@@ -75,6 +83,10 @@ class PostLoginSetup {
       final c = ProviderScope.containerOf(context, listen: false);
       resetTimesheetSession(c);
       c.invalidate(attendanceSessionProvider);
+      // Drop previous user's widget payloads so home refetches for this login.
+      HomeWidgetSessionCache.clear();
+      ProjectsGroupListCache.instance.clear();
+      HomeWidgetRefreshService.invalidateWidgetProviders(c);
     } catch (_) {}
 
     Util.fetchHomeScreenData(context);

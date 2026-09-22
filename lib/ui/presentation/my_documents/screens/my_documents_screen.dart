@@ -1048,23 +1048,6 @@ class _MyDocumentsScreenState extends State<MyDocumentsScreen> {
                           ],
                         ),
                       ),
-                      Container(
-                        width: 30.tw,
-                        height: 30.tw,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withValues(alpha: 0.22),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.35),
-                          ),
-                        ),
-                        alignment: Alignment.center,
-                        child: Icon(
-                          Icons.chevron_right_rounded,
-                          size: 20.tsp,
-                          color: Colors.white,
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -1177,11 +1160,6 @@ class _MyDocumentsScreenState extends State<MyDocumentsScreen> {
                     ),
                   ],
                 ),
-              ),
-              Icon(
-                Icons.chevron_right_rounded,
-                size: 20.tsp,
-                color: green.withValues(alpha: 0.55),
               ),
             ],
           ),

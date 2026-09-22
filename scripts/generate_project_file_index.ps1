@@ -18,6 +18,10 @@ $excludedDirs = @(
   "DerivedData"
 )
 
+$excludedExtensions = @(
+  ".log"
+)
+
 function Format-Size([long]$bytes) {
   if ($bytes -ge 1GB) { return "{0:N2} GB" -f ($bytes / 1GB) }
   if ($bytes -ge 1MB) { return "{0:N2} MB" -f ($bytes / 1MB) }
@@ -140,6 +144,9 @@ $files = Get-ChildItem -Path $root -Recurse -File -Force -ErrorAction SilentlyCo
     foreach ($part in $parts) {
       if ($excludedDirs -contains $part) { return $false }
     }
+    if ($excludedExtensions -contains $_.Extension.ToLowerInvariant()) {
+      return $false
+    }
     return $true
   } |
   Sort-Object FullName
@@ -157,6 +164,7 @@ $lines.Add("- Root: $root")
 $lines.Add("- Indexed files: $($files.Count)")
 $lines.Add("- Indexed total size: $(Format-Size ([long]$totalBytes))")
 $lines.Add("- Skipped generated/heavy folders: $($excludedDirs -join ', ')")
+$lines.Add("- Skipped generated file extensions: $($excludedExtensions -join ', ')")
 $lines.Add("")
 $lines.Add("> Note: descriptions are inferred from file path, name, and extension. Regenerate after major updates with: powershell -ExecutionPolicy Bypass -File .\scripts\generate_project_file_index.ps1")
 $lines.Add("")

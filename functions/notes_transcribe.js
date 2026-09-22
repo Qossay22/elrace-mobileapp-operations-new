@@ -7,11 +7,14 @@
  * Always transcribes on upload unless a transcript is already done.
  */
 const { onObjectFinalized } = require("firebase-functions/v2/storage");
-const { defineSecret } = require("firebase-functions/params");
+const { defineSecret, defineString } = require("firebase-functions/params");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 const { transcribeNoteRecording } = require("./notes_whisper");
 
 const openaiApiKey = defineSecret("OPENAI_API_KEY");
+const storageBucket = defineString("ELRACE_STORAGE_BUCKET", {
+  default: "elrace-new.firebasestorage.app",
+});
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -114,6 +117,7 @@ async function handleNotesAudioUpload(event) {
 exports.onNotesAudioUploaded = onObjectFinalized(
   {
     region: "us-central1",
+    bucket: storageBucket,
     secrets: [openaiApiKey],
     memory: "1GiB",
     timeoutSeconds: 300,

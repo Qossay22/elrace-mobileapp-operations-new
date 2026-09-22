@@ -8,10 +8,6 @@ import 'package:el_race/ui/presentation/my_projects/data/models/project_manager_
 import 'package:el_race/ui/presentation/my_projects/data/models/projects_dashboard_summary_model.dart';
 import 'package:el_race/ui/presentation/my_projects/data/models/user_project_model.dart';
 import 'package:el_race/ui/presentation/my_projects/data/models/user_projects_response.dart';
-import 'package:el_race/ui/presentation/my_projects/data/repositories/project_repository_impl.dart';
-import 'package:el_race/ui/presentation/my_projects/domain/usecases/get_projects_by_filters_usecase.dart';
-import 'package:el_race/ui/presentation/my_projects/domain/usecases/get_projects_by_partner_usecase.dart';
-import 'package:el_race/ui/presentation/my_projects/domain/usecases/get_projects_usecase.dart';
 import 'package:el_race/ui/presentation/my_projects/presentation/bloc/project_list_bloc.dart';
 import 'package:el_race/ui/presentation/my_projects/presentation/map/projects_portfolio_map_screen.dart';
 import 'package:el_race/ui/presentation/my_projects/presentation/screens/project_documents_hub_screen.dart';
@@ -41,6 +37,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:el_race/ui/presentation/my_projects/projects_module.dart';
 
 class MarqueeText extends StatefulWidget {
   final String text;
@@ -155,83 +152,99 @@ class _MyProjectState extends State<MyProject> {
       AgreementsPanelController();
   bool _agreementsBackdropVisible = false;
 
+  /// Ignores a second tap during the push animation (not for the whole
+  /// time a child screen is open, so hub → list still works).
+  bool _routePushInFlight = false;
+
+  void _runGuardedNavigate(VoidCallback navigate) {
+    if (_routePushInFlight) return;
+    _routePushInFlight = true;
+    navigate();
+    Future<void>.delayed(const Duration(milliseconds: 700), () {
+      if (mounted) _routePushInFlight = false;
+    });
+  }
+
   bool _isLoading = false;
   bool _chartLoading = false;
   bool _showContent = false;
   String? _error;
   List<UserProjectModel> _projects = [];
-  List<ProjectEntity> _inProgressProjects = [];
+
+  /// Portfolio project sample for map/status helpers + client sheet rows.
+  List<ProjectEntity> _portfolioProjects = [];
+
+  /// Server `clients/list` group_by=client buckets (authoritative bar counts).
+  List<UserProjectModel> _clientBuckets = [];
   ProjectsDashboardSummaryModel? _dashboardSummary;
   ProjectsViewMode _viewMode = ProjectsViewMode.dashboard;
   int? _selectedYear;
 
   ProjectListBloc _buildProjectsBloc() {
-    final repo = ProjectRepositoryImpl(ProjectRemoteDataSource());
-    return ProjectListBloc(
-      getProjectsUseCase: GetProjectsUseCase(repository: repo),
-      getProjectAttachmentsUseCase:
-          GetProjectAttachmentsUseCase(repository: repo),
-      getProjectsByPartnerUseCase:
-          GetProjectsByPartnerUseCase(repository: repo),
-      getProjectsByFiltersUseCase:
-          GetProjectsByFiltersUseCase(repository: repo),
-    );
+    return ProjectsModule.createListBloc();
   }
 
   Future<void> _openGroupByHub() async {
     if (!mounted) return;
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (hubContext) => ProjectsGroupHubScreen(
-          initialMode: ProjectsGroupByMode.projectManager,
-          onHome: () => Navigator.of(hubContext).pop(),
-          onItemTap: (item, mode, hubFilters) {
-            final listContext = switch (mode) {
-              ProjectsGroupByMode.projectManager =>
-                ProjectsListContext.projectManager,
-              ProjectsGroupByMode.client => ProjectsListContext.client,
-              ProjectsGroupByMode.city => ProjectsListContext.city,
-            };
-            final projectManagerId =
-                mode == ProjectsGroupByMode.projectManager && item.id > 0
-                    ? item.id
-                    : null;
-            final partnerId = mode == ProjectsGroupByMode.client && item.id > 0
-                ? item.id
-                : null;
-            final cityId = mode == ProjectsGroupByMode.city && item.id > 0
-                ? item.id
-                : null;
-            final bucketName = item.id <= 0 ? item.name : null;
-            _openGroupedProjectList(
-              projectManagerId: projectManagerId,
-              partnerId: partnerId,
-              cityId: cityId,
-              title: item.name,
-              photoUrl: item.photoUrl,
-              listContext: listContext,
-              hubFilters: hubFilters,
-              bucketName: bucketName,
-            );
-          },
+    _runGuardedNavigate(() {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (hubContext) => ProjectsGroupHubScreen(
+            initialMode: ProjectsGroupByMode.projectManager,
+            onHome: () => Navigator.of(hubContext).pop(),
+            onItemTap: (item, mode, hubFilters) {
+              final listContext = switch (mode) {
+                ProjectsGroupByMode.projectManager =>
+                  ProjectsListContext.projectManager,
+                ProjectsGroupByMode.client => ProjectsListContext.client,
+                ProjectsGroupByMode.city => ProjectsListContext.city,
+              };
+              final projectManagerId =
+                  mode == ProjectsGroupByMode.projectManager && item.id > 0
+                      ? item.id
+                      : null;
+              final partnerId =
+                  mode == ProjectsGroupByMode.client && item.id > 0
+                      ? item.id
+                      : null;
+              final cityId = mode == ProjectsGroupByMode.city && item.id > 0
+                  ? item.id
+                  : null;
+              final bucketName = item.id <= 0 ? item.name : null;
+              _openGroupedProjectList(
+                projectManagerId: projectManagerId,
+                partnerId: partnerId,
+                cityId: cityId,
+                title: item.name,
+                photoUrl: item.photoUrl,
+                listContext: listContext,
+                hubFilters: hubFilters,
+                bucketName: bucketName,
+              );
+            },
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   void _openProjectDocumentsHub() {
-    ProjectDocumentsHubScreen.open(
-      context,
-      fromPortfolioHub: true,
-    );
+    _runGuardedNavigate(() {
+      ProjectDocumentsHubScreen.open(
+        context,
+        fromPortfolioHub: true,
+      );
+    });
   }
 
   void _openAiAssistant() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const ProjectsAiAssistantScreen(),
-      ),
-    );
+    _runGuardedNavigate(() {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => const ProjectsAiAssistantScreen(),
+        ),
+      );
+    });
   }
 
   void _openGroupedProjectList({
@@ -245,6 +258,8 @@ class _MyProjectState extends State<MyProject> {
     String? bucketName,
     String? initialKeyword,
   }) {
+    // Nested from Group-by hub — do not share the dashboard tap lock, or a
+    // quick hub item tap would be ignored while the hub push is still gated.
     final bloc = _buildProjectsBloc();
     final dashboardContext = context;
     Navigator.of(context).push(
@@ -297,14 +312,14 @@ class _MyProjectState extends State<MyProject> {
   ProjectsDashboardBoxStats get _boxStats =>
       ProjectsDashboardAggregator.resolveBoxStats(
         agreements: _domainAgreements,
-        domainProjects: _inProgressProjects,
+        domainProjects: _portfolioProjects,
         summary: _dashboardSummary,
         widgetRecordMap: _widgetRecordMap,
       );
 
   List<int> get _availableYears {
     final years = <int>{DateTime.now().year};
-    for (final p in _inProgressProjects) {
+    for (final p in _portfolioProjects) {
       final y = _projectYear(p);
       if (y != null) years.add(y);
     }
@@ -321,18 +336,10 @@ class _MyProjectState extends State<MyProject> {
     return null;
   }
 
-  List<ProjectEntity> get _projectsForSelectedYear {
-    if (_selectedYear == null) return _inProgressProjects;
-    return _inProgressProjects.where((p) {
-      final y = _projectYear(p);
-      return y == null || y == _selectedYear;
-    }).toList();
-  }
-
   List<ClientInProgressBarData> get _clientBars =>
-      ClientInProgressGrouper.group(
-        _projectsForSelectedYear,
-        agreements: _domainAgreements,
+      ClientInProgressGrouper.fromClientBuckets(
+        _clientBuckets,
+        projectsForSheets: _portfolioProjects,
       );
 
   void _openAgreement(UserProjectModel project) {
@@ -373,10 +380,14 @@ class _MyProjectState extends State<MyProject> {
       _error = null;
     });
 
-    final ds = ProjectRemoteDataSource();
+    final ds = ProjectsModule.remote;
 
     try {
-      final clientsFuture = ds.fetchClientsList();
+      final clientsFuture = ds.fetchClientsList(groupBy: 'agreement');
+      final clientBarsFuture = ds.fetchClientsList(
+        groupBy: 'client',
+        year: _selectedYear,
+      );
       final summaryFuture = ds.fetchProjectsDashboardSummary();
 
       final UserProjectsResponse response = await clientsFuture;
@@ -387,9 +398,17 @@ class _MyProjectState extends State<MyProject> {
         summary = null;
       }
 
+      List<UserProjectModel> clientBuckets = const [];
+      try {
+        clientBuckets = (await clientBarsFuture).projects;
+      } catch (_) {
+        clientBuckets = const [];
+      }
+
       if (!mounted) return;
       setState(() {
         _projects = response.projects;
+        _clientBuckets = clientBuckets;
         _dashboardSummary = summary;
         _isLoading = false;
       });
@@ -409,6 +428,19 @@ class _MyProjectState extends State<MyProject> {
     }
   }
 
+  Future<void> _loadClientEngagementBars() async {
+    try {
+      final response = await ProjectsModule.remote.fetchClientsList(
+        groupBy: 'client',
+        year: _selectedYear,
+      );
+      if (!mounted) return;
+      setState(() => _clientBuckets = response.projects);
+    } catch (_) {
+      // Keep previous bars on year-filter failure.
+    }
+  }
+
   Future<void> _loadChartProjects(ProjectRemoteDataSource ds) async {
     await Future<void>.delayed(const Duration(milliseconds: 600));
     if (!mounted) return;
@@ -425,20 +457,20 @@ class _MyProjectState extends State<MyProject> {
       setState(() {
         if (ProjectsDashboardAccess.shouldApplyDomainScope &&
             !ds.projectsHubV2Available) {
-          _inProgressProjects =
+          _portfolioProjects =
               ProjectsDashboardAggregator.filterProjectsForAccessibleAgreements(
             projects: visible,
             agreements: _domainAgreements,
           );
         } else {
-          _inProgressProjects = visible;
+          _portfolioProjects = visible;
         }
         _chartLoading = false;
       });
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        _inProgressProjects = [];
+        _portfolioProjects = [];
         _chartLoading = false;
       });
     }
@@ -523,8 +555,10 @@ class _MyProjectState extends State<MyProject> {
                               ),
                               selectedYear: _selectedYear,
                               availableYears: _availableYears,
-                              onYearChanged: (y) =>
-                                  setState(() => _selectedYear = y),
+                              onYearChanged: (y) {
+                                setState(() => _selectedYear = y);
+                                unawaited(_loadClientEngagementBars());
+                              },
                             ),
                           ],
                         ),
@@ -888,7 +922,7 @@ class _ProjectManagersScreenState extends State<_ProjectManagersScreen> {
     });
 
     try {
-      final data = await ProjectRemoteDataSource().fetchProjectManagersList();
+      final data = await ProjectsModule.remote.fetchProjectManagersList();
       if (!mounted) return;
       setState(() {
         _managers = data;
@@ -922,16 +956,7 @@ class _ProjectManagersScreenState extends State<_ProjectManagersScreen> {
   }
 
   ProjectListBloc _buildProjectsBloc() {
-    final repo = ProjectRepositoryImpl(ProjectRemoteDataSource());
-    return ProjectListBloc(
-      getProjectsUseCase: GetProjectsUseCase(repository: repo),
-      getProjectAttachmentsUseCase:
-          GetProjectAttachmentsUseCase(repository: repo),
-      getProjectsByPartnerUseCase:
-          GetProjectsByPartnerUseCase(repository: repo),
-      getProjectsByFiltersUseCase:
-          GetProjectsByFiltersUseCase(repository: repo),
-    );
+    return ProjectsModule.createListBloc();
   }
 
   void _openManagerProjects(ProjectManagerFilterItem manager) {
@@ -1121,7 +1146,7 @@ class _ClientsScreenState extends State<_ClientsScreen> {
     });
 
     try {
-      final data = await ProjectRemoteDataSource()
+      final data = await ProjectsModule.remote
           .fetchClientsGroupedList(groupBy: 'client');
       if (!mounted) return;
       setState(() {
@@ -1156,16 +1181,7 @@ class _ClientsScreenState extends State<_ClientsScreen> {
   }
 
   ProjectListBloc _buildProjectsBloc() {
-    final repo = ProjectRepositoryImpl(ProjectRemoteDataSource());
-    return ProjectListBloc(
-      getProjectsUseCase: GetProjectsUseCase(repository: repo),
-      getProjectAttachmentsUseCase:
-          GetProjectAttachmentsUseCase(repository: repo),
-      getProjectsByPartnerUseCase:
-          GetProjectsByPartnerUseCase(repository: repo),
-      getProjectsByFiltersUseCase:
-          GetProjectsByFiltersUseCase(repository: repo),
-    );
+    return ProjectsModule.createListBloc();
   }
 
   void _openClientProjects(ProjectManagerFilterItem client) {
@@ -1355,8 +1371,8 @@ class _CitiesScreenState extends State<_CitiesScreen> {
     });
 
     try {
-      final data = await ProjectRemoteDataSource()
-          .fetchClientsGroupedList(groupBy: 'city');
+      final data =
+          await ProjectsModule.remote.fetchClientsGroupedList(groupBy: 'city');
       if (!mounted) return;
       setState(() {
         _cities = data;
@@ -1390,16 +1406,7 @@ class _CitiesScreenState extends State<_CitiesScreen> {
   }
 
   ProjectListBloc _buildProjectsBloc() {
-    final repo = ProjectRepositoryImpl(ProjectRemoteDataSource());
-    return ProjectListBloc(
-      getProjectsUseCase: GetProjectsUseCase(repository: repo),
-      getProjectAttachmentsUseCase:
-          GetProjectAttachmentsUseCase(repository: repo),
-      getProjectsByPartnerUseCase:
-          GetProjectsByPartnerUseCase(repository: repo),
-      getProjectsByFiltersUseCase:
-          GetProjectsByFiltersUseCase(repository: repo),
-    );
+    return ProjectsModule.createListBloc();
   }
 
   void _openCityProjects(ProjectManagerFilterItem city) {
