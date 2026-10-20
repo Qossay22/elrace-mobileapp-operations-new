@@ -1,13 +1,17 @@
 import 'dart:async';
 
 import 'package:el_race/core/theme/timesheet_module_theme.dart';
+import 'package:el_race/core/timesheet/models/timesheet_team_member.dart';
 import 'package:el_race/core/timesheet/network/timesheet_functions_client.dart';
 import 'package:el_race/core/timesheet/network/timesheet_odoo_employee.dart';
 import 'package:el_race/core/timesheet/providers/timesheet_data_providers.dart';
 import 'package:el_race/core/timesheet/providers/timesheet_hr_scope_provider.dart';
 import 'package:el_race/core/timesheet/routing/timesheet_route_names.dart';
 import 'package:el_race/core/timesheet/services/capture_queue_service.dart';
+import 'package:el_race/core/utils/app_orientations.dart';
 import 'package:el_race/core/site_management/face_recognition/data/repositories/face_db_repository.dart';
+import 'package:el_race/core/site_management/face_recognition/face_min_device_check.dart';
+import 'package:el_race/core/site_management/face_recognition/profile_photo_face_db.dart';
 import 'package:el_race/core/widgets/timesheet/timesheet_widgets.dart';
 import 'package:el_race/ui/presentation/timesheet/foreman/attendance/timesheet_capture_camera_panel.dart';
 import 'package:el_race/ui/presentation/timesheet/timesheet_route_args.dart';
@@ -28,7 +32,8 @@ class At2CaptureCameraScreen extends ConsumerStatefulWidget {
       _At2CaptureCameraScreenState();
 }
 
-class _At2CaptureCameraScreenState extends ConsumerState<At2CaptureCameraScreen> {
+class _At2CaptureCameraScreenState extends ConsumerState<At2CaptureCameraScreen>
+    with CapturePortraitLock<At2CaptureCameraScreen> {
   final GlobalKey<TimesheetCaptureCameraPanelState> _cameraKey =
       GlobalKey<TimesheetCaptureCameraPanelState>();
 
@@ -44,6 +49,12 @@ class _At2CaptureCameraScreenState extends ConsumerState<At2CaptureCameraScreen>
   }
 
   Future<void> _bootCapture() async {
+    if (!mounted) return;
+    final deviceOk = await FaceMinDeviceCheck.ensureSupported(context);
+    if (!deviceOk) {
+      if (mounted) Navigator.of(context).maybePop();
+      return;
+    }
     await _syncFaceDb();
     await _loadRoster();
   }
@@ -56,8 +67,8 @@ class _At2CaptureCameraScreenState extends ConsumerState<At2CaptureCameraScreen>
     final msg = switch (result.status) {
       FaceSyncStatus.synced => 'Face DB updated (${result.count} templates)',
       FaceSyncStatus.upToDate => 'Face DB ready (${result.count} templates)',
-      FaceSyncStatus.failed when result.message?.startsWith('offline_cache') ==
-              true =>
+      FaceSyncStatus.failed
+          when result.message?.startsWith('offline_cache') == true =>
         'Face DB offline (${result.count} cached)',
       FaceSyncStatus.failed => 'Face DB sync failed — manual flow only',
       FaceSyncStatus.empty => 'No enrolled faces on server',
@@ -73,6 +84,9 @@ class _At2CaptureCameraScreenState extends ConsumerState<At2CaptureCameraScreen>
 
   Future<void> _loadRoster() async {
     final client = ref.read(timesheetApiClientProvider);
+    ref.invalidate(timesheetHrScopeProvider);
+    ref.invalidate(timesheetForemanLaborsProvider);
+    var fromNetwork = true;
     List<TimesheetOdooEmployee> labors;
     try {
       labors = await client.fetchLaborEmployeesForReport(
@@ -81,16 +95,39 @@ class _At2CaptureCameraScreenState extends ConsumerState<At2CaptureCameraScreen>
         useHrScopeWhenNoProject: false,
       );
     } catch (e) {
+      fromNetwork = false;
       debugPrint('At2Capture: labor_list failed: $e');
-      final scope = await ref.read(timesheetHrScopeProvider.future);
-      final roster = await client.fetchEmployeeRoster();
-      labors = scope.hasLaborScope
-          ? roster
-              .where((e) => scope.laborEmployeeIds.contains(e.employeeId))
-              .toList()
-          : roster;
+      try {
+        final scope = await ref.read(timesheetHrScopeProvider.future);
+        final roster = await client.fetchEmployeeRoster();
+        labors = scope.hasLaborScope
+            ? roster
+                .where((e) => scope.laborEmployeeIds.contains(e.employeeId))
+                .toList()
+            : roster;
+      } catch (e2) {
+        debugPrint('At2Capture: roster fallback failed: $e2');
+        labors = const [];
+      }
     }
     if (!mounted) return;
+    if (ProfilePhotoMatchTest.enabled) {
+      var team = const <TimesheetTeamMember>[];
+      try {
+        team = await ref.refresh(timesheetForemanLaborsProvider.future);
+      } catch (e) {
+        fromNetwork = false;
+        debugPrint('ProfilePhotoMatch: Your Team load failed: $e');
+      }
+      if (!mounted) return;
+      final teamOnly = ProfilePhotoFaceDb.yourTeamOnly(labors, team);
+      final teamCount = team.isEmpty ? labors.length : team.length;
+      await ProfilePhotoFaceDb.instance.refreshRosterForCameraOpen(
+        labour: teamOnly,
+        teamCount: teamCount,
+        fromNetwork: fromNetwork,
+      );
+    }
     final faceRoster = _phaseBActive
         ? const <TimesheetOdooEmployee>[]
         : labors.where((e) => e.canUseFaceMatch).toList(growable: false);

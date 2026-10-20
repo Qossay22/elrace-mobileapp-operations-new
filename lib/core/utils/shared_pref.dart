@@ -106,8 +106,9 @@ class SharedPref {
     final data = checkLoginAndRegistration();
     final isRegistered = data['isRegistered'] as bool;
     final loginData = data['loginResponse'] as LoginResponseModel?;
+    final token = loginData?.result?.token?.trim() ?? '';
 
-    return isRegistered && loginData != null;
+    return isRegistered && token.isNotEmpty;
   }
 
   static LoginResponseModel getLoginData() {

@@ -1,7 +1,7 @@
 import 'dart:io';
+import 'package:el_race/core/utils/responsive_breakpoints.dart';
 import 'package:el_race/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -43,17 +43,17 @@ class MediaItemWidget extends StatelessWidget {
 
   Widget _buildThumbnail() {
     final String imageUrl = media.previewUrl;
-    final borderRadius = BorderRadius.circular(18.r);
+    final borderRadius = BorderRadius.circular(18.tr);
     const borderColor = Color(0xB8484848);
 
     Widget placeholder() {
       return Container(
-        color: Colors.black.withOpacity(0.04),
+        color: Colors.black.withValues(alpha: 0.04),
         alignment: Alignment.center,
         child: Icon(
           media.isVideo ? Icons.play_circle_outline : Icons.image_outlined,
-          size: 44.sp,
-          color: AppThemeColors.brandPrimary.withOpacity(0.55),
+          size: 44.tsp,
+          color: AppThemeColors.brandPrimary.withValues(alpha: 0.55),
         ),
       );
     }
@@ -81,8 +81,8 @@ class MediaItemWidget extends StatelessWidget {
           if (loadingProgress == null) return child;
           return Center(
             child: SizedBox(
-              width: 22.w,
-              height: 22.w,
+              width: 22.tw,
+              height: 22.tw,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 value: loadingProgress.expectedTotalBytes != null
@@ -96,9 +96,11 @@ class MediaItemWidget extends StatelessWidget {
       );
     }
 
-    final Widget inner = imageUrl.startsWith('assets/')
-        ? buildAssetImage()
-        : buildNetworkImage();
+    final Widget inner = imageUrl.isEmpty
+        ? placeholder()
+        : imageUrl.startsWith('assets/')
+            ? buildAssetImage()
+            : buildNetworkImage();
 
     return Container(
       decoration: BoxDecoration(
@@ -115,7 +117,7 @@ class MediaItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderRadius = BorderRadius.circular(22.r);
+    final borderRadius = BorderRadius.circular(22.tr);
     const borderColor = Color(0xB8484848);
 
     return Material(
@@ -131,7 +133,7 @@ class MediaItemWidget extends StatelessWidget {
             border: Border.all(color: borderColor, width: 1),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.06),
+                color: Colors.black.withValues(alpha: 0.06),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -141,13 +143,13 @@ class MediaItemWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: EdgeInsets.only(top: 10.h, right: 14.w, left: 14.w),
+                padding: EdgeInsets.only(top: 10.th, right: 14.tw, left: 14.tw),
                 child: Align(
                   alignment: Alignment.centerRight,
                   child: Text(
                     'Uploaded at ${DateFormat('dd/MM/yyyy').format(media.dateCreated)}',
                     style: GoogleFonts.poppins(
-                      fontSize: 10.sp,
+                      fontSize: 10.tsp,
                       fontWeight: FontWeight.w400,
                       color: const Color(0xFF6E6E6E),
                     ),
@@ -157,10 +159,11 @@ class MediaItemWidget extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+                padding:
+                    EdgeInsets.symmetric(horizontal: 14.tw, vertical: 10.th),
                 child: SizedBox(
                   width: double.infinity,
-                  height: 170.h,
+                  height: 170.th,
                   child: Stack(
                     children: [
                       Positioned.fill(child: _buildThumbnail()),
@@ -169,8 +172,8 @@ class MediaItemWidget extends StatelessWidget {
                           child: Center(
                             child: Icon(
                               Icons.play_circle_fill,
-                              size: 56.sp,
-                              color: Colors.white.withOpacity(0.9),
+                              size: 56.tsp,
+                              color: Colors.white.withValues(alpha: 0.9),
                             ),
                           ),
                         ),
@@ -180,9 +183,9 @@ class MediaItemWidget extends StatelessWidget {
               ),
               Padding(
                 padding: EdgeInsets.only(
-                  left: 16.w,
-                  right: 12.w,
-                  bottom: 14.h,
+                  left: 16.tw,
+                  right: 12.tw,
+                  bottom: 14.th,
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -194,7 +197,7 @@ class MediaItemWidget extends StatelessWidget {
                           Text(
                             media.displayName,
                             style: GoogleFonts.poppins(
-                              fontSize: 16.sp,
+                              fontSize: 16.tsp,
                               fontWeight: FontWeight.w800,
                               color: Colors.black87,
                             ),
@@ -203,11 +206,11 @@ class MediaItemWidget extends StatelessWidget {
                           ),
                           if (media.client != null &&
                               media.client!.trim().isNotEmpty) ...[
-                            SizedBox(height: 2.h),
+                            SizedBox(height: 2.th),
                             Text(
                               media.client!,
                               style: GoogleFonts.poppins(
-                                fontSize: 12.sp,
+                                fontSize: 12.tsp,
                                 fontWeight: FontWeight.w500,
                                 color: const Color(0xFF6E6E6E),
                               ),
@@ -224,13 +227,13 @@ class MediaItemWidget extends StatelessWidget {
                         await _shareMediaAsLink(context);
                       },
                       child: SizedBox(
-                        width: 42.w,
-                        height: 42.w,
+                        width: 42.tw,
+                        height: 42.tw,
                         child: Center(
                           child: Image.asset(
                             'assets/newapp/newicon/media_share_icon.png',
-                            width: 40.w,
-                            height: 24.h,
+                            width: 40.tw,
+                            height: 24.th,
                             fit: BoxFit.contain,
                           ),
                         ),
@@ -340,7 +343,7 @@ class MediaItemWidget extends StatelessWidget {
           ),
         );
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

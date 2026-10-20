@@ -562,16 +562,27 @@ class FirebaseChatAuthService {
   Future<User> ensureAuthenticated() async {
     await waitForAuthReady();
 
-    var user = _auth.currentUser;
+    final user = _auth.currentUser;
     if (user != null) {
       try {
-        await user.getIdToken(true);
+        // Not forced: the SDK refreshes on its own when the token is near
+        // expiry. Forcing here ran a network refresh before every Firestore
+        // call, and any blip escalated to a backend re-mint or an auth error.
+        await user.getIdToken();
         return user;
       } catch (_) {
         // A forced refresh below can re-establish Firebase auth.
       }
     }
 
+    return signInWithFreshCustomToken();
+  }
+
+  /// Mints a new custom token from the backend and signs in with it.
+  ///
+  /// Signs in over the current user rather than signing out first, so live
+  /// Firestore listeners in other features keep running through the switch.
+  Future<User> signInWithFreshCustomToken() async {
     final sessionJwt = _currentSession?.backendJwt.trim() ?? '';
     final backendToken = sessionJwt.isNotEmpty
         ? sessionJwt

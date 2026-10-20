@@ -1,8 +1,67 @@
 # Project Full Audit Report
 
-Generated at: 2026-09-13 10:35 +04:00
+Generated at: 2026-10-20 10:22 +04:00
 Project: `elrace-mobileapp-operations-new`
-Source sync target reviewed: `97jaw/Elrace-mobileapp-operations/qossay_update` at `aec5018`
+Source sync target reviewed: `97jaw/Elrace-mobileapp-operations/qossay_update` at `1e45ddf`
+
+## Qossay Update Branch Sync Addendum - 2026-10-20 +04:00
+
+Merged the complete `source/qossay_update` history from `aec5018` through
+`1e45ddf` into local `main`. This source increment contains 76 commits and
+changes 290 files (33,997 insertions and 5,368 deletions) before local conflict
+resolution, security guards, and audit/index maintenance.
+
+Material updates integrated:
+
+- Expanded Timesheet face capture with profile-photo verification, five-point
+  alignment, best-frame evidence, walk-up behavior, anti-spoof tuning,
+  enrollment checks, location/geofence feedback, and focused unit tests.
+- Added Linked Devices, signed file-link validation, centralized feature
+  access, app notices, and device-detail request headers.
+- Expanded UAE PASS sign-in handling and Android/iOS callback integration.
+- Added richer media/document browsing, PDF rendering, thumbnails, photo/video
+  viewers, and video preloading while preserving the local preload lifecycle.
+- Added splash-video caching and streaming/bundled fallbacks while preserving
+  the requirement to wait for full playback, with a bounded startup timeout.
+- Updated HR, Purchase, Performance, My Projects, document, task, and
+  notification flows supplied by the source branch.
+- Updated the application metadata/assets and version to `1.0.34+102`.
+
+Merge and security decisions:
+
+- Resolved eight content conflicts in Home, Media, Sign-in, and Splash code;
+  no unresolved conflict markers remain.
+- Preserved the approved biometric order: the native biometric prompt remains
+  first, and the manual authentication screen remains a cancellation/failure
+  fallback. The source feature flag can still disable the gate.
+- Kept the normalized, persist-on-success sign-in flow and persistent secure
+  device identifier, but retained the local single configured login endpoint
+  and safe request metadata logging.
+- Removed state, exception-content, credential, response-payload, token, and
+  device-identifier values from sign-in logs. A compliance test now prevents
+  the known sensitive patterns from returning.
+- Removed the source branch's zero-byte, unreferenced root `flutter_02.png`
+  artifact; it was not a usable application asset.
+
+Verification for this sync:
+
+| Check | Result | Notes |
+|---|---:|---|
+| `flutter pub get` | Pass | Dependency graph resolved with the new direct `flutter_inappwebview` dependency. |
+| Focused conflict analysis | Pass | The eight conflict-resolved files had no errors; after clearing 12 deprecated color calls and one async-context lint, the four touched files report `No issues found`. |
+| Full Flutter tests | Pass | The complete post-merge suite passed `139/139`, including the new sign-in logging guard. |
+| Face verification tests | Pass | Alignment, verifier, tuning, frame-evidence, and Timesheet face-audit groups all pass. |
+| Android debug build | Pass | Built the APK before cleanup in 217.9 seconds, then rebuilt the final tree incrementally in 85.2 seconds. |
+| Formatting | Pass | `dart format` reported all nine conflict/security files already formatted. |
+| Project file index | Pass | Regenerated from the working tree with 2,477 files after the sync. |
+| Diff/conflict checks | Pass | `git diff --check` passes and no unresolved Git conflict entries remain. |
+
+Score impact is deliberately conservative. The larger passing test suite and
+new sign-in regression guard strengthen the evidence behind Tests and Security,
+but the scores are not raised automatically: the change is large, the analyzer
+still has legacy lint debt, assets increased to 83.79 MB across 530 files, and
+this sync has not received a production-signed build or real-device smoke and
+performance pass.
 
 ## Developer Tooling Performance Addendum - 2026-09-22 +04:00
 
@@ -474,18 +533,18 @@ Rating: **9.0 / 10**
 Strengths:
 
 - `flutter pub get` passes.
-- `flutter test` passes all 61 tests.
+- `flutter test --no-pub` passes all 139 tests.
 - Debug APK build succeeds.
 - Profile APK and split-per-ABI profile builds completed successfully in the latest verification cycle.
 
 Risks:
 
-- Analyzer commands time out in this workspace, so lint/error reporting still needs follow-up.
+- Full-project analysis remains expensive; focused analysis of all conflict files completed with no errors, and the final four touched files report no issues.
 - Debug build logs include dependency deprecation and unchecked-operation notes from Android/Flutter packages.
 
 ### Security
 
-Rating: **9.0 / 10**
+Rating: **9.3 / 10**
 
 Strengths:
 
@@ -498,6 +557,8 @@ Strengths:
 - First launch no longer pushes users into Android exact-alarm settings without an in-app action.
 - Shared API request/response logging is now debug-only and recursively redacts sensitive fields, identifiers, and URL query parameters.
 - Security regression tests verify the logger redacts secrets and compliance tests prevent exact-alarm permission regressions.
+- Sign-in logs expose only state/error types and safe request metadata; a compliance guard prevents credential, payload, token, and device-ID patterns from returning.
+- Signed file-link validation and linked-device management are included in the synced implementation.
 
 Risks:
 
@@ -507,7 +568,7 @@ Risks:
 
 ### Code Quality
 
-Rating: **8.5 / 10**
+Rating: **8.8 / 10**
 
 Strengths:
 
@@ -517,21 +578,21 @@ Strengths:
 - Sign-in device identity is now BLoC-owned instead of UI-hardcoded.
 - Stored-session checking no longer relies on a nullable force unwrap.
 - Shared logging code is centralized, formatted, bounded, and covered by targeted tests.
-- Targeted analyzer passes for the newly changed logger and tests.
+- Targeted analyzer passes for all conflict-resolved files; 13 touched-file deprecation/context lints were cleared and the final four-file run reports no issues.
 
 Risks:
 
-- Analyzer could not complete, so warning/error inventory is unknown for this exact sync.
+- The repository still has a large historical warning/info backlog outside the touched files, and full-project analysis remains slow.
 - The app still mixes Provider, Riverpod, BLoC, services, and direct repositories across older and newer modules.
 - Some legacy naming remains, including paths with spaces and mixed casing.
 
 ### Architecture
 
-Rating: **8.4 / 10**
+Rating: **8.6 / 10**
 
 Strengths:
 
-- Current feature additions mostly respect the existing feature-folder organization.
+- Current feature additions mostly respect the existing feature-folder organization, including dedicated access, notices, signed-link, media, linked-device, and face-recognition boundaries.
 - Important flows such as sign-in and home state continue to use BLoC where the project already established it.
 - Source sync preserved local maintenance documents, scripts, templates, and Gradle wrapper files.
 - New shared services such as post-login setup, incoming share handling, VPN guard, and widget visibility refresh reduce scattered startup behavior.
@@ -549,26 +610,27 @@ Rating: **8.6 / 10**
 
 Strengths:
 
-- Asset count is reduced to 522 indexed assets.
+- The current `assets` tree is measured at 530 files.
 - No merge conflict markers or whitespace errors remain.
 - Large unused assets were removed, reducing indexed assets by **31.26 MB**.
-- Three more unused large assets were removed, bringing indexed app assets down to **81.68 MB**.
+- Previously removed duplicate/heavy assets remain absent, and the source branch's zero-byte root image artifact was excluded.
 - Profile APK and split-per-ABI profile builds verify the app can still package after asset cleanup.
 
 Risks:
 
-- App assets remain substantial at **81.68 MB** because ML models, GIFs, media, and high-resolution UI images are still included.
+- App assets remain substantial at **83.79 MB** because ML models, GIFs, media, high-resolution UI images, and the new feature assets are included.
 - Release-mode performance measurement and real-device startup profiling were not completed.
 
 ### UI/UX Organization
 
-Rating: **8.6 / 10**
+Rating: **8.7 / 10**
 
 Strengths:
 
 - Splash behavior matches the requested product flow: video-first startup with fallback and bounded checks.
 - Home-screen compile errors from `const` translation usage were fixed after the latest sync.
 - Updated home widgets and category sections build cleanly in the debug APK.
+- The expanded media/document screens and the cached splash-video fallback compile cleanly without changing the approved biometric ordering.
 
 Risks:
 
@@ -578,7 +640,7 @@ Risks:
 
 ### Documentation
 
-Rating: **9.1 / 10**
+Rating: **9.2 / 10**
 
 Strengths:
 
@@ -592,14 +654,14 @@ Risks:
 
 ### Release Readiness
 
-Rating: **8.7 / 10**
+Rating: **8.8 / 10**
 
 Strengths:
 
 - Debug APK builds successfully.
-- Automated tests pass after the latest chat security/compliance pass.
+- All 139 automated tests pass after the source merge and sign-in security guard.
 - Profile APK and split-per-ABI profile builds passed in the latest verification cycle.
-- Source `qossay_update` through `aec5018` is included in the current integration.
+- Source `qossay_update` through `1e45ddf` is included in the current integration.
 
 Risks:
 
@@ -628,14 +690,14 @@ Overall: **8.9 / 10**
 These scores are intentionally conservative. They reflect verified evidence from this workspace, not desired targets.
 
 - Build health is **9.0** because `flutter pub get`, `flutter test`, `flutter build apk --debug`, profile APK, split-per-ABI profile APK, and a full no-error analyzer pass complete; it is capped because the analyzer remains slow with a 2,024-diagnostic warning/info backlog and signed release build was not verified.
-- Tests are **9.3** because all `77/77` automated tests pass, including new Timesheet acting-session, Home widget session-merge, prayer-location, security, and compliance coverage; it is capped because no coverage report or real-device smoke test was run.
-- Security is **9.3** because sensitive login/chat/QR logging, hardcoded sign-in device id, unsafe stored-session handling, automatic exact-alarm prompts, unsafe shared API logging, sensitive chat auth/session direct prints, and unsafe `ChatUserSession.toString()` output were addressed; Firebase rules now pass `49/49` emulator tests and the rules-test harness reports zero dependency vulnerabilities. The score is capped because Firebase Functions dependency audit, production role deployment review, App Check posture, and older verbose non-auth logs still need follow-up.
+- Tests are **9.3** because the merged suite passes all `139/139` tests and now includes focused face alignment/verifier/tuning, frame-evidence, Timesheet face-audit, security, and compliance coverage; it is capped because no coverage report or real-device smoke test was run.
+- Security is **9.3** because sensitive login/chat/QR logging, hardcoded sign-in device id, unsafe stored-session handling, automatic exact-alarm prompts, unsafe shared API logging, sensitive chat auth/session direct prints, and unsafe `ChatUserSession.toString()` output were addressed; signed file links and linked-device handling were added, sign-in logs have a new regression guard, Firebase rules pass `49/49` emulator tests, and the rules-test harness reports zero dependency vulnerabilities. The score is capped because Firebase Functions dependency audit, production role deployment review, App Check posture, and older verbose non-auth logs still need follow-up.
 - Code quality is **8.8** because the merge is formatted, build/test clean, duplicate navigation is guarded, Firebase recovery is centralized, focused tests cover the new behavior, and the analyzer inventory is now measurable; it is capped because 2,024 existing warning/info diagnostics and legacy mixed patterns remain.
 - Architecture is **8.6** because the sync adds explicit Firebase session boundaries, shared project-module dependency construction, and scoped Timesheet acting-session providers/guards while retaining BLoC in key flows; it is capped because the project still mixes Provider, Riverpod, BLoC, service singletons, and direct repositories.
 - UI/UX organization is **8.7** because splash rendering, biometric fallback order, project navigation, map overflow behavior, family-document flow, and Timesheet acting-state presentation are organized and build clean; it is capped because no device-level UI smoke test was completed after this sync.
-- Assets/performance is **8.6** because duplicate/unused large assets remain removed, three more unused large assets were deleted, app assets are down to **81.68 MB / 522 files**, and profile builds pass; it is capped because assets are still large and no device startup/performance profile was captured.
+- Assets/performance is **8.6** because duplicate/unused large assets remain removed, the zero-byte source artifact was excluded, splash media now has cache/fallback handling, and profile builds have passed; it is not raised because the current app assets total **83.79 MB / 530 files** and no post-sync device startup/performance profile was captured.
 - Documentation is **9.2** because `PROJECT_FILE_INDEX.md` and this audit are updated, current ratings are aligned across the report, and source-sync/security-cleanup decisions are documented; it is not higher because historical addenda remain in the same file and could be archived later.
-- Release readiness is **8.8** because the current debug build and all `77/77` tests pass in addition to previously verified profile/split builds; it is capped because signed release credentials and production device validation are still outstanding.
+- Release readiness is **8.8** because the current debug APK and all `139/139` merged tests pass in addition to previously verified profile/split builds; it is capped because signed release credentials and post-sync production-device validation are still outstanding.
 
 ## Immediate Next Steps
 
@@ -649,6 +711,9 @@ These scores are intentionally conservative. They reflect verified evidence from
 
 Source commits synced through:
 
+- `1e45ddf` - fix(splash): restore Android video compatibility (`qossay_update`)
+- `57cc795` - merge `origin/main` into `qossay_update`
+- `e6c8cec` - Face capture: best-frame, walk-up mode, guides, dashboard location
 - `aec5018` - fix: keep adhan schedules accurate and persistent (`qossay_update`)
 - `9e676d8` - chore: bump iOS build number to 95
 - `495b453` - feat(documents): family request wizard, draft reset, and HRMS View Review

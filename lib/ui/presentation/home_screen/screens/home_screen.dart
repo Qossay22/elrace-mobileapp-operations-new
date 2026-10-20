@@ -14,6 +14,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:el_race/core/services/app_config_service.dart';
+import 'package:el_race/core/config/feature_flags.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -53,6 +54,10 @@ class HomeScreenPage extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreenPage>
     with WidgetsBindingObserver {
+  bool get _skipBiometricGate =>
+      !FeatureFlags.enableBiometricSignInGate ||
+      AppConfigService.instance.shouldSkipFaceId;
+
   // auth flags are stored on the widget class so they can be reset from outside
 
   // bool isMuted = false; // default value
@@ -83,7 +88,7 @@ class _HomeScreenState extends State<HomeScreenPage>
 
   /// Show gate with button — no automatic OS biometric prompt.
   void _presentBiometricGate() {
-    if (AppConfigService.instance.shouldSkipFaceId) return;
+    if (_skipBiometricGate) return;
     HomeScreenPage._didAuthenticateThisSession = false;
     HomeScreenPage._isAuthenticating = false;
     _isBiometricLocked = true;
@@ -105,8 +110,7 @@ class _HomeScreenState extends State<HomeScreenPage>
 
     // After splash/login, start the OS biometric prompt first. The manual
     // gate screen is only shown if the user cancels/skips that prompt.
-    if (!AppConfigService.instance.shouldSkipFaceId &&
-        !HomeScreenPage._didAuthenticateThisSession) {
+    if (!_skipBiometricGate && !HomeScreenPage._didAuthenticateThisSession) {
       _isBiometricLocked = true;
       HomeScreenPage._sessionUiLocked = true;
       _showBiometricGateScreen = false;
@@ -136,7 +140,7 @@ class _HomeScreenState extends State<HomeScreenPage>
       _backgroundedAt = null;
       return;
     }
-    if (AppConfigService.instance.shouldSkipFaceId) {
+    if (_skipBiometricGate) {
       _backgroundedAt = null;
       return;
     }

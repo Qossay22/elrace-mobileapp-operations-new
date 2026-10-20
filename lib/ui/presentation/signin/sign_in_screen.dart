@@ -1,18 +1,24 @@
 import 'dart:developer';
+import 'dart:math' as math;
 
 import 'package:el_race/auth/uaepass_auth_cubit.dart';
+import 'package:el_race/core/app_notices/app_notice_gate.dart';
 import 'package:el_race/chat/services/chat_credential_storage.dart';
 import 'package:el_race/core/config/feature_flags.dart';
 import 'package:el_race/core/session/post_login_setup.dart';
-import 'package:el_race/ui/auth/auth_loading_screen.dart';
+import 'package:el_race/core/utils/responsive_breakpoints.dart';
+import 'package:el_race/ui/auth/error_dialog.dart';
+import 'package:el_race/ui/auth/uaepass_app_to_app_screen.dart';
+import 'package:el_race/ui/auth/uaepass_web_login_screen.dart';
 import 'package:el_race/ui/presentation/home_screen/screens/home_screen.dart';
 import 'package:el_race/ui/presentation/signin/bloc/sign_in_bloc.dart';
+import 'package:el_race/ui/widgets/login_progress_card.dart';
 import 'package:el_race/utils/color_utils.dart';
 import 'package:el_race/utils/orientation_helper.dart';
 import 'package:el_race/utils/string_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hexcolor/hexcolor.dart';
 
@@ -24,20 +30,26 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
+  static const double _tabletScale = 1.15;
+
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
-  bool isChecked = false;
   bool isPasswordVisible = false;
   late SignInBloc signInBloc;
   bool _isLoadingDialogVisible = false;
+  final _enteringApp = ValueNotifier<bool>(false);
+  bool _signedIn = false;
 
-  void _showLoadingDialog() {
+  void _showLoadingDialog({
+    List<({String en, String ar})> steps = LoginProgressCard.defaultSteps,
+  }) {
     if (!mounted || _isLoadingDialogVisible) return;
     _isLoadingDialogVisible = true;
+    _enteringApp.value = false;
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
+      builder: (_) => LoginProgressCard(steps: steps, finishing: _enteringApp),
     );
   }
 
@@ -51,6 +63,14 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) AppNoticeGate.atSignIn(context);
+    });
+  }
+
+  @override
   void didChangeDependencies() {
     signInBloc = SignInBloc.get(context);
     super.didChangeDependencies();
@@ -60,22 +80,193 @@ class _SignInScreenState extends State<SignInScreen> {
   void dispose() {
     usernameController.dispose();
     passwordController.dispose();
-
+    _enteringApp.dispose();
     super.dispose();
+  }
+
+  bool _uaepassInProgress = false;
+
+  static const _uaepassStartSteps = <({String en, String ar})>[
+    (en: 'Connecting to UAE PASS...', ar: 'جارٍ الاتصال بالهوية الرقمية...'),
+  ];
+
+  static const _uaepassFinishSteps = <({String en, String ar})>[
+    (en: 'Verifying your UAE PASS login...', ar: 'التحقق من تسجيل الدخول...'),
+    (en: 'Checking access rights...', ar: 'التحقق من صلاحيات الوصول...'),
+    (en: 'Applying your role rules...', ar: 'تطبيق قواعد دورك...'),
+    (en: 'Preparing your dashboard...', ar: 'تجهيز لوحة التحكم...'),
+  ];
+
+  /// After a successful login the spinner stays open with "Taking you in..."
+  /// until Home replaces it; it closes only if a notice stops the login.
+  Future<void> _enterApp() async {
+    _signedIn = true;
+    await PostLoginSetup.applyAfterLogin(context);
+    if (!mounted) return;
+    _enteringApp.value = true;
+    if (!await AppNoticeGate.afterLogin(context)) {
+      _signedIn = false;
+      _hideLoadingDialog();
+      return;
+    }
+    if (!mounted) return;
+    await Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const HomeScreen()),
+      (route) => false,
+    );
+  }
+
+  Future<void> _onUaepassPressed() async {
+    if (_uaepassInProgress) return;
+    _uaepassInProgress = true;
+    try {
+      await _runUaepassLogin();
+    } finally {
+      _uaepassInProgress = false;
+    }
+  }
+
+  Future<void> _runUaepassLogin() async {
+    FocusScope.of(context).unfocus();
+    final cubit = context.read<UaepassAuthCubit>();
+
+    _showLoadingDialog(steps: _uaepassStartSteps);
+    await cubit.startLogin();
+    if (!mounted) return;
+    var verifying = false;
+    void showVerifying() {
+      if (verifying) return;
+      verifying = true;
+      _hideLoadingDialog();
+      _showLoadingDialog(steps: _uaepassFinishSteps);
+    }
+
+    void onReturned() {
+      if (!verifying) _hideLoadingDialog();
+    }
+
+    final loginUrl = cubit.state.loginUrl;
+    final Uri? result;
+    if (cubit.state.status == UaepassAuthStatus.appToApp && loginUrl != null) {
+      result = await UaepassAppToAppRelay.run(
+        context,
+        config: cubit.config,
+        authorizationUrl: loginUrl,
+        onReturned: onReturned,
+        onApproved: showVerifying,
+      );
+    } else if (cubit.state.status == UaepassAuthStatus.appToWeb &&
+        loginUrl != null) {
+      _hideLoadingDialog();
+      result = await Navigator.of(context).push<Uri>(
+        MaterialPageRoute(
+          builder: (_) => UaepassWebLoginScreen(
+            config: cubit.config,
+            authorizationUrl: loginUrl,
+          ),
+        ),
+      );
+    } else {
+      _hideLoadingDialog();
+      await ErrorDialog.showForFailure(context, cubit.state.failureType);
+      cubit.reset();
+      return;
+    }
+    if (!mounted) return;
+
+    if (result == null) {
+      _hideLoadingDialog();
+      await cubit.cancelled();
+    } else {
+      showVerifying();
+      await cubit.handleCallbackOrResult(result);
+    }
+    if (!mounted) return;
+
+    if (cubit.state.status != UaepassAuthStatus.success) {
+      _hideLoadingDialog();
+      await ErrorDialog.showForFailure(context, cubit.state.failureType);
+      cubit.reset();
+      return;
+    }
+
+    await _enterApp();
+  }
+
+  void _onLoginPressed() {
+    FocusScope.of(context).unfocus();
+    final email = usernameController.text.trim();
+    final password = passwordController.text;
+
+    final String? error;
+    if (email.isEmpty && password.isEmpty) {
+      error = 'Please enter your email and password.';
+    } else if (email.isEmpty) {
+      error = 'Please enter your email.';
+    } else if (password.isEmpty) {
+      error = 'Please enter your password.';
+    } else {
+      error = null;
+    }
+
+    if (error != null) {
+      showDialog(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Error'),
+          content: Text(error!),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    signInBloc.add(SignInET(
+      email: email,
+      password: password,
+    ));
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenSize = MediaQuery.sizeOf(context);
+    final screenWidth = screenSize.width;
+    final tablet = ResponsiveBreakpoints.useTabletLayout(context);
+    // Tablet: raw logical pixels with a mild boost — SizeConfig shrinks tablet
+    // sizes and screen-width scaling blows up on landscape.
+    double vh(double size) =>
+        tablet ? size * _tabletScale : SizeConfig().getHeight(size);
+    double vsp(double size) =>
+        tablet ? size * _tabletScale : SizeConfig().getTextSize(size);
+    // Mockup: input fields are wider than the Log in button; button is inset.
+    final fieldWidth = tablet
+        ? (screenWidth * 0.6).clamp(352.0, 460.0)
+        : (screenWidth * 0.82).clamp(280.0, 352.0);
+    final loginButtonWidth = fieldWidth * 0.90;
+    // "or" divider is shorter than both Log in / UAE PASS buttons.
+    final orDividerWidth = loginButtonWidth * 0.72;
+    const fieldHeight = 54.0;
+    const loginButtonHeight = 48.0;
+    // Decorative curves follow the short side on tablet so landscape doesn't
+    // stretch them over the form.
+    final topCurveWidth =
+        tablet ? math.min(screenWidth, screenSize.shortestSide) : screenWidth;
+    final bottomCurveWidth =
+        tablet ? screenSize.shortestSide * 0.55 : screenWidth * 0.72;
 
     return BlocConsumer<SignInBloc, SignInState>(
       listener: (context, state) async {
-        log('Listener state: $state');
+        log('Sign-in state changed (${state.runtimeType})');
 
         if (state is ErrMsg) {
           _hideLoadingDialog();
           await Future.delayed(const Duration(milliseconds: 100));
-          if (!mounted) return;
+          if (!context.mounted) return;
           showDialog(
             context: context,
             barrierDismissible: false,
@@ -95,30 +286,17 @@ class _SignInScreenState extends State<SignInScreen> {
         if (state is LoadingST) {
           if (state.isLoading) {
             _showLoadingDialog();
-          } else {
+          } else if (!_signedIn) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              _hideLoadingDialog();
+              if (!_signedIn) _hideLoadingDialog();
             });
           }
         }
         if (state is InitialSignedInST) {
-          if (isChecked) {
-            await ChatCredentialStorage.instance.save(
-              email: usernameController.text.trim(),
-              password: passwordController.text,
-              deviceId: state.deviceId,
-            );
-          } else {
-            await ChatCredentialStorage.instance.clear();
-          }
-
-          await PostLoginSetup.applyAfterLogin(context);
-          if (!mounted) return;
-
-          await Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const HomeScreen()),
-            (route) => false,
-          );
+          // The refreshed sign-in design has no Remember Password control, so
+          // credentials must not be persisted implicitly.
+          await ChatCredentialStorage.instance.clear();
+          await _enterApp();
         }
       },
       buildWhen: (previous, current) =>
@@ -134,12 +312,11 @@ class _SignInScreenState extends State<SignInScreen> {
               Positioned(
                 top: 0,
                 left: 0,
-                right: 0,
                 child: Image.asset(
                   'assets/png/top_curve.png',
-                  width: screenWidth,
+                  width: topCurveWidth,
                   fit: BoxFit.fitWidth,
-                  alignment: Alignment.topCenter,
+                  alignment: Alignment.topLeft,
                 ),
               ),
               Positioned(
@@ -147,159 +324,130 @@ class _SignInScreenState extends State<SignInScreen> {
                 right: 0,
                 child: Image.asset(
                   'assets/png/bottom_curve.png',
-                  width: screenWidth * 0.72,
+                  width: bottomCurveWidth,
                   fit: BoxFit.contain,
                   alignment: Alignment.bottomRight,
                 ),
               ),
               SafeArea(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: SizeConfig().getWidth(15)),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          height: SizeConfig().getHeight(110),
-                        ),
-                        Image.asset(
-                          'assets/gif/el-race-logo.gif',
-                          fit: BoxFit.contain,
-                          height: SizeConfig().getHeight(120),
-                        ),
-                        Text(
-                          'Sign in to your account',
-                          style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w400,
-                              fontSize: SizeConfig().getTextSize(20)),
-                        ),
-                        SizedBox(height: SizeConfig().getHeight(20)),
-                        textForms('Email ID', 'account.png', usernameController,
-                            false),
-                        SizedBox(height: SizeConfig().getHeight(40)),
-                        passwordField(),
-                        SizedBox(height: SizeConfig().getHeight(6)),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 5),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Checkbox(
-                                value: isChecked,
-                                activeColor: const Color(0xff00264D),
-                                materialTapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap,
-                                visualDensity:
-                                    const VisualDensity(horizontal: -4),
-                                onChanged: (bool? value) {
-                                  setState(() {
-                                    isChecked = value ?? false;
-                                  });
-                                },
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 2.0),
-                                child: Text(
-                                  'Remember Password',
-                                  style: GoogleFonts.poppins(
-                                    fontWeight: FontWeight.w600,
-                                    color: const Color(0xff30309B),
-                                    fontSize: 15,
-                                  ),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: tablet ? 24 : SizeConfig().getWidth(15)),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: SingleChildScrollView(
+                              physics: const BouncingScrollPhysics(),
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  minHeight: constraints.maxHeight - vh(56),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: SizeConfig().getHeight(30)),
-                        SizedBox(
-                          width: 227,
-                          child: loginButton(() {
-                            signInBloc.add(SignInET(
-                              email: usernameController.text,
-                              password: passwordController.text,
-                            ));
-                          }),
-                        ),
-                        if (FeatureFlags.showUaepassButton) ...[
-                          const SizedBox(height: 16),
-                          SizedBox(
-                            width: 227,
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Container(
-                                    height: 1,
-                                    color: HexColor("#DDDDDD"),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16),
-                                  child: Text(
-                                    'or',
-                                    style: TextStyle(
-                                      color: HexColor("#999999"),
-                                      fontSize: 14.0,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      'assets/logo/rcc1.png',
+                                      fit: BoxFit.contain,
+                                      height: vh(64),
+                                      width: fieldWidth * 0.92,
                                     ),
-                                  ),
+                                    SizedBox(height: vh(10)),
+                                    Text(
+                                      'Log in to your account',
+                                      style: GoogleFonts.poppins(
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: vsp(18)),
+                                    ),
+                                    SizedBox(height: vh(22)),
+                                    SizedBox(
+                                      width: fieldWidth,
+                                      height: vh(fieldHeight),
+                                      child: textForms(
+                                        'Email ID',
+                                        'account.png',
+                                        usernameController,
+                                        false,
+                                        hintSize: tablet ? 16 : 14,
+                                      ),
+                                    ),
+                                    SizedBox(height: vh(16)),
+                                    SizedBox(
+                                      width: fieldWidth,
+                                      height: vh(fieldHeight),
+                                      child: passwordField(
+                                          hintSize: tablet ? 16 : 14),
+                                    ),
+                                    SizedBox(height: vh(16)),
+                                    SizedBox(
+                                      width: loginButtonWidth,
+                                      height: vh(loginButtonHeight),
+                                      child: loginButton(_onLoginPressed,
+                                          fontSize: vsp(19)),
+                                    ),
+                                    if (FeatureFlags.showUaepassButton) ...[
+                                      SizedBox(height: vh(20)),
+                                      SizedBox(
+                                        width: orDividerWidth,
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Container(
+                                                height: 1,
+                                                color: HexColor("#DDDDDD"),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 12),
+                                              child: Text(
+                                                'or',
+                                                style: TextStyle(
+                                                  color: HexColor("#999999"),
+                                                  fontSize: tablet ? 16 : 14,
+                                                ),
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: Container(
+                                                height: 1,
+                                                color: HexColor("#DDDDDD"),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(height: vh(16)),
+                                      SizedBox(
+                                        width: loginButtonWidth,
+                                        child: _UaepassLoginButton(
+                                          onTap: _onUaepassPressed,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
                                 ),
-                                Expanded(
-                                  child: Container(
-                                    height: 1,
-                                    color: HexColor("#DDDDDD"),
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          SizedBox(
-                            width: 227,
-                            child: GestureDetector(
-                              onTap: () {
-                                final uaepassCubit =
-                                    context.read<UaepassAuthCubit>();
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) => const AuthLoadingScreen(),
-                                  ),
-                                );
-                                uaepassCubit.startLogin();
-                              },
-                              child: Image.asset(
-                                'assets/newapp/uae-pass-button.png',
-                                width: 227,
-                                fit: BoxFit.contain,
-                                errorBuilder: (context, _, __) => Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 24,
-                                    vertical: 12,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: Colors.black12),
-                                  ),
-                                  child: const Text('Sign in with UAE PASS'),
-                                ),
-                              ),
+                          Padding(
+                            padding: EdgeInsets.only(
+                              bottom: vh(18),
+                              top: vh(8),
+                            ),
+                            child: Text(
+                              'Contact with support',
+                              style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: vsp(17)),
                             ),
                           ),
                         ],
-                        SizedBox(height: SizeConfig().getHeight(70)),
-                        Text(
-                          'Contact support',
-                          style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w600,
-                              fontSize: SizeConfig().getTextSize(18)),
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-                    ),
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
@@ -309,35 +457,48 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 
-  Widget passwordField() {
+  Widget passwordField({required double hintSize}) {
     return Container(
-      height: SizeConfig().getHeight(55),
+      height: double.infinity,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(52),
+        borderRadius: BorderRadius.circular(12),
         color: white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha((0.2 * 255).toInt()),
-            blurRadius: 12,
-          )
-        ],
       ),
       child: TextFormField(
         obscureText: !isPasswordVisible,
         controller: passwordController,
         decoration: InputDecoration(
-          border: InputBorder.none,
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFCFCFCF)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFCFCFCF)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFB0B0B0)),
+          ),
           hintText: 'Password',
           contentPadding: const EdgeInsets.symmetric(vertical: 14),
-          hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF545454)),
-          prefixIcon: Image.asset(
-            '$imagePrefixIcons/lock.png',
-            color: const Color(0xFF545454),
+          hintStyle:
+              TextStyle(fontSize: hintSize, color: const Color(0xFF8A8A8A)),
+          prefixIcon: Padding(
+            padding: const EdgeInsets.all(11),
+            child: Image.asset(
+              '$imagePrefixIcons/lock.png',
+              color: const Color(0xFF8A8A8A),
+              width: 18,
+              height: 18,
+            ),
           ),
           suffixIcon: IconButton(
             icon: Icon(
               isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-              color: const Color(0xFF545454),
+              color: const Color(0xFF8A8A8A),
             ),
             onPressed: () {
               setState(() {
@@ -351,33 +512,50 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 }
 
-Widget loginButton(Function() onTapped) {
+/// Official UAE PASS button artwork, scaled to width at its native aspect ratio.
+class _UaepassLoginButton extends StatelessWidget {
+  const _UaepassLoginButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: AspectRatio(
+          aspectRatio: 352 / 60,
+          child: SvgPicture.asset(
+            'assets/svg/uaepass_login_button.svg',
+            fit: BoxFit.fill,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+Widget loginButton(Function() onTapped, {required double fontSize}) {
   return GestureDetector(
     onTap: onTapped,
     child: Container(
       width: double.infinity,
-      height: SizeConfig().getHeight(40),
+      height: double.infinity,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
             colors: [Color(0xffD6D6D6), Color(0xffADB2BD)]),
-        borderRadius: BorderRadius.circular(54),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              'Log in',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: SizeConfig().getTextSize(19),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(width: SizeConfig().getWidth(8)),
-            const Icon(Icons.arrow_forward, color: Colors.black),
-          ],
+        child: Text(
+          'Log in',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: fontSize,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     ),
@@ -385,30 +563,44 @@ Widget loginButton(Function() onTapped) {
 }
 
 Widget textForms(
-    String title, String icon, TextEditingController controller, bool obscure) {
+    String title, String icon, TextEditingController controller, bool obscure,
+    {required double hintSize}) {
   return Container(
-    height: SizeConfig().getHeight(55),
+    height: double.infinity,
     decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(52),
+      borderRadius: BorderRadius.circular(12),
       color: white,
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withAlpha((0.2 * 255).toInt()),
-          blurRadius: 12,
-        )
-      ],
     ),
     child: TextFormField(
       obscureText: obscure,
       controller: controller,
       decoration: InputDecoration(
-        border: InputBorder.none,
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFCFCFCF)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFCFCFCF)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFB0B0B0)),
+        ),
         hintText: title,
         contentPadding: const EdgeInsets.symmetric(vertical: 14),
-        hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF545454)),
-        prefixIcon: Image.asset(
-          '$imagePrefixIcons/$icon',
-          color: const Color(0xFF545454),
+        hintStyle:
+            TextStyle(fontSize: hintSize, color: const Color(0xFF8A8A8A)),
+        prefixIcon: Padding(
+          padding: const EdgeInsets.all(11),
+          child: Image.asset(
+            '$imagePrefixIcons/$icon',
+            color: const Color(0xFF8A8A8A),
+            width: 18,
+            height: 18,
+          ),
         ),
       ),
     ),

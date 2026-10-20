@@ -9,6 +9,7 @@ import 'package:el_race/core/timesheet/services/capture_queue_service.dart';
 import 'package:el_race/core/utils/app_orientations.dart';
 import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/core/security/device_security_service.dart';
+import 'package:el_race/core/security/signed_file_links.dart';
 import 'package:el_race/core/security/vpn_block_guard.dart';
 import 'package:el_race/core/security/vpn_security_monitor.dart';
 import 'package:el_race/core/services/incoming_share_service.dart';
@@ -50,6 +51,7 @@ import 'package:el_race/data/services/checkin_reminder_notification_service.dart
 import 'package:el_race/data/services/counter_reset_service.dart';
 import 'package:el_race/data/services/task_notification_service.dart';
 import 'package:el_race/data/services/unified_workmanager_dispatcher.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -73,6 +75,30 @@ import 'report_module/data/provider/reports_provider.dart';
 import 'ui/presentation/Email Approval/bloc/approval_bloc.dart';
 import 'ui/presentation/home_screen/provider/slider_provider.dart';
 
+/// Chat push reached this phone: grey ✓✓ for the sender (read stays for when
+/// the chat is opened). Muted chats still count as delivered.
+Future<void> _markChatPushDelivered(Map<String, dynamic> data) async {
+  final category = (data['category'] ?? data['type'] ?? '').toString();
+  final chatId = (data['chat_id'] ?? data['chatId'] ?? '').toString().trim();
+  if (chatId.isEmpty || (category.isNotEmpty && category != 'chat_message')) {
+    return;
+  }
+  try {
+    final user = FirebaseAuth.instance.currentUser ??
+        await FirebaseAuth.instance
+            .authStateChanges()
+            .first
+            .timeout(const Duration(seconds: 5), onTimeout: () => null);
+    if (user == null) return;
+    await ChatRepository.instance
+        .markChatDelivered(chatId)
+        .timeout(const Duration(seconds: 10));
+    print('✅ Chat push marked delivered: $chatId');
+  } catch (e) {
+    print('⚠️ Chat push delivered mark failed: $e');
+  }
+}
+
 // Background message handler - يجب أن يكون خارج main()
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -85,6 +111,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
   print('📩 Background message received: ${message.notification?.title}');
   print('📩 Message data: ${message.data}');
+
+  await _markChatPushDelivered(message.data);
 
   // Save notification to storage
   try {
@@ -246,6 +274,7 @@ void _checkStackOverflowBreadcrumb() {
 }
 
 void main() async {
+  HttpOverrides.global = SignedFileHttpOverrides(HttpOverrides.current);
   WidgetsFlutterBinding.ensureInitialized();
   debugPrint('🚀 main(): Flutter binding initialized');
 
@@ -605,6 +634,10 @@ const _systemUiChannel = MethodChannel('ae.elrace.mobile/system_ui');
 /// Phones stay portrait-only. Tablets may rotate so Home multi-pane can use
 /// landscape width (otherwise both orientations report ~phone/portrait width).
 Future<void> _configureAppOrientations() async {
+  if (AppOrientations.isPortraitHeld) {
+    await AppOrientations.lockPortrait();
+    return;
+  }
   final views = WidgetsBinding.instance.platformDispatcher.views;
   var isTablet = false;
   if (views.isNotEmpty) {

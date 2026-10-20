@@ -1,10 +1,13 @@
 import 'dart:async';
 
+import 'package:el_race/core/app_notices/app_notice_gate.dart';
+import 'package:el_race/core/services/splash_video_cache.dart';
 import 'package:el_race/core/services/update_service.dart';
 import 'package:el_race/core/services/android_play_update_service.dart';
 import 'package:el_race/core/app_globals.dart' show appInitCompleter;
 import 'package:el_race/core/session/force_logout_guard.dart';
 import 'package:el_race/core/security/device_security_service.dart';
+import 'package:el_race/core/utils/app_orientations.dart';
 import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/firebase_service.dart';
 import 'package:el_race/ui/presentation/signin/sign_in_screen.dart';
@@ -28,14 +31,16 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  static const String _splashVideoAsset = 'assets/mp4/splash.mp4';
-  static const Duration _videoInitTimeout = Duration(seconds: 8);
-  static const Duration _maxVideoWait = Duration(seconds: 30);
+  // Navigation normally continues as soon as playback reaches the end. This
+  // longer timeout is only a safety net if the player never reports completion.
+  static const Duration _maxDecorativeVideoWait = Duration(seconds: 30);
+  static const Duration _localVideoInitTimeout = Duration(seconds: 8);
 
   bool _isSecurityCheckComplete = false;
   bool _isDeviceSecure = true;
   bool _didScheduleNavigation = false;
-  late VideoPlayerController _videoController;
+  VideoPlayerController? _videoController;
+  Timer? _videoWatchdog;
   bool _isVideoReady = false;
   final Completer<void> _videoCompletedCompleter = Completer<void>();
   // Phase 2: replaces the _waitForSecurityCheck() polling loop so the
@@ -53,20 +58,15 @@ class _SplashScreenState extends State<SplashScreen> {
   final Stopwatch _splashStopwatch = Stopwatch()..start();
 
   void _logGateTiming(String label) {
-    if (kDebugMode) {
-      debugPrint(
-          '[splash] $label at ${_splashStopwatch.elapsedMilliseconds}ms');
-    }
-  }
-
-  void _debugLog(Object? message) {
-    if (kDebugMode) debugPrint(message?.toString());
+    debugPrint(
+        '⏱️ [splash] $label at ${_splashStopwatch.elapsedMilliseconds}ms');
   }
 
   @override
   void initState() {
     super.initState();
-    _debugLog('SplashScreen.initState(): first screen mounted');
+    unawaited(AppOrientations.holdPortrait());
+    debugPrint('🚀 SplashScreen.initState(): first screen mounted');
     _logGateTiming('initState');
 
     // Instrumentation only: log when appInitCompleter resolves, independent
@@ -86,23 +86,7 @@ class _SplashScreenState extends State<SplashScreen> {
     _updateCheckFuture.catchError((_) => const UpdateCheckResult.noUpdate());
 
     // Initialize video player (uses hardware decoder, not main thread)
-    _videoController = VideoPlayerController.asset(
-      _splashVideoAsset,
-      videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
-      viewType: defaultTargetPlatform == TargetPlatform.android
-          ? VideoViewType.platformView
-          : VideoViewType.textureView,
-    )..initialize().timeout(_videoInitTimeout).then((_) {
-        _logGateTiming('video-ready');
-        if (mounted) {
-          setState(() => _isVideoReady = true);
-          _videoController.addListener(_onVideoProgress);
-          _videoController.play();
-        }
-      }).catchError((e) {
-        _debugLog('Video init error: $e');
-        _completeVideoIfNeeded();
-      });
+    unawaited(_chooseVideo());
 
     // Defer security check & QR clear to after the first frame so
     // the splash background paints immediately without any blocking work.
@@ -111,7 +95,92 @@ class _SplashScreenState extends State<SplashScreen> {
       final provider =
           Provider.of<QrSurveyDataProvider>(context, listen: false);
       provider.clearData();
-      _debugLog('SplashScreen: cleared QR data on app start');
+      print('🧹 SplashScreen - Cleared QR data on app start');
+    });
+  }
+
+  static const _bundledSplashVideo = 'assets/mp4/splash.mp4';
+
+  /// A stream that has not started by then falls back to the bundled video.
+  static const _networkStartTimeout = Duration(seconds: 4);
+
+  Future<void> _chooseVideo() async {
+    final source = await SplashVideoCache.instance.resolve();
+    if (!mounted) return;
+    _logGateTiming(
+        'video-source ${source.file != null ? 'saved' : source.url != null ? 'stream' : 'bundled'}');
+    _startVideo(_createVideoController(source), source: source);
+  }
+
+  VideoPlayerController _createVideoController(SplashVideoSource source) {
+    final viewType = defaultTargetPlatform == TargetPlatform.android
+        ? VideoViewType.platformView
+        : VideoViewType.textureView;
+    final options = VideoPlayerOptions(mixWithOthers: true);
+
+    if (source.file != null) {
+      return VideoPlayerController.file(
+        source.file!,
+        videoPlayerOptions: options,
+        viewType: viewType,
+      );
+    }
+    if (source.url != null) {
+      return VideoPlayerController.networkUrl(
+        Uri.parse(source.url!),
+        formatHint: source.isHls ? VideoFormat.hls : null,
+        videoPlayerOptions: options,
+        viewType: viewType,
+      );
+    }
+    return VideoPlayerController.asset(
+      _bundledSplashVideo,
+      videoPlayerOptions: options,
+      viewType: viewType,
+    );
+  }
+
+  void _startVideo(
+    VideoPlayerController controller, {
+    required SplashVideoSource source,
+  }) {
+    _videoController = controller;
+    Future<void> init = controller.initialize();
+    if (source.url != null) {
+      init.catchError((_) {});
+      init = init.timeout(_networkStartTimeout);
+    } else {
+      init = init.timeout(_localVideoInitTimeout);
+    }
+    init.then((_) {
+      if (!identical(_videoController, controller)) return;
+      _logGateTiming('video-ready');
+      if (mounted) {
+        setState(() => _isVideoReady = true);
+        controller.addListener(_onVideoProgress);
+        controller.play();
+        _videoWatchdog?.cancel();
+        _videoWatchdog = Timer(
+          controller.value.duration + const Duration(seconds: 4),
+          _completeVideoIfNeeded,
+        );
+      }
+    }).catchError((e) {
+      if (!identical(_videoController, controller)) return;
+      print('⚠️ Video init error: $e');
+      if (!source.isBundled && mounted) {
+        if (source.file != null) {
+          unawaited(SplashVideoCache.instance.discard());
+        }
+        _videoController = null;
+        unawaited(controller.dispose().catchError((_) {}));
+        _startVideo(
+          _createVideoController(const SplashVideoSource.bundled()),
+          source: const SplashVideoSource.bundled(),
+        );
+        return;
+      }
+      _completeVideoIfNeeded();
     });
   }
 
@@ -122,12 +191,13 @@ class _SplashScreenState extends State<SplashScreen> {
       final currentVersion = packageInfo.version.trim().isNotEmpty
           ? packageInfo.version
           : '${packageInfo.version}+${packageInfo.buildNumber}';
-      _debugLog('SplashScreen: app version resolved for update check');
+      debugPrint(
+          '🚀 SplashScreen: app version for update check=$currentVersion');
       return UpdateService.instance
           .checkForUpdate(currentVersion)
           .timeout(const Duration(seconds: 10));
     } catch (e) {
-      _debugLog('Update check setup error (ignored): $e');
+      debugPrint('⚠️ Update check setup error (ignored): $e');
       return const UpdateCheckResult.noUpdate();
     }
   }
@@ -136,7 +206,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _performSecurityCheck() async {
     _logGateTiming('security-check-start');
     try {
-      _debugLog('Starting security check');
+      print('🔒 Starting security check...');
       final result = await DeviceSecurityService.instance
           .performSecurityCheck()
           .timeout(const Duration(seconds: kDebugMode ? 2 : 6));
@@ -148,15 +218,15 @@ class _SplashScreenState extends State<SplashScreen> {
         });
 
         if (!result.isSecure) {
-          _debugLog('Device security check failed');
+          print('❌ Device security check failed!');
           DeviceSecurityService.showSecurityBlockDialog(context, result);
         } else {
-          _debugLog('Device security check passed');
+          print('✅ Device security check passed!');
         }
       }
       _logGateTiming('security-check-complete (isSecure=${result.isSecure})');
     } catch (e) {
-      _debugLog('Error during security check: $e');
+      print('⚠️ Error during security check: $e');
       // On error, allow app to continue (fail-open for better UX)
       if (mounted) {
         setState(() {
@@ -185,28 +255,30 @@ class _SplashScreenState extends State<SplashScreen> {
     _waitForInitAndNavigate();
   }
 
-  /// Wait for startup gates and let the splash video finish before navigating.
+  /// Wait for init + security in parallel. Splash video is decorative only —
+  /// do NOT gate navigation on it (video is ~5s and completion often misses,
+  /// Jul 20 "Let splash video finish before navigation").
   Future<void> _waitForInitAndNavigate() async {
-    _debugLog('SplashScreen: waiting for bounded startup checks');
+    debugPrint('🚀 SplashScreen: waiting for bounded startup checks');
     _logGateTiming('waitForInitAndNavigate-start');
     await Future.wait<void>([
       appInitCompleter.future.timeout(
         const Duration(seconds: 12),
         onTimeout: () {
-          _debugLog('Heavy init timeout in splash - continuing anyway');
+          print('⚠️ Heavy init timeout in splash – continuing anyway');
         },
       ),
       _securityCheckCompleter.future.timeout(
         const Duration(seconds: kDebugMode ? 2 : 6),
         onTimeout: () {
-          _debugLog('Security check timeout in splash - continuing anyway');
+          print('⚠️ Security check timeout in splash – continuing anyway');
         },
       ),
     ]);
     await _videoCompletedCompleter.future.timeout(
-      _maxVideoWait,
+      _maxDecorativeVideoWait,
       onTimeout: () {
-        _debugLog('Video completion timeout in splash - continuing anyway');
+        print('Video wait timeout in splash - continuing anyway');
       },
     );
     _logGateTiming('waitForInitAndNavigate-gate-resolved');
@@ -217,7 +289,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // completed and found the device insecure. A timed-out/incomplete check
     // (_isSecurityCheckComplete still false) fails open, same as before.
     if (!_isDeviceSecure && _isSecurityCheckComplete) {
-      _debugLog('Navigation blocked - device not secure');
+      print('🚫 Navigation blocked - device not secure');
       return;
     }
 
@@ -225,10 +297,11 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _onVideoProgress() {
-    if (!_videoController.value.isInitialized) return;
+    final controller = _videoController;
+    if (controller == null || !controller.value.isInitialized) return;
 
-    final duration = _videoController.value.duration;
-    final position = _videoController.value.position;
+    final duration = controller.value.duration;
+    final position = controller.value.position;
 
     if (duration == Duration.zero) return;
 
@@ -248,7 +321,7 @@ class _SplashScreenState extends State<SplashScreen> {
   /// Runs the update check first, then proceeds with routing.
   void _navigateToNextScreen() {
     if (!mounted) return;
-    _debugLog('SplashScreen: initialization finished; checking route');
+    debugPrint('🚀 SplashScreen: initialization finished; checking route');
     _checkForUpdateThenNavigate();
   }
 
@@ -280,8 +353,19 @@ class _SplashScreenState extends State<SplashScreen> {
       // Force-update: block navigation until user updates the app
       if (blocked) return;
     } catch (e) {
-      _debugLog('Update check error (ignored): $e');
+      print('⚠️ Update check error (ignored): $e');
       _logGateTiming('update-check-complete (error, ignored)');
+    }
+
+    if (!mounted) return;
+    try {
+      await AppNoticeGate.atStartup(
+        context,
+        isAuthenticated: SharedPref.isUserAuthenticated(),
+      );
+      _logGateTiming('app-notices-complete');
+    } catch (e) {
+      debugPrint('⚠️ App notices error (ignored): $e');
     }
 
     if (!mounted) return;
@@ -294,12 +378,15 @@ class _SplashScreenState extends State<SplashScreen> {
     // point splash_screen.dart controls before handing off navigation, since
     // instrumenting the destination screens is out of scope for this file.
     _logGateTiming('navigate-handoff');
+    AppNoticeGate.markAppReady();
+    await AppOrientations.releasePortrait();
+    if (!mounted) return;
 
     try {
       // Check authentication first
       final isAuthenticated = SharedPref.isUserAuthenticated();
-      _debugLog(
-        'SplashScreen: navigating to '
+      debugPrint(
+        '🚀 SplashScreen: navigating to '
         '${isAuthenticated ? 'home' : 'sign-in'}',
       );
 
@@ -314,6 +401,7 @@ class _SplashScreenState extends State<SplashScreen> {
         if (forced) {
           await ForceLogoutGuard.instance.presentForcedLogoutFlow(
             context: context,
+            message: ForceLogoutGuard.instance.lastServerMessage,
           );
           return;
         }
@@ -356,7 +444,7 @@ class _SplashScreenState extends State<SplashScreen> {
         Util.pushPageAndRemoveRoutes(const SignInScreen(), context);
       }
     } catch (e) {
-      _debugLog('Error navigating from splash: $e');
+      print('❌ Error navigating from splash: $e');
       // Fallback based on authentication status, not to login screen blindly
       if (mounted) {
         if (SharedPref.isUserAuthenticated()) {
@@ -375,7 +463,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 350),
-        child: _isVideoReady
+        child: _isVideoReady && _videoController != null
             ? SizedBox.expand(
                 key: const ValueKey('splash-video'),
                 child: ColoredBox(
@@ -383,9 +471,9 @@ class _SplashScreenState extends State<SplashScreen> {
                   child: FittedBox(
                     fit: BoxFit.cover,
                     child: SizedBox(
-                      width: _videoController.value.size.width,
-                      height: _videoController.value.size.height,
-                      child: VideoPlayer(_videoController),
+                      width: _videoController!.value.size.width,
+                      height: _videoController!.value.size.height,
+                      child: VideoPlayer(_videoController!),
                     ),
                   ),
                 ),
@@ -397,8 +485,10 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void dispose() {
-    _videoController.removeListener(_onVideoProgress);
-    _videoController.dispose();
+    _videoWatchdog?.cancel();
+    _videoController?.removeListener(_onVideoProgress);
+    _videoController?.dispose();
+    unawaited(AppOrientations.releasePortrait());
     super.dispose();
   }
 }

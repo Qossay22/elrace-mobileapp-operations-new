@@ -6,10 +6,11 @@ abstract final class TimesheetOdooApiCatalog {
   // --- Existing production endpoints (reuse in FM) ---
 
   /// **Attendance write** — same as HR task sheet "Submit timesheet".
-  static const String submitTimesheet = '/timesheet/submit';
+  /// JWT-protected v2; the public v1 stays live for the old app.
+  static const String submitTimesheet = '/v2/timesheet/submit';
 
-  /// Foreman / user task list (used by `task_sheet_screen.dart`).
-  static const String tasksList = '/tasks/list';
+  /// Foreman / user task list. v2 resolves the user from the JWT.
+  static const String tasksList = '/v2/tasks/list';
 
   /// Projects list (used by `get_projects`, swipe button, horizontal slider).
   static const String getProjects = '/get_projects';
@@ -23,6 +24,9 @@ abstract final class TimesheetOdooApiCatalog {
   /// Project staff_list + supervisors for chat pickers.
   static const String projectStaff = '/timesheet/project_staff';
 
+  /// Submit geofence gate — `{project_threshold_m}` from `project.threshold`.
+  static const String submitPolicy = '/timesheet/submit_policy';
+
   /// Per-foreman submission summary for a project (Site Management monitor).
   /// Returns `[{employee_id, name, file_id, image, total_hours, last_submit_date}]`.
   static const String projectForemenSummary =
@@ -35,17 +39,32 @@ abstract final class TimesheetOdooApiCatalog {
   static const String timesheetLaborList = '/timesheet/labor_list';
 
   /// Timesheet rows for a task on a date (used by `EmptyShiftPage`).
-  static const String taskTimesheetsList = '/task/timesheets/list';
+  static const String taskTimesheetsList = '/v2/task/timesheets/list';
+
+  /// Timesheet rows for a project in a date range (Recent / Show all).
+  /// Queries analytic lines by ``project_id`` — does not depend on tasks/list.
+  static const String projectTimesheetsList = '/v2/project/timesheets/list';
 
   /// Aggregated counts per day for a task (used by `TaskDetailsPage`).
-  static const String countTimesheetsByDays = '/count/timesheets/by/days';
+  static const String countTimesheetsByDays = '/v2/count/timesheets/by/days';
 
   /// Geofence check (used by swipe / location flows).
   static const String validateUserLocation = '/validate_user_location';
 
   /// Employee roster for timesheet picker (via `TeamMembersApiService`).
-  static const String employeeList = '/employee/list';
+  static const String employeeList = '/v2/employee/list';
   static const String employeeListX = '/employee/listx';
+
+  /// Public v1 route for each v2 path, used only when the server answers
+  /// 404 because the v2 route is not deployed yet.
+  static const Map<String, String> legacyFallback = {
+    submitTimesheet: '/timesheet/submit',
+    tasksList: '/tasks/list',
+    taskTimesheetsList: '/task/timesheets/list',
+    projectTimesheetsList: '/project/timesheets/list',
+    countTimesheetsByDays: '/count/timesheets/by/days',
+    employeeList: '/employee/list',
+  };
 
   // --- New Module 6 endpoints (SRD §14.1 — implement on Odoo) ---
 
@@ -72,16 +91,23 @@ abstract final class TimesheetSubmitParams {
   static const String dateTime = 'date_time';
   static const String dateTimeEnd = 'date_time_end';
   static const String coords = 'coords';
+
+  /// Optional, v2 only: `{employeeId: {verified, score, lead, ...}}`.
+  static const String faceVerification = 'face_verification';
 }
 
 /// FM screen / state → submit param source.
 abstract final class TimesheetFmSubmitFieldSource {
-  static const String projectId = 'TimesheetCaptureArgs.projectId (FM2/FM3 nav)';
+  static const String projectId =
+      'TimesheetCaptureArgs.projectId (FM2/FM3 nav)';
   static const String taskId = 'TimesheetCaptureArgs.taskId';
   static const String name = 'Matched worker name or targetWorkerName';
-  static const String breakTime = 'Default 0 (no FM UI; HR task sheet has picker)';
-  static const String leaveTypeId = 'Default false (no FM UI; HR has leave types)';
-  static const String employeeIds = 'Worker.odooEmployeeId from task roster / match';
+  static const String breakTime =
+      'Default 0 (no FM UI; HR task sheet has picker)';
+  static const String leaveTypeId =
+      'Default false (no FM UI; HR has leave types)';
+  static const String employeeIds =
+      'Worker.odooEmployeeId from task roster / match';
   static const String date = 'Capture date (local today unless backdated)';
   static const String dateTime =
       'checkIn: capture time; checkOut: capture time − 8h (shift window)';

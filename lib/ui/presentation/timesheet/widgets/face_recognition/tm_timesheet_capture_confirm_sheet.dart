@@ -3,9 +3,13 @@ import 'package:el_race/core/timesheet/models/timesheet_models.dart';
 import 'package:el_race/core/widgets/timesheet/timesheet_widgets.dart';
 import 'package:el_race/ui/presentation/timesheet/models/timesheet_capture_session_entry.dart';
 import 'package:el_race/ui/presentation/timesheet/widgets/tm_fast_network_image.dart';
+import 'package:el_race/ui/presentation/timesheet/widgets/tm_missing_location_notify_row.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+
+export 'package:el_race/ui/presentation/timesheet/widgets/tm_missing_location_notify_row.dart'
+    show TmNotifyMissingLocation;
 
 /// Slide-up confirm sheet before submitting captured timesheets.
 abstract final class TmTimesheetCaptureConfirmSheet {
@@ -22,6 +26,8 @@ abstract final class TmTimesheetCaptureConfirmSheet {
     Project? initialProject,
     ValueChanged<Project>? onProjectChanged,
     ValueChanged<TimesheetCaptureSessionEntry>? onRemoveCapture,
+    Future<List<Project>> Function()? onReloadProjects,
+    TmNotifyMissingLocation? onNotifyMissingLocation,
   }) {
     return showModalBottomSheet<bool>(
       context: context,
@@ -39,6 +45,8 @@ abstract final class TmTimesheetCaptureConfirmSheet {
         initialProject: initialProject,
         onProjectChanged: onProjectChanged,
         onRemoveCapture: onRemoveCapture,
+        onReloadProjects: onReloadProjects,
+        onNotifyMissingLocation: onNotifyMissingLocation,
       ),
     ).then((v) => v ?? false);
   }
@@ -57,8 +65,12 @@ class _TmTimesheetCaptureConfirmSheetBody extends StatefulWidget {
     this.initialProject,
     this.onProjectChanged,
     this.onRemoveCapture,
+    this.onReloadProjects,
+    this.onNotifyMissingLocation,
   });
 
+  final Future<List<Project>> Function()? onReloadProjects;
+  final TmNotifyMissingLocation? onNotifyMissingLocation;
   final List<TimesheetCaptureSessionEntry> captures;
   final DateTime startDateTime;
   final DateTime endDateTime;
@@ -81,12 +93,33 @@ class _TmTimesheetCaptureConfirmSheetBodyState
   late DateTime _start = widget.startDateTime;
   late DateTime _end = widget.endDateTime;
   late int _break = widget.breakHours;
-  late Project? _project = widget.initialProject ??
-      (widget.projects.isNotEmpty ? widget.projects.first : null);
+  late List<Project> _projects = widget.projects;
+  /// Locked to the camera-session project (read-only in the UI).
+  late Project? _project = widget.initialProject;
   late final List<TimesheetCaptureSessionEntry> _captures =
       List.of(widget.captures);
 
-  bool get _needsProject => widget.projects.isNotEmpty;
+  bool get _needsProject =>
+      _projects.isNotEmpty || widget.initialProject != null;
+
+  Future<List<Project>> _reloadProjects() async {
+    final reload = widget.onReloadProjects;
+    if (reload == null) return _projects;
+    final fresh = await reload();
+    if (!mounted) return fresh;
+    setState(() {
+      _projects = fresh;
+      final current = _project ?? widget.initialProject;
+      if (current != null) {
+        final match = fresh.where((p) => p.id == current.id);
+        if (match.isNotEmpty) {
+          _project = match.first;
+          widget.onProjectChanged?.call(match.first);
+        }
+      }
+    });
+    return fresh;
+  }
 
   void _removeCapture(TimesheetCaptureSessionEntry entry) {
     setState(() => _captures.remove(entry));
@@ -116,8 +149,8 @@ class _TmTimesheetCaptureConfirmSheetBodyState
                 width: 44,
                 height: 4,
                 decoration: BoxDecoration(
-                color: TimesheetModuleColors.ink.withValues(alpha: 0.22),
-                borderRadius: BorderRadius.circular(999),
+                  color: TimesheetModuleColors.ink.withValues(alpha: 0.22),
+                  borderRadius: BorderRadius.circular(999),
                 ),
               ),
               Padding(
@@ -145,13 +178,12 @@ class _TmTimesheetCaptureConfirmSheetBodyState
               if (_needsProject) ...[
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                  child: _ProjectPickerField(
-                    projects: widget.projects,
-                    selected: _project,
-                    onChanged: (project) {
-                      setState(() => _project = project);
-                      widget.onProjectChanged?.call(project);
-                    },
+                  child: _ProjectReadonlyField(
+                    project: _project ?? widget.initialProject,
+                    onReload: widget.onReloadProjects == null
+                        ? null
+                        : _reloadProjects,
+                    onNotify: widget.onNotifyMissingLocation,
                   ),
                 ),
               ],
@@ -248,9 +280,19 @@ class _TmTimesheetCaptureConfirmSheetBodyState
                   warm: true,
                   icon: PhosphorIcons.paperPlaneTilt(),
                   onPressed: _captures.isEmpty ||
-                          (_needsProject && _project == null)
+                          (_needsProject &&
+                              (_project == null ||
+                                  !_project!.hasSiteCoordinates))
                       ? null
-                      : () => Navigator.of(context).pop(true),
+                      : () {
+                          // Hosts fall back to their own default project, so
+                          // always hand back the located pick explicitly.
+                          final picked = _project;
+                          if (picked != null) {
+                            widget.onProjectChanged?.call(picked);
+                          }
+                          Navigator.of(context).pop(true);
+                        },
                 ),
               ),
             ],
@@ -281,40 +323,34 @@ class _TmTimesheetCaptureConfirmSheetBodyState
   }
 }
 
-/// Tappable field that opens a searchable project picker sheet.
-class _ProjectPickerField extends StatelessWidget {
-  const _ProjectPickerField({
-    required this.projects,
-    required this.selected,
-    required this.onChanged,
+/// Read-only project for this capture session (no picker).
+class _ProjectReadonlyField extends StatelessWidget {
+  const _ProjectReadonlyField({
+    required this.project,
+    this.onReload,
+    this.onNotify,
   });
 
-  final List<Project> projects;
-  final Project? selected;
-  final ValueChanged<Project> onChanged;
+  final Project? project;
+  final Future<List<Project>> Function()? onReload;
+  final TmNotifyMissingLocation? onNotify;
 
   @override
   Widget build(BuildContext context) {
-    final current = selected ?? (projects.isNotEmpty ? projects.first : null);
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
-        onTap: () async {
-          final picked = await _ProjectSearchSheet.show(
-            context,
-            projects: projects,
-            selected: current,
-          );
-          if (picked != null) onChanged(picked);
-        },
-        child: Container(
+    final current = project;
+    final located = current?.hasSiteCoordinates == true;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
-                color: TimesheetModuleColors.glassSurface,
+            color: TimesheetModuleColors.warmMuted.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: TimesheetModuleColors.glassBorder,
+              color: located
+                  ? TimesheetModuleColors.glassBorder
+                  : TmMissingLocationNotifyRow.danger.withValues(alpha: 0.35),
             ),
           ),
           child: Row(
@@ -332,14 +368,13 @@ class _ProjectPickerField extends StatelessWidget {
                     Text(
                       'Project',
                       style: TimesheetModuleTypography.caption().copyWith(
-                        color:
-                            TimesheetModuleColors.warmMuted,
+                        color: TimesheetModuleColors.warmMuted,
                         fontSize: 11,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      current?.name ?? 'Select project',
+                      current?.name ?? 'No project',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TimesheetModuleTypography.caption().copyWith(
@@ -351,267 +386,50 @@ class _ProjectPickerField extends StatelessWidget {
                   ],
                 ),
               ),
+              if (located)
+                Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: Icon(
+                    PhosphorIcons.mapPin(PhosphorIconsStyle.fill),
+                    size: 18,
+                    color: const Color(0xFF2E9E5B),
+                  ),
+                ),
               Icon(
-                PhosphorIcons.caretRight(),
+                PhosphorIcons.lockSimple(PhosphorIconsStyle.fill),
+                size: 16,
                 color: TimesheetModuleColors.warmMuted,
-                size: 18,
               ),
+              if (onReload != null) ...[
+                const SizedBox(width: 4),
+                IconButton(
+                  tooltip: 'Reload projects',
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(
+                    minWidth: 32,
+                    minHeight: 32,
+                  ),
+                  onPressed: () => onReload!(),
+                  icon: Icon(
+                    PhosphorIcons.arrowClockwise(),
+                    size: 18,
+                    color: TimesheetModuleColors.warmMuted,
+                  ),
+                ),
+              ],
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-/// Searchable, smart project list shown as a themed dragger.
-class _ProjectSearchSheet extends StatefulWidget {
-  const _ProjectSearchSheet({
-    required this.projects,
-    required this.selected,
-  });
-
-  final List<Project> projects;
-  final Project? selected;
-
-  static Future<Project?> show(
-    BuildContext context, {
-    required List<Project> projects,
-    Project? selected,
-  }) {
-    return showModalBottomSheet<Project>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) =>
-          _ProjectSearchSheet(projects: projects, selected: selected),
-    );
-  }
-
-  @override
-  State<_ProjectSearchSheet> createState() => _ProjectSearchSheetState();
-}
-
-class _ProjectSearchSheetState extends State<_ProjectSearchSheet> {
-  final _controller = TextEditingController();
-  String _query = '';
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  List<Project> get _filtered {
-    final q = _query.trim().toLowerCase();
-    if (q.isEmpty) return widget.projects;
-    return widget.projects.where((p) {
-      return p.name.toLowerCase().contains(q) ||
-          p.code.toLowerCase().contains(q) ||
-          p.client.toLowerCase().contains(q);
-    }).toList();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      initialChildSize: 0.7,
-      minChildSize: 0.4,
-      maxChildSize: 0.92,
-      builder: (context, scrollController) {
-        final results = _filtered;
-        return Container(
-          decoration: const BoxDecoration(
-            gradient: TimesheetModuleColors.warmGradient,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        if (current != null && !located) ...[
+          const SizedBox(height: 8),
+          TmMissingLocationNotifyRow(
+            project: current,
+            onNotify: onNotify,
+            label: 'Location not set',
           ),
-          child: Column(
-            children: [
-              const SizedBox(height: 10),
-              Container(
-                width: 44,
-                height: 4,
-                decoration: BoxDecoration(
-                color: TimesheetModuleColors.ink.withValues(alpha: 0.22),
-                borderRadius: BorderRadius.circular(999),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 12, 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Select project',
-                        style: TimesheetModuleTypography.h2().copyWith(
-                          color: TimesheetModuleColors.ink,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: Icon(
-                        PhosphorIcons.x(),
-                        color: TimesheetModuleColors.ink,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                child: TextField(
-                  controller: _controller,
-                  onChanged: (v) => setState(() => _query = v),
-                  style: TimesheetModuleTypography.body().copyWith(
-                    color: TimesheetModuleColors.ink,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: 'Search projects',
-                    hintStyle: TimesheetModuleTypography.body().copyWith(
-                      color:
-                          TimesheetModuleColors.warmMuted,
-                    ),
-                    prefixIcon: Icon(
-                      PhosphorIcons.magnifyingGlass(),
-                      color:
-                          TimesheetModuleColors.warmMuted,
-                      size: 20,
-                    ),
-                    filled: true,
-                    fillColor:
-                        TimesheetModuleColors.glassSurface,
-                    contentPadding:
-                        const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: results.isEmpty
-                    ? Center(
-                        child: Text(
-                          'No projects found',
-                          style: TimesheetModuleTypography.body().copyWith(
-                            color: TimesheetModuleColors.warmMuted,
-                          ),
-                        ),
-                      )
-                    : ListView.separated(
-                        controller: scrollController,
-                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                        itemCount: results.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 8),
-                        itemBuilder: (context, index) {
-                          final project = results[index];
-                          final isSelected = widget.selected?.id == project.id;
-                          return _ProjectSearchRow(
-                            project: project,
-                            selected: isSelected,
-                            onTap: () => Navigator.of(context).pop(project),
-                          );
-                        },
-                      ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _ProjectSearchRow extends StatelessWidget {
-  const _ProjectSearchRow({
-    required this.project,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final Project project;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final subtitleParts = <String>[
-      if (project.code.trim().isNotEmpty) project.code.trim(),
-      if (project.client.trim().isNotEmpty) project.client.trim(),
-    ];
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: selected
-                ? TimesheetModuleColors.accentTint
-                : TimesheetModuleColors.glassSurface,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: selected
-                  ? TimesheetModuleColors.accent
-                  : TimesheetModuleColors.glassBorder,
-            ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color:
-                      TimesheetModuleColors.iconSurface,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  PhosphorIcons.buildings(),
-                  color: TimesheetModuleColors.ink,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      project.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TimesheetModuleTypography.cardTitle().copyWith(
-                        color: TimesheetModuleColors.ink,
-                      ),
-                    ),
-                    if (subtitleParts.isNotEmpty) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitleParts.join(' • '),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TimesheetModuleTypography.caption().copyWith(
-                          color: TimesheetModuleColors.warmMuted,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              if (selected)
-                Icon(
-                  PhosphorIcons.checkCircle(PhosphorIconsStyle.fill),
-                  color: TimesheetModuleColors.ink,
-                  size: 22,
-                ),
-            ],
-          ),
-        ),
-      ),
+        ],
+      ],
     );
   }
 }
@@ -635,7 +453,7 @@ class _DateTimeChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         decoration: BoxDecoration(
-                color: TimesheetModuleColors.glassSurface,
+          color: TimesheetModuleColors.glassSurface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: TimesheetModuleColors.glassBorder,
@@ -681,7 +499,7 @@ class _BreakChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
-                color: TimesheetModuleColors.glassSurface,
+        color: TimesheetModuleColors.glassSurface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: TimesheetModuleColors.glassBorder,
@@ -749,9 +567,8 @@ class _CaptureRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-                color: TimesheetModuleColors.glassSurface,
-        borderRadius:
-            BorderRadius.circular(TimesheetModuleLayout.cardRadiusMd),
+        color: TimesheetModuleColors.glassSurface,
+        borderRadius: BorderRadius.circular(TimesheetModuleLayout.cardRadiusMd),
         border: Border.all(
           color: TimesheetModuleColors.glassBorder,
         ),
@@ -810,8 +627,7 @@ class _CaptureRow extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TimesheetModuleTypography.caption().copyWith(
-                      color:
-                          TimesheetModuleColors.warmMuted,
+                      color: TimesheetModuleColors.warmMuted,
                     ),
                   ),
               ],

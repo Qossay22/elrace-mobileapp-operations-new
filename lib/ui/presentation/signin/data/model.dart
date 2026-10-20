@@ -123,8 +123,14 @@ class Data {
   final bool? isForeman;
   final bool? isFleet;
 
+  /// Backend-decided access to the Media "Projects" tab.
+  final bool? canSeeProjectMedia;
+
   /// From `/api/login/new` `hr_module_manager` — per-submodule manager UI.
   final HrModuleManagerAccess? hrModuleManager;
+
+  /// Mobile Role Access feature codes; null when the server did not send them.
+  final List<String>? features;
 
   /// From `/api/login/new` `role_capabilities` — raw Odoo role-line OR flags.
   final Map<String, bool>? roleCapabilities;
@@ -219,7 +225,9 @@ class Data {
     this.isPm,
     this.isForeman,
     this.isFleet,
+    this.canSeeProjectMedia,
     this.hrModuleManager,
+    this.features,
     this.roleCapabilities,
     this.isPurchaseRep,
     this.isPurchaseManager,
@@ -379,7 +387,12 @@ class Data {
         isPm: _parseBoolLoose(json["is_pm"]),
         isForeman: _parseBoolLoose(json["is_foreman"]),
         isFleet: _parseBoolLoose(json["is_fleet"]),
-        hrModuleManager: HrModuleManagerAccess.tryParse(json["hr_module_manager"]),
+        canSeeProjectMedia: _parseBoolLoose(json["can_see_project_media"]),
+        hrModuleManager:
+            HrModuleManagerAccess.tryParse(json["hr_module_manager"]),
+        features: json["features"] is List
+            ? (json["features"] as List).map((e) => e.toString()).toList()
+            : null,
         roleCapabilities: _parseStringBoolMap(json["role_capabilities"]),
         isPurchaseRep: _parseBoolLoose(json["is_purchase_rep"]),
         isPurchaseManager: _parseBoolLoose(json["is_purchase_manager"]),
@@ -457,6 +470,7 @@ class Data {
         "is_pm": isPm,
         "is_foreman": isForeman,
         "is_fleet": isFleet,
+        "can_see_project_media": canSeeProjectMedia,
         "hr_module_manager": hrModuleManager == null
             ? null
             : {
@@ -466,6 +480,7 @@ class Data {
                 "recruitment": hrModuleManager!.recruitment,
                 "evaluation": hrModuleManager!.evaluation,
               },
+        "features": features,
         "role_capabilities": roleCapabilities == null
             ? null
             : Map<String, dynamic>.from(roleCapabilities!),
@@ -888,8 +903,7 @@ class WidgetInfo {
   SiteManagementWidgetRecord? get siteManagementRecord {
     final map = recordMap;
     if (map == null) return null;
-    if (map.containsKey('active_sites_count') ||
-        map.containsKey('top_sites')) {
+    if (map.containsKey('active_sites_count') || map.containsKey('top_sites')) {
       return SiteManagementWidgetRecord.fromMap(map);
     }
     return null;
@@ -984,8 +998,7 @@ class WidgetInfo {
   MediaWidgetRecord? get mediaRecord {
     final map = recordMap;
     if (map == null) return null;
-    if (map.containsKey('recent_media') ||
-        map.containsKey('overflow_count')) {
+    if (map.containsKey('recent_media') || map.containsKey('overflow_count')) {
       return MediaWidgetRecord.fromMap(map);
     }
     if (map.containsKey('media_count')) {
@@ -1191,9 +1204,7 @@ class MyProjectsWidgetRecord {
       topProjects: projects,
       moreProjectsCount: moreCount > 0
           ? moreCount
-          : (totalActive > projects.length
-              ? totalActive - projects.length
-              : 0),
+          : (totalActive > projects.length ? totalActive - projects.length : 0),
     );
   }
 
@@ -1249,7 +1260,8 @@ class SiteManagementWidgetRecord {
     );
   }
 
-  factory SiteManagementWidgetRecord.empty() => const SiteManagementWidgetRecord(
+  factory SiteManagementWidgetRecord.empty() =>
+      const SiteManagementWidgetRecord(
         activeSitesCount: 0,
         totalWorkers: 0,
         topSites: [],
@@ -1286,8 +1298,7 @@ class MyReportsWidgetRecord {
 
   factory MyReportsWidgetRecord.fromMap(Map<String, dynamic> m) {
     final direction = m['trend_direction']?.toString() ?? 'neutral';
-    final period =
-        m['previous_period_label']?.toString() ?? 'last month';
+    final period = m['previous_period_label']?.toString() ?? 'last month';
     final rawTrend = m['trend_label']?.toString();
     return MyReportsWidgetRecord(
       metricLabel: m['metric_label']?.toString() ?? 'Performance',
@@ -1457,7 +1468,8 @@ class TaskManagementWidgetRecord {
     );
   }
 
-  factory TaskManagementWidgetRecord.empty() => const TaskManagementWidgetRecord(
+  factory TaskManagementWidgetRecord.empty() =>
+      const TaskManagementWidgetRecord(
         openCount: 0,
         inProgressCount: 0,
         doneCount: 0,
@@ -1763,8 +1775,7 @@ class PrayerTimesWidgetRecord {
       nextPrayerName: m['next_prayer_name']?.toString() ?? '',
       nextPrayerCountdownDisplay:
           m['next_prayer_countdown_display']?.toString() ?? '',
-      nextPrayerCountdownSeconds:
-          _readInt(m['next_prayer_countdown_seconds']),
+      nextPrayerCountdownSeconds: _readInt(m['next_prayer_countdown_seconds']),
       dataStale: m['data_stale'] == true,
       subtitle: m['subtitle']?.toString() ?? '',
     );
@@ -1786,8 +1797,7 @@ class LpoWidgetRecord {
     required this.isAuthorized,
     required this.totalAmount,
     required this.totalDisplay,
-    required this.pendingCount,
-    required this.approvedCount,
+    required this.totalCount,
     required this.monthLabel,
     required this.titleLine,
     required this.deltaPercentage,
@@ -1800,8 +1810,7 @@ class LpoWidgetRecord {
   final bool isAuthorized;
   final double totalAmount;
   final String totalDisplay;
-  final int pendingCount;
-  final int approvedCount;
+  final int totalCount;
   final String monthLabel;
   final String titleLine;
   final double? deltaPercentage;
@@ -1825,16 +1834,16 @@ class LpoWidgetRecord {
       isAuthorized: m['is_authorized'] != false,
       totalAmount: readDouble(m['total_amount']),
       totalDisplay: m['total_display']?.toString() ?? 'AED 0',
-      pendingCount: readInt(m['pending_count']),
-      approvedCount: readInt(m['approved_count']),
+      totalCount: m.containsKey('total_count')
+          ? readInt(m['total_count'])
+          : readInt(m['pending_count']) + readInt(m['approved_count']),
       monthLabel: m['month_label']?.toString() ?? '',
       titleLine: m['title_line']?.toString() ?? 'LPO',
       deltaPercentage: m['delta_percentage'] == null
           ? null
           : readDouble(m['delta_percentage']),
       deltaDirection: m['delta_direction']?.toString() ?? 'none',
-      previousTotalDisplay:
-          m['previous_total_display']?.toString() ?? '0',
+      previousTotalDisplay: m['previous_total_display']?.toString() ?? '0',
       scope: m['scope']?.toString() ?? 'none',
       trendLabel: m['trend_label']?.toString() ?? '',
     );
@@ -1844,15 +1853,11 @@ class LpoWidgetRecord {
     final total = m['total'] is int
         ? m['total'] as int
         : int.tryParse(m['total']?.toString() ?? '') ?? 0;
-    final completed = m['completed'] is int
-        ? m['completed'] as int
-        : int.tryParse(m['completed']?.toString() ?? '') ?? 0;
     return LpoWidgetRecord(
       isAuthorized: true,
       totalAmount: total.toDouble(),
       totalDisplay: 'AED $total',
-      pendingCount: (total - completed).clamp(0, total),
-      approvedCount: completed,
+      totalCount: total,
       monthLabel: '',
       titleLine: 'LPO',
       deltaPercentage: null,
@@ -1867,8 +1872,7 @@ class LpoWidgetRecord {
         isAuthorized: true,
         totalAmount: 0,
         totalDisplay: 'AED 0',
-        pendingCount: 0,
-        approvedCount: 0,
+        totalCount: 0,
         monthLabel: '',
         titleLine: 'LPO',
         deltaPercentage: null,
@@ -1878,8 +1882,17 @@ class LpoWidgetRecord {
         trendLabel: '',
       );
 
-  String get pendingLabel => '$pendingCount';
-  String get approvedLabel => '$approvedCount';
+  /// 999 → "999", 1250 → "1.3K", 1500000 → "1.5M".
+  String get totalCountLabel {
+    String compact(double v, String suffix) {
+      final text = v >= 100 ? v.toStringAsFixed(0) : v.toStringAsFixed(1);
+      return '${text.endsWith('.0') ? text.substring(0, text.length - 2) : text}$suffix';
+    }
+
+    if (totalCount >= 1000000) return compact(totalCount / 1000000, 'M');
+    if (totalCount >= 1000) return compact(totalCount / 1000, 'K');
+    return '$totalCount';
+  }
 }
 
 class TimesheetWidgetRecord {
@@ -1957,9 +1970,8 @@ class TimesheetWidgetRecord {
 
   String get deltaTrendLabel {
     final abs = deltaVsLastWeek.abs();
-    final formatted = abs % 1 == 0
-        ? abs.toStringAsFixed(0)
-        : abs.toStringAsFixed(1);
+    final formatted =
+        abs % 1 == 0 ? abs.toStringAsFixed(0) : abs.toStringAsFixed(1);
     if (deltaVsLastWeek > 0) return '▲ ${formatted}h vs last week';
     if (deltaVsLastWeek < 0) return '▼ ${formatted}h vs last week';
     return 'No change vs last week';

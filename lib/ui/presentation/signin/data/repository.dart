@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:el_race/core/services/device_details_headers.dart';
 import 'package:el_race/core/utils/shared_pref.dart';
 import 'package:el_race/ui/presentation/signin/data/model.dart';
 import 'package:el_race/utils/api_query.dart';
@@ -9,7 +10,17 @@ import 'package:el_race/utils/urll_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+class LoginUnreachableException implements Exception {
+  const LoginUnreachableException();
+
+  @override
+  String toString() =>
+      'Could not reach the server. Check your connection and try again.';
+}
+
 class UserRepo {
+  static const String _loginDb = 'odoo.elrace.com';
+
   ApiQuery apiQuery = ApiQuery();
 
   void _log(String message) {
@@ -32,59 +43,27 @@ class UserRepo {
 
     final headers = {
       'Content-Type': 'application/json',
+      ...await DeviceDetailsHeaders.get(),
     };
-    final loginPaths = <String>[
-      UrlUtil.login,
-      'login',
-    ];
-    final candidateDbs = <String>[
-      'odoo.elrace.com',
-      'erp.elrace.com',
-      'elrace',
-    ];
+    final body = {
+      'jsonrpc': '2.0',
+      'params': {
+        'db': _loginDb,
+        'login': email,
+        'password': password,
+        'device_id': deviceId,
+        'fcm_token': fcmToken,
+      },
+    };
 
-    Response? response;
-    for (final path in loginPaths) {
-      for (final db in candidateDbs) {
-        final body = {
-          'jsonrpc': '2.0',
-          'params': {
-            'db': db,
-            'login': email,
-            'password': password,
-            'device_id': deviceId,
-            'fcm_token': fcmToken,
-          },
-        };
-
-        _log('Sending login request to configured endpoint');
-
-        response = await apiQuery.postQuery(path, headers, body, 'login', true);
-        final code = response?.statusCode ?? 0;
-        final data = response?.data;
-        final isSuccess = data is Map &&
-            data['result'] is Map &&
-            (data['result']['success'] == true ||
-                data['result']['token'] != null);
-        if (code == 200 && isSuccess) {
-          break;
-        }
-      }
-      final data = response?.data;
-      final ok = response?.statusCode == 200 &&
-          data is Map &&
-          data['result'] is Map &&
-          (data['result']['success'] == true ||
-              data['result']['token'] != null);
-      if (ok) break;
-    }
+    _log('Sending login request to configured endpoint');
+    final response =
+        await apiQuery.postQuery(UrlUtil.login, headers, body, 'login', true);
 
     _log('Login response status: ${response?.statusCode}');
     _log('Login response type: ${response?.data.runtimeType}');
 
-    if (response == null) {
-      throw Exception('Login request failed without a response');
-    }
+    if (response == null) throw const LoginUnreachableException();
 
     return response;
   }

@@ -79,6 +79,29 @@ void main() {
       expect(chatSessionStorage, isNot(contains('Firebase UID:')));
       expect(chatSessionStorage, isNot(contains('Role Chat ID:')));
     });
+
+    test('keeps sign-in credentials and session payloads out of logs', () {
+      const signInFiles = [
+        'lib/ui/presentation/signin/bloc/sign_in_bloc.dart',
+        'lib/ui/presentation/signin/data/repository.dart',
+        'lib/ui/presentation/signin/sign_in_screen.dart',
+      ];
+      const forbiddenLogFragments = [
+        'Full Login Response',
+        'Listener state: \$state',
+        'signInMethod error: \$e',
+        'device_id: \$deviceName',
+        "'password': \$password",
+        "'login': \$email",
+      ];
+
+      for (final path in signInFiles) {
+        final text = File(path).readAsStringSync();
+        for (final fragment in forbiddenLogFragments) {
+          expect(text, isNot(contains(fragment)), reason: '$path: $fragment');
+        }
+      }
+    });
   });
 }
 
